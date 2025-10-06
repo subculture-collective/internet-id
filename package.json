@@ -1,0 +1,31 @@
+{
+  "name": "internet-id",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "hardhat compile",
+    "clean": "hardhat clean",
+    "test": "hardhat test",
+    "node": "hardhat node",
+    "deploy:local": "hardhat run --network localhost scripts/deploy.ts",
+    "deploy:base-sepolia": "hardhat run --network baseSepolia scripts/deploy.ts",
+    "register": "ts-node scripts/register.ts",
+    "upload:ipfs": "ts-node scripts/upload-ipfs.ts",
+    "manifest": "ts-node scripts/make-manifest.ts",
+    "verify": "ts-node scripts/verify.ts",
+    "bind:youtube": "ts-node scripts/bind-youtube.ts",
+    "verify:youtube": "ts-node scripts/verify-youtube.ts"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.13.3",
+    "hardhat": "^2.22.7",
+    "@types/node": "^20.12.12",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "ipfs-http-client": "^60.0.0"
+  }
+}

@@ -1,0 +1,22 @@
+# Node
+node_modules/
+.npm/
+
+# Hardhat
+cache/
+artifacts/
+typechain-types/
+coverage/
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
