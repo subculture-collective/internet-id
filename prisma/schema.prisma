@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String   @id @default(cuid())
+  address        String?  @unique
+  email          String?  @unique
+  name           String?
+  createdAt      DateTime @default(now())
+  contents       Content[]
+}
+
+model Content {
+  id              String    @id @default(cuid())
+  contentHash     String    @unique
+  contentUri      String?
+  manifestCid     String?
+  manifestUri     String?
+  creatorAddress  String
+  creatorId       String?
+  creator         User?     @relation(fields: [creatorId], references: [id])
+  registryAddress String?
+  txHash          String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  bindings        PlatformBinding[]
+  verifications   Verification[]
+}
+
+model PlatformBinding {
+  id         String   @id @default(cuid())
+  platform   String
+  platformId String
+  content    Content? @relation(fields: [contentId], references: [id])
+  contentId  String?
+  createdAt  DateTime @default(now())
+
+  @@unique([platform, platformId])
+}
+
+model Verification {
+  id               String   @id @default(cuid())
+  contentHash      String
+  manifestUri      String
+  recoveredAddress String
+  creatorOnchain   String
+  status           String
+  createdAt        DateTime @default(now())
+  contentId        String?
+  content          Content? @relation(fields: [contentId], references: [id])
+}

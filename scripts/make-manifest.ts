@@ -6,7 +6,13 @@ dotenv.config();
 
 /*
 Usage:
-  npm run manifest -- <contentFile> <contentURI> <creatorPrivateKey>
+  Preferred (no secret in CLI args):
+    Set PRIVATE_KEY in .env, then run
+      npm run manifest -- <contentFile> <contentURI>
+
+  Or explicit key (less secure, appears in shell history):
+      npm run manifest -- <contentFile> <contentURI> <creatorPrivateKey>
+
 Writes manifest.json in cwd and prints path.
 */
 
@@ -17,10 +23,12 @@ function sign(hashHex: string, pk: string) {
 }
 
 async function main() {
-  const [contentPath, contentURI, creatorPK] = process.argv.slice(2);
+  const [contentPath, contentURI, maybePk] = process.argv.slice(2);
+  const creatorPK = maybePk || process.env.PRIVATE_KEY;
   if (!contentPath || !contentURI || !creatorPK) {
     console.error(
-      "Usage: npm run manifest -- <contentFile> <contentURI> <creatorPrivateKey>"
+      "Usage: set PRIVATE_KEY in .env and run: npm run manifest -- <contentFile> <contentURI>\n" +
+        "Or pass the key explicitly (less secure): npm run manifest -- <contentFile> <contentURI> <creatorPrivateKey>"
     );
     process.exit(1);
   }

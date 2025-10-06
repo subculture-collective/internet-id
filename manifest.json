@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "algorithm": "sha256",
+  "content_hash": "0x0abe8d173cc31e8c4095fdd2576bef72f596f8c804c2623022c7cab5c6b12c8e",
+  "content_uri": "ipfs://QmSV61ixR4mJRefCuAVeSkhi2gATiWUydYKgyQKLm1g5ka",
+  "creator_did": "did:pkh:eip155:84532:0xA11B0dC0ef5E51b47368a9AF802d97201C0c6F52",
+  "created_at": "2025-10-06T18:13:40.699Z",
+  "signature": "0xc15a4be926c8fc1f8d1664f83ff39306065653c2962a41796a7391582df112a14cbf482790f760371dd2754e3919fb7ae076e1ba528c85d159e86388c1d1d9b51b",
+  "attestations": []
+}

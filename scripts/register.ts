@@ -5,10 +5,12 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 async function main() {
-  const [filePath, manifestURI, registryAddress] = process.argv.slice(2);
+  const [filePath, manifestURI, maybeAddress] = process.argv.slice(2);
+  const registryAddress = maybeAddress || process.env.REGISTRY_ADDRESS;
   if (!filePath || !manifestURI || !registryAddress) {
     console.error(
-      "Usage: npm run register -- <filePath> <manifestURI> <registryAddress>"
+      "Usage: set REGISTRY_ADDRESS in .env and run: npm run register -- <filePath> <manifestURI>\n" +
+        "Or pass the address explicitly: npm run register -- <filePath> <manifestURI> <registryAddress>"
     );
     process.exit(1);
   }
@@ -20,7 +22,11 @@ async function main() {
   const provider = new ethers.JsonRpcProvider(
     process.env.RPC_URL || "https://sepolia.base.org"
   );
-  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY as string, provider);
+  if (!process.env.PRIVATE_KEY) {
+    console.error("Missing PRIVATE_KEY in .env");
+    process.exit(1);
+  }
+  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
   const abi = [
     "function register(bytes32 contentHash, string manifestURI) external",
     "function entries(bytes32) view returns (address creator, bytes32 contentHash, string manifestURI, uint64 timestamp)",
