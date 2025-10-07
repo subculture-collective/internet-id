@@ -1,9 +1,13 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 export default function RegisterPage() {
   const [mounted, setMounted] = useState(false);
+  const sp = useSearchParams();
+  const callbackUrl = sp.get("callbackUrl") || "/profile";
   useEffect(() => setMounted(true), []);
   if (!mounted) return null;
   return (
@@ -14,15 +18,24 @@ export default function RegisterPage() {
         X/Twitter, TikTok, etc.) to prove ownership.
       </p>
       <div style={{ display: "grid", gap: 8, marginTop: 16 }}>
-        <a href="/api/auth/signin?provider=google" className="btn">
+        <button
+          onClick={() => signIn("google", { callbackUrl })}
+          className="btn"
+        >
           Continue with Google
-        </a>
-        <a href="/api/auth/signin?provider=twitter" className="btn">
+        </button>
+        <button
+          onClick={() => signIn("twitter", { callbackUrl })}
+          className="btn"
+        >
           Continue with X / Twitter
-        </a>
-        <a href="/api/auth/signin?provider=github" className="btn">
+        </button>
+        <button
+          onClick={() => signIn("github", { callbackUrl })}
+          className="btn"
+        >
           Continue with GitHub
-        </a>
+        </button>
       </div>
       <div style={{ marginTop: 16 }}>
         Already have an account? <Link href="/signin">Sign in</Link>

@@ -42,10 +42,10 @@ export default function ProfilePage() {
               ))}
             </ul>
             <div style={{ display: "grid", gap: 8 }}>
-              <a href="/api/auth/signin?provider=google" className="btn">
+              <a href="/api/auth/signin/google" className="btn">
                 Link Google
               </a>
-              <a href="/api/auth/signin?provider=github" className="btn">
+              <a href="/api/auth/signin/github" className="btn">
                 Link GitHub
               </a>
               {/* Add more providers (Twitter/X, YouTube via Google OAuth scope) */}
