@@ -1,0 +1,63 @@
+/* [project]/app/globals.css [app-client] (css) */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, Apple Color Emoji, Segoe UI Emoji;
+}
+
+main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+section {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin: 16px 0;
+  padding: 16px;
+}
+
+input, button, select {
+  margin: 4px 0;
+  padding: 8px;
+}
+
+label {
+  margin-top: 8px;
+  font-weight: 600;
+  display: block;
+}
+
+.row {
+  align-items: center;
+  gap: 12px;
+  display: flex;
+}
+
+.col {
+  flex-direction: column;
+  display: flex;
+}
+
+.tabs {
+  gap: 8px;
+  display: flex;
+}
+
+.tabs button {
+  cursor: pointer;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.tabs button.active {
+  background: #f3f4f6;
+}
+
+/*# sourceMappingURL=app_globals_71f961d1.css.map*/

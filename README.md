@@ -9,6 +9,8 @@ This repo scaffolds a minimal on-chain content provenance flow:
 
 > Note: This proves provenance, not truth. It helps distinguish opted-in human-created content from anonymous deepfakes.
 
+Looking for a plain-English overview? See the pitch: [PITCH.md](./PITCH.md)
+
 ## Stack
 
 - Solidity (ContentRegistry)
@@ -17,6 +19,8 @@ This repo scaffolds a minimal on-chain content provenance flow:
 - IPFS uploads via Infura, Web3.Storage, or Pinata
 - Express API with optional API key protection
 - Prisma ORM (SQLite by default; Postgres optional)
+- Next.js App Router web UI (optional)
+- NextAuth for sign-in (GitHub/Google to start), Prisma adapter
 
 ## Setup
 
@@ -29,6 +33,19 @@ This repo scaffolds a minimal on-chain content provenance flow:
 - Optional: `API_KEY` to require `x-api-key` on sensitive endpoints
 - Database: by default uses SQLite via `DATABASE_URL=file:./dev.db`. For Postgres, see below.
 
+### Web app env
+
+If you plan to use the included web UI (`web/`), set:
+
+- `NEXT_PUBLIC_API_BASE` – base URL for the Express API (e.g., `http://localhost:3001`)
+- `NEXT_PUBLIC_API_KEY` – if your API enforces `x-api-key`
+- `NEXT_PUBLIC_SITE_BASE` – the canonical origin for generating share links/badges (e.g., `https://yourdomain.com`). Falls back to `window.location.origin`.
+- Auth providers (when using sign-in): set provider secrets in `web/.env.local`
+  - `GITHUB_ID`, `GITHUB_SECRET`
+  - `GOOGLE_ID`, `GOOGLE_SECRET`
+  - `NEXTAUTH_URL` (e.g., `http://localhost:3000`)
+  - `NEXTAUTH_SECRET` (generate a random string)
+
 ## Scripts
 
 - `build` – compile contracts
@@ -39,6 +56,11 @@ This repo scaffolds a minimal on-chain content provenance flow:
 - `verify` – verify a file against its manifest and on-chain registry
 - `bind:youtube` – bind a YouTube videoId to a previously registered master file
 - `verify:youtube` – verify a YouTube URL/ID via on-chain binding + manifest
+- `start:api` – start the Express API server (default port 3001)
+- Web: from `web/` workspace
+  - `npm run dev` – start Next.js dev server on :3000
+  - `npm run build && npm start` – production build/start
+  - `npm run prisma:generate` – generate Prisma Client for web (uses root schema)
 
 ## Quickstart
 
@@ -158,6 +180,58 @@ npm run proof -- ./path/to/file ipfs://<manifestCID> 0xYourRegistryAddress
 
 This writes `proof.json` with the file hash, manifest details, recovered signer, on-chain entry, and the registration tx (best effort). You can share this alongside your content.
 
+## Web UI (optional)
+
+The Next.js app in `web/` provides end-to-end flows:
+
+- Upload to IPFS
+- One-shot: Upload → manifest → register (can also bind links)
+- Manifest creation
+- Register on-chain
+- Verify and Proof generation
+- Bind platform links (single or batch)
+- Browse registered contents (with inline verify and Share block)
+- Account: Sign in, register, and link platform identities (profile)
+
+Run locally:
+
+```
+
+cd web
+npm i
+npm run dev
+
+```
+
+Set `NEXT_PUBLIC_API_BASE` to the API origin (default `http://localhost:3001`).
+
+### Privacy by default
+
+The One‑shot flow does not upload the video by default. It computes the hash locally, builds a manifest, uploads the manifest, and registers on-chain. You can opt-in to upload the video to IPFS via a checkbox. The manifest’s `content_uri` may be omitted when not uploading, preserving privacy while still enabling provenance.
+
+### Public Verify page
+
+Viewers can verify a platform link without downloading your master file. The web app exposes a public Verify page at `/verify` and backend endpoints to resolve bindings:
+
+- `GET /api/resolve` – map a URL or `platform+platformId` to the on-chain binding
+- `GET /api/public-verify` – resolve binding and return manifest summary
+
+### Sharing and badges
+
+Each registered content gets a shareable badge and QR codes. In the UI, the Share block provides:
+
+- Badge image (SVG): `/api/badge/[hash]?theme=dark|light&w=120..640`
+- QR code PNG: `/api/qr?url=<encoded_share_url>`
+- Share link to the public Verify page: `/verify?platform=...&platformId=...`
+- Embed HTML snippet: `<a href="..."><img src="/api/badge/[hash]" /></a>`
+- Copy All button: copies a bundle of badge URL, per-link share URLs, QR URLs, and embed HTML
+
+Tip: Set `NEXT_PUBLIC_SITE_BASE` so badges/links use your canonical host when sharing.
+
+### Verifying account ownership via OAuth
+
+To confirm a creator controls a given platform account, use OAuth sign-in and link their provider account(s) to their user profile. Start with GitHub/Google for baseline auth, and add platform-specific providers as available (e.g., X/Twitter, YouTube via Google scopes, etc.). When a user binds a platform URL/ID, you can check their linked Accounts in the database to enforce ownership if desired.
+
 ## API server
 
 - Start the API: `npm run start:api`
@@ -258,4 +332,26 @@ npm run verify:youtube -- https://www.youtube.com/watch?v=<YouTubeVideoId> 0xReg
 - Add C2PA manifest embedding for images/video.
 - Support Merkle batch anchoring.
 - Add selective disclosure/zk proof of “is a real person” VC.
+
+## API reference (summary)
+
+Auth: If `API_KEY` is set, include `x-api-key: $API_KEY` in requests for protected endpoints.
+
+- `GET /api/health` – server status
+- `GET /api/network` – returns `chainId`
+- `GET /api/registry` – default registry address (if configured)
+- `POST /api/upload` – upload file to IPFS (protected)
+- `POST /api/manifest` – build and optionally upload manifest (protected)
+- `POST /api/register` – register content hash + manifest on-chain (protected)
+- `POST /api/bind` – bind a single platform ID (protected)
+- `POST /api/bind-many` – bind multiple platform IDs at once (protected)
+- `POST /api/verify` – verify a file against manifest + on-chain
+- `POST /api/proof` – generate `proof.json`
+- `GET /api/contents` – list registered contents
+- `GET /api/verifications` – list recent verifications
+- `GET /api/resolve` – resolve URL or platform+id to on-chain binding
+- `GET /api/public-verify` – public verification summary for a binding
+- Web-only:
+  - `GET /api/badge/[hash]` – SVG badge with `theme` and `w` (width)
+  - `GET /api/qr?url=...` – QR PNG for a share URL
 ```

@@ -1,13 +1,14 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import multer from "multer";
-import { writeFile, unlink } from "fs/promises";
+import { writeFile, unlink, readFile } from "fs/promises";
 import * as os from "os";
 import * as path from "path";
 import { createHash } from "crypto";
 import { ethers } from "ethers";
 import * as https from "https";
 import * as dotenv from "dotenv";
+import { URL } from "url";
 dotenv.config();
 
 import { uploadToIpfs } from "./upload-ipfs";
@@ -78,6 +79,241 @@ async function tmpWrite(originalName: string, buf: Buffer) {
 
 app.get("/api/health", (_req: Request, res: Response) => {
   res.json({ ok: true });
+});
+
+// Network info (for UI explorer links)
+app.get("/api/network", async (_req: Request, res: Response) => {
+  try {
+    const provider = new ethers.JsonRpcProvider(
+      process.env.RPC_URL || "https://sepolia.base.org"
+    );
+    const net = await provider.getNetwork();
+    res.json({ chainId: Number(net.chainId) });
+  } catch (e: any) {
+    res.status(500).json({ error: e?.message || String(e) });
+  }
+});
+
+// Helper to resolve default registry address for current network
+async function resolveDefaultRegistry(): Promise<{
+  registryAddress: string;
+  chainId: number;
+}> {
+  const provider = new ethers.JsonRpcProvider(
+    process.env.RPC_URL || "https://sepolia.base.org"
+  );
+  const net = await provider.getNetwork();
+  const chainId = Number(net.chainId);
+  const override = process.env.REGISTRY_ADDRESS;
+  if (override) return { registryAddress: override, chainId };
+  let deployedFile: string | undefined;
+  if (chainId === 84532)
+    deployedFile = path.join(process.cwd(), "deployed", "baseSepolia.json");
+  if (deployedFile) {
+    try {
+      const data = JSON.parse((await readFile(deployedFile)).toString("utf8"));
+      if (data?.address) return { registryAddress: data.address, chainId };
+    } catch {}
+  }
+  throw new Error("Registry address not configured");
+}
+
+// Parse platform input from a URL or explicit platform/platformId
+function parsePlatformInput(
+  input?: string,
+  platform?: string,
+  platformId?: string
+): { platform: string; platformId: string } | null {
+  if (platform && platformId)
+    return { platform: platform.toLowerCase(), platformId };
+  if (!input) return null;
+  try {
+    const u = new URL(input);
+    const host = u.hostname.replace(/^www\./, "");
+    // YouTube
+    if (host.includes("youtube.com") || host === "youtu.be") {
+      const id =
+        u.searchParams.get("v") ||
+        (host === "youtu.be"
+          ? u.pathname.replace(/^\//, "")
+          : u.pathname.split("/").filter(Boolean).pop() || "");
+      return { platform: "youtube", platformId: id || input };
+    }
+    // TikTok
+    if (host.includes("tiktok.com")) {
+      const p = u.pathname.replace(/^\/+/, "").replace(/\/$/, "");
+      return { platform: "tiktok", platformId: p || input };
+    }
+    // X/Twitter
+    if (host.includes("x.com") || host.includes("twitter.com")) {
+      const parts = u.pathname.split("/").filter(Boolean);
+      const statusIdx = parts.findIndex((p) => p === "status");
+      if (statusIdx >= 0 && parts[statusIdx + 1])
+        return { platform: "x", platformId: parts[statusIdx + 1] };
+      return { platform: "x", platformId: parts.join("/") || input };
+    }
+    // Instagram
+    if (host.includes("instagram.com")) {
+      return {
+        platform: "instagram",
+        platformId: u.pathname.replace(/^\/+/, "").replace(/\/$/, ""),
+      };
+    }
+    // Vimeo
+    if (host.includes("vimeo.com")) {
+      const id = u.pathname.split("/").filter(Boolean).pop() || "";
+      return { platform: "vimeo", platformId: id || input };
+    }
+    // Fallback: generic
+    return { platform: host.split(".")[0] || "generic", platformId: input };
+  } catch {
+    // Not a URL; accept raw as platformId
+    return { platform: "generic", platformId: input };
+  }
+}
+
+// Resolve binding by URL or platform+platformId
+app.get("/api/resolve", async (req: Request, res: Response) => {
+  try {
+    const url = (req.query as any).url as string | undefined;
+    const platform = (req.query as any).platform as string | undefined;
+    const platformId = (req.query as any).platformId as string | undefined;
+    const parsed = parsePlatformInput(url, platform, platformId);
+    if (!parsed?.platform || !parsed.platformId) {
+      return res
+        .status(400)
+        .json({ error: "Provide url or platform + platformId" });
+    }
+    const { registryAddress, chainId } = await resolveDefaultRegistry();
+    const provider = new ethers.JsonRpcProvider(
+      process.env.RPC_URL || "https://sepolia.base.org"
+    );
+    const abi = [
+      "function resolveByPlatform(string,string) view returns (address creator, bytes32 contentHash, string manifestURI, uint64 timestamp)",
+    ];
+    const registry = new ethers.Contract(registryAddress, abi, provider);
+    const entry = await registry.resolveByPlatform(
+      parsed.platform,
+      parsed.platformId
+    );
+    const creator: string = (entry?.creator || ethers.ZeroAddress) as string;
+    if (creator === ethers.ZeroAddress)
+      return res
+        .status(404)
+        .json({
+          error: "No binding found",
+          ...parsed,
+          registryAddress,
+          chainId,
+        });
+    const contentHash = entry.contentHash as string;
+    const manifestURI = entry.manifestURI as string;
+    const timestamp = Number(entry.timestamp || 0);
+    return res.json({
+      ...parsed,
+      creator,
+      contentHash,
+      manifestURI,
+      timestamp,
+      registryAddress,
+      chainId,
+    });
+  } catch (e: any) {
+    return res.status(500).json({ error: e?.message || String(e) });
+  }
+});
+
+// Public verify: resolve + include manifest JSON if on IPFS/HTTP
+app.get("/api/public-verify", async (req: Request, res: Response) => {
+  try {
+    const url = (req.query as any).url as string | undefined;
+    const platform = (req.query as any).platform as string | undefined;
+    const platformId = (req.query as any).platformId as string | undefined;
+    const parsed = parsePlatformInput(url, platform, platformId);
+    if (!parsed?.platform || !parsed.platformId) {
+      return res
+        .status(400)
+        .json({ error: "Provide url or platform + platformId" });
+    }
+    const { registryAddress, chainId } = await resolveDefaultRegistry();
+    const provider = new ethers.JsonRpcProvider(
+      process.env.RPC_URL || "https://sepolia.base.org"
+    );
+    const abi = [
+      "function resolveByPlatform(string,string) view returns (address creator, bytes32 contentHash, string manifestURI, uint64 timestamp)",
+    ];
+    const registry = new ethers.Contract(registryAddress, abi, provider);
+    const entry = await registry.resolveByPlatform(
+      parsed.platform,
+      parsed.platformId
+    );
+    const creator: string = (entry?.creator || ethers.ZeroAddress) as string;
+    if (creator === ethers.ZeroAddress)
+      return res
+        .status(404)
+        .json({
+          error: "No binding found",
+          ...parsed,
+          registryAddress,
+          chainId,
+        });
+    const contentHash = entry.contentHash as string;
+    const manifestURI = entry.manifestURI as string;
+    const timestamp = Number(entry.timestamp || 0);
+    // Fetch manifest for convenience
+    let manifest: any = null;
+    try {
+      manifest = await fetchManifest(manifestURI);
+    } catch {}
+    return res.json({
+      ...parsed,
+      creator,
+      contentHash,
+      manifestURI,
+      timestamp,
+      registryAddress,
+      chainId,
+      manifest,
+    });
+  } catch (e: any) {
+    return res.status(500).json({ error: e?.message || String(e) });
+  }
+});
+
+// Default registry address for current network
+app.get("/api/registry", async (_req: Request, res: Response) => {
+  try {
+    const override = process.env.REGISTRY_ADDRESS;
+    const provider = new ethers.JsonRpcProvider(
+      process.env.RPC_URL || "https://sepolia.base.org"
+    );
+    const net = await provider.getNetwork();
+    const chainId = Number(net.chainId);
+    if (override) return res.json({ registryAddress: override, chainId });
+
+    // Attempt to map chainId to a deployed file in ./deployed
+    let deployedFile: string | undefined;
+    if (chainId === 84532)
+      deployedFile = path.join(process.cwd(), "deployed", "baseSepolia.json");
+    // Add more mappings here if other networks are deployed
+
+    if (deployedFile) {
+      try {
+        const data = JSON.parse(
+          (await readFile(deployedFile)).toString("utf8")
+        );
+        if (data?.address)
+          return res.json({ registryAddress: data.address, chainId });
+      } catch (e) {
+        // fallthrough
+      }
+    }
+    return res
+      .status(404)
+      .json({ error: "Registry address not configured", chainId });
+  } catch (e: any) {
+    res.status(500).json({ error: e?.message || String(e) });
+  }
 });
 
 // Upload to IPFS
@@ -278,8 +514,25 @@ app.get("/api/contents", async (_req: Request, res: Response) => {
   try {
     const items = await prisma.content.findMany({
       orderBy: { createdAt: "desc" },
+      include: { bindings: true },
     });
     res.json(items);
+  } catch (e: any) {
+    res.status(500).json({ error: e?.message || String(e) });
+  }
+});
+
+// Content detail by contentHash
+app.get("/api/contents/:hash", async (req: Request, res: Response) => {
+  try {
+    const hash = req.params.hash;
+    if (!hash) return res.status(400).json({ error: "hash is required" });
+    const item = await prisma.content.findUnique({
+      where: { contentHash: hash },
+      include: { bindings: true },
+    });
+    if (!item) return res.status(404).json({ error: "Not found" });
+    res.json(item);
   } catch (e: any) {
     res.status(500).json({ error: e?.message || String(e) });
   }
@@ -303,6 +556,35 @@ app.get("/api/verifications", async (req: Request, res: Response) => {
     res.status(500).json({ error: e?.message || String(e) });
   }
 });
+
+// Verification detail
+app.get("/api/verifications/:id", async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    const v = await prisma.verification.findUnique({ where: { id } });
+    if (!v) return res.status(404).json({ error: "Not found" });
+    res.json(v);
+  } catch (e: any) {
+    res.status(500).json({ error: e?.message || String(e) });
+  }
+});
+
+// Verifications by contentHash
+app.get(
+  "/api/contents/:hash/verifications",
+  async (req: Request, res: Response) => {
+    try {
+      const hash = req.params.hash;
+      const items = await prisma.verification.findMany({
+        where: { contentHash: hash },
+        orderBy: { createdAt: "desc" },
+      });
+      res.json(items);
+    } catch (e: any) {
+      res.status(500).json({ error: e?.message || String(e) });
+    }
+  }
+);
 
 // Verify
 app.post(
@@ -539,6 +821,305 @@ app.post(
         console.warn("DB upsert platform binding failed:", e);
       }
       res.json({ txHash: receipt?.hash });
+    } catch (e: any) {
+      res.status(500).json({ error: e?.message || String(e) });
+    }
+  }
+);
+
+// Bind multiple platforms in one request (sequential txs)
+app.post(
+  "/api/bind-many",
+  requireApiKey as any,
+  async (req: Request, res: Response) => {
+    try {
+      const { registryAddress, contentHash } = req.body as any;
+      let { bindings } = req.body as { bindings?: any };
+      if (typeof bindings === "string") {
+        try {
+          bindings = JSON.parse(bindings);
+        } catch {
+          return res
+            .status(400)
+            .json({ error: "bindings must be a JSON array or object" });
+        }
+      }
+      if (!registryAddress || !contentHash || !Array.isArray(bindings)) {
+        return res.status(400).json({
+          error: "registryAddress, contentHash, and bindings[] are required",
+        });
+      }
+      const provider = new ethers.JsonRpcProvider(
+        process.env.RPC_URL || "https://sepolia.base.org"
+      );
+      const pk = process.env.PRIVATE_KEY;
+      if (!pk)
+        return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
+      const wallet = new ethers.Wallet(pk, provider);
+      const abi = [
+        "function bindPlatform(bytes32,string,string) external",
+        "function entries(bytes32) view returns (address creator, bytes32 contentHash, string manifestURI, uint64 timestamp)",
+      ];
+      const registry = new ethers.Contract(registryAddress, abi, wallet);
+      // Ensure caller is creator
+      const entry = await registry.entries(contentHash);
+      if (
+        (entry?.creator || "").toLowerCase() !==
+        (await wallet.getAddress()).toLowerCase()
+      ) {
+        return res
+          .status(403)
+          .json({ error: "Only creator can bind platform" });
+      }
+      const results: Array<{
+        platform: string;
+        platformId: string;
+        txHash?: string;
+        error?: string;
+      }> = [];
+      for (const b of bindings) {
+        const platform = (b?.platform || "").toString();
+        const platformId = (b?.platformId || "").toString();
+        if (!platform || !platformId) {
+          results.push({ platform, platformId, error: "invalid binding" });
+          continue;
+        }
+        try {
+          const tx = await registry.bindPlatform(
+            contentHash,
+            platform,
+            platformId
+          );
+          const rec = await tx.wait();
+          results.push({ platform, platformId, txHash: rec?.hash });
+          // upsert DB binding
+          try {
+            const content = await prisma.content.findUnique({
+              where: { contentHash },
+            });
+            await prisma.platformBinding.upsert({
+              where: { platform_platformId: { platform, platformId } },
+              create: { platform, platformId, contentId: content?.id },
+              update: { contentId: content?.id },
+            });
+          } catch (e) {
+            console.warn("DB upsert platform binding (bind-many) failed:", e);
+          }
+        } catch (e: any) {
+          results.push({
+            platform,
+            platformId,
+            error: e?.message || String(e),
+          });
+        }
+      }
+      res.json({ results });
+    } catch (e: any) {
+      res.status(500).json({ error: e?.message || String(e) });
+    }
+  }
+);
+
+// One-shot: upload content -> create+upload manifest -> register on-chain
+app.post(
+  "/api/one-shot",
+  requireApiKey as any,
+  upload.single("file"),
+  async (req: Request, res: Response) => {
+    try {
+      const { registryAddress, platform, platformId, uploadContent } =
+        req.body as {
+          registryAddress?: string;
+          platform?: string;
+          platformId?: string;
+          uploadContent?: string;
+        };
+      // Optional array bindings support via JSON field 'bindings'
+      let bindings: Array<{ platform: string; platformId: string }> = [];
+      const raw = (req.body as any).bindings;
+      if (raw) {
+        try {
+          const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
+          if (Array.isArray(parsed)) {
+            bindings = parsed
+              .filter((b) => b && b.platform && b.platformId)
+              .map((b) => ({
+                platform: String(b.platform),
+                platformId: String(b.platformId),
+              }));
+          }
+        } catch (e) {
+          // ignore bad JSON here; fallback to single platform below
+        }
+      }
+      if (!registryAddress)
+        return res.status(400).json({ error: "registryAddress is required" });
+      if (!req.file)
+        return res
+          .status(400)
+          .json({ error: "file is required (multipart field 'file')" });
+
+      // 1) Optionally upload content to IPFS (default: do NOT upload)
+      const shouldUploadContent =
+        String(uploadContent).toLowerCase() === "true";
+      let contentCid: string | undefined;
+      let contentUri: string | undefined;
+      if (shouldUploadContent) {
+        const tmpContent = await tmpWrite(
+          req.file.originalname,
+          req.file.buffer
+        );
+        try {
+          contentCid = await uploadToIpfs(tmpContent);
+          contentUri = `ipfs://${contentCid}`;
+        } finally {
+          await unlink(tmpContent).catch(() => {});
+        }
+      }
+
+      // 2) Compute hash and create manifest
+      const fileHash = sha256Hex(req.file.buffer);
+      const provider = new ethers.JsonRpcProvider(
+        process.env.RPC_URL || "https://sepolia.base.org"
+      );
+      const net = await provider.getNetwork();
+      const pk = process.env.PRIVATE_KEY;
+      if (!pk)
+        return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
+      const wallet = new ethers.Wallet(pk);
+      const signature = await wallet.signMessage(ethers.getBytes(fileHash));
+      const manifest: any = {
+        version: "1.0",
+        algorithm: "sha256",
+        content_hash: fileHash,
+        creator_did: `did:pkh:eip155:${Number(net.chainId)}:${wallet.address}`,
+        created_at: new Date().toISOString(),
+        signature,
+        attestations: [] as any[],
+      };
+      if (contentUri) manifest.content_uri = contentUri;
+
+      // 3) Upload manifest to IPFS
+      const tmpManifest = await tmpWrite(
+        "manifest.json",
+        Buffer.from(JSON.stringify(manifest))
+      );
+      let manifestCid: string | undefined;
+      try {
+        manifestCid = await uploadToIpfs(tmpManifest);
+      } finally {
+        await unlink(tmpManifest).catch(() => {});
+      }
+      const manifestURI = `ipfs://${manifestCid}`;
+
+      // 4) Register on-chain
+      const walletWithProvider = new ethers.Wallet(pk, provider);
+      const abi = [
+        "function register(bytes32 contentHash, string manifestURI) external",
+      ];
+      const registry = new ethers.Contract(
+        registryAddress,
+        abi,
+        walletWithProvider
+      );
+      const tx = await registry.register(fileHash, manifestURI);
+      const receipt = await tx.wait();
+
+      // Optional: bind platforms (supports single legacy fields, or array)
+      const bindAbi = ["function bindPlatform(bytes32,string,string) external"];
+      const reg2 = new ethers.Contract(
+        registryAddress,
+        bindAbi,
+        walletWithProvider
+      );
+      const bindTxHashes: string[] = [];
+      const bindingsToProcess =
+        bindings.length > 0
+          ? bindings
+          : platform && platformId
+          ? [{ platform, platformId }]
+          : [];
+      for (const b of bindingsToProcess) {
+        try {
+          const btx = await reg2.bindPlatform(
+            fileHash,
+            b.platform,
+            b.platformId
+          );
+          const brec = await btx.wait();
+          if (brec?.hash) bindTxHashes.push(brec.hash);
+          // upsert DB binding
+          try {
+            const content = await prisma.content.findUnique({
+              where: { contentHash: fileHash },
+            });
+            await prisma.platformBinding.upsert({
+              where: {
+                platform_platformId: {
+                  platform: b.platform,
+                  platformId: b.platformId,
+                },
+              },
+              create: {
+                platform: b.platform,
+                platformId: b.platformId,
+                contentId: content?.id,
+              },
+              update: { contentId: content?.id },
+            });
+          } catch (e) {
+            console.warn("DB upsert platform binding (one-shot) failed:", e);
+          }
+        } catch (e) {
+          console.warn("Bind platform in one-shot failed:", e);
+        }
+      }
+
+      // 5) Persist DB (best-effort)
+      try {
+        // upsert user
+        const address = (await walletWithProvider.getAddress()).toLowerCase();
+        const user = await prisma.user.upsert({
+          where: { address },
+          create: { address },
+          update: {},
+        });
+        // upsert content
+        await prisma.content.upsert({
+          where: { contentHash: fileHash },
+          create: {
+            contentHash: fileHash,
+            contentUri,
+            manifestCid,
+            manifestUri: manifestURI,
+            creatorAddress: address,
+            creatorId: user.id,
+            registryAddress,
+            txHash: receipt?.hash || undefined,
+          },
+          update: {
+            contentUri,
+            manifestCid,
+            manifestUri: manifestURI,
+            registryAddress,
+            txHash: receipt?.hash || undefined,
+          },
+        });
+      } catch (e) {
+        console.warn("DB upsert content (one-shot) failed:", e);
+      }
+
+      res.json({
+        contentCid,
+        contentUri,
+        contentHash: fileHash,
+        manifestCid,
+        manifestURI,
+        txHash: receipt?.hash,
+        bindTxHash: bindTxHashes[0],
+        bindTxHashes,
+        chainId: Number(net.chainId),
+      });
     } catch (e: any) {
       res.status(500).json({ error: e?.message || String(e) });
     }
