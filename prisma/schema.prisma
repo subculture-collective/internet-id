@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String   @id @default(cuid())
+  address        String?  @unique
+  email          String?  @unique
+  name           String?
+  createdAt      DateTime @default(now())
+  contents       Content[]
+  accounts       Account[]
+  sessions       Session[]
+}
+
+model Content {
+  id              String    @id @default(cuid())
+  contentHash     String    @unique
+  contentUri      String?
+  manifestCid     String?
+  manifestUri     String?
+  creatorAddress  String
+  creatorId       String?
+  creator         User?     @relation(fields: [creatorId], references: [id])
+  registryAddress String?
+  txHash          String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  bindings        PlatformBinding[]
+  verifications   Verification[]
+}
+
+model PlatformBinding {
+  id         String   @id @default(cuid())
+  platform   String
+  platformId String
+  content    Content? @relation(fields: [contentId], references: [id])
+  contentId  String?
+  createdAt  DateTime @default(now())
+
+  @@unique([platform, platformId])
+}
+
+model Verification {
+  id               String   @id @default(cuid())
+  contentHash      String
+  manifestUri      String
+  recoveredAddress String
+  creatorOnchain   String
+  status           String
+  createdAt        DateTime @default(now())
+  contentId        String?
+  content          Content? @relation(fields: [contentId], references: [id])
+}
+
+// NextAuth models
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+  oauth_token        String?
+  oauth_token_secret String?
+  // Optional convenience fields for display/matching
+  username           String?
+  url                String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id            String   @id @default(cuid())
+  sessionToken  String   @unique
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expires       DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}

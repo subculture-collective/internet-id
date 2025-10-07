@@ -1,0 +1,35 @@
+{
+  "version": "1.0",
+  "generated_at": "2025-10-06T18:28:48.975Z",
+  "network": {
+    "chainId": 84532,
+    "name": "base-sepolia",
+    "rpc": "https://sepolia.base.org"
+  },
+  "registry": "0xb8266292aCd2D5e6b9398Ddd6Fbce81f49088A01",
+  "content": {
+    "file": "NCyUljOTUW68K1Oe.mp4",
+    "hash": "0x0abe8d173cc31e8c4095fdd2576bef72f596f8c804c2623022c7cab5c6b12c8e"
+  },
+  "manifest": {
+    "uri": "ipfs://QmYBL4FCdr7YmHm6UEeLGf6UQE2rMqkAEttbCFDNbm1u5o",
+    "cid": "QmYBL4FCdr7YmHm6UEeLGf6UQE2rMqkAEttbCFDNbm1u5o",
+    "creator_did": "did:pkh:eip155:84532:0xA11B0dC0ef5E51b47368a9AF802d97201C0c6F52",
+    "signature": "0xc15a4be926c8fc1f8d1664f83ff39306065653c2962a41796a7391582df112a14cbf482790f760371dd2754e3919fb7ae076e1ba528c85d159e86388c1d1d9b51b"
+  },
+  "onchain": {
+    "creator": "0xA11B0dC0ef5E51b47368a9AF802d97201C0c6F52",
+    "manifestURI": "ipfs://QmYBL4FCdr7YmHm6UEeLGf6UQE2rMqkAEttbCFDNbm1u5o",
+    "timestamp": 1759774786
+  },
+  "signature": {
+    "recovered": "0xA11B0dC0ef5E51b47368a9AF802d97201C0c6F52",
+    "valid": true
+  },
+  "verification": {
+    "fileHashMatchesManifest": true,
+    "creatorMatchesOnchain": true,
+    "manifestURIMatchesOnchain": true,
+    "status": "OK"
+  }
+}

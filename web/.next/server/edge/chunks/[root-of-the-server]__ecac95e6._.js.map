@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 16, "column": 0}, "map": {"version":3,"sources":["turbopack:///[project]/middleware.ts"],"sourcesContent":["export { default } from \"next-auth/middleware\";\n\nexport const config = {\n  matcher: [\"/profile/:path*\", \"/api/app/bind\", \"/api/app/bind-many\"],\n};\n"],"names":[],"mappings":";;;;AAAA;;AAEO,MAAM,SAAS;IACpB,SAAS;QAAC;QAAmB;QAAiB;KAAqB;AACrE"}}]
+}

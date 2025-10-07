@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["file:///Users/patrick/Documents/Code/onnwee/internet-id/web/app/globals.css"],"sourcesContent":["* {\n  box-sizing: border-box;\n}\nbody {\n  margin: 0;\n  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,\n    Helvetica, Arial, \"Apple Color Emoji\", \"Segoe UI Emoji\";\n}\nmain {\n  padding: 24px;\n  max-width: 960px;\n  margin: 0 auto;\n}\nsection {\n  border: 1px solid #e5e7eb;\n  border-radius: 8px;\n  padding: 16px;\n  margin: 16px 0;\n}\ninput,\nbutton,\nselect {\n  padding: 8px;\n  margin: 4px 0;\n}\nlabel {\n  display: block;\n  font-weight: 600;\n  margin-top: 8px;\n}\n.row {\n  display: flex;\n  gap: 12px;\n  align-items: center;\n}\n.col {\n  display: flex;\n  flex-direction: column;\n}\n.tabs {\n  display: flex;\n  gap: 8px;\n}\n.tabs button {\n  padding: 8px 12px;\n  border: 1px solid #e5e7eb;\n  background: #fff;\n  border-radius: 6px;\n  cursor: pointer;\n}\n.tabs button.active {\n  background: #f3f4f6;\n}\n"],"names":[],"mappings":"AAAA;;;;AAGA;;;;;AAKA;;;;;;AAKA;;;;;;;AAMA;;;;;AAMA;;;;;;AAKA;;;;;;AAKA;;;;;AAIA;;;;;AAIA;;;;;;;;AAOA","debugId":null}}]
+}
