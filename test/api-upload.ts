@@ -106,9 +106,10 @@ describe("API File Upload Streaming", function () {
     // Create a 100MB test file
     const filepath = await createTestFile(100, "large-test.bin");
     
-    // Get file stats to verify size
-    const stats = await readFile(filepath).then((buf) => buf.length);
-    expect(stats).to.equal(100 * 1024 * 1024);
+    // Get file stats to verify size without loading into memory
+    const fs = require("fs");
+    const stats = fs.statSync(filepath);
+    expect(stats.size).to.equal(100 * 1024 * 1024);
     
     // Compute hash via streaming
     const hash = await sha256HexFromFile(filepath);
@@ -152,17 +153,18 @@ describe("API File Upload Streaming", function () {
   });
 
   it("should verify streaming hash matches buffer hash for small files", async function () {
-    // Create a small test file
-    const filepath = await createTestFile(1, "verify-hash.bin");
+    // Create a SMALL test file (1MB) for this comparison test
+    // Note: We intentionally use a small file here to compare streaming vs buffer methods
+    const filepath = await createTestFile(1, "verify-hash-small.bin");
     
     // Compute hash via streaming
     const streamHash = await sha256HexFromFile(filepath);
     
-    // Compute hash via buffer (for comparison)
+    // Compute hash via buffer (for comparison with small file only)
     const fileBuffer = await readFile(filepath);
     const bufferHash = "0x" + createHash("sha256").update(fileBuffer).digest("hex");
     
-    // Hashes should match
+    // Hashes should match, proving streaming method is correct
     expect(streamHash).to.equal(bufferHash);
   });
 });
