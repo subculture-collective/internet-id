@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import multer from "multer";
 import { writeFile, unlink, readFile } from "fs/promises";
+import { createReadStream } from "fs";
 import * as os from "os";
 import * as path from "path";
 import { createHash } from "crypto";
@@ -26,13 +27,35 @@ function requireApiKey(req: Request, res: Response, next: Function) {
   return res.status(401).json({ error: "Unauthorized" });
 }
 
+// Use disk storage to prevent memory exhaustion
 const upload = multer({
-  storage: multer.memoryStorage(),
+  storage: multer.diskStorage({
+    destination: (_req, _file, cb) => {
+      cb(null, os.tmpdir());
+    },
+    filename: (_req, file, cb) => {
+      const uniqueName = `${Date.now()}-${Math.random()
+        .toString(36)
+        .slice(2)}-${path.basename(file.originalname)}`;
+      cb(null, uniqueName);
+    },
+  }),
   limits: { fileSize: 1024 * 1024 * 1024 },
 }); // up to 1GB
 
 function sha256Hex(buf: Buffer) {
   return "0x" + createHash("sha256").update(buf).digest("hex");
+}
+
+// Stream-based hash computation to avoid loading entire file in memory
+function sha256HexFromFile(filePath: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const hash = createHash("sha256");
+    const stream = createReadStream(filePath);
+    stream.on("data", (chunk) => hash.update(chunk));
+    stream.on("end", () => resolve("0x" + hash.digest("hex")));
+    stream.on("error", reject);
+  });
 }
 
 function fetchHttpsJson(url: string): Promise<any> {
@@ -327,12 +350,13 @@ app.post(
         return res.status(400).json({
           error: "file is required (multipart/form-data field 'file')",
         });
-      const tmpPath = await tmpWrite(req.file.originalname, req.file.buffer);
+      // File is already on disk at req.file.path
       try {
-        const cid = await uploadToIpfs(tmpPath);
+        const cid = await uploadToIpfs(req.file.path);
         res.json({ cid, uri: `ipfs://${cid}` });
       } finally {
-        await unlink(tmpPath).catch(() => {});
+        // Clean up temp file
+        await unlink(req.file.path).catch(() => {});
       }
     } catch (e: any) {
       res.status(500).json({ error: e?.message || String(e) });
@@ -355,7 +379,10 @@ app.post(
         return res.status(400).json({ error: "contentUri is required" });
       let fileHash: string | undefined = undefined;
       if (req.file) {
-        fileHash = sha256Hex(req.file.buffer);
+        // Hash from disk instead of memory
+        fileHash = await sha256HexFromFile(req.file.path);
+        // Clean up temp file
+        await unlink(req.file.path).catch(() => {});
       } else if ((req.body as any).contentHash) {
         fileHash = (req.body as any).contentHash;
       } else {
@@ -419,13 +446,17 @@ app.post(
           .status(400)
           .json({ error: "registryAddress and manifestURI are required" });
       let fileHash: string | undefined;
-      if (req.file) fileHash = sha256Hex(req.file.buffer);
-      else if ((req.body as any).contentHash)
+      if (req.file) {
+        fileHash = await sha256HexFromFile(req.file.path);
+        // Clean up temp file
+        await unlink(req.file.path).catch(() => {});
+      } else if ((req.body as any).contentHash) {
         fileHash = (req.body as any).contentHash;
-      else
+      } else {
         return res
           .status(400)
           .json({ error: "file (multipart) or contentHash is required" });
+      }
 
       const provider = new ethers.JsonRpcProvider(
         process.env.RPC_URL || "https://sepolia.base.org"
@@ -605,7 +636,10 @@ app.post(
         return res.status(400).json({
           error: "file is required (multipart/form-data field 'file')",
         });
-      const fileHash = sha256Hex(req.file.buffer);
+      const fileHash = await sha256HexFromFile(req.file.path);
+      // Clean up temp file
+      await unlink(req.file.path).catch(() => {});
+      
       const manifest = await fetchManifest(manifestURI);
       const manifestHashOk = manifest.content_hash === fileHash;
       const recovered = ethers.verifyMessage(
@@ -679,7 +713,11 @@ app.post(
         return res.status(400).json({
           error: "file is required (multipart/form-data field 'file')",
         });
-      const fileHash = sha256Hex(req.file.buffer);
+      const originalName = req.file.originalname;
+      const fileHash = await sha256HexFromFile(req.file.path);
+      // Clean up temp file
+      await unlink(req.file.path).catch(() => {});
+      
       const manifest = await fetchManifest(manifestURI);
       const recovered = ethers.verifyMessage(
         ethers.getBytes(manifest.content_hash),
@@ -715,7 +753,7 @@ app.post(
         generated_at: new Date().toISOString(),
         network: { chainId: Number(net.chainId) },
         registry: registryAddress,
-        content: { file: req.file.originalname, hash: fileHash },
+        content: { file: originalName, hash: fileHash },
         manifest: {
           uri: manifestURI,
           creator_did: manifest.creator_did,
@@ -965,20 +1003,22 @@ app.post(
       let contentCid: string | undefined;
       let contentUri: string | undefined;
       if (shouldUploadContent) {
-        const tmpContent = await tmpWrite(
-          req.file.originalname,
-          req.file.buffer
-        );
         try {
-          contentCid = await uploadToIpfs(tmpContent);
+          // File already on disk at req.file.path
+          contentCid = await uploadToIpfs(req.file.path);
           contentUri = `ipfs://${contentCid}`;
-        } finally {
-          await unlink(tmpContent).catch(() => {});
+        } catch (e) {
+          // Clean up temp file before re-throwing
+          await unlink(req.file.path).catch(() => {});
+          throw e;
         }
       }
 
       // 2) Compute hash and create manifest
-      const fileHash = sha256Hex(req.file.buffer);
+      const fileHash = await sha256HexFromFile(req.file.path);
+      // Clean up the uploaded file now that we have the hash
+      await unlink(req.file.path).catch(() => {});
+      
       const provider = new ethers.JsonRpcProvider(
         process.env.RPC_URL || "https://sepolia.base.org"
       );
