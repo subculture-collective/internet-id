@@ -18,8 +18,10 @@ The single `schema.prisma` file generates two Prisma Clients:
 
 2. **Web App Client** (Next.js)
    - Generator: `client-web`
-   - Output: `../web/node_modules/.prisma/client`
+   - Output: `../web/node_modules/.prisma/client` (relative to schema location)
    - Used by: Next.js web application
+
+**Note**: The output path is relative to the schema file location (`prisma/schema.prisma`). This is a standard Prisma pattern for monorepos and ensures both clients are generated correctly regardless of which directory you run commands from.
 
 ## Commands
 
