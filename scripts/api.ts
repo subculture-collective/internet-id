@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import multer from "multer";
-import { writeFile, unlink, readFile } from "fs/promises";
+import { unlink, readFile } from "fs/promises";
 import { createReadStream } from "fs";
 import { pipeline } from "stream/promises";
 import * as os from "os";
