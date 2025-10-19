@@ -361,9 +361,12 @@ app.post(
       let fileHash: string | undefined = undefined;
       if (req.file) {
         // Hash from disk instead of memory
-        fileHash = await sha256HexFromFile(req.file.path);
-        // Clean up temp file
-        await unlink(req.file.path).catch(() => {});
+        const tempPath = req.file.path;
+        try {
+          fileHash = await sha256HexFromFile(tempPath);
+        } finally {
+          await unlink(tempPath).catch(() => {});
+        }
       } else if ((req.body as any).contentHash) {
         fileHash = (req.body as any).contentHash;
       } else {
