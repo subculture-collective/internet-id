@@ -775,9 +775,6 @@ app.post(
       };
       // persist verification as well
       try {
-        const content = await prisma.content.findUnique({
-          where: { contentHash: fileHash },
-        });
         await prisma.verification.create({
           data: {
             contentHash: fileHash,
