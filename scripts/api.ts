@@ -624,9 +624,14 @@ app.post(
         return res.status(400).json({
           error: "file is required (multipart/form-data field 'file')",
         });
-      const fileHash = await sha256HexFromFile(req.file.path);
-      // Clean up temp file
-      await unlink(req.file.path).catch(() => {});
+      let fileHash: string;
+      const tempPath = req.file.path;
+      try {
+        fileHash = await sha256HexFromFile(tempPath);
+      } finally {
+        // Clean up temp file
+        await unlink(tempPath).catch(() => {});
+      }
       
       const manifest = await fetchManifest(manifestURI);
       const manifestHashOk = manifest.content_hash === fileHash;
