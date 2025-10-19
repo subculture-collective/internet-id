@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { createWriteStream, createReadStream } from "fs";
-import { writeFile, unlink, readFile } from "fs/promises";
+import { unlink, readFile } from "fs/promises";
 import * as path from "path";
 import * as os from "os";
 import { createHash } from "crypto";
