@@ -704,9 +704,14 @@ app.post(
           error: "file is required (multipart/form-data field 'file')",
         });
       const originalName = req.file.originalname;
-      const fileHash = await sha256HexFromFile(req.file.path);
-      // Clean up temp file
-      await unlink(req.file.path).catch(() => {});
+      const filePath = req.file.path;
+      let fileHash;
+      try {
+        fileHash = await sha256HexFromFile(filePath);
+      } finally {
+        // Clean up temp file
+        await unlink(filePath).catch(() => {});
+      }
       
       const manifest = await fetchManifest(manifestURI);
       const recovered = ethers.verifyMessage(
