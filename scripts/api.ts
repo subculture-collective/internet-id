@@ -3,6 +3,7 @@ import cors from "cors";
 import multer from "multer";
 import { writeFile, unlink, readFile } from "fs/promises";
 import { createReadStream } from "fs";
+import { pipeline } from "stream/promises";
 import * as os from "os";
 import * as path from "path";
 import { createHash } from "crypto";
@@ -48,14 +49,10 @@ function sha256Hex(buf: Buffer) {
 }
 
 // Stream-based hash computation to avoid loading entire file in memory
-function sha256HexFromFile(filePath: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const hash = createHash("sha256");
-    const stream = createReadStream(filePath);
-    stream.on("data", (chunk) => hash.update(chunk));
-    stream.on("end", () => resolve("0x" + hash.digest("hex")));
-    stream.on("error", reject);
-  });
+async function sha256HexFromFile(filePath: string): Promise<string> {
+  const hash = createHash("sha256");
+  await pipeline(createReadStream(filePath), hash);
+  return "0x" + hash.digest("hex");
 }
 
 function fetchHttpsJson(url: string): Promise<any> {
