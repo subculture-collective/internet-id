@@ -431,9 +431,13 @@ app.post(
           .json({ error: "registryAddress and manifestURI are required" });
       let fileHash: string | undefined;
       if (req.file) {
-        fileHash = await sha256HexFromFile(req.file.path);
-        // Clean up temp file
-        await unlink(req.file.path).catch(() => {});
+        const tempPath = req.file.path;
+        try {
+          fileHash = await sha256HexFromFile(tempPath);
+        } finally {
+          // Clean up temp file
+          await unlink(tempPath).catch(() => {});
+        }
       } else if ((req.body as any).contentHash) {
         fileHash = (req.body as any).contentHash;
       } else {
