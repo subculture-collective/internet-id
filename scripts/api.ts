@@ -54,27 +54,12 @@ async function sha256HexFromFile(filePath: string): Promise<string> {
   return "0x" + hash.digest("hex");
 }
 
-function fetchHttpsJson(url: string): Promise<any> {
-  return new Promise((resolve, reject) => {
-    https
-      .get(url, (res) => {
-        if (res.statusCode && res.statusCode >= 400) {
-          reject(new Error(`HTTP ${res.statusCode} for ${url}`));
-          return;
-        }
-        const chunks: Buffer[] = [];
-        res.on("data", (d) => chunks.push(d));
-        res.on("end", () => {
-          try {
-            const body = Buffer.concat(chunks).toString("utf8");
-            resolve(JSON.parse(body));
-          } catch (e) {
-            reject(e);
-          }
-        });
-      })
-      .on("error", reject);
-  });
+async function fetchHttpsJson(url: string): Promise<any> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status} for ${url}`);
+  }
+  return response.json();
 }
 
 async function fetchManifest(uri: string): Promise<any> {
