@@ -33,10 +33,14 @@ describe("API File Upload Streaming", function () {
   /**
    * Helper to compute SHA256 hash via streaming (same as API does)
    */
-  async function sha256HexFromFile(filePath: string): Promise<string> {
-    const hash = createHash("sha256");
-    await pipeline(createReadStream(filePath), hash);
-    return "0x" + hash.digest("hex");
+  function sha256HexFromFile(filePath: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const hash = createHash("sha256");
+      const stream = createReadStream(filePath);
+      stream.on("data", (chunk) => hash.update(chunk));
+      stream.on("end", () => resolve("0x" + hash.digest("hex")));
+      stream.on("error", reject);
+    });
   }
 
   /**

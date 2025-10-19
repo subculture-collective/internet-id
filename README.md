@@ -274,6 +274,21 @@ npm run db:studio
 
 ```
 
+### Prisma Schema - Single Source of Truth
+
+⚠️ **Important**: The repository uses a **single Prisma schema** at `prisma/schema.prisma`.
+
+This schema generates two separate Prisma Clients:
+- **Root client** (for API/scripts): `./node_modules/@prisma/client`
+- **Web client** (for Next.js): `../web/node_modules/.prisma/client`
+
+**Never create duplicate schemas** like `web/prisma/schema.prisma`. The single schema ensures:
+- No schema drift between API and web
+- Single migration history
+- One place to update models
+
+See `prisma/README.md` for detailed documentation.
+
 ### Optional: Postgres via Docker
 
 If you prefer Postgres, a `docker-compose.yml` is included.

@@ -1,5 +1,12 @@
+// Default generator for API/scripts (root node_modules)
 generator client {
   provider = "prisma-client-js"
+}
+
+// Generator for Next.js web app (web/node_modules)
+generator client-web {
+  provider = "prisma-client-js"
+  output   = "../web/node_modules/.prisma/client"
 }
 
 datasource db {

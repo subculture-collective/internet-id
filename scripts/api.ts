@@ -10,7 +10,6 @@ import { createHash } from "crypto";
 import { ethers } from "ethers";
 import * as https from "https";
 import * as dotenv from "dotenv";
-import { URL } from "url";
 dotenv.config();
 
 import { uploadToIpfs } from "./upload-ipfs";
@@ -1164,6 +1163,8 @@ app.post(
 );
 
 const PORT = Number(process.env.PORT || 3001);
+const app = createApp();
+
 app.listen(PORT, () => {
   console.log(`API listening on http://localhost:${PORT}`);
 });
