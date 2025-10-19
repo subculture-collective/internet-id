@@ -108,9 +108,8 @@ describe("API File Upload Streaming", function () {
     const filepath = await createTestFile(100, "large-test.bin");
     
     // Get file stats to verify size without loading into memory
-    const fs = require("fs");
-    const stats = fs.statSync(filepath);
-    expect(stats.size).to.equal(100 * 1024 * 1024);
+    const { size } = await (await import("fs/promises")).stat(filepath);
+    expect(size).to.equal(100 * 1024 * 1024);
     
     // Compute hash via streaming
     const hash = await sha256HexFromFile(filepath);
