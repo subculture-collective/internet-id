@@ -1,6 +1,7 @@
 import { expect } from "chai";
-import { createWriteStream, createReadStream, statSync } from "fs";
+import { createWriteStream, createReadStream } from "fs";
 import { unlink, readFile } from "fs/promises";
+import { pipeline } from "stream/promises";
 import * as path from "path";
 import * as os from "os";
 import { createHash } from "crypto";
@@ -107,8 +108,8 @@ describe("API File Upload Streaming", function () {
     const filepath = await createTestFile(100, "large-test.bin");
     
     // Get file stats to verify size without loading into memory
-    const stats = statSync(filepath);
-    expect(stats.size).to.equal(100 * 1024 * 1024);
+    const { size } = await (await import("fs/promises")).stat(filepath);
+    expect(size).to.equal(100 * 1024 * 1024);
     
     // Compute hash via streaming
     const hash = await sha256HexFromFile(filepath);
