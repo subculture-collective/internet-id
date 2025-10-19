@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start -p 3000",
     "lint": "next lint",
-    "prisma:generate": "prisma generate --schema ./prisma/schema.prisma",
-    "postinstall": "prisma generate --schema ./prisma/schema.prisma"
+    "prisma:generate": "prisma generate --schema ../prisma/schema.prisma --generator client-web",
+    "postinstall": "prisma generate --schema ../prisma/schema.prisma --generator client-web"
   },
   "dependencies": {
     "@auth/pg-adapter": "^1.10.0",
