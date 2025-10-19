@@ -1003,9 +1003,13 @@ app.post(
       }
 
       // 2) Compute hash and create manifest
-      const fileHash = await sha256HexFromFile(req.file.path);
-      // Clean up the uploaded file now that we have the hash
-      await unlink(req.file.path).catch(() => {});
+      let fileHash;
+      try {
+        fileHash = await sha256HexFromFile(req.file.path);
+      } finally {
+        // Clean up the uploaded file now that we have the hash (or error)
+        await unlink(req.file.path).catch(() => {});
+      }
       
       const provider = new ethers.JsonRpcProvider(
         process.env.RPC_URL || "https://sepolia.base.org"
