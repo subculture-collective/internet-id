@@ -289,6 +289,24 @@ This schema generates two separate Prisma Clients:
 
 See `prisma/README.md` for detailed documentation.
 
+### Database Performance & Indexing
+
+The database schema includes comprehensive indexes for optimal query performance:
+- **17 indexes** across all tables prevent full table scans
+- **Composite indexes** optimize common multi-column queries
+- **Foreign key indexes** ensure fast JOINs
+- Performance target: Sub-100ms queries for 100k+ records
+
+To verify indexes after migration:
+```bash
+npm run db:verify-indexes
+```
+
+See detailed documentation:
+- [Database Indexing Strategy](docs/DATABASE_INDEXING_STRATEGY.md)
+- [Query Optimization Examples](docs/QUERY_OPTIMIZATION_EXAMPLES.md)
+- [Optimization Summary](docs/DATABASE_OPTIMIZATION_SUMMARY.md)
+
 ### Optional: Postgres via Docker
 
 If you prefer Postgres, a `docker-compose.yml` is included.

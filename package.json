@@ -20,7 +20,8 @@
     "start:api": "ts-node scripts/api.ts",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev --name init",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "db:verify-indexes": "ts-node scripts/verify-indexes.ts"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
