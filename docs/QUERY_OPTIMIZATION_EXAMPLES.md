@@ -22,7 +22,7 @@ Enable timing for accurate measurements:
 
 ## 1. Content Listing Query
 
-**Location:** `scripts/routes/content.routes.ts:27-33`
+**Location:** `scripts/routes/content.routes.ts`
 
 **Query:**
 ```typescript
