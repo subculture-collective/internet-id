@@ -5,6 +5,8 @@ import { sha256Hex } from "../services/hash.service";
 import { fetchManifest } from "../services/manifest.service";
 import { getProvider, getEntry } from "../services/registry.service";
 import { prisma } from "../db";
+import { validateBody, validateFile } from "../validation/middleware";
+import { verifyRequestSchema, proofRequestSchema, ALLOWED_MIME_TYPES } from "../validation/schemas";
 
 const router = Router();
 
@@ -17,22 +19,17 @@ const upload = multer({
 router.post(
   "/verify",
   upload.single("file"),
+  validateBody(verifyRequestSchema),
+  validateFile({ required: true, allowedMimeTypes: ALLOWED_MIME_TYPES }),
   async (req: Request, res: Response) => {
     try {
       const { registryAddress, manifestURI, rpcUrl } = req.body as {
-        registryAddress?: string;
-        manifestURI?: string;
+        registryAddress: string;
+        manifestURI: string;
         rpcUrl?: string;
       };
-      if (!registryAddress || !manifestURI)
-        return res
-          .status(400)
-          .json({ error: "registryAddress and manifestURI are required" });
-      if (!req.file)
-        return res.status(400).json({
-          error: "file is required (multipart/form-data field 'file')",
-        });
-      const fileHash = sha256Hex(req.file.buffer);
+      
+      const fileHash = sha256Hex(req.file!.buffer);
       const manifest = await fetchManifest(manifestURI);
       const manifestHashOk = manifest.content_hash === fileHash;
       const recovered = ethers.verifyMessage(
@@ -85,22 +82,17 @@ router.post(
 router.post(
   "/proof",
   upload.single("file"),
+  validateBody(proofRequestSchema),
+  validateFile({ required: true, allowedMimeTypes: ALLOWED_MIME_TYPES }),
   async (req: Request, res: Response) => {
     try {
       const { registryAddress, manifestURI, rpcUrl } = req.body as {
-        registryAddress?: string;
-        manifestURI?: string;
+        registryAddress: string;
+        manifestURI: string;
         rpcUrl?: string;
       };
-      if (!registryAddress || !manifestURI)
-        return res
-          .status(400)
-          .json({ error: "registryAddress and manifestURI are required" });
-      if (!req.file)
-        return res.status(400).json({
-          error: "file is required (multipart/form-data field 'file')",
-        });
-      const fileHash = sha256Hex(req.file.buffer);
+      
+      const fileHash = sha256Hex(req.file!.buffer);
       const manifest = await fetchManifest(manifestURI);
       const recovered = ethers.verifyMessage(
         ethers.getBytes(manifest.content_hash),
@@ -130,7 +122,7 @@ router.post(
         generated_at: new Date().toISOString(),
         network: { chainId: Number(net.chainId) },
         registry: registryAddress,
-        content: { file: req.file.originalname, hash: fileHash },
+        content: { file: req.file!.originalname, hash: fileHash },
         manifest: {
           uri: manifestURI,
           creator_did: manifest.creator_did,

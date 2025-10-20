@@ -4,6 +4,8 @@ import { ethers } from "ethers";
 import { requireApiKey } from "../middleware/auth.middleware";
 import { sha256Hex } from "../services/hash.service";
 import { prisma } from "../db";
+import { validateBody, validateFile } from "../validation/middleware";
+import { registerRequestSchema, ALLOWED_MIME_TYPES } from "../validation/schemas";
 
 const router = Router();
 
@@ -17,24 +19,32 @@ router.post(
   "/register",
   requireApiKey as any,
   upload.single("file"),
+  validateBody(registerRequestSchema),
+  validateFile({ required: false, allowedMimeTypes: ALLOWED_MIME_TYPES }),
   async (req: Request, res: Response) => {
     try {
-      const { registryAddress, manifestURI } = req.body as {
-        registryAddress?: string;
-        manifestURI?: string;
+      const { registryAddress, manifestURI, contentHash } = req.body as {
+        registryAddress: string;
+        manifestURI: string;
+        contentHash?: string;
       };
-      if (!registryAddress || !manifestURI)
-        return res
-          .status(400)
-          .json({ error: "registryAddress and manifestURI are required" });
+      
       let fileHash: string | undefined;
-      if (req.file) fileHash = sha256Hex(req.file.buffer);
-      else if ((req.body as any).contentHash)
-        fileHash = (req.body as any).contentHash;
-      else
-        return res
-          .status(400)
-          .json({ error: "file (multipart) or contentHash is required" });
+      if (req.file) {
+        fileHash = sha256Hex(req.file.buffer);
+      } else if (contentHash) {
+        fileHash = contentHash;
+      } else {
+        return res.status(400).json({
+          error: "Validation failed",
+          errors: [
+            {
+              field: "file",
+              message: "file (multipart) or contentHash is required",
+            },
+          ],
+        });
+      }
 
       const provider = new ethers.JsonRpcProvider(
         process.env.RPC_URL || "https://sepolia.base.org"
