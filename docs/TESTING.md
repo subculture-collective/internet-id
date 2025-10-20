@@ -241,13 +241,15 @@ Avoid mocking fs operations when possible. Test logic separately from I/O.
 
 Target: **70% minimum code coverage** on core modules
 
-Current coverage:
-- ✅ Upload IPFS logic: ~85%
-- ✅ Manifest service: ~90%
-- ✅ Registry service: ~80%
-- ✅ Platform parsing: ~95%
-- ✅ Database operations: ~90%
-- ✅ Verification flows: ~85%
+Note: Coverage percentages below are estimates based on test count and scope. Run `npm run test:coverage` for actual measured coverage.
+
+Estimated coverage:
+- Upload IPFS logic: High coverage (provider config, fallback, error handling)
+- Manifest service: High coverage (URI parsing, structure validation)
+- Registry service: High coverage (provider creation, configuration)
+- Platform parsing: High coverage (URL parsing, validation)
+- Database operations: High coverage (CRUD, upserts, queries)
+- Verification flows: High coverage (signature verification, validation)
 
 ## CI Integration
 

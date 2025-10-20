@@ -12,6 +12,10 @@ artifacts/
 typechain-types/
 coverage/
 
+# NYC coverage
+.nyc_output/
+coverage/
+
 # Turbo / Monorepo caches
 .turbo/
 

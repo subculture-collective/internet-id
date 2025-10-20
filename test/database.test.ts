@@ -501,7 +501,7 @@ describe("Database Operations", function () {
 
   describe("Error handling", function () {
     it("should handle unique constraint violation", async function () {
-      const error: any = new Error("Unique constraint violation");
+      const error: Error & { code?: string } = new Error("Unique constraint violation");
       error.code = "P2002";
       
       userStub.create.rejects(error);

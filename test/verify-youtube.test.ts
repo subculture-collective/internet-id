@@ -1,23 +1,7 @@
 import { expect } from "chai";
 import sinon from "sinon";
 import { ethers } from "ethers";
-
-// Helper function to extract YouTube ID (copied from verify-youtube.ts for testing)
-function extractYouTubeId(input: string): string {
-  try {
-    const url = new URL(input);
-    if (url.hostname.includes("youtu.be")) return url.pathname.replace("/", "");
-    if (url.hostname.includes("youtube.com")) {
-      if (url.pathname.startsWith("/watch"))
-        return url.searchParams.get("v") || "";
-      if (url.pathname.startsWith("/shorts/"))
-        return url.pathname.split("/")[2] || "";
-    }
-    return "";
-  } catch {
-    return input; // assume raw ID
-  }
-}
+import { extractYouTubeId } from "../scripts/verify-youtube";
 
 describe("YouTube Verification Logic", function () {
   describe("extractYouTubeId", function () {
