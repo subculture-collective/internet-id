@@ -66,14 +66,16 @@ All validation errors return **400 Bad Request** with a consistent JSON structur
 
 #### IPFS URIs
 
-**Pattern**: `ipfs://` followed by alphanumeric CID
+**Pattern**: `ipfs://` followed by base58-encoded CID (Content Identifier)
 
 **Example**: `ipfs://QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco`
+
+**Note**: IPFS CIDs use base58 encoding which includes characters 1-9, a-z, A-Z (excluding 0, O, I, l to avoid confusion)
 
 **Rejects**:
 - Invalid IPFS protocol
 - Path traversal attempts (`../`)
-- Special characters in CID
+- Invalid characters in CID
 
 #### HTTP/HTTPS URIs
 

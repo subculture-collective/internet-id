@@ -18,7 +18,7 @@ export const contentHashSchema = z
 
 export const ipfsUriSchema = z
   .string()
-  .regex(/^ipfs:\/\/[a-zA-Z0-9]+$/, "Invalid IPFS URI format");
+  .regex(/^ipfs:\/\/[a-zA-Z0-9]+$/, "Invalid IPFS URI format (must be ipfs:// followed by base58-encoded CID)");
 
 export const httpUriSchema = z
   .string()
