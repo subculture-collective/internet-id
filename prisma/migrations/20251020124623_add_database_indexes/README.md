@@ -49,8 +49,9 @@ For large production databases, you may want to add indexes without locking tabl
 psql $DATABASE_URL
 
 -- Create indexes concurrently (one at a time)
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "User_createdAt_idx" ON "User"("createdAt");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "Content_creatorId_idx" ON "Content"("creatorId");
+-- Note: CONCURRENTLY cannot be used with IF NOT EXISTS
+CREATE INDEX CONCURRENTLY "User_createdAt_idx" ON "User"("createdAt");
+CREATE INDEX CONCURRENTLY "Content_creatorId_idx" ON "Content"("creatorId");
 -- ... etc for all indexes in migration.sql
 ```
 

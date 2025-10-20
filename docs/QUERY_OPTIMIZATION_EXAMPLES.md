@@ -22,7 +22,7 @@ Enable timing for accurate measurements:
 
 ## 1. Content Listing Query
 
-**Location:** `scripts/routes/content.routes.ts:29-32`
+**Location:** `scripts/routes/content.routes.ts:27-33`
 
 **Query:**
 ```typescript
@@ -158,7 +158,7 @@ Limit (cost=0.15..XX.XX rows=50 width=XXX)
 
 ## 5. Account Lookup by User and Provider
 
-**Location:** `web/app/api/app/bind/route.ts:36-38`
+**Location:** `web/app/api/app/bind/route.ts:36-39`
 
 **Query:**
 ```typescript
@@ -190,7 +190,7 @@ Limit (cost=0.15..8.17 rows=1 width=XX)
 
 ## 6. Platform Binding Lookup
 
-**Location:** `scripts/routes/binding.routes.ts:56-59`
+**Location:** `scripts/routes/binding.routes.ts:53-60`
 
 **Query:**
 ```typescript
