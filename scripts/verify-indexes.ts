@@ -142,9 +142,11 @@ async function checkIndexUsage() {
     console.log('Table              Index                                Scans    Tuples    Size');
     console.log('━'.repeat(90));
 
+    // Dynamically determine the maximum index name length for padding
+    const maxIndexNameLength = Math.max(...stats.map(s => s.indexname.length), 37);
     for (const stat of stats) {
       const table = stat.tablename.padEnd(18);
-      const index = stat.indexname.padEnd(37);
+      const index = stat.indexname.padEnd(maxIndexNameLength);
       const scans = String(stat.idx_scan).padStart(8);
       const tuples = String(stat.idx_tup_read).padStart(9);
       const size = String(stat.size).padStart(8);
