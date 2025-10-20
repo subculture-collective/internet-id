@@ -15,33 +15,39 @@ datasource db {
 }
 
 model User {
-  id             String   @id @default(cuid())
-  address        String?  @unique
-  email          String?  @unique
-  name           String?
-  image          String?
-  emailVerified  DateTime?
-  createdAt      DateTime @default(now())
-  contents       Content[]
-  accounts       Account[]
-  sessions       Session[]
+  id            String    @id @default(cuid())
+  address       String?   @unique
+  email         String?   @unique
+  name          String?
+  image         String?
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  contents      Content[]
+  accounts      Account[]
+  sessions      Session[]
+
+  @@index([createdAt])
 }
 
 model Content {
-  id              String    @id @default(cuid())
-  contentHash     String    @unique
+  id              String            @id @default(cuid())
+  contentHash     String            @unique
   contentUri      String?
   manifestCid     String?
   manifestUri     String?
   creatorAddress  String
   creatorId       String?
-  creator         User?     @relation(fields: [creatorId], references: [id])
+  creator         User?             @relation(fields: [creatorId], references: [id])
   registryAddress String?
   txHash          String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
   bindings        PlatformBinding[]
   verifications   Verification[]
+
+  @@index([creatorId])
+  @@index([createdAt])
+  @@index([creatorAddress])
 }
 
 model PlatformBinding {
@@ -53,6 +59,9 @@ model PlatformBinding {
   createdAt  DateTime @default(now())
 
   @@unique([platform, platformId])
+  @@index([contentId])
+  @@index([platform])
+  @@index([createdAt])
 }
 
 model Verification {
@@ -65,43 +74,56 @@ model Verification {
   createdAt        DateTime @default(now())
   contentId        String?
   content          Content? @relation(fields: [contentId], references: [id])
+
+  @@index([contentHash])
+  @@index([status])
+  @@index([createdAt])
+  @@index([contentId])
+  @@index([contentHash, createdAt])
+  @@index([status, createdAt])
 }
 
 // NextAuth models
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?
-  access_token       String?
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?
+  id                       String   @id @default(cuid())
+  userId                   String
+  user                     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String?
+  access_token             String?
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String?
   refresh_token_expires_in Int?
-  session_state      String?
-  oauth_token        String?
-  oauth_token_secret String?
+  session_state            String?
+  oauth_token              String?
+  oauth_token_secret       String?
   // Optional convenience fields for display/matching
-  username           String?
-  url                String?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  username                 String?
+  url                      String?
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@index([userId, provider])
+  @@index([username])
 }
 
 model Session {
-  id            String   @id @default(cuid())
-  sessionToken  String   @unique
-  userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expires       DateTime
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+  @@index([expires])
 }
 
 model VerificationToken {
