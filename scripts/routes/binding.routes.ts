@@ -2,6 +2,8 @@ import { Router, Request, Response } from "express";
 import { ethers } from "ethers";
 import { requireApiKey } from "../middleware/auth.middleware";
 import { prisma } from "../db";
+import { validateBody } from "../validation/middleware";
+import { bindRequestSchema, bindManyRequestSchema } from "../validation/schemas";
 
 const router = Router();
 
@@ -9,21 +11,15 @@ const router = Router();
 router.post(
   "/bind",
   requireApiKey as any,
+  validateBody(bindRequestSchema),
   async (req: Request, res: Response) => {
     try {
-      const { registryAddress, platform, platformId, contentHash } =
-        req.body as {
-          registryAddress?: string;
-          platform?: string;
-          platformId?: string;
-          contentHash?: string;
-        };
-      if (!registryAddress || !platform || !platformId || !contentHash) {
-        return res.status(400).json({
-          error:
-            "registryAddress, platform, platformId, contentHash are required",
-        });
-      }
+      const { registryAddress, platform, platformId, contentHash } = req.body as {
+        registryAddress: string;
+        platform: string;
+        platformId: string;
+        contentHash: string;
+      };
       const provider = new ethers.JsonRpcProvider(
         process.env.RPC_URL || "https://sepolia.base.org"
       );
@@ -72,24 +68,14 @@ router.post(
 router.post(
   "/bind-many",
   requireApiKey as any,
+  validateBody(bindManyRequestSchema),
   async (req: Request, res: Response) => {
     try {
-      const { registryAddress, contentHash } = req.body as any;
-      let { bindings } = req.body as { bindings?: any };
-      if (typeof bindings === "string") {
-        try {
-          bindings = JSON.parse(bindings);
-        } catch {
-          return res
-            .status(400)
-            .json({ error: "bindings must be a JSON array or object" });
-        }
-      }
-      if (!registryAddress || !contentHash || !Array.isArray(bindings)) {
-        return res.status(400).json({
-          error: "registryAddress, contentHash, and bindings[] are required",
-        });
-      }
+      const { registryAddress, contentHash, bindings } = req.body as {
+        registryAddress: string;
+        contentHash: string;
+        bindings: Array<{ platform: string; platformId: string }>;
+      };
       const provider = new ethers.JsonRpcProvider(
         process.env.RPC_URL || "https://sepolia.base.org"
       );

@@ -5,6 +5,8 @@ import { requireApiKey } from "../middleware/auth.middleware";
 import { sha256Hex } from "../services/hash.service";
 import { tmpWrite, cleanupTmpFile } from "../services/file.service";
 import { uploadToIpfs } from "../upload-ipfs";
+import { validateBody, validateFile } from "../validation/middleware";
+import { manifestRequestSchema, ALLOWED_MIME_TYPES } from "../validation/schemas";
 
 const router = Router();
 
@@ -18,23 +20,31 @@ router.post(
   "/manifest",
   requireApiKey as any,
   upload.single("file"),
+  validateBody(manifestRequestSchema),
+  validateFile({ required: false, allowedMimeTypes: ALLOWED_MIME_TYPES }),
   async (req: Request, res: Response) => {
     try {
-      const { contentUri, upload: doUpload } = req.body as {
-        contentUri?: string;
+      const { contentUri, upload: doUpload, contentHash } = req.body as {
+        contentUri: string;
         upload?: string;
+        contentHash?: string;
       };
-      if (!contentUri)
-        return res.status(400).json({ error: "contentUri is required" });
+      
       let fileHash: string | undefined = undefined;
       if (req.file) {
         fileHash = sha256Hex(req.file.buffer);
-      } else if ((req.body as any).contentHash) {
-        fileHash = (req.body as any).contentHash;
+      } else if (contentHash) {
+        fileHash = contentHash;
       } else {
-        return res
-          .status(400)
-          .json({ error: "file (multipart) or contentHash is required" });
+        return res.status(400).json({
+          error: "Validation failed",
+          errors: [
+            {
+              field: "file",
+              message: "file (multipart) or contentHash is required",
+            },
+          ],
+        });
       }
 
       const provider = new ethers.JsonRpcProvider(
