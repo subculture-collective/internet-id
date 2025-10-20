@@ -1,10 +1,12 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../db";
+import { validateBody, validateQuery, validateParams } from "../validation/middleware";
+import { createUserSchema, verificationsQuerySchema, contentHashParamSchema } from "../validation/schemas";
 
 const router = Router();
 
 // Users API (minimal)
-router.post("/users", async (req: Request, res: Response) => {
+router.post("/users", validateBody(createUserSchema), async (req: Request, res: Response) => {
   try {
     const { address, email, name } = req.body as {
       address?: string;
@@ -37,10 +39,9 @@ router.get("/contents", async (_req: Request, res: Response) => {
 });
 
 // Content detail by contentHash
-router.get("/contents/:hash", async (req: Request, res: Response) => {
+router.get("/contents/:hash", validateParams(contentHashParamSchema), async (req: Request, res: Response) => {
   try {
     const hash = req.params.hash;
-    if (!hash) return res.status(400).json({ error: "hash is required" });
     const item = await prisma.content.findUnique({
       where: { contentHash: hash },
       include: { bindings: true },
@@ -53,7 +54,7 @@ router.get("/contents/:hash", async (req: Request, res: Response) => {
 });
 
 // Verifications listing
-router.get("/verifications", async (req: Request, res: Response) => {
+router.get("/verifications", validateQuery(verificationsQuerySchema), async (req: Request, res: Response) => {
   try {
     const { contentHash, limit } = req.query as {
       contentHash?: string;
@@ -86,6 +87,7 @@ router.get("/verifications/:id", async (req: Request, res: Response) => {
 // Verifications by contentHash
 router.get(
   "/contents/:hash/verifications",
+  validateParams(contentHashParamSchema),
   async (req: Request, res: Response) => {
     try {
       const hash = req.params.hash;

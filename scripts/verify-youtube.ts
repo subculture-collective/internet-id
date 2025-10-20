@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import * as https from "https";
 
-function extractYouTubeId(input: string): string {
+export function extractYouTubeId(input: string): string {
   try {
     const url = new URL(input);
     if (url.hostname.includes("youtu.be")) return url.pathname.replace("/", "");
@@ -119,7 +119,9 @@ async function main() {
   });
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}

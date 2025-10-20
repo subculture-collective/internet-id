@@ -18,9 +18,21 @@ Looking for a plain-English overview? See the pitch: [PITCH.md](./PITCH.md)
 - Ethers v6
 - IPFS uploads via Infura, Web3.Storage, or Pinata
 - Express API with optional API key protection
+- **Comprehensive input validation** using Zod (see [docs/VALIDATION.md](./docs/VALIDATION.md))
 - Prisma ORM (SQLite by default; Postgres optional)
 - Next.js App Router web UI (optional)
 - NextAuth for sign-in (GitHub/Google to start), Prisma adapter
+
+## Security
+
+This project implements comprehensive input validation and sanitization to prevent:
+- XSS (Cross-Site Scripting) attacks
+- SQL injection
+- Command injection
+- Path traversal attacks
+- File upload vulnerabilities
+
+All API endpoints validate inputs against strict schemas with detailed error messages. See [docs/VALIDATION.md](./docs/VALIDATION.md) for complete documentation.
 
 ## Setup
 

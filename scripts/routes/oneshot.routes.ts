@@ -6,6 +6,8 @@ import { sha256Hex } from "../services/hash.service";
 import { tmpWrite, cleanupTmpFile } from "../services/file.service";
 import { uploadToIpfs } from "../upload-ipfs";
 import { prisma } from "../db";
+import { validateBody, validateFile } from "../validation/middleware";
+import { oneshotRequestSchema, ALLOWED_MIME_TYPES } from "../validation/schemas";
 
 const router = Router();
 
@@ -19,39 +21,41 @@ router.post(
   "/one-shot",
   requireApiKey as any,
   upload.single("file"),
+  validateBody(oneshotRequestSchema),
+  validateFile({ required: true, allowedMimeTypes: ALLOWED_MIME_TYPES }),
   async (req: Request, res: Response) => {
     try {
-      const { registryAddress, platform, platformId, uploadContent } =
+      const { registryAddress, platform, platformId, uploadContent, bindings: rawBindings } =
         req.body as {
-          registryAddress?: string;
+          registryAddress: string;
           platform?: string;
           platformId?: string;
           uploadContent?: string;
+          bindings?: string | Array<{ platform: string; platformId: string }>;
         };
-      // Optional array bindings support via JSON field 'bindings'
+      
+      // Parse bindings if provided as string
       let bindings: Array<{ platform: string; platformId: string }> = [];
-      const raw = (req.body as any).bindings;
-      if (raw) {
-        try {
-          const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
-          if (Array.isArray(parsed)) {
-            bindings = parsed
-              .filter((b) => b && b.platform && b.platformId)
-              .map((b) => ({
-                platform: String(b.platform),
-                platformId: String(b.platformId),
-              }));
+      if (rawBindings) {
+        if (typeof rawBindings === "string") {
+          try {
+            const parsed = JSON.parse(rawBindings);
+            if (Array.isArray(parsed)) {
+              bindings = parsed
+                .filter((b) => b && b.platform && b.platformId)
+                .map((b) => ({
+                  platform: String(b.platform),
+                  platformId: String(b.platformId),
+                }));
+            }
+          } catch (e) {
+            // Validation middleware should have caught this, but handle gracefully
+            bindings = [];
           }
-        } catch (e) {
-          // ignore bad JSON here; fallback to single platform below
+        } else if (Array.isArray(rawBindings)) {
+          bindings = rawBindings;
         }
       }
-      if (!registryAddress)
-        return res.status(400).json({ error: "registryAddress is required" });
-      if (!req.file)
-        return res
-          .status(400)
-          .json({ error: "file is required (multipart field 'file')" });
 
       // 1) Optionally upload content to IPFS (default: do NOT upload)
       const shouldUploadContent =
@@ -60,8 +64,8 @@ router.post(
       let contentUri: string | undefined;
       if (shouldUploadContent) {
         const tmpContent = await tmpWrite(
-          req.file.originalname,
-          req.file.buffer
+          req.file!.originalname,
+          req.file!.buffer
         );
         try {
           contentCid = await uploadToIpfs(tmpContent);
@@ -72,7 +76,7 @@ router.post(
       }
 
       // 2) Compute hash and create manifest
-      const fileHash = sha256Hex(req.file.buffer);
+      const fileHash = sha256Hex(req.file!.buffer);
       const provider = new ethers.JsonRpcProvider(
         process.env.RPC_URL || "https://sepolia.base.org"
       );
