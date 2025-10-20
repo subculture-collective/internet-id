@@ -37,6 +37,15 @@ const expectedIndexes = [
   'Account_username_idx',
   'Session_userId_idx',
   'Session_expires_idx',
+  // Unique constraint indexes (ending in _key)
+  'User_address_key',
+  'User_email_key',
+  'Content_contentHash_key',
+  'PlatformBinding_platform_platformId_key',
+  'Account_provider_providerAccountId_key',
+  'Session_sessionToken_key',
+  'VerificationToken_token_key',
+  'VerificationToken_identifier_token_key',
 ];
 
 interface IndexInfo {
@@ -48,12 +57,12 @@ async function verifyIndexes() {
   console.log('🔍 Verifying database indexes...\n');
 
   try {
-    // Query to get all indexes
+    // Query to get all indexes (both _idx and _key suffixes)
     const result = await prisma.$queryRaw<IndexInfo[]>`
       SELECT indexname, tablename
       FROM pg_stat_user_indexes
       WHERE schemaname = 'public'
-        AND indexname LIKE '%_idx'
+        AND (indexname LIKE '%_idx' OR indexname LIKE '%_key')
       ORDER BY tablename, indexname;
     `;
 
@@ -129,7 +138,7 @@ async function checkIndexUsage() {
         pg_size_pretty(pg_relation_size(indexrelid)) as size
       FROM pg_stat_user_indexes
       WHERE schemaname = 'public'
-        AND indexname LIKE '%_idx'
+        AND (indexname LIKE '%_idx' OR indexname LIKE '%_key')
       ORDER BY idx_scan DESC;
     `;
 
