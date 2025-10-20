@@ -5,6 +5,8 @@ import * as path from "path";
 import { resolveDefaultRegistry, resolveByPlatform } from "../services/registry.service";
 import { parsePlatformInput } from "../services/platform.service";
 import { fetchManifest } from "../services/manifest.service";
+import { validateQuery } from "../validation/middleware";
+import { resolveQuerySchema, publicVerifyQuerySchema } from "../validation/schemas";
 
 const router = Router();
 
@@ -62,7 +64,7 @@ router.get("/registry", async (_req: Request, res: Response) => {
 });
 
 // Resolve binding by URL or platform+platformId
-router.get("/resolve", async (req: Request, res: Response) => {
+router.get("/resolve", validateQuery(resolveQuerySchema), async (req: Request, res: Response) => {
   try {
     const url = (req.query as any).url as string | undefined;
     const platform = (req.query as any).platform as string | undefined;
@@ -107,7 +109,7 @@ router.get("/resolve", async (req: Request, res: Response) => {
 });
 
 // Public verify: resolve + include manifest JSON if on IPFS/HTTP
-router.get("/public-verify", async (req: Request, res: Response) => {
+router.get("/public-verify", validateQuery(publicVerifyQuerySchema), async (req: Request, res: Response) => {
   try {
     const url = (req.query as any).url as string | undefined;
     const platform = (req.query as any).platform as string | undefined;

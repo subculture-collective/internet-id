@@ -3,6 +3,8 @@ import multer from "multer";
 import { requireApiKey } from "../middleware/auth.middleware";
 import { tmpWrite, cleanupTmpFile } from "../services/file.service";
 import { uploadToIpfs } from "../upload-ipfs";
+import { validateFile } from "../validation/middleware";
+import { ALLOWED_MIME_TYPES } from "../validation/schemas";
 
 const router = Router();
 
@@ -16,13 +18,10 @@ router.post(
   "/upload",
   requireApiKey as any,
   upload.single("file"),
+  validateFile({ required: true, allowedMimeTypes: ALLOWED_MIME_TYPES }),
   async (req: Request, res: Response) => {
     try {
-      if (!req.file)
-        return res.status(400).json({
-          error: "file is required (multipart/form-data field 'file')",
-        });
-      const tmpPath = await tmpWrite(req.file.originalname, req.file.buffer);
+      const tmpPath = await tmpWrite(req.file!.originalname, req.file!.buffer);
       try {
         const cid = await uploadToIpfs(tmpPath);
         res.json({ cid, uri: `ipfs://${cid}` });
