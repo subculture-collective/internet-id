@@ -75,8 +75,6 @@ model Verification {
   contentId        String?
   content          Content? @relation(fields: [contentId], references: [id])
 
-  @@index([contentHash])
-  @@index([status])
   @@index([createdAt])
   @@index([contentId])
   @@index([contentHash, createdAt])
