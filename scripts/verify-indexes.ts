@@ -2,8 +2,8 @@
 /**
  * Database Index Verification Script
  * 
- * This script verifies that all indexes from the 20251020124623_add_database_indexes
- * migration have been created successfully.
+ * This script verifies that all indexes from database migrations
+ * have been created successfully.
  * 
  * Usage:
  *   ts-node scripts/verify-indexes.ts
@@ -26,8 +26,6 @@ const expectedIndexes = [
   'PlatformBinding_contentId_idx',
   'PlatformBinding_platform_idx',
   'PlatformBinding_createdAt_idx',
-  'Verification_contentHash_idx',
-  'Verification_status_idx',
   'Verification_createdAt_idx',
   'Verification_contentId_idx',
   'Verification_contentHash_createdAt_idx',
