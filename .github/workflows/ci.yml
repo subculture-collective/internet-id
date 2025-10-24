@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # Backend: Lint, TypeScript build, Hardhat compile, and tests
+  backend:
+    name: Backend (Lint, Build, Test)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+      
+      - name: Run linter (root)
+        run: npm run lint:root
+      
+      - name: Check formatting
+        run: npm run format:check
+      
+      - name: Compile Hardhat contracts
+        run: npm run build
+      
+      - name: Run tests
+        run: npm test
+
+  # Web: Lint and TypeScript check
+  web:
+    name: Web (Lint, TypeScript)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'web/package-lock.json'
+      
+      - name: Install root dependencies (for Prisma schema)
+        run: npm ci --legacy-peer-deps
+      
+      - name: Install web dependencies
+        working-directory: web
+        run: npm ci --legacy-peer-deps
+      
+      - name: Run linter (web)
+        working-directory: web
+        run: npm run lint
+      
+      - name: Check formatting (web)
+        working-directory: web
+        run: npm run format:check
+      
+      - name: Build Next.js app
+        working-directory: web
+        run: npm run build

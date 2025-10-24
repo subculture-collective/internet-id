@@ -1,5 +1,7 @@
 # Internet-ID: Human-Created Content Anchoring
 
+[![CI](https://github.com/subculture-collective/internet-id/actions/workflows/ci.yml/badge.svg)](https://github.com/subculture-collective/internet-id/actions/workflows/ci.yml)
+
 This repo scaffolds a minimal on-chain content provenance flow:
 
 - A creator hashes their content and signs a manifest.
@@ -70,6 +72,31 @@ Configuration files:
 - Root ESLint: `.eslintrc.json` (TypeScript + Node.js)
 - Web ESLint: `web/.eslintrc.json` (Next.js)
 - Prettier: `.prettierrc.json` (shared)
+
+## Continuous Integration
+
+This project uses GitHub Actions to ensure code quality and prevent regressions. The CI workflow runs automatically on pull requests and pushes to the main branch.
+
+### CI Workflow
+
+The workflow includes two parallel jobs:
+
+1. **Backend Job**: 
+   - Installs dependencies
+   - Runs ESLint on root package
+   - Checks code formatting with Prettier
+   - Compiles Solidity contracts with Hardhat
+   - Runs all backend tests
+
+2. **Web Job**:
+   - Installs dependencies for both root and web packages
+   - Runs ESLint on Next.js app
+   - Checks code formatting
+   - Builds the Next.js application
+
+View the [CI workflow configuration](.github/workflows/ci.yml) and [workflow runs](https://github.com/subculture-collective/internet-id/actions/workflows/ci.yml).
+
+**Note**: This CI workflow is part of the project roadmap to guard against regressions (see [#10](https://github.com/subculture-collective/internet-id/issues/10)).
 
 ## Setup
 
