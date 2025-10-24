@@ -98,7 +98,8 @@ echo ""
 echo "Test 8: Checking script functions..."
 functions=("log" "error_exit" "check_postgres" "full_backup" "full_restore")
 for func in "${functions[@]}"; do
-    if grep -q "${func}()" ops/backup/backup-database.sh ops/restore/restore-database.sh 2>/dev/null; then
+    # Match function definitions with optional leading whitespace
+    if grep -qE "^[[:space:]]*${func}[[:space:]]*\(\)" ops/backup/backup-database.sh ops/restore/restore-database.sh 2>/dev/null; then
         echo "  ✓ Function $func defined"
     fi
 done
