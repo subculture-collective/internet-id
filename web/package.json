@@ -6,7 +6,10 @@
     "dev": "next dev -p 3000",
     "build": "next build",
     "start": "next start -p 3000",
-    "lint": "next lint",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
     "prisma:generate": "prisma generate --schema ../prisma/schema.prisma --generator client-web",
     "postinstall": "prisma generate --schema ../prisma/schema.prisma --generator client-web"
   },
@@ -26,6 +29,10 @@
     "@types/qrcode": "^1.5.5",
     "@types/react": "18.2.74",
     "@types/react-dom": "18.2.25",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^15.5.6",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.6.2",
     "prisma": "^6.17.0",
     "typescript": "5.6.3"
   }

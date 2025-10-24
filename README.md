@@ -34,6 +34,43 @@ This project implements comprehensive input validation and sanitization to preve
 
 All API endpoints validate inputs against strict schemas with detailed error messages. See [docs/VALIDATION.md](./docs/VALIDATION.md) for complete documentation.
 
+## Code Quality
+
+This project uses ESLint and Prettier to maintain consistent code style and catch common issues:
+
+- **ESLint**: Configured for both Node.js/Hardhat scripts (TypeScript) and Next.js app
+- **Prettier**: Shared formatting config across the monorepo
+
+### Linting & Formatting
+
+```bash
+# Run linters across the entire monorepo
+npm run lint
+
+# Fix auto-fixable linting issues
+npm run lint:fix
+
+# Format all code with Prettier
+npm run format
+
+# Check if code is properly formatted
+npm run format:check
+```
+
+For the web package specifically:
+
+```bash
+cd web
+npm run lint        # ESLint for Next.js app
+npm run lint:fix    # Auto-fix issues
+npm run format      # Format with Prettier
+```
+
+Configuration files:
+- Root ESLint: `.eslintrc.json` (TypeScript + Node.js)
+- Web ESLint: `web/.eslintrc.json` (Next.js)
+- Prettier: `.prettierrc.json` (shared)
+
 ## Setup
 
 1. Install deps
@@ -69,10 +106,17 @@ If you plan to use the included web UI (`web/`), set:
 - `bind:youtube` – bind a YouTube videoId to a previously registered master file
 - `verify:youtube` – verify a YouTube URL/ID via on-chain binding + manifest
 - `start:api` – start the Express API server (default port 3001)
+- `lint` – run ESLint on both root and web packages
+- `lint:fix` – automatically fix ESLint issues where possible
+- `format` – format all code with Prettier
+- `format:check` – check if code is formatted correctly
 - Web: from `web/` workspace
   - `npm run dev` – start Next.js dev server on :3000
   - `npm run build && npm start` – production build/start
   - `npm run prisma:generate` – generate Prisma Client for web (uses root schema)
+  - `npm run lint` – run ESLint on web package
+  - `npm run lint:fix` – automatically fix ESLint issues in web package
+  - `npm run format` – format web code with Prettier
 
 ## Quickstart
 
