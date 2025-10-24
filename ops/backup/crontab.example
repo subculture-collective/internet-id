@@ -1,0 +1,31 @@
+# PostgreSQL Database Backup Crontab Configuration
+# This file defines the backup schedule for production environments
+#
+# Installation:
+#   1. Copy this file to /etc/cron.d/postgres-backup
+#   2. Ensure scripts have execute permissions
+#   3. Verify cron service is running: systemctl status cron
+#
+# Logs are written to /var/lib/postgresql/backups/backup.log
+
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+BACKUP_DIR=/var/lib/postgresql/backups
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=internetid
+POSTGRES_USER=internetid
+POSTGRES_PASSWORD=internetid
+RETENTION_DAYS=30
+
+# Daily full backup at 2:00 AM
+0 2 * * * postgres /opt/internet-id/ops/backup/backup-database.sh full
+
+# Hourly incremental backup (WAL archiving) at 15 minutes past the hour
+15 * * * * postgres /opt/internet-id/ops/backup/backup-database.sh incremental
+
+# Backup verification every 6 hours
+0 */6 * * * postgres /opt/internet-id/ops/backup/verify-backup.sh
+
+# Weekly cleanup of old logs (keep last 30 days)
+0 3 * * 0 postgres find ${BACKUP_DIR} -name "*.log" -type f -mtime +30 -delete
