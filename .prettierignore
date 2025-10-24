@@ -1,0 +1,14 @@
+node_modules/
+dist/
+cache/
+artifacts/
+typechain-types/
+coverage/
+.nyc_output/
+.next/
+out/
+.vercel/
+package-lock.json
+*.log
+*.db
+*.sqlite

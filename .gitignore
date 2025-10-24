@@ -54,6 +54,9 @@ lerna-debug.log*
 .vscode/
 .idea/
 
+# Linting
+.eslintcache
+
 # Next.js (applies to any package path)
 .next/
 out/
