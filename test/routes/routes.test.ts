@@ -5,8 +5,8 @@ import type { Express } from "express";
 describe("API Routes", function () {
   let app: Express;
 
-  before(function () {
-    app = createApp();
+  before(async function () {
+    app = await createApp();
   });
 
   describe("Health Routes", function () {
