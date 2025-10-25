@@ -36,11 +36,14 @@ send_alert() {
 # Uses cached OS_TYPE to determine correct stat command format
 get_file_mtime() {
     local file="$1"
+    if [ ! -f "${file}" ]; then
+        return 1
+    fi
     if [ "${OS_TYPE}" = "Linux" ]; then
-        stat -c %Y "${file}"
+        stat -c %Y "${file}" 2>/dev/null || return 1
     else
         # macOS and other BSD-based systems
-        stat -f %m "${file}"
+        stat -f %m "${file}" 2>/dev/null || return 1
     fi
 }
 
@@ -48,11 +51,24 @@ get_file_mtime() {
 # Uses cached OS_TYPE to determine correct stat command format
 get_file_mtime_human() {
     local file="$1"
+    if [ ! -f "${file}" ]; then
+        return 1
+    fi
     if [ "${OS_TYPE}" = "Linux" ]; then
-        stat -c %y "${file}"
+        stat -c %y "${file}" 2>/dev/null || return 1
     else
         # macOS and other BSD-based systems
-        stat -f %Sm -t "%Y-%m-%d %H:%M:%S" "${file}"
+        stat -f %Sm -t "%Y-%m-%d %H:%M:%S" "${file}" 2>/dev/null || return 1
+    fi
+}
+
+# Get the date of the oldest backup file
+get_oldest_backup_date() {
+    local oldest_file=$(ls -t "${FULL_BACKUP_DIR}"/backup_*.dump.gz 2>/dev/null | tail -1)
+    if [ -n "${oldest_file}" ]; then
+        get_file_mtime_human "${oldest_file}" | cut -d' ' -f1
+    else
+        echo "N/A"
     fi
 }
 
@@ -222,7 +238,7 @@ Storage Usage:
 
 Retention Policy:
   Configured retention: ${RETENTION_DAYS} days
-  Oldest backup: $(oldest_file=$(ls -t "${FULL_BACKUP_DIR}"/backup_*.dump.gz 2>/dev/null | tail -1); [ -n "$oldest_file" ] && get_file_mtime_human "$oldest_file" | cut -d' ' -f1)
+  Oldest backup: $(get_oldest_backup_date)
 
 ========================================
 EOF
