@@ -64,7 +64,22 @@ get_file_mtime_human() {
 
 # Get the date of the oldest backup file
 get_oldest_backup_date() {
-    local oldest_file=$(ls -t "${FULL_BACKUP_DIR}"/backup_*.dump.gz 2>/dev/null | tail -1)
+    local oldest_file=""
+    if [ "${OS_TYPE}" = "Linux" ]; then
+        oldest_file=$(find "${FULL_BACKUP_DIR}" -maxdepth 1 -type f -name 'backup_*.dump.gz' -printf '%T@ %p\n' 2>/dev/null | sort -n | head -1 | cut -d' ' -f2-)
+    else
+        # macOS/BSD fallback: use stat in a loop
+        local min_time=""
+        local file_time=""
+        for f in "${FULL_BACKUP_DIR}"/backup_*.dump.gz; do
+            [ -f "$f" ] || continue
+            file_time=$(stat -f %m "$f" 2>/dev/null)
+            if [ -z "$min_time" ] || [ "$file_time" -lt "$min_time" ]; then
+                min_time="$file_time"
+                oldest_file="$f"
+            fi
+        done
+    fi
     if [ -n "${oldest_file}" ]; then
         local date_str
         if date_str=$(get_file_mtime_human "${oldest_file}" 2>/dev/null); then
