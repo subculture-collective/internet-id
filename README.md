@@ -415,6 +415,37 @@ npm run db:migrate
 
 ```
 
+### Database Backup and Disaster Recovery
+
+The project includes comprehensive automated backup and disaster recovery capabilities for production deployments:
+
+- **Automated Backups**: Daily full backups and hourly incremental backups via WAL archiving
+- **Point-in-Time Recovery (PITR)**: Restore database to any specific timestamp
+- **Encrypted Storage**: S3-compatible backup storage with encryption at rest
+- **Monitoring & Alerts**: Automated backup verification and health checks
+- **Disaster Recovery Runbook**: Tested procedures with RTO/RPO targets
+
+See detailed documentation:
+- [Database Backup & Recovery Guide](docs/ops/DATABASE_BACKUP_RECOVERY.md) - Complete setup and usage
+- [Disaster Recovery Runbook](docs/ops/DISASTER_RECOVERY_RUNBOOK.md) - Emergency procedures and scenarios
+- [Backup Monitoring](docs/ops/BACKUP_MONITORING.md) - Monitoring and alerting configuration
+- [Ops Scripts](ops/README.md) - Backup and restore scripts
+
+Quick start:
+```bash
+# Run manual backup
+cd ops/backup
+./backup-database.sh full
+
+# Restore from backup
+cd ops/restore
+./restore-database.sh full
+
+# Verify backups
+cd ops/backup
+./verify-backup.sh
+```
+
 ## Verification sketch
 
 - Recompute the file hash (sha256) and compare with `content_hash` in manifest and on-chain `entries[hash]`.

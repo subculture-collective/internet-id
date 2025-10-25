@@ -6,14 +6,47 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-internetid}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-internetid}
       POSTGRES_DB: ${POSTGRES_DB:-internetid}
+      # Enable WAL archiving for point-in-time recovery
+    command: >
+      postgres
+      -c wal_level=replica
+      -c archive_mode=on
+      -c archive_command='test ! -f /var/lib/postgresql/backups/wal_archive/%f && cp %p /var/lib/postgresql/backups/wal_archive/%f'
     ports:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+      - backup_data:/var/lib/postgresql/backups
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
       interval: 5s
       timeout: 5s
       retries: 5
+  
+  # Backup service for automated database backups
+  backup:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-internetid}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-internetid}
+      POSTGRES_DB: ${POSTGRES_DB:-internetid}
+      BACKUP_DIR: /var/lib/postgresql/backups
+      RETENTION_DAYS: ${RETENTION_DAYS:-30}
+      S3_BUCKET: ${S3_BUCKET:-}
+      S3_REGION: ${S3_REGION:-us-east-1}
+    volumes:
+      - backup_data:/var/lib/postgresql/backups
+      - ./ops/backup:/opt/backup-scripts:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    entrypoint: /bin/sh
+    # Run backup script on startup (for testing), in production use cron
+    command: -c "apk add --no-cache bash && while true; do /opt/backup-scripts/backup-database.sh full; sleep 86400; done"
+    restart: unless-stopped
+
 volumes:
   db_data:
+  backup_data:
