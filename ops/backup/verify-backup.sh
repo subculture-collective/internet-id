@@ -5,6 +5,9 @@
 
 set -euo pipefail
 
+# Detect OS type once at script initialization
+OS_TYPE=$(uname -s)
+
 # Configuration from environment or defaults
 BACKUP_DIR="${BACKUP_DIR:-/var/lib/postgresql/backups}"
 FULL_BACKUP_DIR="${BACKUP_DIR}/full"
@@ -29,6 +32,30 @@ send_alert() {
     fi
 }
 
+# Get file modification time in seconds since epoch
+# Uses cached OS_TYPE to determine correct stat command format
+get_file_mtime() {
+    local file="$1"
+    if [ "${OS_TYPE}" = "Linux" ]; then
+        stat -c %Y "${file}"
+    else
+        # macOS and other BSD-based systems
+        stat -f %m "${file}"
+    fi
+}
+
+# Get file modification time in human-readable format
+# Uses cached OS_TYPE to determine correct stat command format
+get_file_mtime_human() {
+    local file="$1"
+    if [ "${OS_TYPE}" = "Linux" ]; then
+        stat -c %y "${file}"
+    else
+        # macOS and other BSD-based systems
+        stat -f %Sm -t "%Y-%m-%d %H:%M:%S" "${file}"
+    fi
+}
+
 # Check backup age
 check_backup_age() {
     log "Checking backup age..."
@@ -40,7 +67,7 @@ check_backup_age() {
         return 1
     fi
     
-    local backup_age_seconds=$(( $(date +%s) - $(stat -c %Y "${latest_backup}" 2>/dev/null || stat -f %m "${latest_backup}") ))
+    local backup_age_seconds=$(( $(date +%s) - $(get_file_mtime "${latest_backup}") ))
     local backup_age_hours=$(( backup_age_seconds / 3600 ))
     
     log "Latest backup: ${latest_backup}"
@@ -195,7 +222,7 @@ Storage Usage:
 
 Retention Policy:
   Configured retention: ${RETENTION_DAYS} days
-  Oldest backup: $(ls -t "${FULL_BACKUP_DIR}"/backup_*.dump.gz 2>/dev/null | tail -1 | xargs -r stat -c %y 2>/dev/null | cut -d' ' -f1)
+  Oldest backup: $(oldest_file=$(ls -t "${FULL_BACKUP_DIR}"/backup_*.dump.gz 2>/dev/null | tail -1); [ -n "$oldest_file" ] && get_file_mtime_human "$oldest_file" | cut -d' ' -f1)
 
 ========================================
 EOF
