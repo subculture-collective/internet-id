@@ -66,7 +66,12 @@ get_file_mtime_human() {
 get_oldest_backup_date() {
     local oldest_file=$(ls -t "${FULL_BACKUP_DIR}"/backup_*.dump.gz 2>/dev/null | tail -1)
     if [ -n "${oldest_file}" ]; then
-        get_file_mtime_human "${oldest_file}" | cut -d' ' -f1
+        local date_str
+        if date_str=$(get_file_mtime_human "${oldest_file}" 2>/dev/null); then
+            echo "${date_str}" | cut -d' ' -f1
+        else
+            echo "N/A"
+        fi
     else
         echo "N/A"
     fi
