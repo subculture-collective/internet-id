@@ -5,6 +5,9 @@
 
 set -euo pipefail
 
+# Detect OS type once at script initialization
+OS_TYPE=$(uname -s)
+
 # Configuration from environment or defaults
 BACKUP_DIR="${BACKUP_DIR:-/var/lib/postgresql/backups}"
 FULL_BACKUP_DIR="${BACKUP_DIR}/full"
@@ -29,45 +32,61 @@ send_alert() {
     fi
 }
 
-# Get file modification time (cross-platform)
+# Get file modification time in seconds since epoch
+# Uses cached OS_TYPE to determine correct stat command format
 get_file_mtime() {
     local file="$1"
-    local os_type
-    os_type=$(uname -s)
-    
-    # Detect OS and use appropriate stat command
-    if [[ "${os_type}" == "Darwin" ]] || [[ "${os_type}" == *"BSD"* ]]; then
-        # macOS/BSD: use -f %m
-        stat -f %m "${file}" 2>/dev/null
+    if [ ! -f "${file}" ]; then
+        return 1
+    fi
+    if [ "${OS_TYPE}" = "Linux" ]; then
+        stat -c %Y "${file}" 2>/dev/null || return 1
     else
-        # Linux: use -c %Y
-        stat -c %Y "${file}" 2>/dev/null
+        # macOS and other BSD-based systems
+        stat -f %m "${file}" 2>/dev/null || return 1
     fi
 }
 
-# Get file modification date in human-readable format (cross-platform)
+# Get file modification time in human-readable format
+# Uses cached OS_TYPE to determine correct stat command format
 get_file_mtime_human() {
     local file="$1"
-    local os_type
-    os_type=$(uname -s)
-    
-    # Detect OS and use appropriate stat command
-    if [[ "${os_type}" == "Darwin" ]] || [[ "${os_type}" == *"BSD"* ]]; then
-        # macOS/BSD: use -f %Sm with time format
-        stat -f %Sm -t "%Y-%m-%d" "${file}" 2>/dev/null
+    if [ ! -f "${file}" ]; then
+        return 1
+    fi
+    if [ "${OS_TYPE}" = "Linux" ]; then
+        stat -c %y "${file}" 2>/dev/null || return 1
     else
-        # Linux: use -c %y and extract date portion
-        stat -c %y "${file}" 2>/dev/null | cut -d' ' -f1
+        # macOS and other BSD-based systems
+        stat -f %Sm -t "%Y-%m-%d %H:%M:%S" "${file}" 2>/dev/null || return 1
     fi
 }
 
-# Get oldest backup date for reporting
+# Get the date of the oldest backup file
 get_oldest_backup_date() {
-    local oldest_backup_file
-    oldest_backup_file=$(ls -t "${FULL_BACKUP_DIR}"/backup_*.dump.gz 2>/dev/null | tail -1)
-    
-    if [ -n "${oldest_backup_file}" ]; then
-        get_file_mtime_human "${oldest_backup_file}"
+    local oldest_file=""
+    if [ "${OS_TYPE}" = "Linux" ]; then
+        oldest_file=$(find "${FULL_BACKUP_DIR}" -maxdepth 1 -type f -name 'backup_*.dump.gz' -printf '%T@ %p\n' 2>/dev/null | sort -n | head -1 | cut -d' ' -f2-)
+    else
+        # macOS/BSD fallback: use stat in a loop
+        local min_time=""
+        local file_time=""
+        for f in "${FULL_BACKUP_DIR}"/backup_*.dump.gz; do
+            [ -f "$f" ] || continue
+            file_time=$(stat -f %m "$f" 2>/dev/null)
+            if [ -z "$min_time" ] || [ "$file_time" -lt "$min_time" ]; then
+                min_time="$file_time"
+                oldest_file="$f"
+            fi
+        done
+    fi
+    if [ -n "${oldest_file}" ]; then
+        local date_str
+        if date_str=$(get_file_mtime_human "${oldest_file}" 2>/dev/null); then
+            echo "${date_str}" | cut -d' ' -f1
+        else
+            echo "N/A"
+        fi
     else
         echo "N/A"
     fi
