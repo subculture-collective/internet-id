@@ -154,7 +154,8 @@ pitr_restore() {
     log "Using base backup: ${base_backup}"
     
     # Create recovery configuration
-    local recovery_conf="/tmp/recovery_${TIMESTAMP}.conf"
+    local timestamp=$(date +%Y%m%d_%H%M%S)
+    local recovery_conf="/tmp/recovery_${timestamp}.conf"
     cat > "${recovery_conf}" <<EOF
 restore_command = 'cp ${BACKUP_DIR}/wal_archive/%f %p'
 recovery_target_time = '${RESTORE_TARGET_TIME}'
