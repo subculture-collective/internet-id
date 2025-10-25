@@ -1,136 +1,147 @@
-import express, { Request, Response } from "express";
+import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import multer from "multer";
-import { unlink, readFile } from "fs/promises";
+import { unlink, readFile, writeFile } from "fs/promises";
 import { createReadStream } from "fs";
 import { pipeline } from "stream/promises";
 import * as os from "os";
 import * as path from "path";
 import { createHash } from "crypto";
 import { ethers } from "ethers";
-import * as https from "https";
 import * as dotenv from "dotenv";
 dotenv.config();
 
 import { uploadToIpfs } from "./upload-ipfs";
 import { prisma } from "./db";
+import {
+  strictRateLimit,
+  moderateRateLimit,
+  relaxedRateLimit,
+} from "./middleware/rate-limit.middleware";
 
-const app = express();
-app.use(cors());
-app.use(express.json({ limit: "50mb" }));
+async function startServer() {
+  const app = express();
+  app.use(cors());
+  app.use(express.json({ limit: "50mb" }));
 
-function requireApiKey(req: Request, res: Response, next: Function) {
-  const expected = process.env.API_KEY;
-  if (!expected) return next();
-  const provided = req.header("x-api-key") || req.header("authorization");
-  if (provided === expected) return next();
-  return res.status(401).json({ error: "Unauthorized" });
-}
+  // Initialize rate limiters
+  const strict = await strictRateLimit;
+  const moderate = await moderateRateLimit;
+  const relaxed = await relaxedRateLimit;
 
-// Use disk storage to prevent memory exhaustion
-const upload = multer({
-  storage: multer.diskStorage({
-    destination: (_req, _file, cb) => {
-      cb(null, os.tmpdir());
-    },
-    filename: (_req, file, cb) => {
-      const uniqueName = `${Date.now()}-${Math.random()
-        .toString(36)
-        .slice(2)}-${path.basename(file.originalname)}`;
-      cb(null, uniqueName);
-    },
-  }),
-  limits: { fileSize: 1024 * 1024 * 1024 },
-}); // up to 1GB
-
-function sha256Hex(buf: Buffer) {
-  return "0x" + createHash("sha256").update(buf).digest("hex");
-}
-
-// Stream-based hash computation to avoid loading entire file in memory
-async function sha256HexFromFile(filePath: string): Promise<string> {
-  const hash = createHash("sha256");
-  await pipeline(createReadStream(filePath), hash);
-  return "0x" + hash.digest("hex");
-}
-
-async function fetchHttpsJson(url: string): Promise<any> {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status} for ${url}`);
+  function requireApiKey(req: Request, res: Response, next: NextFunction) {
+    const expected = process.env.API_KEY;
+    if (!expected) return next();
+    const provided = req.header("x-api-key") || req.header("authorization");
+    if (provided === expected) return next();
+    return res.status(401).json({ error: "Unauthorized" });
   }
-  return response.json();
-}
 
-async function fetchManifest(uri: string): Promise<any> {
-  if (uri.startsWith("ipfs://")) {
-    const p = uri.replace("ipfs://", "");
-    return fetchHttpsJson(`https://ipfs.io/ipfs/${p}`);
+  // Use disk storage to prevent memory exhaustion
+  const upload = multer({
+    storage: multer.diskStorage({
+      destination: (_req, _file, cb) => {
+        cb(null, os.tmpdir());
+      },
+      filename: (_req, file, cb) => {
+        const uniqueName = `${Date.now()}-${Math.random()
+          .toString(36)
+          .slice(2)}-${path.basename(file.originalname)}`;
+        cb(null, uniqueName);
+      },
+    }),
+    limits: { fileSize: 1024 * 1024 * 1024 },
+  }); // up to 1GB
+
+  function sha256Hex(buf: Buffer) {
+    return "0x" + createHash("sha256").update(buf).digest("hex");
   }
-  if (uri.startsWith("http://") || uri.startsWith("https://"))
-    return fetchHttpsJson(uri);
-  throw new Error("Unsupported manifest URI");
-}
 
-async function tmpWrite(originalName: string, buf: Buffer) {
-  const filename = `${Date.now()}-${Math.random()
-    .toString(36)
-    .slice(2)}-${path.basename(originalName)}`;
-  const tmpPath = path.join(os.tmpdir(), filename);
-  await writeFile(tmpPath, buf);
-  return tmpPath;
-}
+  // Stream-based hash computation to avoid loading entire file in memory
+  async function sha256HexFromFile(filePath: string): Promise<string> {
+    const hash = createHash("sha256");
+    await pipeline(createReadStream(filePath), hash);
+    return "0x" + hash.digest("hex");
+  }
 
-app.get("/api/health", (_req: Request, res: Response) => {
-  res.json({ ok: true });
-});
+  async function fetchHttpsJson(url: string): Promise<any> {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status} for ${url}`);
+    }
+    return response.json();
+  }
 
-// Network info (for UI explorer links)
-app.get("/api/network", async (_req: Request, res: Response) => {
-  try {
+  async function fetchManifest(uri: string): Promise<any> {
+    if (uri.startsWith("ipfs://")) {
+      const p = uri.replace("ipfs://", "");
+      return fetchHttpsJson(`https://ipfs.io/ipfs/${p}`);
+    }
+    if (uri.startsWith("http://") || uri.startsWith("https://"))
+      return fetchHttpsJson(uri);
+    throw new Error("Unsupported manifest URI");
+  }
+
+  async function tmpWrite(originalName: string, buf: Buffer) {
+    const filename = `${Date.now()}-${Math.random()
+      .toString(36)
+      .slice(2)}-${path.basename(originalName)}`;
+    const tmpPath = path.join(os.tmpdir(), filename);
+    await writeFile(tmpPath, buf);
+    return tmpPath;
+  }
+
+  // Health and status endpoints - relaxed rate limiting
+  app.get("/api/health", relaxed, (_req: Request, res: Response) => {
+    res.json({ ok: true });
+  });
+
+  // Network info (for UI explorer links) - moderate rate limiting
+  app.get("/api/network", moderate, async (_req: Request, res: Response) => {
+    try {
+      const provider = new ethers.JsonRpcProvider(
+        process.env.RPC_URL || "https://sepolia.base.org"
+      );
+      const net = await provider.getNetwork();
+      res.json({ chainId: Number(net.chainId) });
+    } catch (e: any) {
+      res.status(500).json({ error: e?.message || String(e) });
+    }
+  });
+
+  // Helper to resolve default registry address for current network
+  async function resolveDefaultRegistry(): Promise<{
+    registryAddress: string;
+    chainId: number;
+  }> {
     const provider = new ethers.JsonRpcProvider(
       process.env.RPC_URL || "https://sepolia.base.org"
     );
     const net = await provider.getNetwork();
-    res.json({ chainId: Number(net.chainId) });
-  } catch (e: any) {
-    res.status(500).json({ error: e?.message || String(e) });
+    const chainId = Number(net.chainId);
+    const override = process.env.REGISTRY_ADDRESS;
+    if (override) return { registryAddress: override, chainId };
+    let deployedFile: string | undefined;
+    if (chainId === 84532)
+      deployedFile = path.join(process.cwd(), "deployed", "baseSepolia.json");
+    if (deployedFile) {
+      try {
+        const data = JSON.parse((await readFile(deployedFile)).toString("utf8"));
+        if (data?.address) return { registryAddress: data.address, chainId };
+      } catch {}
+    }
+    throw new Error("Registry address not configured");
   }
-});
 
-// Helper to resolve default registry address for current network
-async function resolveDefaultRegistry(): Promise<{
-  registryAddress: string;
-  chainId: number;
-}> {
-  const provider = new ethers.JsonRpcProvider(
-    process.env.RPC_URL || "https://sepolia.base.org"
-  );
-  const net = await provider.getNetwork();
-  const chainId = Number(net.chainId);
-  const override = process.env.REGISTRY_ADDRESS;
-  if (override) return { registryAddress: override, chainId };
-  let deployedFile: string | undefined;
-  if (chainId === 84532)
-    deployedFile = path.join(process.cwd(), "deployed", "baseSepolia.json");
-  if (deployedFile) {
-    try {
-      const data = JSON.parse((await readFile(deployedFile)).toString("utf8"));
-      if (data?.address) return { registryAddress: data.address, chainId };
-    } catch {}
-  }
-  throw new Error("Registry address not configured");
-}
-
-// Parse platform input from a URL or explicit platform/platformId
-function parsePlatformInput(
-  input?: string,
-  platform?: string,
-  platformId?: string
-): { platform: string; platformId: string } | null {
-  if (platform && platformId)
-    return { platform: platform.toLowerCase(), platformId };
-  if (!input) return null;
+  // Parse platform input from a URL or explicit platform/platformId
+  function parsePlatformInput(
+    input?: string,
+    platform?: string,
+    platformId?: string
+  ): { platform: string; platformId: string } | null {
+    if (platform && platformId)
+      return { platform: platform.toLowerCase(), platformId };
+    if (!input) return null;
   try {
     const u = new URL(input);
     const host = u.hostname.replace(/^www\./, "");
@@ -176,8 +187,8 @@ function parsePlatformInput(
   }
 }
 
-// Resolve binding by URL or platform+platformId
-app.get("/api/resolve", async (req: Request, res: Response) => {
+// Resolve binding by URL or platform+platformId - moderate rate limiting
+app.get("/api/resolve", moderate, async (req: Request, res: Response) => {
   try {
     const url = (req.query as any).url as string | undefined;
     const platform = (req.query as any).platform as string | undefined;
@@ -227,8 +238,8 @@ app.get("/api/resolve", async (req: Request, res: Response) => {
   }
 });
 
-// Public verify: resolve + include manifest JSON if on IPFS/HTTP
-app.get("/api/public-verify", async (req: Request, res: Response) => {
+// Public verify: resolve + include manifest JSON if on IPFS/HTTP - moderate rate limiting
+app.get("/api/public-verify", moderate, async (req: Request, res: Response) => {
   try {
     const url = (req.query as any).url as string | undefined;
     const platform = (req.query as any).platform as string | undefined;
@@ -284,8 +295,8 @@ app.get("/api/public-verify", async (req: Request, res: Response) => {
   }
 });
 
-// Default registry address for current network
-app.get("/api/registry", async (_req: Request, res: Response) => {
+// Default registry address for current network - moderate rate limiting
+app.get("/api/registry", moderate, async (_req: Request, res: Response) => {
   try {
     const override = process.env.REGISTRY_ADDRESS;
     const provider = new ethers.JsonRpcProvider(
@@ -320,9 +331,10 @@ app.get("/api/registry", async (_req: Request, res: Response) => {
   }
 });
 
-// Upload to IPFS
+// Upload to IPFS - strict rate limiting
 app.post(
   "/api/upload",
+  strict,
   requireApiKey as any,
   upload.single("file"),
   async (req: Request, res: Response) => {
@@ -345,9 +357,10 @@ app.post(
   }
 );
 
-// Create manifest (optionally upload it)
+// Create manifest (optionally upload it) - strict rate limiting
 app.post(
   "/api/manifest",
+  strict,
   requireApiKey as any,
   upload.single("file"),
   async (req: Request, res: Response) => {
@@ -414,9 +427,10 @@ app.post(
   }
 );
 
-// Register on-chain
+// Register on-chain - strict rate limiting
 app.post(
   "/api/register",
+  strict,
   requireApiKey as any,
   upload.single("file"),
   async (req: Request, res: Response) => {
@@ -508,8 +522,8 @@ app.post(
   }
 );
 
-// Users API (minimal)
-app.post("/api/users", async (req: Request, res: Response) => {
+// Users API (minimal) - moderate rate limiting
+app.post("/api/users", moderate, async (req: Request, res: Response) => {
   try {
     const { address, email, name } = req.body as {
       address?: string;
@@ -529,7 +543,8 @@ app.post("/api/users", async (req: Request, res: Response) => {
   }
 });
 
-app.get("/api/contents", async (_req: Request, res: Response) => {
+// Content listing - moderate rate limiting
+app.get("/api/contents", moderate, async (_req: Request, res: Response) => {
   try {
     const items = await prisma.content.findMany({
       orderBy: { createdAt: "desc" },
@@ -541,8 +556,8 @@ app.get("/api/contents", async (_req: Request, res: Response) => {
   }
 });
 
-// Content detail by contentHash
-app.get("/api/contents/:hash", async (req: Request, res: Response) => {
+// Content detail by contentHash - moderate rate limiting
+app.get("/api/contents/:hash", moderate, async (req: Request, res: Response) => {
   try {
     const hash = req.params.hash;
     if (!hash) return res.status(400).json({ error: "hash is required" });
@@ -557,8 +572,8 @@ app.get("/api/contents/:hash", async (req: Request, res: Response) => {
   }
 });
 
-// Verifications listing
-app.get("/api/verifications", async (req: Request, res: Response) => {
+// Verifications listing - moderate rate limiting
+app.get("/api/verifications", moderate, async (req: Request, res: Response) => {
   try {
     const { contentHash, limit } = req.query as {
       contentHash?: string;
@@ -576,8 +591,8 @@ app.get("/api/verifications", async (req: Request, res: Response) => {
   }
 });
 
-// Verification detail
-app.get("/api/verifications/:id", async (req: Request, res: Response) => {
+// Verification detail - moderate rate limiting
+app.get("/api/verifications/:id", moderate, async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
     const v = await prisma.verification.findUnique({ where: { id } });
@@ -588,9 +603,10 @@ app.get("/api/verifications/:id", async (req: Request, res: Response) => {
   }
 });
 
-// Verifications by contentHash
+// Verifications by contentHash - moderate rate limiting
 app.get(
   "/api/contents/:hash/verifications",
+  moderate,
   async (req: Request, res: Response) => {
     try {
       const hash = req.params.hash;
@@ -605,9 +621,10 @@ app.get(
   }
 );
 
-// Verify
+// Verify - strict rate limiting (includes file upload)
 app.post(
   "/api/verify",
+  strict,
   upload.single("file"),
   async (req: Request, res: Response) => {
     try {
@@ -684,9 +701,10 @@ app.post(
   }
 );
 
-// Proof
+// Proof - strict rate limiting (includes file upload)
 app.post(
   "/api/proof",
+  strict,
   upload.single("file"),
   async (req: Request, res: Response) => {
     try {
@@ -794,9 +812,10 @@ app.post(
   }
 );
 
-// Bind platform and upsert DB binding
+// Bind platform and upsert DB binding - strict rate limiting
 app.post(
   "/api/bind",
+  strict,
   requireApiKey as any,
   async (req: Request, res: Response) => {
     try {
@@ -857,9 +876,10 @@ app.post(
   }
 );
 
-// Bind multiple platforms in one request (sequential txs)
+// Bind multiple platforms in one request (sequential txs) - strict rate limiting
 app.post(
   "/api/bind-many",
+  strict,
   requireApiKey as any,
   async (req: Request, res: Response) => {
     try {
@@ -950,9 +970,10 @@ app.post(
   }
 );
 
-// One-shot: upload content -> create+upload manifest -> register on-chain
+// One-shot: upload content -> create+upload manifest -> register on-chain - strict rate limiting
 app.post(
   "/api/one-shot",
+  strict,
   requireApiKey as any,
   upload.single("file"),
   async (req: Request, res: Response) => {
@@ -1162,8 +1183,15 @@ app.post(
   }
 );
 
-const PORT = Number(process.env.PORT || 3001);
+  const PORT = Number(process.env.PORT || 3001);
 
-app.listen(PORT, () => {
-  console.log(`API listening on http://localhost:${PORT}`);
+  app.listen(PORT, () => {
+    console.log(`API listening on http://localhost:${PORT}`);
+  });
+}
+
+// Start the server
+startServer().catch((err) => {
+  console.error("Failed to start server:", err);
+  process.exit(1);
 });
