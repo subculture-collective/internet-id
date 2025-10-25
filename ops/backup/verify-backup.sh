@@ -29,6 +29,34 @@ send_alert() {
     fi
 }
 
+# Get file modification time (cross-platform)
+get_file_mtime() {
+    local file="$1"
+    
+    # Detect OS and use appropriate stat command
+    if [[ "$(uname -s)" == "Darwin" ]] || [[ "$(uname -s)" == *"BSD"* ]]; then
+        # macOS/BSD: use -f %m
+        stat -f %m "${file}" 2>/dev/null
+    else
+        # Linux: use -c %Y
+        stat -c %Y "${file}" 2>/dev/null
+    fi
+}
+
+# Get file modification date in human-readable format (cross-platform)
+get_file_mtime_human() {
+    local file="$1"
+    
+    # Detect OS and use appropriate stat command
+    if [[ "$(uname -s)" == "Darwin" ]] || [[ "$(uname -s)" == *"BSD"* ]]; then
+        # macOS/BSD: use -f %Sm with time format
+        stat -f %Sm -t "%Y-%m-%d" "${file}" 2>/dev/null
+    else
+        # Linux: use -c %y and extract date portion
+        stat -c %y "${file}" 2>/dev/null | cut -d' ' -f1
+    fi
+}
+
 # Check backup age
 check_backup_age() {
     log "Checking backup age..."
@@ -40,7 +68,7 @@ check_backup_age() {
         return 1
     fi
     
-    local backup_age_seconds=$(( $(date +%s) - $(stat -c %Y "${latest_backup}" 2>/dev/null || stat -f %m "${latest_backup}") ))
+    local backup_age_seconds=$(( $(date +%s) - $(get_file_mtime "${latest_backup}") ))
     local backup_age_hours=$(( backup_age_seconds / 3600 ))
     
     log "Latest backup: ${latest_backup}"
@@ -195,7 +223,7 @@ Storage Usage:
 
 Retention Policy:
   Configured retention: ${RETENTION_DAYS} days
-  Oldest backup: $(ls -t "${FULL_BACKUP_DIR}"/backup_*.dump.gz 2>/dev/null | tail -1 | xargs -r stat -c %y 2>/dev/null | cut -d' ' -f1)
+  Oldest backup: $(oldest_backup_file=$(ls -t "${FULL_BACKUP_DIR}"/backup_*.dump.gz 2>/dev/null | tail -1); [ -n "${oldest_backup_file}" ] && get_file_mtime_human "${oldest_backup_file}" || echo "N/A")
 
 ========================================
 EOF
