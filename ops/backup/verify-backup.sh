@@ -32,9 +32,11 @@ send_alert() {
 # Get file modification time (cross-platform)
 get_file_mtime() {
     local file="$1"
+    local os_type
+    os_type=$(uname -s)
     
     # Detect OS and use appropriate stat command
-    if [[ "$(uname -s)" == "Darwin" ]] || [[ "$(uname -s)" == *"BSD"* ]]; then
+    if [[ "${os_type}" == "Darwin" ]] || [[ "${os_type}" == *"BSD"* ]]; then
         # macOS/BSD: use -f %m
         stat -f %m "${file}" 2>/dev/null
     else
@@ -46,14 +48,28 @@ get_file_mtime() {
 # Get file modification date in human-readable format (cross-platform)
 get_file_mtime_human() {
     local file="$1"
+    local os_type
+    os_type=$(uname -s)
     
     # Detect OS and use appropriate stat command
-    if [[ "$(uname -s)" == "Darwin" ]] || [[ "$(uname -s)" == *"BSD"* ]]; then
+    if [[ "${os_type}" == "Darwin" ]] || [[ "${os_type}" == *"BSD"* ]]; then
         # macOS/BSD: use -f %Sm with time format
         stat -f %Sm -t "%Y-%m-%d" "${file}" 2>/dev/null
     else
         # Linux: use -c %y and extract date portion
         stat -c %y "${file}" 2>/dev/null | cut -d' ' -f1
+    fi
+}
+
+# Get oldest backup date for reporting
+get_oldest_backup_date() {
+    local oldest_backup_file
+    oldest_backup_file=$(ls -t "${FULL_BACKUP_DIR}"/backup_*.dump.gz 2>/dev/null | tail -1)
+    
+    if [ -n "${oldest_backup_file}" ]; then
+        get_file_mtime_human "${oldest_backup_file}"
+    else
+        echo "N/A"
     fi
 }
 
@@ -223,7 +239,7 @@ Storage Usage:
 
 Retention Policy:
   Configured retention: ${RETENTION_DAYS} days
-  Oldest backup: $(oldest_backup_file=$(ls -t "${FULL_BACKUP_DIR}"/backup_*.dump.gz 2>/dev/null | tail -1); [ -n "${oldest_backup_file}" ] && get_file_mtime_human "${oldest_backup_file}" || echo "N/A")
+  Oldest backup: $(get_oldest_backup_date)
 
 ========================================
 EOF
