@@ -7,7 +7,11 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-internetid}
       POSTGRES_DB: ${POSTGRES_DB:-internetid}
       # Enable WAL archiving for point-in-time recovery
-      POSTGRES_INITDB_ARGS: "-c wal_level=replica -c archive_mode=on -c archive_command='test ! -f /var/lib/postgresql/backups/wal_archive/%f && cp %p /var/lib/postgresql/backups/wal_archive/%f'"
+    command: >
+      postgres
+      -c wal_level=replica
+      -c archive_mode=on
+      -c archive_command='test ! -f /var/lib/postgresql/backups/wal_archive/%f && cp %p /var/lib/postgresql/backups/wal_archive/%f'
     ports:
       - "5432:5432"
     volumes:
