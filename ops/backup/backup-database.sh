@@ -163,7 +163,6 @@ cleanup_old_backups() {
     # Clean old S3 backups if configured
     if [ -n "${S3_BUCKET}" ] && command -v aws &> /dev/null; then
         log "Cleaning up old S3 backups..."
-        local cutoff_date=$(date -d "${RETENTION_DAYS} days ago" +%Y%m%d 2>/dev/null || date -v-${RETENTION_DAYS}d +%Y%m%d)
         # Note: This requires S3 lifecycle policies for production
         log "S3 cleanup should be configured via lifecycle policies"
     fi
