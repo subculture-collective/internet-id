@@ -14,8 +14,15 @@ import { createApp } from "../../scripts/app";
  */
 export class TestDatabase {
   private prisma: PrismaClient;
+  private isAvailable: boolean = false;
 
   constructor() {
+    // Ensure DATABASE_URL is set before loading Prisma
+    if (!process.env.DATABASE_URL) {
+      process.env.DATABASE_URL = process.env.TEST_DATABASE_URL || 
+        "postgresql://internetid:internetid@localhost:5432/internetid_test?schema=public";
+    }
+    
     // Use the regular Prisma client which is already configured
     // Test isolation is achieved through cleanup
     const { prisma } = require("../../scripts/db");
@@ -23,26 +30,46 @@ export class TestDatabase {
   }
 
   async connect() {
-    await this.prisma.$connect();
+    try {
+      await this.prisma.$connect();
+      // Test if database is actually reachable
+      await this.prisma.$queryRaw`SELECT 1`;
+      this.isAvailable = true;
+    } catch (error) {
+      console.warn("Database not available for integration tests:", error);
+      this.isAvailable = false;
+    }
   }
 
   async disconnect() {
-    await this.prisma.$disconnect();
+    if (this.isAvailable) {
+      await this.prisma.$disconnect();
+    }
   }
 
   async cleanup() {
-    // Clean all tables in reverse order of dependencies
-    await this.prisma.verification.deleteMany();
-    await this.prisma.platformBinding.deleteMany();
-    await this.prisma.content.deleteMany();
-    await this.prisma.session.deleteMany();
-    await this.prisma.account.deleteMany();
-    await this.prisma.user.deleteMany();
-    await this.prisma.verificationToken.deleteMany();
+    if (!this.isAvailable) return;
+    
+    try {
+      // Clean all tables in reverse order of dependencies
+      await this.prisma.verification.deleteMany();
+      await this.prisma.platformBinding.deleteMany();
+      await this.prisma.content.deleteMany();
+      await this.prisma.session.deleteMany();
+      await this.prisma.account.deleteMany();
+      await this.prisma.user.deleteMany();
+      await this.prisma.verificationToken.deleteMany();
+    } catch (error) {
+      console.warn("Database cleanup failed:", error);
+    }
   }
 
   getClient() {
     return this.prisma;
+  }
+
+  isDbAvailable() {
+    return this.isAvailable;
   }
 }
 
@@ -50,51 +77,30 @@ export class TestDatabase {
  * Test blockchain environment using Hardhat network
  */
 export class TestBlockchain {
-  private provider: ethers.Provider;
-  private signers: ethers.Wallet[];
-  private registry: ethers.Contract | null = null;
+  private provider: any;
+  private signers: any[];
+  private registry: any | null = null;
 
-  constructor(provider?: ethers.Provider) {
-    this.provider = provider || new ethers.JsonRpcProvider("http://127.0.0.1:8545");
+  constructor(provider?: any) {
+    // Provider will be set during initialization
+    this.provider = provider;
     this.signers = [];
   }
 
   async initialize() {
-    // Use Hardhat's default test private keys
-    const hardhatKeys = [
-      "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
-      "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d",
-      "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a",
-    ];
-    
-    this.signers = hardhatKeys.map(key => new ethers.Wallet(key, this.provider));
+    // Get Hardhat's ethers and signers
+    const hre = require("hardhat");
+    this.signers = await hre.ethers.getSigners();
+    this.provider = hre.ethers.provider;
   }
 
-  async deployRegistry(signer?: ethers.Signer): Promise<string> {
+  async deployRegistry(signer?: any): Promise<string> {
     const deployer = signer || this.signers[0];
     
-    // Deploy contract using ethers ContractFactory
-    const abi = [
-      "constructor()",
-      "function register(bytes32 contentHash, string manifestURI) external",
-      "function updateManifest(bytes32 contentHash, string newManifestURI) external",
-      "function revoke(bytes32 contentHash) external",
-      "function bindPlatform(bytes32 contentHash, string platform, string platformId) external",
-      "function entries(bytes32) view returns (address creator, bytes32 contentHash, string manifestURI, uint64 timestamp)",
-      "function resolvePlatform(string platform, string platformId) view returns (address creator, bytes32 contentHash, string manifestURI, uint64 timestamp)",
-      "function platformToHash(bytes32) view returns (bytes32)",
-      "event ContentRegistered(bytes32 indexed contentHash, address indexed creator, string manifestURI, uint64 timestamp)",
-      "event ManifestUpdated(bytes32 indexed contentHash, string manifestURI, uint64 timestamp)",
-      "event EntryRevoked(bytes32 indexed contentHash, uint64 timestamp)",
-      "event PlatformBound(bytes32 indexed contentHash, string indexed platform, string platformId)"
-    ];
-    
-    // Get the bytecode from compiled artifacts
+    // Deploy contract using Hardhat's ethers
     const hre = require("hardhat");
-    const artifact = await hre.artifacts.readArtifact("ContentRegistry");
-    
-    const factory = new ethers.ContractFactory(artifact.abi, artifact.bytecode, deployer);
-    const registry = await factory.deploy();
+    const ContentRegistry = await hre.ethers.getContractFactory("ContentRegistry", deployer);
+    const registry = await ContentRegistry.deploy();
     await registry.waitForDeployment();
     
     this.registry = registry;
@@ -163,14 +169,13 @@ export class IntegrationTestEnvironment {
     };
 
     // Set test environment variables
-    // Use test database or default to in-memory SQLite for tests
+    // Use test database or default for tests
     if (!process.env.DATABASE_URL) {
       process.env.DATABASE_URL = process.env.TEST_DATABASE_URL || 
         "postgresql://internetid:internetid@localhost:5432/internetid_test?schema=public";
     }
-    process.env.RPC_URL = "http://127.0.0.1:8545";
-    process.env.LOCAL_RPC_URL = "http://127.0.0.1:8545";
-
+    // Don't override RPC_URL - use Hardhat's network provider
+    
     // Initialize components
     await this.db.connect();
     await this.blockchain.initialize();
@@ -181,8 +186,9 @@ export class IntegrationTestEnvironment {
     await this.db.cleanup();
     await this.blockchain.resetNetwork();
     
-    // Restore original environment
+    // Restore original environment (except DATABASE_URL which we keep for Prisma)
     Object.entries(this.originalEnv).forEach(([key, value]) => {
+      if (key === 'DATABASE_URL') return; // Don't restore DATABASE_URL to avoid Prisma issues
       if (value === undefined) {
         delete process.env[key];
       } else {

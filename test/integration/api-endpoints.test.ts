@@ -80,6 +80,10 @@ describe("Integration: API Endpoints", function () {
     });
 
     it("GET /api/contents should return registered content", async function () {
+      if (!env.db.isDbAvailable()) {
+        this.skip();
+      }
+
       const prisma = env.db.getClient();
       const testFile = createTestFile("API test content");
 
@@ -114,6 +118,10 @@ describe("Integration: API Endpoints", function () {
     });
 
     it("GET /api/verifications should return verification records", async function () {
+      if (!env.db.isDbAvailable()) {
+        this.skip();
+      }
+
       const prisma = env.db.getClient();
       const testFile = createTestFile("Verification test");
 

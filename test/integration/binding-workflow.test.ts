@@ -59,7 +59,7 @@ describe("Integration: Platform Binding Workflow", function () {
       expect(boundHash).to.equal(testFile.hash);
 
       // Resolve via resolvePlatform
-      const resolved = await registry.resolvePlatform("youtube", youtubeId);
+      const resolved = await registry.resolveByPlatform("youtube", youtubeId);
       expect(resolved.creator).to.equal(creator.address);
       expect(resolved.contentHash).to.equal(testFile.hash);
       expect(resolved.manifestURI).to.equal(manifestUri);
@@ -106,10 +106,10 @@ describe("Integration: Platform Binding Workflow", function () {
       await registry.bindPlatform(testFile.hash, "x", twitterId);
 
       // Verify both bindings
-      const youtubeResolved = await registry.resolvePlatform("youtube", youtubeId);
+      const youtubeResolved = await registry.resolveByPlatform("youtube", youtubeId);
       expect(youtubeResolved.contentHash).to.equal(testFile.hash);
 
-      const twitterResolved = await registry.resolvePlatform("x", twitterId);
+      const twitterResolved = await registry.resolveByPlatform("x", twitterId);
       expect(twitterResolved.contentHash).to.equal(testFile.hash);
     });
 
@@ -151,7 +151,7 @@ describe("Integration: Platform Binding Workflow", function () {
       await registry.bindPlatform(testFile.hash, "x", tweetId);
 
       // Verify binding
-      const resolved = await registry.resolvePlatform("x", tweetId);
+      const resolved = await registry.resolveByPlatform("x", tweetId);
       expect(resolved.contentHash).to.equal(testFile.hash);
       expect(resolved.creator).to.equal(creator.address);
     });
@@ -171,7 +171,7 @@ describe("Integration: Platform Binding Workflow", function () {
       await registry.bindPlatform(testFile.hash, "youtube", platformId);
 
       // Resolve with lowercase (should work)
-      const resolved = await registry.resolvePlatform("youtube", platformId);
+      const resolved = await registry.resolveByPlatform("youtube", platformId);
       expect(resolved.contentHash).to.equal(testFile.hash);
     });
   });
@@ -181,7 +181,7 @@ describe("Integration: Platform Binding Workflow", function () {
       const registry = env.blockchain.getRegistry();
       if (!registry) throw new Error("Registry not deployed");
 
-      const resolved = await registry.resolvePlatform("youtube", "nonexistent123");
+      const resolved = await registry.resolveByPlatform("youtube", "nonexistent123");
       expect(resolved.creator).to.equal(ethers.ZeroAddress);
       expect(resolved.contentHash).to.equal(ethers.ZeroHash);
       expect(resolved.manifestURI).to.equal("");
@@ -203,7 +203,7 @@ describe("Integration: Platform Binding Workflow", function () {
       await registry.updateManifest(testFile.hash, manifestUri2);
 
       // Resolve should return updated manifest
-      const resolved = await registry.resolvePlatform("youtube", youtubeId);
+      const resolved = await registry.resolveByPlatform("youtube", youtubeId);
       expect(resolved.manifestURI).to.equal(manifestUri2);
     });
 
@@ -220,13 +220,17 @@ describe("Integration: Platform Binding Workflow", function () {
       await registry.bindPlatform(testFile.hash, "tiktok", platformId);
 
       // Resolve
-      const resolved = await registry.resolvePlatform("tiktok", platformId);
+      const resolved = await registry.resolveByPlatform("tiktok", platformId);
       expect(resolved.contentHash).to.equal(testFile.hash);
     });
   });
 
   describe("Database Integration", function () {
     it("should sync binding to database", async function () {
+      if (!env.db.isDbAvailable()) {
+        this.skip();
+      }
+
       const testFile = createTestFile("DB sync test");
       const manifestUri = `ipfs://QmTest${Date.now()}`;
       const youtubeId = "dbSyncId123";
@@ -307,7 +311,7 @@ describe("Integration: Platform Binding Workflow", function () {
       // (validation should be done at API level)
       await registry.bindPlatform(testFile.hash, "", "someId");
       
-      const resolved = await registry.resolvePlatform("", "someId");
+      const resolved = await registry.resolveByPlatform("", "someId");
       expect(resolved.contentHash).to.equal(testFile.hash);
     });
 
@@ -323,7 +327,7 @@ describe("Integration: Platform Binding Workflow", function () {
       // Binding with empty ID should work at contract level
       await registry.bindPlatform(testFile.hash, "youtube", "");
       
-      const resolved = await registry.resolvePlatform("youtube", "");
+      const resolved = await registry.resolveByPlatform("youtube", "");
       expect(resolved.contentHash).to.equal(testFile.hash);
     });
   });
