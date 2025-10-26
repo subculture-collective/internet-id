@@ -27,14 +27,35 @@ Looking for a plain-English overview? See the pitch: [PITCH.md](./PITCH.md)
 
 ## Security
 
-This project implements comprehensive input validation and sanitization to prevent:
-- XSS (Cross-Site Scripting) attacks
-- SQL injection
-- Command injection
-- Path traversal attacks
-- File upload vulnerabilities
+This project implements comprehensive security measures across smart contracts and API:
 
-All API endpoints validate inputs against strict schemas with detailed error messages. See [docs/VALIDATION.md](./docs/VALIDATION.md) for complete documentation.
+### Smart Contract Security
+- ✅ Automated security analysis completed (Slither)
+- ✅ No critical or high severity vulnerabilities found
+- ✅ Comprehensive access control with `onlyCreator` modifier
+- ✅ No reentrancy risks (no external calls)
+- ✅ Integer overflow protection (Solidity 0.8+)
+- 📋 Professional audit planned before mainnet launch
+
+See: [Smart Contract Audit Report](./docs/SMART_CONTRACT_AUDIT.md) | [Security Policy](./SECURITY_POLICY.md)
+
+### API Security
+- ✅ Comprehensive input validation and sanitization
+- ✅ XSS (Cross-Site Scripting) prevention
+- ✅ SQL injection protection via Prisma ORM
+- ✅ Command injection prevention
+- ✅ Path traversal protection
+- ✅ File upload security with size limits and type restrictions
+- ✅ Rate limiting (when configured with Redis)
+
+See: [Input Validation Documentation](./docs/VALIDATION.md) | [Security Implementation Summary](./SECURITY_IMPLEMENTATION_SUMMARY.md)
+
+### Reporting Security Issues
+
+We take security seriously. If you discover a vulnerability, please report it responsibly:
+- **Email**: security@subculture.io (or use GitHub Security Advisory)
+- **DO NOT** open public issues for security vulnerabilities
+- See our [Security Policy](./SECURITY_POLICY.md) for details and potential rewards
 
 ## Code Quality
 
