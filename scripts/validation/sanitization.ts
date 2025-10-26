@@ -2,7 +2,7 @@ import validator from "validator";
 
 /**
  * Input Sanitization Utilities
- * 
+ *
  * Provides functions to sanitize user inputs to prevent XSS, SQL injection,
  * command injection, and path traversal attacks.
  */
@@ -21,10 +21,10 @@ export function sanitizeString(input: string): string {
  */
 export function sanitizeUrl(url: string, options?: { allowedProtocols?: string[] }): string | null {
   const allowedProtocols = options?.allowedProtocols || ["http", "https", "ipfs"];
-  
+
   // Trim whitespace
   const trimmed = url.trim();
-  
+
   // Special handling for IPFS URLs since validator.isURL doesn't handle them
   if (trimmed.startsWith("ipfs://")) {
     // Validate IPFS CID format (basic check)
@@ -34,31 +34,27 @@ export function sanitizeUrl(url: string, options?: { allowedProtocols?: string[]
     }
     return null;
   }
-  
+
   // Check if URL is valid for http/https
-  if (!validator.isURL(trimmed, { 
-    protocols: ["http", "https"],
-    require_protocol: true 
-  })) {
+  if (
+    !validator.isURL(trimmed, {
+      protocols: ["http", "https"],
+      require_protocol: true,
+    })
+  ) {
     return null;
   }
-  
+
   // Additional check for javascript: protocol and other dangerous patterns
   const lowerUrl = trimmed.toLowerCase();
-  const dangerousPatterns = [
-    "javascript:",
-    "data:",
-    "vbscript:",
-    "file:",
-    "about:",
-  ];
-  
+  const dangerousPatterns = ["javascript:", "data:", "vbscript:", "file:", "about:"];
+
   for (const pattern of dangerousPatterns) {
     if (lowerUrl.includes(pattern)) {
       return null;
     }
   }
-  
+
   return trimmed;
 }
 
@@ -69,12 +65,12 @@ export function sanitizeUrl(url: string, options?: { allowedProtocols?: string[]
 export function sanitizeEthereumAddress(address: string): string | null {
   // Trim whitespace
   const trimmed = address.trim();
-  
+
   // Check format: 0x followed by 40 hex characters
   if (!/^0x[a-fA-F0-9]{40}$/.test(trimmed)) {
     return null;
   }
-  
+
   return trimmed;
 }
 
@@ -85,12 +81,12 @@ export function sanitizeEthereumAddress(address: string): string | null {
 export function sanitizeContentHash(hash: string): string | null {
   // Trim whitespace
   const trimmed = hash.trim();
-  
+
   // Check format: 0x followed by 64 hex characters
   if (!/^0x[a-fA-F0-9]{64}$/.test(trimmed)) {
     return null;
   }
-  
+
   return trimmed;
 }
 
@@ -101,17 +97,17 @@ export function sanitizeContentHash(hash: string): string | null {
 export function sanitizePlatformName(name: string): string | null {
   // Trim and lowercase
   const trimmed = name.trim().toLowerCase();
-  
+
   // Check allowed characters
   if (!/^[a-z0-9_-]+$/.test(trimmed)) {
     return null;
   }
-  
+
   // Check length
   if (trimmed.length === 0 || trimmed.length > 50) {
     return null;
   }
-  
+
   return trimmed;
 }
 
@@ -122,17 +118,17 @@ export function sanitizePlatformName(name: string): string | null {
 export function sanitizePlatformId(id: string): string | null {
   // Trim whitespace
   const trimmed = id.trim();
-  
+
   // Check allowed characters
   if (!/^[a-zA-Z0-9_\-\/.:@]+$/.test(trimmed)) {
     return null;
   }
-  
+
   // Check length
   if (trimmed.length === 0 || trimmed.length > 500) {
     return null;
   }
-  
+
   return trimmed;
 }
 
@@ -143,25 +139,25 @@ export function sanitizePlatformId(id: string): string | null {
 export function sanitizeFilename(filename: string): string | null {
   // Trim whitespace
   const trimmed = filename.trim();
-  
+
   // Check for path traversal attempts
   if (trimmed.includes("..") || trimmed.includes("/") || trimmed.includes("\\")) {
     return null;
   }
-  
+
   // Check for null bytes
   if (trimmed.includes("\0")) {
     return null;
   }
-  
+
   // Remove any remaining dangerous characters
   const sanitized = trimmed.replace(/[<>:"|?*]/g, "");
-  
+
   // Check length
   if (sanitized.length === 0 || sanitized.length > 255) {
     return null;
   }
-  
+
   return sanitized;
 }
 
@@ -171,12 +167,12 @@ export function sanitizeFilename(filename: string): string | null {
 export function sanitizeEmail(email: string): string | null {
   // Trim whitespace
   const trimmed = email.trim();
-  
+
   // Normalize and validate
   if (!validator.isEmail(trimmed)) {
     return null;
   }
-  
+
   return validator.normalizeEmail(trimmed) || null;
 }
 
@@ -188,13 +184,14 @@ export function sanitizeJson(jsonString: string): any | null {
   try {
     // Limit JSON depth to prevent DoS
     const parsed = JSON.parse(jsonString);
-    
+
     // Check depth and size
     const jsonStr = JSON.stringify(parsed);
-    if (jsonStr.length > 1024 * 1024) { // 1MB limit
+    if (jsonStr.length > 1024 * 1024) {
+      // 1MB limit
       return null;
     }
-    
+
     return parsed;
   } catch {
     return null;
@@ -210,22 +207,22 @@ export function sanitizeNumber(
   options?: { min?: number; max?: number; integer?: boolean }
 ): number | null {
   const num = typeof input === "string" ? Number(input) : input;
-  
+
   if (isNaN(num) || !isFinite(num)) {
     return null;
   }
-  
+
   if (options?.integer && !Number.isInteger(num)) {
     return null;
   }
-  
+
   if (options?.min !== undefined && num < options.min) {
     return null;
   }
-  
+
   if (options?.max !== undefined && num > options.max) {
     return null;
   }
-  
+
   return num;
 }

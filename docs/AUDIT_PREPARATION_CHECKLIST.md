@@ -27,6 +27,7 @@ This checklist guides the preparation of ContentRegistry.sol for professional se
 - [x] Deployment process documented
 
 **Files to Provide**:
+
 - [x] README.md
 - [x] contracts/ContentRegistry.sol
 - [x] hardhat.config.ts
@@ -38,6 +39,7 @@ This checklist guides the preparation of ContentRegistry.sol for professional se
 Current: Basic tests passing (264 tests total for entire project)
 
 **Smart Contract Tests Needed**:
+
 - [x] Basic registration and retrieval
 - [ ] Access control tests (non-creator attempts)
 - [ ] Duplicate registration prevention
@@ -50,6 +52,7 @@ Current: Basic tests passing (264 tests total for entire project)
 **Test Coverage Goal**: >90% line coverage for ContentRegistry.sol
 
 **Action Items**:
+
 ```bash
 # Measure current coverage
 npm run test:coverage
@@ -143,6 +146,7 @@ Create AUDIT_SCOPE.md with:
 - [ ] Ensure sufficient testnet funds for testing
 
 **Testnet Info**:
+
 ```
 Network: Base Sepolia
 RPC: https://sepolia.base.org
@@ -155,16 +159,19 @@ Etherscan: https://sepolia.basescan.org
 ### 9. Research and Select Audit Firm 🔍
 
 **Top Tier Firms** (Comprehensive but expensive):
+
 - [ ] Trail of Bits - Best for complex contracts, formal verification
 - [ ] OpenZeppelin - Strong reputation, good documentation
 - [ ] Consensys Diligence - Comprehensive methodology
 
 **Mid Tier Firms** (Good quality, competitive pricing):
-- [ ] Certik - Fast turnaround, good for simpler contracts  
+
+- [ ] Certik - Fast turnaround, good for simpler contracts
 - [ ] Halborn - Strong technical team
 - [ ] Quantstamp - Automated + manual review
 
 **Selection Criteria**:
+
 - [ ] Experience with similar contracts
 - [ ] Turnaround time (2-4 weeks ideal)
 - [ ] Cost ($15k-30k budget)
@@ -177,6 +184,7 @@ Etherscan: https://sepolia.basescan.org
 Request quotes from 3-5 firms:
 
 **Quote Request Template**:
+
 ```
 Subject: Smart Contract Audit Quote Request - ContentRegistry
 
@@ -252,6 +260,7 @@ For each valid finding:
 - [ ] Mark as resolved when approved
 
 **Fix Priority**:
+
 1. Critical: Immediate fix required
 2. High: Fix before mainnet
 3. Medium: Fix before mainnet or document risk
@@ -279,6 +288,7 @@ For each valid finding:
 - [ ] Link from contract comments
 
 **Files to Add**:
+
 ```
 docs/audits/
 ├── ContentRegistry_Audit_Report_[Firm]_[Date].pdf
@@ -361,6 +371,7 @@ docs/audits/
 ## Checklist Summary
 
 ### Critical Items (Must Complete Before Mainnet)
+
 - [ ] All tests passing with >90% coverage
 - [ ] Professional audit completed
 - [ ] All critical/high findings resolved
@@ -369,12 +380,14 @@ docs/audits/
 - [ ] Monitoring in place
 
 ### Recommended Items (Should Complete)
+
 - [ ] Bug bounty program launched
 - [ ] Responsible disclosure policy published
 - [ ] Incident response plan documented
 - [ ] Community security review
 
 ### Optional Items (Nice to Have)
+
 - [ ] Formal verification
 - [ ] Multiple audit firms
 - [ ] Academic security analysis
@@ -382,26 +395,26 @@ docs/audits/
 
 ## Budget Summary
 
-| Item | Estimated Cost | Priority |
-|------|---------------|----------|
-| Professional Audit | $15,000 - $30,000 | Critical |
-| Bug Bounty Setup | $500 - $1,000 | High |
-| Bug Bounty Pool | $50,000 - $100,000 | High |
-| Testnet Testing | $100 - $500 | Medium |
-| Monitoring Tools | $100 - $500/month | Medium |
-| **Total Initial** | **$65,600 - $131,500** | |
+| Item               | Estimated Cost         | Priority |
+| ------------------ | ---------------------- | -------- |
+| Professional Audit | $15,000 - $30,000      | Critical |
+| Bug Bounty Setup   | $500 - $1,000          | High     |
+| Bug Bounty Pool    | $50,000 - $100,000     | High     |
+| Testnet Testing    | $100 - $500            | Medium   |
+| Monitoring Tools   | $100 - $500/month      | Medium   |
+| **Total Initial**  | **$65,600 - $131,500** |          |
 
 ## Timeline
 
-| Phase | Duration | Status |
-|-------|----------|--------|
-| Preparation | 1-2 weeks | 🔄 In Progress |
-| Audit Selection | 1 week | ⏳ Pending |
-| Audit Execution | 2-4 weeks | ⏳ Pending |
-| Fix Implementation | 1-2 weeks | ⏳ Pending |
-| Re-audit | 1 week | ⏳ Pending |
-| Deployment Prep | 1 week | ⏳ Pending |
-| **Total** | **7-11 weeks** | |
+| Phase              | Duration       | Status         |
+| ------------------ | -------------- | -------------- |
+| Preparation        | 1-2 weeks      | 🔄 In Progress |
+| Audit Selection    | 1 week         | ⏳ Pending     |
+| Audit Execution    | 2-4 weeks      | ⏳ Pending     |
+| Fix Implementation | 1-2 weeks      | ⏳ Pending     |
+| Re-audit           | 1 week         | ⏳ Pending     |
+| Deployment Prep    | 1 week         | ⏳ Pending     |
+| **Total**          | **7-11 weeks** |                |
 
 ## Resources
 

@@ -30,6 +30,7 @@ Looking for a plain-English overview? See the pitch: [PITCH.md](./PITCH.md)
 This project implements comprehensive security measures across smart contracts and API:
 
 ### Smart Contract Security
+
 - ✅ Automated security analysis completed (Slither)
 - ✅ No critical or high severity vulnerabilities found
 - ✅ Comprehensive access control with `onlyCreator` modifier
@@ -40,6 +41,7 @@ This project implements comprehensive security measures across smart contracts a
 See: [Smart Contract Audit Report](./docs/SMART_CONTRACT_AUDIT.md) | [Security Policy](./SECURITY_POLICY.md)
 
 ### API Security
+
 - ✅ Comprehensive input validation and sanitization
 - ✅ XSS (Cross-Site Scripting) prevention
 - ✅ SQL injection protection via Prisma ORM
@@ -53,6 +55,7 @@ See: [Input Validation Documentation](./docs/VALIDATION.md) | [Security Implemen
 ### Reporting Security Issues
 
 We take security seriously. If you discover a vulnerability, please report it responsibly:
+
 - **Email**: security@subculture.io (or use GitHub Security Advisory)
 - **DO NOT** open public issues for security vulnerabilities
 - See our [Security Policy](./SECURITY_POLICY.md) for details and potential rewards
@@ -90,6 +93,7 @@ npm run format      # Format with Prettier
 ```
 
 Configuration files:
+
 - Root ESLint: `.eslintrc.json` (TypeScript + Node.js)
 - Web ESLint: `web/.eslintrc.json` (Next.js)
 - Prettier: `.prettierrc.json` (shared)
@@ -102,7 +106,7 @@ This project uses GitHub Actions to ensure code quality and prevent regressions.
 
 The workflow includes two parallel jobs:
 
-1. **Backend Job**: 
+1. **Backend Job**:
    - Installs dependencies
    - Runs ESLint on root package
    - Checks code formatting with Prettier
@@ -376,7 +380,7 @@ npm run db:migrate
 
 npm run db:studio
 
-```
+````
 
 ### Prisma Schema - Single Source of Truth
 
@@ -404,9 +408,10 @@ The database schema includes comprehensive indexes for optimal query performance
 To verify indexes after migration:
 ```bash
 npm run db:verify-indexes
-```
+````
 
 See detailed documentation:
+
 - [Database Indexing Strategy](docs/DATABASE_INDEXING_STRATEGY.md)
 - [Query Optimization Examples](docs/QUERY_OPTIMIZATION_EXAMPLES.md)
 - [Optimization Summary](docs/DATABASE_OPTIMIZATION_SUMMARY.md)
@@ -415,7 +420,7 @@ See detailed documentation:
 
 If you prefer Postgres, a `docker-compose.yml` is included.
 
-1) Start Postgres:
+1. Start Postgres:
 
 ```
 
@@ -423,9 +428,9 @@ docker compose up -d
 
 ```
 
-2) In `.env`, set `DATABASE_URL` to a Postgres URL (see `.env.example`).
+2. In `.env`, set `DATABASE_URL` to a Postgres URL (see `.env.example`).
 
-3) Re-run Prisma generate/migrate so the client matches the Postgres schema.
+3. Re-run Prisma generate/migrate so the client matches the Postgres schema.
 
 If you previously generated SQLite migrations, clear them before switching:
 
@@ -447,12 +452,14 @@ The project includes comprehensive automated backup and disaster recovery capabi
 - **Disaster Recovery Runbook**: Tested procedures with RTO/RPO targets
 
 See detailed documentation:
+
 - [Database Backup & Recovery Guide](docs/ops/DATABASE_BACKUP_RECOVERY.md) - Complete setup and usage
 - [Disaster Recovery Runbook](docs/ops/DISASTER_RECOVERY_RUNBOOK.md) - Emergency procedures and scenarios
 - [Backup Monitoring](docs/ops/BACKUP_MONITORING.md) - Monitoring and alerting configuration
 - [Ops Scripts](ops/README.md) - Backup and restore scripts
 
 Quick start:
+
 ```bash
 # Run manual backup
 cd ops/backup
@@ -477,9 +484,9 @@ cd ops/backup
 
 Because YouTube re-encodes media, the on-platform bytes won’t match your master file hash. Use a binding:
 
-1) Anchor your master file as usual (upload → manifest → register)
-2) After uploading to YouTube, get the `videoId` (from the URL)
-3) Bind the YouTube video to the master file:
+1. Anchor your master file as usual (upload → manifest → register)
+2. After uploading to YouTube, get the `videoId` (from the URL)
+3. Bind the YouTube video to the master file:
 
 ```
 
@@ -487,7 +494,7 @@ npm run bind:youtube -- ./master.mp4 <YouTubeVideoId> 0xRegistry
 
 ```
 
-4) Verify a YouTube URL or ID later:
+4. Verify a YouTube URL or ID later:
 
 ```
 
@@ -522,4 +529,7 @@ Auth: If `API_KEY` is set, include `x-api-key: $API_KEY` in requests for protect
 - Web-only:
   - `GET /api/badge/[hash]` – SVG badge with `theme` and `w` (width)
   - `GET /api/qr?url=...` – QR PNG for a share URL
+
+```
+
 ```

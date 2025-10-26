@@ -34,9 +34,9 @@ describe("ContentRegistry", function () {
     await registry.connect(creator).register(hash, uri);
 
     // Second registration should fail
-    await expect(
-      registry.connect(creator).register(hash, uri)
-    ).to.be.revertedWith("Already registered");
+    await expect(registry.connect(creator).register(hash, uri)).to.be.revertedWith(
+      "Already registered"
+    );
   });
 
   it("prevents non-creator from updating manifest", async function () {
@@ -53,9 +53,9 @@ describe("ContentRegistry", function () {
     await registry.connect(creator).register(hash, uri);
 
     // Non-creator should not be able to update
-    await expect(
-      registry.connect(nonCreator).updateManifest(hash, newUri)
-    ).to.be.revertedWith("Not creator");
+    await expect(registry.connect(nonCreator).updateManifest(hash, newUri)).to.be.revertedWith(
+      "Not creator"
+    );
   });
 
   it("allows creator to update manifest", async function () {
@@ -70,12 +70,12 @@ describe("ContentRegistry", function () {
 
     // Register and update
     await registry.connect(creator).register(hash, uri);
-    
+
     // Get the update transaction and check event
     const updateTx = await registry.connect(creator).updateManifest(hash, newUri);
     const updateReceipt = await updateTx.wait();
     const updateBlock = await ethers.provider.getBlock(updateReceipt!.blockNumber);
-    
+
     await expect(updateTx)
       .to.emit(registry, "ManifestUpdated")
       .withArgs(hash, newUri, updateBlock!.timestamp);
@@ -98,9 +98,7 @@ describe("ContentRegistry", function () {
     await registry.connect(creator).register(hash, uri);
 
     // Non-creator should not be able to revoke
-    await expect(
-      registry.connect(nonCreator).revoke(hash)
-    ).to.be.revertedWith("Not creator");
+    await expect(registry.connect(nonCreator).revoke(hash)).to.be.revertedWith("Not creator");
   });
 
   it("allows creator to revoke content", async function () {
@@ -114,8 +112,7 @@ describe("ContentRegistry", function () {
 
     // Register and revoke
     await registry.connect(creator).register(hash, uri);
-    await expect(registry.connect(creator).revoke(hash))
-      .to.emit(registry, "EntryRevoked");
+    await expect(registry.connect(creator).revoke(hash)).to.emit(registry, "EntryRevoked");
 
     // Verify revocation (manifest should be empty)
     const entry = await registry.entries(hash);
@@ -159,9 +156,11 @@ describe("ContentRegistry", function () {
       .withArgs(hash, platform, platformId);
 
     // Resolve by platform
-    const [resolvedCreator, resolvedHash, resolvedUri] = 
-      await registry.resolveByPlatform(platform, platformId);
-    
+    const [resolvedCreator, resolvedHash, resolvedUri] = await registry.resolveByPlatform(
+      platform,
+      platformId
+    );
+
     expect(resolvedCreator).to.eq(creator.address);
     expect(resolvedHash).to.eq(hash);
     expect(resolvedUri).to.eq(uri);
@@ -221,7 +220,7 @@ describe("ContentRegistry", function () {
     await registry.waitForDeployment();
 
     // Query non-existent binding
-    const [resolvedCreator, resolvedContentHash, resolvedManifestURI, resolvedTimestamp] = 
+    const [resolvedCreator, resolvedContentHash, resolvedManifestURI, resolvedTimestamp] =
       await registry.resolveByPlatform("youtube", "nonexistent");
 
     expect(resolvedCreator).to.eq(ethers.ZeroAddress);
@@ -243,10 +242,9 @@ describe("ContentRegistry", function () {
     const tx = await registry.connect(creator).register(hash, uri);
     const receipt = await tx.wait();
     const block = await ethers.provider.getBlock(receipt!.blockNumber);
-    
+
     await expect(tx)
       .to.emit(registry, "ContentRegistered")
       .withArgs(hash, creator.address, uri, block!.timestamp);
   });
 });
-

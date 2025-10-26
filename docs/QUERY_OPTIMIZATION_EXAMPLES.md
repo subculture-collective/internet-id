@@ -9,11 +9,13 @@ Use PostgreSQL's `EXPLAIN ANALYZE` to verify that queries are using indexes effe
 ### Prerequisites
 
 Connect to your PostgreSQL database:
+
 ```bash
 psql $DATABASE_URL
 ```
 
 Enable timing for accurate measurements:
+
 ```sql
 \timing on
 ```
@@ -25,6 +27,7 @@ Enable timing for accurate measurements:
 **Location:** `scripts/routes/content.routes.ts`
 
 **Query:**
+
 ```typescript
 const items = await prisma.content.findMany({
   orderBy: { createdAt: "desc" },
@@ -33,6 +36,7 @@ const items = await prisma.content.findMany({
 ```
 
 **SQL Equivalent:**
+
 ```sql
 EXPLAIN ANALYZE
 SELECT * FROM "Content"
@@ -40,6 +44,7 @@ ORDER BY "createdAt" DESC;
 ```
 
 **Expected Plan (with index):**
+
 ```
 Index Scan Backward using Content_createdAt_idx on "Content"
   (cost=0.15..XX.XX rows=XXX width=XXX)
@@ -55,6 +60,7 @@ Index Scan Backward using Content_createdAt_idx on "Content"
 **Location:** `scripts/routes/content.routes.ts:44-46`
 
 **Query:**
+
 ```typescript
 const item = await prisma.content.findUnique({
   where: { contentHash: hash },
@@ -63,6 +69,7 @@ const item = await prisma.content.findUnique({
 ```
 
 **SQL Equivalent:**
+
 ```sql
 EXPLAIN ANALYZE
 SELECT * FROM "Content"
@@ -70,6 +77,7 @@ WHERE "contentHash" = '0x1234567890abcdef...';
 ```
 
 **Expected Plan:**
+
 ```
 Index Scan using Content_contentHash_key on "Content"
   (cost=0.15..8.17 rows=1 width=XXX)
@@ -84,6 +92,7 @@ Index Scan using Content_contentHash_key on "Content"
 **Location:** `scripts/routes/content.routes.ts:92-94`
 
 **Query:**
+
 ```typescript
 const items = await prisma.verification.findMany({
   where: { contentHash: hash },
@@ -92,6 +101,7 @@ const items = await prisma.verification.findMany({
 ```
 
 **SQL Equivalent:**
+
 ```sql
 EXPLAIN ANALYZE
 SELECT * FROM "Verification"
@@ -100,6 +110,7 @@ ORDER BY "createdAt" DESC;
 ```
 
 **Expected Plan (with composite index):**
+
 ```
 Index Scan Backward using Verification_contentHash_createdAt_idx on "Verification"
   (cost=0.15..XX.XX rows=XXX width=XXX)
@@ -116,6 +127,7 @@ Index Scan Backward using Verification_contentHash_createdAt_idx on "Verificatio
 **Location:** `scripts/routes/content.routes.ts:63-66`
 
 **Query:**
+
 ```typescript
 const items = await prisma.verification.findMany({
   where: contentHash ? { contentHash } : undefined,
@@ -125,6 +137,7 @@ const items = await prisma.verification.findMany({
 ```
 
 **SQL Equivalent (with filter):**
+
 ```sql
 EXPLAIN ANALYZE
 SELECT * FROM "Verification"
@@ -134,6 +147,7 @@ LIMIT 50;
 ```
 
 **Expected Plan:**
+
 ```
 Limit (cost=0.15..XX.XX rows=50 width=XXX)
   -> Index Scan Backward using Verification_contentHash_createdAt_idx on "Verification"
@@ -141,6 +155,7 @@ Limit (cost=0.15..XX.XX rows=50 width=XXX)
 ```
 
 **SQL Equivalent (without filter):**
+
 ```sql
 EXPLAIN ANALYZE
 SELECT * FROM "Verification"
@@ -149,6 +164,7 @@ LIMIT 50;
 ```
 
 **Expected Plan:**
+
 ```
 Limit (cost=0.15..XX.XX rows=50 width=XXX)
   -> Index Scan Backward using Verification_createdAt_idx on "Verification"
@@ -161,6 +177,7 @@ Limit (cost=0.15..XX.XX rows=50 width=XXX)
 **Location:** `web/app/api/app/bind/route.ts:36-39`
 
 **Query:**
+
 ```typescript
 const acct = await prisma.account.findFirst({
   where: { userId, provider: requiredProvider },
@@ -169,6 +186,7 @@ const acct = await prisma.account.findFirst({
 ```
 
 **SQL Equivalent:**
+
 ```sql
 EXPLAIN ANALYZE
 SELECT "id" FROM "Account"
@@ -177,6 +195,7 @@ LIMIT 1;
 ```
 
 **Expected Plan (with composite index):**
+
 ```
 Limit (cost=0.15..8.17 rows=1 width=XX)
   -> Index Scan using Account_userId_provider_idx on "Account"
@@ -193,6 +212,7 @@ Limit (cost=0.15..8.17 rows=1 width=XX)
 **Location:** `scripts/routes/binding.routes.ts:53-60`
 
 **Query:**
+
 ```typescript
 await prisma.platformBinding.upsert({
   where: { platform_platformId: { platform, platformId } },
@@ -202,6 +222,7 @@ await prisma.platformBinding.upsert({
 ```
 
 **SQL Equivalent:**
+
 ```sql
 EXPLAIN ANALYZE
 SELECT * FROM "PlatformBinding"
@@ -209,6 +230,7 @@ WHERE "platform" = 'youtube' AND "platformId" = 'UCxxxxx';
 ```
 
 **Expected Plan:**
+
 ```
 Index Scan using PlatformBinding_platform_platformId_key on "PlatformBinding"
   (cost=0.15..8.17 rows=1 width=XXX)
@@ -224,6 +246,7 @@ Index Scan using PlatformBinding_platform_platformId_key on "PlatformBinding"
 **Not currently in codebase, but optimized for future use:**
 
 **Potential Query:**
+
 ```typescript
 const items = await prisma.content.findMany({
   where: { creatorAddress: address },
@@ -232,6 +255,7 @@ const items = await prisma.content.findMany({
 ```
 
 **SQL Equivalent:**
+
 ```sql
 EXPLAIN ANALYZE
 SELECT * FROM "Content"
@@ -240,6 +264,7 @@ ORDER BY "createdAt" DESC;
 ```
 
 **Expected Plan:**
+
 ```
 Index Scan using Content_creatorAddress_idx on "Content"
   (cost=0.15..XX.XX rows=XXX width=XXX)
@@ -261,6 +286,7 @@ const failed = await prisma.verification.findMany({
 ```
 
 **SQL Equivalent:**
+
 ```sql
 EXPLAIN ANALYZE
 SELECT * FROM "Verification"
@@ -270,6 +296,7 @@ LIMIT 100;
 ```
 
 **Expected Plan (with composite index):**
+
 ```
 Limit (cost=0.15..XX.XX rows=100 width=XXX)
   -> Index Scan Backward using Verification_status_createdAt_idx on "Verification"
@@ -286,12 +313,13 @@ Limit (cost=0.15..XX.XX rows=100 width=XXX)
 // Delete expired sessions
 await prisma.session.deleteMany({
   where: {
-    expires: { lt: new Date() }
-  }
+    expires: { lt: new Date() },
+  },
 });
 ```
 
 **SQL Equivalent:**
+
 ```sql
 EXPLAIN ANALYZE
 DELETE FROM "Session"
@@ -299,6 +327,7 @@ WHERE "expires" < NOW();
 ```
 
 **Expected Plan:**
+
 ```
 Delete on "Session"
   -> Index Scan using Session_expires_idx on "Session"
@@ -313,6 +342,7 @@ Delete on "Session"
 ## 10. User's Sessions Lookup
 
 **Query:**
+
 ```typescript
 const sessions = await prisma.session.findMany({
   where: { userId },
@@ -321,6 +351,7 @@ const sessions = await prisma.session.findMany({
 ```
 
 **SQL Equivalent:**
+
 ```sql
 EXPLAIN ANALYZE
 SELECT * FROM "Session"
@@ -329,6 +360,7 @@ ORDER BY "createdAt" DESC;
 ```
 
 **Expected Plan:**
+
 ```
 Sort (cost=XX.XX..XX.XX rows=XX width=XXX)
   Sort Key: "createdAt" DESC
@@ -346,19 +378,19 @@ Create a test script to measure query performance:
 
 ```typescript
 // test-query-performance.ts
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 async function testQueries() {
-  console.time('Content list');
+  console.time("Content list");
   await prisma.content.findMany({
     orderBy: { createdAt: "desc" },
     take: 100,
   });
-  console.timeEnd('Content list');
+  console.timeEnd("Content list");
 
-  console.time('Verifications by hash');
+  console.time("Verifications by hash");
   const contents = await prisma.content.findMany({ take: 1 });
   if (contents[0]) {
     await prisma.verification.findMany({
@@ -366,16 +398,16 @@ async function testQueries() {
       orderBy: { createdAt: "desc" },
     });
   }
-  console.timeEnd('Verifications by hash');
+  console.timeEnd("Verifications by hash");
 
-  console.time('Account lookup');
+  console.time("Account lookup");
   const users = await prisma.user.findMany({ take: 1 });
   if (users[0]) {
     await prisma.account.findFirst({
-      where: { userId: users[0].id, provider: 'google' },
+      where: { userId: users[0].id, provider: "google" },
     });
   }
-  console.timeEnd('Account lookup');
+  console.timeEnd("Account lookup");
 }
 
 testQueries()
@@ -384,6 +416,7 @@ testQueries()
 ```
 
 Run with:
+
 ```bash
 ts-node test-query-performance.ts
 ```
@@ -414,6 +447,7 @@ ORDER BY idx_scan DESC;
 ## Conclusion
 
 All critical queries in the codebase now use indexes effectively:
+
 - ✅ No sequential scans on large tables
 - ✅ Composite indexes for multi-column filters + sorts
 - ✅ Foreign key indexes for efficient JOINs

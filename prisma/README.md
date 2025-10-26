@@ -65,6 +65,7 @@ prisma migrate dev --name <migration_name>
 ## Safeguards
 
 If you accidentally create a duplicate schema:
+
 1. Delete the duplicate immediately
 2. Run `npm run db:generate` from root to regenerate clients
 3. Verify both clients work with your imports

@@ -16,16 +16,13 @@ export interface RegistryEntry {
 
 // Helper to resolve default registry address for current network
 export async function resolveDefaultRegistry(): Promise<RegistryInfo> {
-  const provider = new ethers.JsonRpcProvider(
-    process.env.RPC_URL || "https://sepolia.base.org"
-  );
+  const provider = new ethers.JsonRpcProvider(process.env.RPC_URL || "https://sepolia.base.org");
   const net = await provider.getNetwork();
   const chainId = Number(net.chainId);
   const override = process.env.REGISTRY_ADDRESS;
   if (override) return { registryAddress: override, chainId };
   let deployedFile: string | undefined;
-  if (chainId === 84532)
-    deployedFile = path.join(process.cwd(), "deployed", "baseSepolia.json");
+  if (chainId === 84532) deployedFile = path.join(process.cwd(), "deployed", "baseSepolia.json");
   if (deployedFile) {
     try {
       const data = JSON.parse((await readFile(deployedFile)).toString("utf8"));
@@ -36,9 +33,7 @@ export async function resolveDefaultRegistry(): Promise<RegistryInfo> {
 }
 
 export function getProvider(rpcUrl?: string): ethers.JsonRpcProvider {
-  return new ethers.JsonRpcProvider(
-    rpcUrl || process.env.RPC_URL || "https://sepolia.base.org"
-  );
+  return new ethers.JsonRpcProvider(rpcUrl || process.env.RPC_URL || "https://sepolia.base.org");
 }
 
 export function getRegistryContract(

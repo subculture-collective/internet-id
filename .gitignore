@@ -61,3 +61,17 @@ lerna-debug.log*
 .next/
 out/
 .vercel/
+
+# Security scans
+security-scans/
+secret-scan-*.txt
+security-summary.md
+
+# Backup files (secrets)
+backup-*.json
+*.backup
+vault-init.txt
+
+# Secret management
+.vault-token
+secrets-*.json

@@ -5,6 +5,7 @@ This directory contains integration tests that validate the complete flow of API
 ## Overview
 
 Integration tests cover:
+
 - **Content Registration Workflow**: Upload file → generate manifest → register on-chain → verify status
 - **Platform Binding Workflow**: Bind platform account → resolve binding → verify ownership
 - **API Endpoints**: Full HTTP API testing with database and blockchain integration
@@ -13,10 +14,12 @@ Integration tests cover:
 ## Prerequisites
 
 ### Required
+
 - Node.js >= 20
 - Hardhat (installed via npm)
 
 ### Optional (for full database integration)
+
 - PostgreSQL database (can use Docker Compose)
 - Redis (for rate limiting tests)
 
@@ -41,16 +44,19 @@ Note: Without a database connection, some tests will be skipped automatically.
 For complete integration testing including database operations:
 
 1. **Start PostgreSQL with Docker Compose:**
+
    ```bash
    docker compose up -d db
    ```
 
 2. **Set environment variables:**
+
    ```bash
    export DATABASE_URL="postgresql://internetid:internetid@localhost:5432/internetid?schema=public"
    ```
 
 3. **Run migrations:**
+
    ```bash
    npm run db:migrate
    ```
@@ -88,6 +94,7 @@ Located in `test/fixtures/`:
 - **helpers.ts**: Test environment setup utilities (database, blockchain, server)
 
 Example usage:
+
 ```typescript
 import { createTestUser, createTestContent, createTestFile } from "../fixtures/factories";
 import { IntegrationTestEnvironment } from "../fixtures/helpers";
@@ -136,6 +143,7 @@ Integration tests run automatically in CI on every pull request. See `.github/wo
 ### CI Requirements
 
 The CI environment includes:
+
 - PostgreSQL service container
 - All required environment variables
 - Hardhat for blockchain testing
@@ -158,7 +166,7 @@ describe("Integration: My Feature", function () {
   before(async function () {
     env = new IntegrationTestEnvironment();
     await env.setup();
-    
+
     // Deploy contracts and setup
     const creator = env.blockchain.getSigner(0);
     registryAddress = await env.blockchain.deployRegistry(creator);
@@ -185,9 +193,7 @@ import request from "supertest";
 
 const app = env.server.getApp();
 
-const response = await request(app)
-  .get("/api/health")
-  .expect(200);
+const response = await request(app).get("/api/health").expect(200);
 
 expect(response.body).to.deep.equal({ ok: true });
 ```
@@ -259,6 +265,7 @@ npx hardhat test --grep "should complete full workflow"
 ## Performance
 
 Integration tests typically complete in:
+
 - Content workflow: ~5-10 seconds
 - Binding workflow: ~5-10 seconds
 - API endpoints: ~5-10 seconds
@@ -278,6 +285,7 @@ Integration tests typically complete in:
 ### Tests Hang
 
 Check for:
+
 - Missing `await` keywords
 - Unclosed database connections
 - Unresolved promises
@@ -285,6 +293,7 @@ Check for:
 ### Tests Fail Intermittently
 
 Possible causes:
+
 - Race conditions (ensure proper sequencing)
 - Shared state between tests (improve cleanup)
 - External service issues (add retries)

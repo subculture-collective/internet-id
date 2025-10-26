@@ -10,7 +10,8 @@ import { createApp } from "../../scripts/app";
 
 // Set DATABASE_URL before any imports that might use it
 if (!process.env.DATABASE_URL) {
-  process.env.DATABASE_URL = process.env.TEST_DATABASE_URL || 
+  process.env.DATABASE_URL =
+    process.env.TEST_DATABASE_URL ||
     "postgresql://internetid:internetid@localhost:5432/internetid_test?schema=public";
 }
 
@@ -49,7 +50,7 @@ export class TestDatabase {
 
   async cleanup() {
     if (!this.isAvailable) return;
-    
+
     try {
       // Clean all tables in reverse order of dependencies
       await this.prisma.verification.deleteMany();
@@ -96,13 +97,13 @@ export class TestBlockchain {
 
   async deployRegistry(signer?: any): Promise<string> {
     const deployer = signer || this.signers[0];
-    
+
     // Deploy contract using Hardhat's ethers
     const hre = require("hardhat");
     const ContentRegistry = await hre.ethers.getContractFactory("ContentRegistry", deployer);
     const registry = await ContentRegistry.deploy();
     await registry.waitForDeployment();
-    
+
     this.registry = registry;
     return await registry.getAddress();
   }
@@ -171,11 +172,12 @@ export class IntegrationTestEnvironment {
     // Set test environment variables
     // Use test database or default for tests
     if (!process.env.DATABASE_URL) {
-      process.env.DATABASE_URL = process.env.TEST_DATABASE_URL || 
+      process.env.DATABASE_URL =
+        process.env.TEST_DATABASE_URL ||
         "postgresql://internetid:internetid@localhost:5432/internetid_test?schema=public";
     }
     // Don't override RPC_URL - use Hardhat's network provider
-    
+
     // Initialize components
     await this.db.connect();
     await this.blockchain.initialize();
@@ -185,10 +187,10 @@ export class IntegrationTestEnvironment {
   async cleanup() {
     await this.db.cleanup();
     await this.blockchain.resetNetwork();
-    
+
     // Restore original environment (except DATABASE_URL which we keep for Prisma)
     Object.entries(this.originalEnv).forEach(([key, value]) => {
-      if (key === 'DATABASE_URL') return; // Don't restore DATABASE_URL to avoid Prisma issues
+      if (key === "DATABASE_URL") return; // Don't restore DATABASE_URL to avoid Prisma issues
       if (value === undefined) {
         delete process.env[key];
       } else {

@@ -24,12 +24,16 @@ router.post(
   validateFile({ required: false, allowedMimeTypes: ALLOWED_MIME_TYPES }),
   async (req: Request, res: Response) => {
     try {
-      const { contentUri, upload: doUpload, contentHash } = req.body as {
+      const {
+        contentUri,
+        upload: doUpload,
+        contentHash,
+      } = req.body as {
         contentUri: string;
         upload?: string;
         contentHash?: string;
       };
-      
+
       let fileHash: string | undefined = undefined;
       if (req.file) {
         fileHash = sha256Hex(req.file.buffer);
@@ -52,8 +56,7 @@ router.post(
       );
       const net = await provider.getNetwork();
       const pk = process.env.PRIVATE_KEY;
-      if (!pk)
-        return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
+      if (!pk) return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
       const wallet = new ethers.Wallet(pk);
       const signature = await wallet.signMessage(ethers.getBytes(fileHash!));
       const manifest = {
@@ -68,10 +71,7 @@ router.post(
       };
 
       if (String(doUpload).toLowerCase() === "true") {
-        const tmpPath = await tmpWrite(
-          "manifest.json",
-          Buffer.from(JSON.stringify(manifest))
-        );
+        const tmpPath = await tmpWrite("manifest.json", Buffer.from(JSON.stringify(manifest)));
         try {
           const cid = await uploadToIpfs(tmpPath);
           return res.json({ manifest, cid, uri: `ipfs://${cid}` });

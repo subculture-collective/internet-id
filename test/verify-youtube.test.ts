@@ -46,9 +46,7 @@ describe("YouTube Verification Logic", function () {
     });
 
     it("should handle URLs with extra query parameters", function () {
-      const id = extractYouTubeId(
-        "https://www.youtube.com/watch?v=videoID&list=playlist&index=1"
-      );
+      const id = extractYouTubeId("https://www.youtube.com/watch?v=videoID&list=playlist&index=1");
       expect(id).to.equal("videoID");
     });
   });
@@ -71,8 +69,7 @@ describe("YouTube Verification Logic", function () {
     it("should verify valid YouTube binding", async function () {
       const videoId = "dQw4w9WgXcQ";
       const creator = "0x1234567890123456789012345678901234567890";
-      const contentHash =
-        "0xabc123def456789012345678901234567890123456789012345678901234567890";
+      const contentHash = "0xabc123def456789012345678901234567890123456789012345678901234567890";
       const manifestURI = "ipfs://QmTestManifest";
       const timestamp = 1234567890n;
 
@@ -110,15 +107,12 @@ describe("YouTube Verification Logic", function () {
     });
 
     it("should verify signature recovery", function () {
-      const contentHash =
-        "0xabc123def456789012345678901234567890123456789012345678901234567890";
+      const contentHash = "0xabc123def456789012345678901234567890123456789012345678901234567890";
       const wallet = ethers.Wallet.createRandom();
 
       // Sign the content hash
       const bytes = ethers.getBytes(contentHash);
-      const signature = wallet.signingKey.sign(
-        ethers.hashMessage(bytes)
-      ).serialized;
+      const signature = wallet.signingKey.sign(ethers.hashMessage(bytes)).serialized;
 
       // Verify recovery
       const recovered = ethers.verifyMessage(bytes, signature);
@@ -127,15 +121,12 @@ describe("YouTube Verification Logic", function () {
     });
 
     it("should detect signature mismatch", function () {
-      const contentHash =
-        "0xabc123def456789012345678901234567890123456789012345678901234567890";
+      const contentHash = "0xabc123def456789012345678901234567890123456789012345678901234567890";
       const wallet1 = ethers.Wallet.createRandom();
       const wallet2 = ethers.Wallet.createRandom();
 
       const bytes = ethers.getBytes(contentHash);
-      const signature = wallet1.signingKey.sign(
-        ethers.hashMessage(bytes)
-      ).serialized;
+      const signature = wallet1.signingKey.sign(ethers.hashMessage(bytes)).serialized;
 
       const recovered = ethers.verifyMessage(bytes, signature);
 
@@ -145,8 +136,7 @@ describe("YouTube Verification Logic", function () {
 
   describe("Manifest validation for YouTube", function () {
     it("should validate manifest with matching content hash", function () {
-      const onchainHash =
-        "0xabc123def456789012345678901234567890123456789012345678901234567890";
+      const onchainHash = "0xabc123def456789012345678901234567890123456789012345678901234567890";
       const manifest = {
         version: "1.0",
         algorithm: "sha256",
@@ -154,22 +144,16 @@ describe("YouTube Verification Logic", function () {
         signature: "0xsig123",
       };
 
-      expect(manifest.content_hash.toLowerCase()).to.equal(
-        onchainHash.toLowerCase()
-      );
+      expect(manifest.content_hash.toLowerCase()).to.equal(onchainHash.toLowerCase());
     });
 
     it("should detect manifest hash mismatch", function () {
-      const onchainHash =
-        "0xabc123def456789012345678901234567890123456789012345678901234567890";
+      const onchainHash = "0xabc123def456789012345678901234567890123456789012345678901234567890";
       const manifest = {
-        content_hash:
-          "0xdifferent123456789012345678901234567890123456789012345678901234",
+        content_hash: "0xdifferent123456789012345678901234567890123456789012345678901234",
       };
 
-      expect(manifest.content_hash.toLowerCase()).to.not.equal(
-        onchainHash.toLowerCase()
-      );
+      expect(manifest.content_hash.toLowerCase()).to.not.equal(onchainHash.toLowerCase());
     });
 
     it("should handle manifest without signature", function () {

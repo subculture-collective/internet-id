@@ -1,7 +1,11 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../db";
 import { validateBody, validateQuery, validateParams } from "../validation/middleware";
-import { createUserSchema, verificationsQuerySchema, contentHashParamSchema } from "../validation/schemas";
+import {
+  createUserSchema,
+  verificationsQuerySchema,
+  contentHashParamSchema,
+} from "../validation/schemas";
 
 const router = Router();
 
@@ -39,38 +43,46 @@ router.get("/contents", async (_req: Request, res: Response) => {
 });
 
 // Content detail by contentHash
-router.get("/contents/:hash", validateParams(contentHashParamSchema), async (req: Request, res: Response) => {
-  try {
-    const hash = req.params.hash;
-    const item = await prisma.content.findUnique({
-      where: { contentHash: hash },
-      include: { bindings: true },
-    });
-    if (!item) return res.status(404).json({ error: "Not found" });
-    res.json(item);
-  } catch (e: any) {
-    res.status(500).json({ error: e?.message || String(e) });
+router.get(
+  "/contents/:hash",
+  validateParams(contentHashParamSchema),
+  async (req: Request, res: Response) => {
+    try {
+      const hash = req.params.hash;
+      const item = await prisma.content.findUnique({
+        where: { contentHash: hash },
+        include: { bindings: true },
+      });
+      if (!item) return res.status(404).json({ error: "Not found" });
+      res.json(item);
+    } catch (e: any) {
+      res.status(500).json({ error: e?.message || String(e) });
+    }
   }
-});
+);
 
 // Verifications listing
-router.get("/verifications", validateQuery(verificationsQuerySchema), async (req: Request, res: Response) => {
-  try {
-    const { contentHash, limit } = req.query as {
-      contentHash?: string;
-      limit?: string;
-    };
-    const take = Math.max(1, Math.min(100, Number(limit || 50)));
-    const items = await prisma.verification.findMany({
-      where: contentHash ? { contentHash } : undefined,
-      orderBy: { createdAt: "desc" },
-      take,
-    });
-    res.json(items);
-  } catch (e: any) {
-    res.status(500).json({ error: e?.message || String(e) });
+router.get(
+  "/verifications",
+  validateQuery(verificationsQuerySchema),
+  async (req: Request, res: Response) => {
+    try {
+      const { contentHash, limit } = req.query as {
+        contentHash?: string;
+        limit?: string;
+      };
+      const take = Math.max(1, Math.min(100, Number(limit || 50)));
+      const items = await prisma.verification.findMany({
+        where: contentHash ? { contentHash } : undefined,
+        orderBy: { createdAt: "desc" },
+        take,
+      });
+      res.json(items);
+    } catch (e: any) {
+      res.status(500).json({ error: e?.message || String(e) });
+    }
   }
-});
+);
 
 // Verification detail
 router.get("/verifications/:id", async (req: Request, res: Response) => {

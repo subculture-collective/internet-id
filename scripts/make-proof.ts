@@ -91,12 +91,9 @@ async function findRegistrationTx(
 }
 
 async function main() {
-  const [filePath, manifestURI, registryAddress, rpcUrl] =
-    process.argv.slice(2);
+  const [filePath, manifestURI, registryAddress, rpcUrl] = process.argv.slice(2);
   if (!filePath || !manifestURI || !registryAddress) {
-    console.error(
-      "Usage: npm run proof -- <filePath> <manifestURI> <registryAddress> [rpcUrl]"
-    );
+    console.error("Usage: npm run proof -- <filePath> <manifestURI> <registryAddress> [rpcUrl]");
     process.exit(1);
   }
 
@@ -105,10 +102,7 @@ async function main() {
 
   const manifest = await fetchManifest(manifestURI);
   const manifestHashOk = manifest.content_hash === fileHash;
-  const recovered = await recoverSigner(
-    manifest.content_hash,
-    manifest.signature
-  );
+  const recovered = await recoverSigner(manifest.content_hash, manifest.signature);
 
   const provider = new ethers.JsonRpcProvider(
     rpcUrl || process.env.RPC_URL || "https://sepolia.base.org"
@@ -119,16 +113,13 @@ async function main() {
   ];
   const registry = new ethers.Contract(registryAddress, abi, provider);
   const entry = await registry.entries(fileHash);
-  const creatorOk =
-    (entry?.creator || "").toLowerCase() === recovered.toLowerCase();
+  const creatorOk = (entry?.creator || "").toLowerCase() === recovered.toLowerCase();
   const manifestOk = entry?.manifestURI === manifestURI;
 
   const tx = await findRegistrationTx(provider, registryAddress, fileHash);
 
   const now = new Date().toISOString();
-  const cid = manifestURI.startsWith("ipfs://")
-    ? manifestURI.replace("ipfs://", "")
-    : undefined;
+  const cid = manifestURI.startsWith("ipfs://") ? manifestURI.replace("ipfs://", "") : undefined;
   const proof = {
     version: "1.0",
     generated_at: now,
@@ -166,8 +157,8 @@ async function main() {
         manifestHashOk && creatorOk && manifestOk
           ? "OK"
           : manifestHashOk && creatorOk
-          ? "WARN"
-          : "FAIL",
+            ? "WARN"
+            : "FAIL",
     },
   };
 

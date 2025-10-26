@@ -8,7 +8,7 @@ let redisClient: ReturnType<typeof createClient> | null = null;
 
 async function initRedisClient() {
   if (redisClient) return redisClient;
-  
+
   const redisUrl = process.env.REDIS_URL;
   if (!redisUrl) {
     console.log("REDIS_URL not configured, using in-memory rate limiting");
@@ -32,9 +32,10 @@ async function initRedisClient() {
 
 // Rate limit handler that returns 429 with Retry-After header
 const rateLimitHandler = (req: Request, res: Response) => {
-  const retryAfter = Math.ceil(req.rateLimit?.resetTime ? 
-    (req.rateLimit.resetTime.getTime() - Date.now()) / 1000 : 60);
-  
+  const retryAfter = Math.ceil(
+    req.rateLimit?.resetTime ? (req.rateLimit.resetTime.getTime() - Date.now()) / 1000 : 60
+  );
+
   res.setHeader("Retry-After", retryAfter);
   res.status(429).json({
     error: "Too Many Requests",
@@ -53,7 +54,7 @@ const skipRateLimit = (req: Request): boolean => {
       return true;
     }
   }
-  
+
   return false;
 };
 
@@ -67,13 +68,9 @@ const onLimitReached = (req: Request, _res: Response) => {
 /**
  * Create a rate limiter with the specified configuration
  */
-async function createRateLimiter(options: {
-  windowMs: number;
-  max: number;
-  message?: string;
-}) {
+async function createRateLimiter(options: { windowMs: number; max: number; message?: string }) {
   const client = await initRedisClient();
-  
+
   interface RateLimitConfig {
     windowMs: number;
     max: number;

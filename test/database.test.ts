@@ -157,8 +157,7 @@ describe("Database Operations", function () {
   describe("Content operations", function () {
     it("should create content entry", async function () {
       const contentData = {
-        contentHash:
-          "0xabc123def456789012345678901234567890123456789012345678901234567890",
+        contentHash: "0xabc123def456789012345678901234567890123456789012345678901234567890",
         contentUri: "ipfs://QmContent",
         manifestCid: "QmManifest",
         manifestUri: "ipfs://QmManifest",
@@ -184,8 +183,7 @@ describe("Database Operations", function () {
     });
 
     it("should find content by contentHash", async function () {
-      const contentHash =
-        "0xabc123def456789012345678901234567890123456789012345678901234567890";
+      const contentHash = "0xabc123def456789012345678901234567890123456789012345678901234567890";
       const expectedContent = {
         id: "content123",
         contentHash,
@@ -409,7 +407,7 @@ describe("Database Operations", function () {
 
     it("should handle different verification statuses", async function () {
       const statuses = ["OK", "WARN", "FAIL"];
-      
+
       for (const status of statuses) {
         const verification = {
           id: `v-${status}`,
@@ -420,7 +418,13 @@ describe("Database Operations", function () {
         verificationStub.create.resolves(verification);
 
         const result = await prisma.verification.create({
-          data: { contentHash: "0xhash", status, manifestUri: "", recoveredAddress: "", creatorOnchain: "" },
+          data: {
+            contentHash: "0xhash",
+            status,
+            manifestUri: "",
+            recoveredAddress: "",
+            creatorOnchain: "",
+          },
         });
 
         expect(result.status).to.equal(status);
@@ -428,11 +432,13 @@ describe("Database Operations", function () {
     });
 
     it("should limit verification results", async function () {
-      const verifications = Array(100).fill(null).map((_, i) => ({
-        id: `v${i}`,
-        contentHash: "0xhash",
-        status: "OK",
-      }));
+      const verifications = Array(100)
+        .fill(null)
+        .map((_, i) => ({
+          id: `v${i}`,
+          contentHash: "0xhash",
+          status: "OK",
+        }));
 
       verificationStub.findMany.resolves(verifications.slice(0, 50));
 
@@ -503,7 +509,7 @@ describe("Database Operations", function () {
     it("should handle unique constraint violation", async function () {
       const error: Error & { code?: string } = new Error("Unique constraint violation");
       error.code = "P2002";
-      
+
       userStub.create.rejects(error);
 
       try {

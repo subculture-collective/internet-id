@@ -35,7 +35,8 @@ The API implements comprehensive security measures:
 - ✅ File upload security with size limits and type restrictions
 - ✅ Rate limiting (when configured with Redis)
 
-For details, see: 
+For details, see:
+
 - [Input Validation Documentation](docs/VALIDATION.md)
 - [Security Implementation Summary](SECURITY_IMPLEMENTATION_SUMMARY.md)
 
@@ -48,6 +49,7 @@ We take security vulnerabilities seriously and appreciate responsible disclosure
 Please report any security issues including:
 
 **Smart Contract Issues:**
+
 - Authorization bypasses
 - Unexpected state changes
 - Gas griefing attacks
@@ -55,6 +57,7 @@ Please report any security issues including:
 - Any behavior that violates contract invariants
 
 **API/Backend Issues:**
+
 - Authentication/authorization bypasses
 - Injection attacks (XSS, SQL, command)
 - Path traversal vulnerabilities
@@ -63,6 +66,7 @@ Please report any security issues including:
 - Cryptographic weaknesses
 
 **General Security Issues:**
+
 - Dependency vulnerabilities (with exploit potential)
 - Configuration weaknesses
 - Infrastructure security issues
@@ -74,6 +78,7 @@ Please report any security issues including:
 **Email**: security@subculture.io
 
 Please include:
+
 1. **Description**: Clear explanation of the vulnerability
 2. **Impact**: Potential security impact and affected components
 3. **Reproduction Steps**: Detailed steps to reproduce the issue
@@ -89,6 +94,7 @@ https://github.com/subculture-collective/internet-id/security/advisories/new
 ### What NOT to Do
 
 Please **DO NOT**:
+
 - ❌ Open a public GitHub issue for security vulnerabilities
 - ❌ Disclose the vulnerability publicly before it's fixed
 - ❌ Test vulnerabilities on mainnet or production systems
@@ -103,7 +109,7 @@ We are committed to addressing security issues promptly:
 1. **Acknowledgment**: Within 48 hours of report
 2. **Initial Assessment**: Within 5 business days
 3. **Status Updates**: Every 7 days during investigation/fix
-4. **Fix Timeline**: 
+4. **Fix Timeline**:
    - Critical: 7 days
    - High: 14 days
    - Medium: 30 days
@@ -128,18 +134,19 @@ We are planning to establish a bug bounty program with the following structure:
 
 ### Proposed Reward Structure
 
-| Severity | Smart Contract | API/Backend | Example |
-|----------|---------------|-------------|---------|
+| Severity     | Smart Contract    | API/Backend      | Example                                             |
+| ------------ | ----------------- | ---------------- | --------------------------------------------------- |
 | **Critical** | $10,000 - $50,000 | $5,000 - $15,000 | Contract takeover, fund theft, complete auth bypass |
-| **High** | $5,000 - $10,000 | $2,000 - $5,000 | Unauthorized state changes, privilege escalation |
-| **Medium** | $1,000 - $5,000 | $500 - $2,000 | Denial of service, rate limit bypass |
-| **Low** | $100 - $1,000 | $50 - $500 | Information disclosure, minor logic errors |
+| **High**     | $5,000 - $10,000  | $2,000 - $5,000  | Unauthorized state changes, privilege escalation    |
+| **Medium**   | $1,000 - $5,000   | $500 - $2,000    | Denial of service, rate limit bypass                |
+| **Low**      | $100 - $1,000     | $50 - $500       | Information disclosure, minor logic errors          |
 
 **Note**: These are proposed ranges. Final structure will be announced when program launches.
 
 ### Eligibility
 
 To be eligible for rewards:
+
 - ✅ Report must be original (not previously reported)
 - ✅ Vulnerability must be reproducible
 - ✅ Vulnerability must be in scope
@@ -152,23 +159,27 @@ To be eligible for rewards:
 The following are **NOT** eligible for rewards:
 
 **General:**
+
 - Issues in third-party dependencies without proof of exploitability
 - Issues requiring physical access
 - Social engineering attacks
 - Issues in systems not owned/controlled by us
 
 **Smart Contracts:**
+
 - Known issues from audit reports
 - Gas optimization recommendations
 - Issues in test contracts or testnets
 
 **API/Backend:**
+
 - Rate limiting issues (when rate limiting not configured)
 - Missing security headers (without demonstrated impact)
 - Self-XSS or issues requiring user cooperation
 - Issues in development/staging environments
 
 **Other:**
+
 - Spam or social engineering
 - Physical attacks
 - Attacks requiring MITM or compromised client
@@ -176,12 +187,14 @@ The following are **NOT** eligible for rewards:
 ### Scope
 
 **In Scope:**
+
 - ContentRegistry.sol on mainnet (once deployed)
 - API endpoints (production instance)
 - Web UI (production instance)
 - Database security
 
 **Out of Scope:**
+
 - Third-party services (IPFS providers, RPC endpoints)
 - Test networks and development environments
 - Documentation and examples
@@ -189,6 +202,7 @@ The following are **NOT** eligible for rewards:
 ### Program Launch
 
 We will announce the official bug bounty program launch on:
+
 - Project README
 - Project website
 - Security mailing list
@@ -264,6 +278,7 @@ In case of security incident:
 ### How We Communicate Security Issues
 
 Security updates will be announced via:
+
 - GitHub Security Advisories
 - Project README (for critical issues)
 - Release notes
@@ -272,6 +287,7 @@ Security updates will be announced via:
 ### Subscribing to Security Updates
 
 To receive security notifications:
+
 1. Watch this repository on GitHub
 2. Subscribe to Security Advisories
 3. Follow project social media
@@ -292,6 +308,7 @@ We will maintain a public log of disclosed vulnerabilities here after they are f
 ### Completed Audits
 
 **Automated Analysis**
+
 - **Date**: October 26, 2025
 - **Tool**: Slither v0.11.3
 - **Status**: ✅ Passed
@@ -301,6 +318,7 @@ We will maintain a public log of disclosed vulnerabilities here after they are f
 ### Planned Audits
 
 **Professional Audit** (Planned)
+
 - **Timeline**: Before mainnet launch
 - **Scope**: ContentRegistry.sol, deployment scripts, critical integrations
 - **Estimated Cost**: $15k - $30k
@@ -334,7 +352,7 @@ For security-related questions or concerns:
 
 We would like to thank the following individuals and organizations for responsibly disclosing security issues:
 
-*No disclosures yet. Your name could be here!*
+_No disclosures yet. Your name could be here!_
 
 ---
 

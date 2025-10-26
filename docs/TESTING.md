@@ -7,11 +7,13 @@ This project uses **Mocha** and **Chai** for testing, integrated via Hardhat's t
 ## Running Tests
 
 ### Run all tests
+
 ```bash
 npm test
 ```
 
 ### Run specific test files
+
 ```bash
 npx hardhat test test/upload-ipfs.test.ts
 npx hardhat test test/database.test.ts
@@ -19,6 +21,7 @@ npx hardhat test test/verify-youtube.test.ts
 ```
 
 ### Run tests with specific pattern
+
 ```bash
 npx hardhat test --grep "IPFS"
 npx hardhat test --grep "Database Operations"
@@ -49,6 +52,7 @@ test/
 Current test coverage includes:
 
 ### IPFS Upload Service (`upload-ipfs.test.ts`)
+
 - ✅ Provider configuration (Web3.Storage, Pinata, Infura, Local node)
 - ✅ Provider fallback mechanism
 - ✅ Retry logic with exponential backoff
@@ -58,6 +62,7 @@ Current test coverage includes:
 - ✅ CID masking for security
 
 ### Manifest Service (`manifest.test.ts`)
+
 - ✅ HTTP/HTTPS JSON fetching
 - ✅ IPFS URI parsing and gateway resolution
 - ✅ Manifest structure validation
@@ -66,6 +71,7 @@ Current test coverage includes:
 - ✅ Timestamp format validation
 
 ### Registry Service (`registry.test.ts`)
+
 - ✅ Provider creation and configuration
 - ✅ Contract instance creation
 - ✅ Registry address resolution
@@ -74,6 +80,7 @@ Current test coverage includes:
 - ✅ Platform identification
 
 ### YouTube Verification (`verify-youtube.test.ts`)
+
 - ✅ YouTube URL parsing (standard, short, shorts)
 - ✅ Video ID extraction
 - ✅ Signature verification and recovery
@@ -82,6 +89,7 @@ Current test coverage includes:
 - ✅ Edge case handling
 
 ### Database Operations (`database.test.ts`)
+
 - ✅ User CRUD operations
 - ✅ Content CRUD operations
 - ✅ Platform binding operations
@@ -91,6 +99,7 @@ Current test coverage includes:
 - ✅ Upsert operations
 
 ### File Service (`file.test.ts`)
+
 - ✅ Temporary file path generation
 - ✅ Filename sanitization
 - ✅ Unique filename generation
@@ -99,11 +108,13 @@ Current test coverage includes:
 ## Testing Conventions
 
 ### 1. Test Organization
+
 - Group related tests using `describe()` blocks
 - Use descriptive test names starting with "should"
 - Organize tests by feature/functionality
 
 ### 2. Mocking External Dependencies
+
 Tests use **Sinon** for mocking:
 
 ```typescript
@@ -129,6 +140,7 @@ describe("My Test", function () {
 ```
 
 ### 3. Database Mocking
+
 Database tests use mock Prisma clients to avoid actual database connections:
 
 ```typescript
@@ -143,6 +155,7 @@ const mockPrisma = {
 ```
 
 ### 4. Assertions
+
 Use Chai's expect syntax:
 
 ```typescript
@@ -156,6 +169,7 @@ expect(value).to.match(/pattern/);
 ```
 
 ### 5. Async Testing
+
 Handle async code properly:
 
 ```typescript
@@ -166,6 +180,7 @@ it("should handle async operations", async function () {
 ```
 
 ### 6. Environment Variables
+
 Clean up environment variables in tests:
 
 ```typescript
@@ -177,6 +192,7 @@ afterEach(function () {
 ## Adding New Tests
 
 ### Step 1: Create Test File
+
 Create a new file in `/test` or `/test/services`:
 
 ```bash
@@ -184,6 +200,7 @@ touch test/my-feature.test.ts
 ```
 
 ### Step 2: Write Test Structure
+
 ```typescript
 import { expect } from "chai";
 import sinon from "sinon";
@@ -197,10 +214,10 @@ describe("My Feature", function () {
     it("should do something", function () {
       // Arrange
       const input = "test";
-      
+
       // Act
       const result = myFunction(input);
-      
+
       // Assert
       expect(result).to.equal("expected");
     });
@@ -209,6 +226,7 @@ describe("My Feature", function () {
 ```
 
 ### Step 3: Run Tests
+
 ```bash
 npm test
 ```
@@ -216,6 +234,7 @@ npm test
 ## Mocking Guidelines
 
 ### External HTTP Calls
+
 Mock axios or https for external API calls:
 
 ```typescript
@@ -224,6 +243,7 @@ axiosStub.resolves({ data: { cid: "QmTest" } });
 ```
 
 ### Blockchain Calls
+
 Mock ethers.js providers and contracts:
 
 ```typescript
@@ -235,6 +255,7 @@ sinon.stub(ethers, "Contract").returns(mockContract as any);
 ```
 
 ### File System Operations
+
 Avoid mocking fs operations when possible. Test logic separately from I/O.
 
 ## Coverage Goals
@@ -244,6 +265,7 @@ Target: **70% minimum code coverage** on core modules
 Note: Coverage percentages below are estimates based on test count and scope. Run `npm run test:coverage` for actual measured coverage.
 
 Estimated coverage:
+
 - Upload IPFS logic: High coverage (provider config, fallback, error handling)
 - Manifest service: High coverage (URI parsing, structure validation)
 - Registry service: High coverage (provider creation, configuration)
@@ -254,6 +276,7 @@ Estimated coverage:
 ## CI Integration
 
 Tests run automatically on:
+
 - Pull requests
 - Pushes to main branch
 - Manual workflow dispatch
@@ -263,6 +286,7 @@ CI configuration in `.github/workflows/` (see issue #11).
 ## Troubleshooting
 
 ### Tests Timing Out
+
 Increase timeout for slow tests:
 
 ```typescript
@@ -273,6 +297,7 @@ it("slow test", async function () {
 ```
 
 ### Stubbing Errors
+
 Ensure stubs are restored after each test:
 
 ```typescript
@@ -282,6 +307,7 @@ afterEach(function () {
 ```
 
 ### Module Import Issues
+
 Use proper TypeScript imports:
 
 ```typescript

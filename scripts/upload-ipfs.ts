@@ -9,12 +9,7 @@ function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-async function postWithRetry(
-  url: string,
-  data: any,
-  options: any,
-  retries = 2
-) {
+async function postWithRetry(url: string, data: any, options: any, retries = 2) {
   let attempt = 0;
   let lastErr: any;
   while (attempt <= retries) {
@@ -28,10 +23,7 @@ async function postWithRetry(
     } catch (e: any) {
       const status = e?.response?.status;
       const retriable =
-        status >= 500 ||
-        status === 429 ||
-        e?.code === "ECONNRESET" ||
-        e?.code === "ETIMEDOUT";
+        status >= 500 || status === 429 || e?.code === "ECONNRESET" || e?.code === "ETIMEDOUT";
       lastErr = e;
       if (!retriable || attempt === retries) break;
       const backoff = Math.min(2000 * Math.pow(2, attempt), 8000);
@@ -51,12 +43,7 @@ function maskId(s?: string) {
 async function preflightInfura(apiBase: string, authHeader: string) {
   const url = `${apiBase.replace(/\/$/, "")}/api/v0/version`;
   try {
-    await postWithRetry(
-      url,
-      undefined,
-      { headers: { Authorization: authHeader } },
-      0
-    );
+    await postWithRetry(url, undefined, { headers: { Authorization: authHeader } }, 0);
   } catch (e: any) {
     if (e?.response?.status === 401) {
       throw new Error(
@@ -76,36 +63,24 @@ Env options for IPFS API endpoint:
 
 async function uploadViaInfura(filePath: string) {
   const apiBase = process.env.IPFS_API_URL || "https://ipfs.infura.io:5001";
-  const addUrl = `${apiBase.replace(
-    /\/$/,
-    ""
-  )}/api/v0/add?pin=true&wrap-with-directory=false`;
+  const addUrl = `${apiBase.replace(/\/$/, "")}/api/v0/add?pin=true&wrap-with-directory=false`;
   const pid = process.env.IPFS_PROJECT_ID;
   const secret = process.env.IPFS_PROJECT_SECRET;
   if (!pid || !secret) {
-    throw new Error(
-      "Infura IPFS requires IPFS_PROJECT_ID and IPFS_PROJECT_SECRET in .env"
-    );
+    throw new Error("Infura IPFS requires IPFS_PROJECT_ID and IPFS_PROJECT_SECRET in .env");
   }
   const auth = "Basic " + Buffer.from(`${pid}:${secret}`).toString("base64");
   // Preflight check to produce clearer errors for 401s
   try {
     await preflightInfura(apiBase, auth);
   } catch (err: any) {
-    console.error(
-      `Infura preflight failed for project ${maskId(pid)}: ${
-        err?.message || err
-      }`
-    );
+    console.error(`Infura preflight failed for project ${maskId(pid)}: ${err?.message || err}`);
     throw err;
   }
   const data = await readFile(filePath);
   const form = new FormData();
   form.append("file", data, { filename: path.basename(filePath) });
-  const headers = { Authorization: auth, ...form.getHeaders() } as Record<
-    string,
-    string
-  >;
+  const headers = { Authorization: auth, ...form.getHeaders() } as Record<string, string>;
   const res = await postWithRetry(addUrl, form, { headers }, 2);
   const body = res.data;
   let cid: string | undefined;
@@ -122,8 +97,7 @@ async function uploadViaInfura(filePath: string) {
 
 async function uploadViaWeb3Storage(filePath: string) {
   const token = process.env.WEB3_STORAGE_TOKEN;
-  if (!token)
-    throw new Error("WEB3_STORAGE_TOKEN is required for Web3.Storage uploads");
+  if (!token) throw new Error("WEB3_STORAGE_TOKEN is required for Web3.Storage uploads");
   const data = await readFile(filePath);
   const res = await postWithRetry(
     "https://api.web3.storage/upload",
@@ -166,19 +140,11 @@ async function uploadViaPinata(filePath: string) {
 
 async function uploadViaLocalNode(filePath: string) {
   const apiBase = process.env.IPFS_API_URL || "http://127.0.0.1:5001";
-  const addUrl = `${apiBase.replace(
-    /\/$/,
-    ""
-  )}/api/v0/add?pin=true&wrap-with-directory=false`;
+  const addUrl = `${apiBase.replace(/\/$/, "")}/api/v0/add?pin=true&wrap-with-directory=false`;
   const data = await readFile(filePath);
   const form = new FormData();
   form.append("file", data, { filename: path.basename(filePath) });
-  const res = await postWithRetry(
-    addUrl,
-    form,
-    { headers: { ...form.getHeaders() } },
-    2
-  );
+  const res = await postWithRetry(addUrl, form, { headers: { ...form.getHeaders() } }, 2);
   const body = res.data;
   if (typeof body === "string") {
     const lines = body.trim().split(/\r?\n/).filter(Boolean);
@@ -191,12 +157,9 @@ async function uploadViaLocalNode(filePath: string) {
 export async function uploadToIpfs(filePath: string) {
   const force = (process.env.IPFS_PROVIDER || "").toLowerCase();
   const hasWeb3 =
-    !!process.env.WEB3_STORAGE_TOKEN &&
-    !/^your_/i.test(process.env.WEB3_STORAGE_TOKEN);
-  const hasPinata =
-    !!process.env.PINATA_JWT && !/^your_/i.test(process.env.PINATA_JWT);
-  const hasInfura =
-    !!process.env.IPFS_PROJECT_ID && !!process.env.IPFS_PROJECT_SECRET;
+    !!process.env.WEB3_STORAGE_TOKEN && !/^your_/i.test(process.env.WEB3_STORAGE_TOKEN);
+  const hasPinata = !!process.env.PINATA_JWT && !/^your_/i.test(process.env.PINATA_JWT);
+  const hasInfura = !!process.env.IPFS_PROJECT_ID && !!process.env.IPFS_PROJECT_SECRET;
   const hasLocal =
     (process.env.IPFS_PROVIDER || "").toLowerCase() === "local" ||
     (process.env.IPFS_API_URL || "").includes("127.0.0.1");

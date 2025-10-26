@@ -46,11 +46,7 @@ describe("API File Upload Streaming", function () {
   /**
    * Helper to create a test file of specified size
    */
-  async function createTestFile(
-    sizeMB: number,
-    name?: string,
-    seed: number = 0
-  ): Promise<string> {
+  async function createTestFile(sizeMB: number, name?: string, seed: number = 0): Promise<string> {
     const filename = name || `test-file-${Date.now()}-${Math.random()}.bin`;
     const filepath = path.join(tmpDir, filename);
     testFiles.push(filepath);
@@ -95,10 +91,10 @@ describe("API File Upload Streaming", function () {
   it("should hash a small file via streaming", async function () {
     // Create a 1MB test file
     const filepath = await createTestFile(1, "small-test.bin");
-    
+
     // Compute hash via streaming
     const hash = await sha256HexFromFile(filepath);
-    
+
     // Hash should be a hex string with 0x prefix
     expect(hash).to.match(/^0x[a-f0-9]{64}$/);
   });
@@ -106,14 +102,14 @@ describe("API File Upload Streaming", function () {
   it("should hash a large file via streaming without loading into memory", async function () {
     // Create a 100MB test file
     const filepath = await createTestFile(100, "large-test.bin");
-    
+
     // Get file stats to verify size without loading into memory
     const { size } = await (await import("fs/promises")).stat(filepath);
     expect(size).to.equal(100 * 1024 * 1024);
-    
+
     // Compute hash via streaming
     const hash = await sha256HexFromFile(filepath);
-    
+
     // Hash should be a hex string with 0x prefix
     expect(hash).to.match(/^0x[a-f0-9]{64}$/);
   });
@@ -121,11 +117,11 @@ describe("API File Upload Streaming", function () {
   it("should produce consistent hashes for the same file", async function () {
     // Create a 10MB test file with deterministic data
     const filepath = await createTestFile(10, "consistent-test.bin");
-    
+
     // Compute hash twice
     const hash1 = await sha256HexFromFile(filepath);
     const hash2 = await sha256HexFromFile(filepath);
-    
+
     // Hashes should match
     expect(hash1).to.equal(hash2);
   });
@@ -135,14 +131,14 @@ describe("API File Upload Streaming", function () {
     const file1 = await createTestFile(5, "concurrent1.bin", 1);
     const file2 = await createTestFile(5, "concurrent2.bin", 2);
     const file3 = await createTestFile(5, "concurrent3.bin", 3);
-    
+
     // Hash all files concurrently
     const [hash1, hash2, hash3] = await Promise.all([
       sha256HexFromFile(file1),
       sha256HexFromFile(file2),
       sha256HexFromFile(file3),
     ]);
-    
+
     // All hashes should be valid and different (since files have different content)
     expect(hash1).to.match(/^0x[a-f0-9]{64}$/);
     expect(hash2).to.match(/^0x[a-f0-9]{64}$/);
@@ -156,14 +152,14 @@ describe("API File Upload Streaming", function () {
     // Create a SMALL test file (1MB) for this comparison test
     // Note: We intentionally use a small file here to compare streaming vs buffer methods
     const filepath = await createTestFile(1, "verify-hash-small.bin");
-    
+
     // Compute hash via streaming
     const streamHash = await sha256HexFromFile(filepath);
-    
+
     // Compute hash via buffer (for comparison with small file only)
     const fileBuffer = await readFile(filepath);
     const bufferHash = "0x" + createHash("sha256").update(fileBuffer).digest("hex");
-    
+
     // Hashes should match, proving streaming method is correct
     expect(streamHash).to.equal(bufferHash);
   });

@@ -35,10 +35,7 @@ export async function POST(req: NextRequest) {
     else if (Array.isArray(bindings)) arr = bindings;
   } catch {}
   if (!Array.isArray(arr) || arr.length === 0) {
-    return NextResponse.json(
-      { error: "bindings must be an array" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "bindings must be an array" }, { status: 400 });
   }
   // Enforce linked provider presence
   const providersNeeded = new Set<string>();

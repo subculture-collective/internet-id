@@ -24,8 +24,7 @@ router.post(
         process.env.RPC_URL || "https://sepolia.base.org"
       );
       const pk = process.env.PRIVATE_KEY;
-      if (!pk)
-        return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
+      if (!pk) return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
       const wallet = new ethers.Wallet(pk, provider);
       const abi = [
         "function bindPlatform(bytes32,string,string) external",
@@ -34,13 +33,8 @@ router.post(
       const registry = new ethers.Contract(registryAddress, abi, wallet);
       // Ensure caller is creator
       const entry = await registry.entries(contentHash);
-      if (
-        (entry?.creator || "").toLowerCase() !==
-        (await wallet.getAddress()).toLowerCase()
-      ) {
-        return res
-          .status(403)
-          .json({ error: "Only creator can bind platform" });
+      if ((entry?.creator || "").toLowerCase() !== (await wallet.getAddress()).toLowerCase()) {
+        return res.status(403).json({ error: "Only creator can bind platform" });
       }
       const tx = await registry.bindPlatform(contentHash, platform, platformId);
       const receipt = await tx.wait();
@@ -80,8 +74,7 @@ router.post(
         process.env.RPC_URL || "https://sepolia.base.org"
       );
       const pk = process.env.PRIVATE_KEY;
-      if (!pk)
-        return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
+      if (!pk) return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
       const wallet = new ethers.Wallet(pk, provider);
       const abi = [
         "function bindPlatform(bytes32,string,string) external",
@@ -90,13 +83,8 @@ router.post(
       const registry = new ethers.Contract(registryAddress, abi, wallet);
       // Ensure caller is creator
       const entry = await registry.entries(contentHash);
-      if (
-        (entry?.creator || "").toLowerCase() !==
-        (await wallet.getAddress()).toLowerCase()
-      ) {
-        return res
-          .status(403)
-          .json({ error: "Only creator can bind platform" });
+      if ((entry?.creator || "").toLowerCase() !== (await wallet.getAddress()).toLowerCase()) {
+        return res.status(403).json({ error: "Only creator can bind platform" });
       }
       const results: Array<{
         platform: string;
@@ -112,11 +100,7 @@ router.post(
           continue;
         }
         try {
-          const tx = await registry.bindPlatform(
-            contentHash,
-            platform,
-            platformId
-          );
+          const tx = await registry.bindPlatform(contentHash, platform, platformId);
           const rec = await tx.wait();
           results.push({ platform, platformId, txHash: rec?.hash });
           // upsert DB binding
