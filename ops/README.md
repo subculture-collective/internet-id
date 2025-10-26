@@ -1,6 +1,6 @@
 # Operations (Ops) Directory
 
-This directory contains operational scripts and tools for managing the Internet-ID database backup and disaster recovery system.
+This directory contains operational scripts and tools for managing the Internet-ID infrastructure, including database backups, disaster recovery, and SSL/TLS certificate management.
 
 ## Directory Structure
 
@@ -12,12 +12,38 @@ ops/
 │   └── crontab.example         # Example cron configuration
 ├── restore/
 │   └── restore-database.sh     # Restore script (full, PITR, partial)
+├── ssl/
+│   ├── manage-certs.sh         # SSL certificate management
+│   ├── check-cert-expiry.sh    # Certificate expiration monitoring
+│   ├── test-ssl-config.sh      # SSL/TLS configuration testing
+│   ├── certbot-cron            # Cron job configuration
+│   └── README.md               # SSL documentation
+├── nginx/
+│   ├── nginx.conf              # Main Nginx configuration
+│   └── conf.d/
+│       └── default.conf        # HTTPS/SSL reverse proxy config
 └── README.md                   # This file
 ```
 
 ## Quick Start
 
-### Running a Backup
+### SSL/TLS Certificate Management
+
+```bash
+# Initial setup - obtain certificates
+cd ops/ssl
+export DOMAIN=yourdomain.com
+export SSL_EMAIL=admin@yourdomain.com
+./manage-certs.sh obtain
+
+# Test SSL configuration
+./test-ssl-config.sh
+
+# Check certificate expiration
+./check-cert-expiry.sh
+```
+
+### Database Backup
 
 ```bash
 # Full backup
