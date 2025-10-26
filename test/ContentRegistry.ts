@@ -70,9 +70,15 @@ describe("ContentRegistry", function () {
 
     // Register and update
     await registry.connect(creator).register(hash, uri);
-    await expect(registry.connect(creator).updateManifest(hash, newUri))
+    
+    // Get the update transaction and check event
+    const updateTx = await registry.connect(creator).updateManifest(hash, newUri);
+    const updateReceipt = await updateTx.wait();
+    const updateBlock = await ethers.provider.getBlock(updateReceipt!.blockNumber);
+    
+    await expect(updateTx)
       .to.emit(registry, "ManifestUpdated")
-      .withArgs(hash, newUri, await ethers.provider.getBlock('latest').then(b => b!.timestamp + 1));
+      .withArgs(hash, newUri, updateBlock!.timestamp);
 
     // Verify update
     const entry = await registry.entries(hash);
@@ -215,13 +221,13 @@ describe("ContentRegistry", function () {
     await registry.waitForDeployment();
 
     // Query non-existent binding
-    const [creator, contentHash, manifestURI, timestamp] = 
+    const [resolvedCreator, resolvedContentHash, resolvedManifestURI, resolvedTimestamp] = 
       await registry.resolveByPlatform("youtube", "nonexistent");
 
-    expect(creator).to.eq(ethers.ZeroAddress);
-    expect(contentHash).to.eq(ethers.ZeroHash);
-    expect(manifestURI).to.eq("");
-    expect(timestamp).to.eq(0);
+    expect(resolvedCreator).to.eq(ethers.ZeroAddress);
+    expect(resolvedContentHash).to.eq(ethers.ZeroHash);
+    expect(resolvedManifestURI).to.eq("");
+    expect(resolvedTimestamp).to.eq(0);
   });
 
   it("emits correct events with parameters", async function () {
