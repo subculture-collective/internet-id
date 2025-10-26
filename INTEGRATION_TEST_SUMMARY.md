@@ -9,7 +9,7 @@ This document provides an overview of the integration test implementation comple
 **Test Fixtures and Factories** (`test/fixtures/factories.ts`)
 - Factory functions for creating test users, content, bindings, and files
 - Consistent test data generation with randomization
-- Helper functions for creating valid Ethereum signatures for manifests
+- Helper functions for creating valid Ethereum signatures for test manifests
 
 **Test Helpers** (`test/fixtures/helpers.ts`)
 - `TestDatabase`: Database connection management with cleanup hooks
@@ -86,9 +86,9 @@ This document provides an overview of the integration test implementation comple
 ## Test Results
 
 ### Current Status
-- **303 total tests passing** (28 new integration tests)
+- **303 total tests passing** (275 existing unit/contract tests + 28 new integration tests)
 - **3 pending tests** (skipped when database unavailable)
-- **9 failing tests** (API tests requiring database connection)
+- **9 conditionally failing tests** (API tests that require database connection - skip in environments without PostgreSQL)
 
 ### Coverage Areas
 
@@ -141,7 +141,7 @@ This document provides an overview of the integration test implementation comple
 
 ## Known Limitations
 
-1. **API Tests Require Database**: Some API endpoint tests need a database connection to pass. This is resolved in CI with PostgreSQL service.
+1. **API Tests Require Database**: Some API endpoint tests need a database connection to pass. In CI, this is resolved with the PostgreSQL service. Locally, these tests are skipped when database is unavailable, allowing developers to run blockchain tests without database setup.
 
 2. **No IPFS Testing**: IPFS uploads are not tested in integration tests (would require mock IPFS or external service).
 
@@ -151,10 +151,15 @@ This document provides an overview of the integration test implementation comple
 
 ## Future Enhancements
 
+### Short-term (Next Sprint)
 1. **Add IPFS mocking** for upload workflow tests
 2. **Test WebSocket subscriptions** for real-time updates
-3. **Load testing** for API rate limits
-4. **Cross-chain testing** with multiple networks
+
+### Medium-term (Next Quarter)
+3. **Load testing** for API rate limits (estimated 1-2 days)
+4. **Cross-chain testing** with multiple networks (estimated 3-5 days)
+
+### Long-term (Future Consideration)
 5. **OAuth flow testing** for platform account verification
 6. **Parallel test execution** for faster CI runs
 
