@@ -54,16 +54,12 @@ function fetchHttpsJson(url: string): Promise<any> {
 
 async function verifySignature(manifest: any) {
   const { content_hash, signature } = manifest;
-  const recovered = ethers.verifyMessage(
-    ethers.getBytes(content_hash),
-    signature
-  );
+  const recovered = ethers.verifyMessage(ethers.getBytes(content_hash), signature);
   return recovered.toLowerCase();
 }
 
 async function main() {
-  const [filePath, manifestURI, registryAddress, rpcUrl] =
-    process.argv.slice(2);
+  const [filePath, manifestURI, registryAddress, rpcUrl] = process.argv.slice(2);
   if (!filePath || !manifestURI || !registryAddress) {
     console.error(
       "Usage: ts-node scripts/verify.ts <filePath> <manifestURI> <registryAddress> [rpcUrl]"
@@ -94,8 +90,7 @@ async function main() {
   const registry = new ethers.Contract(registryAddress, abi, provider);
   const entry = await registry.entries(fileHash);
 
-  const creatorOk =
-    entry.creator.toLowerCase() === recoveredAddress.toLowerCase();
+  const creatorOk = entry.creator.toLowerCase() === recoveredAddress.toLowerCase();
   const manifestOk = entry.manifestURI === manifestURI;
 
   if (!entry.creator || entry.creator === ethers.ZeroAddress) {

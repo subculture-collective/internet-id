@@ -2,7 +2,7 @@ import { z } from "zod";
 
 /**
  * Validation Schemas for API Endpoints
- * 
+ *
  * These schemas define the expected structure and constraints for all API requests.
  * They help prevent injection attacks, malformed data, and security vulnerabilities.
  */
@@ -18,7 +18,10 @@ export const contentHashSchema = z
 
 export const ipfsUriSchema = z
   .string()
-  .regex(/^ipfs:\/\/[a-zA-Z0-9]+$/, "Invalid IPFS URI format (must be ipfs:// followed by base58-encoded CID)");
+  .regex(
+    /^ipfs:\/\/[a-zA-Z0-9]+$/,
+    "Invalid IPFS URI format (must be ipfs:// followed by base58-encoded CID)"
+  );
 
 export const httpUriSchema = z
   .string()
@@ -69,15 +72,9 @@ export const MAX_FILE_SIZE = 1024 * 1024 * 1024; // 1GB
 export const fileUploadSchema = z.object({
   mimetype: z
     .string()
-    .refine(
-      (mime) => ALLOWED_MIME_TYPES.includes(mime),
-      "File type not allowed"
-    )
+    .refine((mime) => ALLOWED_MIME_TYPES.includes(mime), "File type not allowed")
     .optional(),
-  size: z
-    .number()
-    .max(MAX_FILE_SIZE, "File size exceeds 1GB limit")
-    .optional(),
+  size: z.number().max(MAX_FILE_SIZE, "File size exceeds 1GB limit").optional(),
 });
 
 // Upload endpoint validation
@@ -98,10 +95,7 @@ export const manifestRequestSchema = z.object({
   upload: z
     .string()
     .optional()
-    .refine(
-      (val) => !val || val === "true" || val === "false",
-      "upload must be 'true' or 'false'"
-    ),
+    .refine((val) => !val || val === "true" || val === "false", "upload must be 'true' or 'false'"),
   contentHash: contentHashSchema.optional(),
 });
 
@@ -177,14 +171,16 @@ export const oneshotRequestSchema = z.object({
 });
 
 // Query parameter schemas
-export const resolveQuerySchema = z.object({
-  url: z.string().max(2000, "URL too long").optional(),
-  platform: platformNameSchema.optional(),
-  platformId: platformIdSchema.optional(),
-}).refine(
-  (data) => data.url || (data.platform && data.platformId),
-  "Either 'url' or both 'platform' and 'platformId' must be provided"
-);
+export const resolveQuerySchema = z
+  .object({
+    url: z.string().max(2000, "URL too long").optional(),
+    platform: platformNameSchema.optional(),
+    platformId: platformIdSchema.optional(),
+  })
+  .refine(
+    (data) => data.url || (data.platform && data.platformId),
+    "Either 'url' or both 'platform' and 'platformId' must be provided"
+  );
 
 export const publicVerifyQuerySchema = resolveQuerySchema;
 
@@ -204,16 +200,18 @@ export const contentHashParamSchema = z.object({
 });
 
 // User creation (minimal)
-export const createUserSchema = z.object({
-  address: ethereumAddressSchema.optional(),
-  email: z.string().email("Invalid email address").max(255, "Email too long").optional(),
-  name: z
-    .string()
-    .min(1, "Name is required")
-    .max(100, "Name too long")
-    .regex(/^[a-zA-Z0-9 _.-]+$/, "Name contains invalid characters")
-    .optional(),
-}).refine(
-  (data) => data.address || data.email || data.name,
-  "At least one of address, email, or name is required"
-);
+export const createUserSchema = z
+  .object({
+    address: ethereumAddressSchema.optional(),
+    email: z.string().email("Invalid email address").max(255, "Email too long").optional(),
+    name: z
+      .string()
+      .min(1, "Name is required")
+      .max(100, "Name too long")
+      .regex(/^[a-zA-Z0-9 _.-]+$/, "Name contains invalid characters")
+      .optional(),
+  })
+  .refine(
+    (data) => data.address || data.email || data.name,
+    "At least one of address, email, or name is required"
+  );

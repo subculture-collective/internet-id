@@ -2,10 +2,7 @@ import { writeFile, unlink } from "fs/promises";
 import * as os from "os";
 import * as path from "path";
 
-export async function tmpWrite(
-  originalName: string,
-  buf: Buffer
-): Promise<string> {
+export async function tmpWrite(originalName: string, buf: Buffer): Promise<string> {
   const filename = `${Date.now()}-${Math.random()
     .toString(36)
     .slice(2)}-${path.basename(originalName)}`;

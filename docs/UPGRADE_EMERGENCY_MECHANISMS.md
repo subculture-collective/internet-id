@@ -9,6 +9,7 @@ ContentRegistry follows an **immutable, decentralized design** with no upgrade o
 ### Rationale
 
 The ContentRegistry contract deliberately **does not include**:
+
 - ❌ Pause functionality (Pausable pattern)
 - ❌ Upgrade mechanisms (Proxy patterns)
 - ❌ Admin privileges or owner controls
@@ -26,6 +27,7 @@ The ContentRegistry contract deliberately **does not include**:
 ### Contract Characteristics
 
 The ContentRegistry is designed as a **simple, low-risk registry**:
+
 - ✅ No funds held in contract
 - ✅ No complex financial logic
 - ✅ No external calls (no reentrancy risk)
@@ -37,13 +39,13 @@ The ContentRegistry is designed as a **simple, low-risk registry**:
 
 ### What Could Go Wrong?
 
-| Risk | Severity | Mitigation |
-|------|----------|------------|
-| Critical bug discovered | Medium | Deploy new contract version; migrate at app layer |
-| Spam/abuse registrations | Low | Filter at application layer; no on-chain enforcement needed |
-| Gas price exploits | Low | Users control their own transactions |
-| Front-running | Low | No financial incentive; timestamps are informational |
-| Creator key compromise | Low | Affects only that creator's content; revoke() available |
+| Risk                     | Severity | Mitigation                                                  |
+| ------------------------ | -------- | ----------------------------------------------------------- |
+| Critical bug discovered  | Medium   | Deploy new contract version; migrate at app layer           |
+| Spam/abuse registrations | Low      | Filter at application layer; no on-chain enforcement needed |
+| Gas price exploits       | Low      | Users control their own transactions                        |
+| Front-running            | Low      | No financial incentive; timestamps are informational        |
+| Creator key compromise   | Low      | Affects only that creator's content; revoke() available     |
 
 ### Why Risks Are Acceptable
 
@@ -62,7 +64,7 @@ The web application and API provide the first line of defense:
 ```javascript
 // Example: Filter known bad registrations in UI
 const BLOCKLIST = new Set([
-  '0x...' // Known spam content hashes
+  "0x...", // Known spam content hashes
 ]);
 
 function shouldDisplayContent(contentHash) {
@@ -79,12 +81,12 @@ Maintain parallel database for additional metadata and filtering:
 
 ```sql
 -- Flag problematic content
-UPDATE content_registry 
+UPDATE content_registry
 SET status = 'flagged', reason = 'spam'
 WHERE content_hash = '0x...';
 
 -- Query only approved content
-SELECT * FROM content_registry 
+SELECT * FROM content_registry
 WHERE status = 'approved';
 ```
 
@@ -103,6 +105,7 @@ const REGISTRY_ADDRESS = process.env.REGISTRY_V2_ADDRESS;
 ### 4. Social Recovery
 
 Community governance for edge cases:
+
 - Maintain list of official contract addresses
 - Document known issues and workarounds
 - Provide migration tools if needed
@@ -124,7 +127,8 @@ contract ContentRegistry is Pausable {
 }
 ```
 
-**Why we didn't**: 
+**Why we didn't**:
+
 - Adds admin control (centralization)
 - Increases gas costs
 - Creates censorship risk
@@ -144,6 +148,7 @@ contract ContentRegistry is UUPSUpgradeable {
 ```
 
 **Why we didn't**:
+
 - Complex implementation
 - Higher gas costs
 - Admin key risk
@@ -159,12 +164,13 @@ contract ContentRegistry is UUPSUpgradeable {
 contract ContentRegistry {
     address public admin;
     uint256 public constant TIMELOCK = 7 days;
-    
+
     mapping(bytes32 => uint256) public proposedChanges;
 }
 ```
 
 **Why we didn't**:
+
 - Still requires trusted admin
 - Adds complexity
 - Not needed for this use case
@@ -174,6 +180,7 @@ contract ContentRegistry {
 Consider adding emergency mechanisms if:
 
 ### Scenario 1: Financial Operations Added
+
 ```solidity
 // If contract starts handling value:
 function registerWithPayment() external payable {
@@ -183,6 +190,7 @@ function registerWithPayment() external payable {
 ```
 
 ### Scenario 2: Complex State Dependencies
+
 ```solidity
 // If contract logic becomes complex:
 function complexOperation() external {
@@ -194,6 +202,7 @@ function complexOperation() external {
 ```
 
 ### Scenario 3: Critical Infrastructure
+
 ```solidity
 // If contract becomes mission-critical:
 // - Handles verified identities
@@ -217,22 +226,22 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract ContentRegistryPausable is Pausable, Ownable {
     // ... existing code ...
-    
+
     function pause() external onlyOwner {
         _pause();
     }
-    
+
     function unpause() external onlyOwner {
         _unpause();
     }
-    
-    function register(bytes32 contentHash, string calldata manifestURI) 
-        external 
+
+    function register(bytes32 contentHash, string calldata manifestURI)
+        external
         whenNotPaused // Add this modifier
     {
         // ... existing logic ...
     }
-    
+
     // Note: Read functions should NOT be paused
     function resolveByPlatform(...) external view returns (...) {
         // No whenNotPaused modifier - always readable
@@ -250,32 +259,33 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract ContentRegistryUpgradeable is 
-    Initializable, 
-    UUPSUpgradeable, 
-    OwnableUpgradeable 
+contract ContentRegistryUpgradeable is
+    Initializable,
+    UUPSUpgradeable,
+    OwnableUpgradeable
 {
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }
-    
+
     function initialize() public initializer {
         __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
     }
-    
-    function _authorizeUpgrade(address newImplementation) 
-        internal 
-        override 
-        onlyOwner 
+
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        override
+        onlyOwner
     {}
-    
+
     // ... rest of contract logic ...
 }
 ```
 
 **Deployment Process**:
+
 ```javascript
 // 1. Deploy implementation
 const ContentRegistry = await ethers.getContractFactory("ContentRegistryUpgradeable");
@@ -284,8 +294,8 @@ const implementation = await ContentRegistry.deploy();
 // 2. Deploy proxy
 const ERC1967Proxy = await ethers.getContractFactory("ERC1967Proxy");
 const proxy = await ERC1967Proxy.deploy(
-    implementation.address,
-    implementation.interface.encodeFunctionData('initialize', [])
+  implementation.address,
+  implementation.interface.encodeFunctionData("initialize", [])
 );
 
 // 3. Users interact with proxy address
@@ -298,30 +308,28 @@ If you implement emergency controls, add these tests:
 
 ```typescript
 describe("Emergency Controls", () => {
-    it("should allow owner to pause", async () => {
-        await registry.pause();
-        await expect(
-            registry.register(hash, uri)
-        ).to.be.revertedWith("Pausable: paused");
-    });
-    
-    it("should allow reading while paused", async () => {
-        await registry.pause();
-        // Should still work
-        const entry = await registry.entries(hash);
-    });
-    
-    it("should allow unpause", async () => {
-        await registry.pause();
-        await registry.unpause();
-        await registry.register(hash, uri); // Should work
-    });
-    
-    it("should prevent non-owner from pausing", async () => {
-        await expect(
-            registry.connect(user).pause()
-        ).to.be.revertedWith("Ownable: caller is not the owner");
-    });
+  it("should allow owner to pause", async () => {
+    await registry.pause();
+    await expect(registry.register(hash, uri)).to.be.revertedWith("Pausable: paused");
+  });
+
+  it("should allow reading while paused", async () => {
+    await registry.pause();
+    // Should still work
+    const entry = await registry.entries(hash);
+  });
+
+  it("should allow unpause", async () => {
+    await registry.pause();
+    await registry.unpause();
+    await registry.register(hash, uri); // Should work
+  });
+
+  it("should prevent non-owner from pausing", async () => {
+    await expect(registry.connect(user).pause()).to.be.revertedWith(
+      "Ownable: caller is not the owner"
+    );
+  });
 });
 ```
 
@@ -330,29 +338,32 @@ describe("Emergency Controls", () => {
 If adding emergency mechanisms:
 
 ### Admin Key Security
+
 - ⚠️ Use multisig wallet (e.g., Gnosis Safe)
 - ⚠️ Hardware wallet for admin key
 - ⚠️ Time-locked operations
 - ⚠️ Community governance for critical actions
 
 ### Transparency
+
 - ✅ Emit events for all admin actions
 - ✅ Announce pause/upgrade plans in advance
 - ✅ Provide justification for emergency actions
 - ✅ Maintain public log of all interventions
 
 ### Governance
+
 ```solidity
 // Consider DAO governance for admin actions
 contract ContentRegistryDAO {
     function proposeUpgrade(address newImpl) external {
         // Proposal creation
     }
-    
+
     function vote(uint256 proposalId, bool support) external {
         // Community voting
     }
-    
+
     function execute(uint256 proposalId) external {
         // Execute after voting period
     }
@@ -364,6 +375,7 @@ contract ContentRegistryDAO {
 Even without emergency mechanisms, monitor the contract:
 
 ### Metrics to Track
+
 1. **Registration Rate**: Unusual spikes
 2. **Gas Usage**: Efficiency over time
 3. **Unique Users**: Growth patterns
@@ -371,20 +383,21 @@ Even without emergency mechanisms, monitor the contract:
 5. **Failed Transactions**: Error patterns
 
 ### Alert Conditions
+
 ```javascript
 // Set up monitoring
 const monitor = new ContractMonitor(REGISTRY_ADDRESS);
 
-monitor.on('unusualActivity', async (event) => {
-    if (event.registrationsPerHour > 1000) {
-        alert('High registration rate detected');
-    }
+monitor.on("unusualActivity", async (event) => {
+  if (event.registrationsPerHour > 1000) {
+    alert("High registration rate detected");
+  }
 });
 
-monitor.on('error', async (error) => {
-    if (error.count > 10) {
-        alert('Multiple transaction failures');
-    }
+monitor.on("error", async (error) => {
+  if (error.count > 10) {
+    alert("Multiple transaction failures");
+  }
 });
 ```
 
@@ -393,10 +406,12 @@ monitor.on('error', async (error) => {
 Inform users about the immutable design:
 
 ### In README
+
 ```markdown
 ## Contract Immutability
 
 ContentRegistry is an immutable contract with no admin controls:
+
 - ✅ Your registrations are permanent
 - ✅ No central authority can modify or delete your content
 - ✅ Contract cannot be paused or upgraded
@@ -405,12 +420,14 @@ ContentRegistry is an immutable contract with no admin controls:
 ```
 
 ### In UI
+
 ```html
 <div class="security-notice">
-    <h3>Decentralized & Immutable</h3>
-    <p>This contract has no owner or admin. Your registrations 
-       are permanent and censorship-resistant.</p>
-    <a href="/docs/security">Learn more</a>
+  <h3>Decentralized & Immutable</h3>
+  <p>
+    This contract has no owner or admin. Your registrations are permanent and censorship-resistant.
+  </p>
+  <a href="/docs/security">Learn more</a>
 </div>
 ```
 
@@ -448,30 +465,19 @@ Even without on-chain controls, have a plan:
 
 ```typescript
 // Script to help users migrate
-async function migrateRegistrations(
-    oldRegistry: string,
-    newRegistry: string,
-    userAddress: string
-) {
-    // 1. Fetch user's registrations from old contract
-    const oldEntries = await fetchUserEntries(oldRegistry, userAddress);
-    
-    // 2. Re-register in new contract
-    for (const entry of oldEntries) {
-        await newRegistryContract.register(
-            entry.contentHash,
-            entry.manifestURI
-        );
-    }
-    
-    // 3. Re-bind platform links
-    for (const binding of entry.bindings) {
-        await newRegistryContract.bindPlatform(
-            entry.contentHash,
-            binding.platform,
-            binding.platformId
-        );
-    }
+async function migrateRegistrations(oldRegistry: string, newRegistry: string, userAddress: string) {
+  // 1. Fetch user's registrations from old contract
+  const oldEntries = await fetchUserEntries(oldRegistry, userAddress);
+
+  // 2. Re-register in new contract
+  for (const entry of oldEntries) {
+    await newRegistryContract.register(entry.contentHash, entry.manifestURI);
+  }
+
+  // 3. Re-bind platform links
+  for (const binding of entry.bindings) {
+    await newRegistryContract.bindPlatform(entry.contentHash, binding.platform, binding.platformId);
+  }
 }
 ```
 
@@ -480,6 +486,7 @@ async function migrateRegistrations(
 ### Current Status: No Emergency Mechanisms ✅
 
 **This is the right choice for ContentRegistry because:**
+
 1. Simple registry with no financial risk
 2. Creator-controlled content model
 3. Application-layer mitigation available
@@ -489,6 +496,7 @@ async function migrateRegistrations(
 ### When to Revisit
 
 Consider adding emergency mechanisms when:
+
 - Contract handles financial transactions
 - Logic complexity increases significantly
 - Becomes critical infrastructure

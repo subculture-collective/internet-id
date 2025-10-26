@@ -31,6 +31,7 @@ This guide provides step-by-step instructions for integrating HashiCorp Vault wi
 - ✅ Plugin ecosystem for various backends
 
 **Best for:**
+
 - Multi-cloud deployments
 - On-premise infrastructure
 - Organizations with strict compliance requirements
@@ -78,15 +79,15 @@ server:
   ha:
     enabled: true
     replicas: 3
-  
+
   dataStorage:
     enabled: true
     size: 10Gi
-  
+
   auditStorage:
     enabled: true
     size: 10Gi
-  
+
   resources:
     requests:
       memory: 256Mi
@@ -119,6 +120,7 @@ vault operator init -key-shares=5 -key-threshold=3 > vault-init.txt
 ```
 
 **Example output:**
+
 ```
 Unseal Key 1: AbCdEf1234567890...
 Unseal Key 2: GhIjKl1234567890...
@@ -291,27 +293,19 @@ export async function getSecret(path: string): Promise<Record<string, any>> {
   }
 }
 
-export async function getAllSecrets(
-  environment: string
-): Promise<Record<string, string>> {
+export async function getAllSecrets(environment: string): Promise<Record<string, string>> {
   const secrets: Record<string, string> = {};
 
   // Load application secrets
-  const appSecrets = await getSecret(
-    `secret/data/internet-id/${environment}/app`
-  );
+  const appSecrets = await getSecret(`secret/data/internet-id/${environment}/app`);
   Object.assign(secrets, appSecrets);
 
   // Load database secrets
-  const dbSecrets = await getSecret(
-    `secret/data/internet-id/${environment}/database`
-  );
+  const dbSecrets = await getSecret(`secret/data/internet-id/${environment}/database`);
   Object.assign(secrets, dbSecrets);
 
   // Load OAuth secrets
-  const oauthSecrets = await getSecret(
-    `secret/data/internet-id/${environment}/oauth`
-  );
+  const oauthSecrets = await getSecret(`secret/data/internet-id/${environment}/oauth`);
   Object.assign(secrets, oauthSecrets);
 
   return secrets;
@@ -334,9 +328,7 @@ export async function loadVaultSecrets(): Promise<void> {
     process.env[key] = value;
   });
 
-  console.log(
-    `Loaded ${Object.keys(secrets).length} secrets from Vault`
-  );
+  console.log(`Loaded ${Object.keys(secrets).length} secrets from Vault`);
 }
 
 export default client;
@@ -484,9 +476,7 @@ async function rotateApiKey(environment: string): Promise<void> {
   const newApiKey = randomBytes(32).toString("hex");
 
   // Read current secrets
-  const currentSecrets = await vault.read(
-    `secret/data/internet-id/${environment}/app`
-  );
+  const currentSecrets = await vault.read(`secret/data/internet-id/${environment}/app`);
   const secrets = currentSecrets.data.data;
 
   // Update with new API key
@@ -617,10 +607,7 @@ import { readFileSync } from "fs";
 
 export async function authenticateWithKubernetes() {
   const VAULT_ADDR = process.env.VAULT_ADDR!;
-  const jwt = readFileSync(
-    "/var/run/secrets/kubernetes.io/serviceaccount/token",
-    "utf8"
-  );
+  const jwt = readFileSync("/var/run/secrets/kubernetes.io/serviceaccount/token", "utf8");
 
   const client = vault({
     apiVersion: "v1",

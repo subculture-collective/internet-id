@@ -9,6 +9,7 @@ This migration adds comprehensive database indexes to optimize query performance
 ## What's Changed
 
 This migration adds 17 indexes across 6 models:
+
 - 1 index on User
 - 3 indexes on Content
 - 3 indexes on PlatformBinding
@@ -26,6 +27,7 @@ npm run db:migrate
 ```
 
 This will:
+
 1. Apply the migration to your local database
 2. Regenerate both Prisma clients (API and Web)
 3. Update the migration history
@@ -56,6 +58,7 @@ CREATE INDEX CONCURRENTLY "Content_creatorId_idx" ON "Content"("creatorId");
 ```
 
 **Note:** Prisma migrations don't support `CONCURRENTLY` keyword directly. For zero-downtime deployments:
+
 1. Mark this migration as applied: `npx prisma migrate resolve --applied 20251020124623_add_database_indexes`
 2. Run the above SQL commands with `CONCURRENTLY` manually
 3. Verify indexes were created successfully
@@ -71,14 +74,14 @@ CREATE INDEX CONCURRENTLY "Content_creatorId_idx" ON "Content"("creatorId");
 
 ### Before vs After (Estimated)
 
-| Query | Before | After |
-|-------|--------|-------|
+| Query                     | Before | After |
+| ------------------------- | ------ | ----- |
 | List 1000 recent contents | ~500ms | ~10ms |
-| Get verifications by hash | ~200ms | ~5ms |
-| Filter by status + sort | ~800ms | ~15ms |
-| User account lookup | ~100ms | ~2ms |
+| Get verifications by hash | ~200ms | ~5ms  |
+| Filter by status + sort   | ~800ms | ~15ms |
+| User account lookup       | ~100ms | ~2ms  |
 
-*Based on ~100k records per table
+\*Based on ~100k records per table
 
 ### Monitoring
 
@@ -126,6 +129,7 @@ DROP INDEX IF EXISTS "Session_expires_idx";
 ```
 
 Then mark the migration as rolled back:
+
 ```bash
 npx prisma migrate resolve --rolled-back 20251020124623_add_database_indexes
 ```

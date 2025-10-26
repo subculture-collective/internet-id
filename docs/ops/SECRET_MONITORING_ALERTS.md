@@ -38,16 +38,19 @@ This document describes the monitoring and alerting configuration for detecting 
 ### 1. Access Frequency Metrics
 
 **Normal Patterns:**
+
 - Secrets accessed during deployments (2-5 times per deployment)
 - Application startup (once per pod/instance)
 - Secret rotation events (scheduled)
 
 **Anomalous Patterns:**
+
 - Unusually high access frequency (>100 requests/hour)
 - Access outside business hours
 - Repeated access from same source
 
 **CloudWatch Metric:**
+
 ```
 Namespace: AWS/SecretsManager
 MetricName: GetSecretValueCount
@@ -59,15 +62,18 @@ Period: 300 seconds (5 minutes)
 ### 2. Failed Access Attempts
 
 **Normal:**
+
 - Occasional permission errors during development
 - Typos in secret names
 
 **Anomalous:**
+
 - Multiple failed attempts from same source (>5 in 10 minutes)
 - Failed attempts for high-value secrets (database, blockchain keys)
 - Systematic scanning of secret names
 
 **CloudWatch Metric:**
+
 ```
 Namespace: AWS/SecretsManager
 MetricName: GetSecretValueErrors
@@ -79,15 +85,17 @@ Period: 600 seconds (10 minutes)
 ### 3. Unauthorized Access Attempts
 
 **Detection:**
+
 - IAM user/role without proper permissions
 - Service account from wrong environment
 - Unknown source IP address
 - Access from unexpected AWS region
 
 **CloudWatch Insights Query:**
+
 ```sql
 fields @timestamp, userIdentity.principalId, sourceIPAddress, errorCode
-| filter eventName = "GetSecretValue" 
+| filter eventName = "GetSecretValue"
   and errorCode = "AccessDenied"
   and eventSource = "secretsmanager.amazonaws.com"
 | stats count() by userIdentity.principalId, sourceIPAddress
@@ -97,11 +105,13 @@ fields @timestamp, userIdentity.principalId, sourceIPAddress, errorCode
 ### 4. Secret Rotation Status
 
 **Metrics:**
+
 - Secrets overdue for rotation (>90 days)
 - Failed rotation attempts
 - Rotation completion time
 
 **Custom CloudWatch Metric:**
+
 ```python
 import boto3
 from datetime import datetime, timedelta
@@ -111,15 +121,15 @@ secretsmanager = boto3.client('secretsmanager')
 
 def check_rotation_status():
     secrets = secretsmanager.list_secrets()
-    
+
     for secret in secrets['SecretList']:
         if not secret['Name'].startswith('internet-id/'):
             continue
-            
+
         last_rotated = secret.get('LastRotatedDate')
         if last_rotated:
             days_old = (datetime.now() - last_rotated).days
-            
+
             cloudwatch.put_metric_data(
                 Namespace='InternetID/Secrets',
                 MetricData=[
@@ -141,11 +151,13 @@ def check_rotation_status():
 ### 5. Access Source Metrics
 
 **Track:**
+
 - Geographic location of access (IP geolocation)
 - Service account vs. human user access ratio
 - Access from CI/CD pipelines vs. manual
 
 **Anomalies:**
+
 - Access from unexpected countries
 - Human user accessing production secrets
 - Access from unknown IP ranges
@@ -159,6 +171,7 @@ def check_rotation_status():
 **Condition:** >5 failed `GetSecretValue` calls in 10 minutes
 
 **CloudWatch Alarm:**
+
 ```bash
 aws cloudwatch put-metric-alarm \
   --alarm-name internet-id-secret-access-failures \
@@ -174,6 +187,7 @@ aws cloudwatch put-metric-alarm \
 ```
 
 **Response:**
+
 - PagerDuty/Opsgenie notification
 - Automated IP blocking (if enabled)
 - Security team investigation
@@ -183,18 +197,20 @@ aws cloudwatch put-metric-alarm \
 **Condition:** Access from IP not in whitelist OR from unknown IAM role
 
 **CloudWatch Insights Alert:**
+
 ```sql
 fields @timestamp, userIdentity.principalId, sourceIPAddress
 | filter eventName = "GetSecretValue"
   and eventSource = "secretsmanager.amazonaws.com"
   and Resources.0.ARN like "internet-id/prod"
-  and (sourceIPAddress not in ["52.1.2.3", "52.1.2.4"] 
+  and (sourceIPAddress not in ["52.1.2.3", "52.1.2.4"]
        or userIdentity.principalId not like "AIDAI*")
 | stats count() as unauthorized_access
 | filter unauthorized_access > 0
 ```
 
 **Response:**
+
 - Immediate notification to security team
 - Automatically disable compromised credentials
 - Begin incident response procedure
@@ -204,6 +220,7 @@ fields @timestamp, userIdentity.principalId, sourceIPAddress
 **Condition:** `DeleteSecret` or `PutSecretValue` on production secrets
 
 **CloudWatch Alarm:**
+
 ```bash
 aws cloudwatch put-metric-alarm \
   --alarm-name internet-id-secret-modification \
@@ -219,6 +236,7 @@ aws cloudwatch put-metric-alarm \
 ```
 
 **Custom Metric Script:**
+
 ```python
 # Lambda function triggered by CloudTrail
 import boto3
@@ -228,10 +246,10 @@ cloudwatch = boto3.client('cloudwatch')
 def lambda_handler(event, context):
     # Parse CloudTrail event
     detail = event['detail']
-    
+
     if detail['eventName'] in ['DeleteSecret', 'PutSecretValue', 'UpdateSecret']:
         secret_name = detail['requestParameters'].get('secretId', '')
-        
+
         if 'internet-id/prod' in secret_name:
             # Send critical alert
             cloudwatch.put_metric_data(
@@ -251,6 +269,7 @@ def lambda_handler(event, context):
 **Condition:** >100 `GetSecretValue` calls in 1 hour from single source
 
 **CloudWatch Alarm:**
+
 ```bash
 aws cloudwatch put-metric-alarm \
   --alarm-name internet-id-excessive-secret-access \
@@ -270,6 +289,7 @@ aws cloudwatch put-metric-alarm \
 **Condition:** Rotation attempt failed
 
 **CloudWatch Alarm:**
+
 ```bash
 aws cloudwatch put-metric-alarm \
   --alarm-name internet-id-rotation-failure \
@@ -291,6 +311,7 @@ aws cloudwatch put-metric-alarm \
 **Condition:** Secret not rotated in >80 days (10 days before 90-day policy)
 
 **Custom Lambda Check (runs daily):**
+
 ```python
 import boto3
 from datetime import datetime, timedelta
@@ -300,20 +321,20 @@ secretsmanager = boto3.client('secretsmanager')
 
 def check_rotation_deadline():
     cutoff_date = datetime.now() - timedelta(days=80)
-    
+
     secrets = secretsmanager.list_secrets()
     overdue = []
-    
+
     for secret in secrets['SecretList']:
         if not secret['Name'].startswith('internet-id/'):
             continue
-            
+
         last_rotated = secret.get('LastRotatedDate', secret['CreatedDate'])
-        
+
         if last_rotated < cutoff_date:
             days_overdue = (datetime.now() - last_rotated).days
             overdue.append(f"{secret['Name']} ({days_overdue} days)")
-    
+
     if overdue:
         sns.publish(
             TopicArn='arn:aws:sns:us-east-1:ACCOUNT_ID:ops-alerts',
@@ -327,6 +348,7 @@ def check_rotation_deadline():
 **Condition:** Access from new geographic location or time of day
 
 **Anomaly Detection:**
+
 - Use AWS GuardDuty or custom ML model
 - Baseline normal access patterns over 30 days
 - Alert on statistical anomalies
@@ -363,52 +385,57 @@ aws sns subscribe \
 
 ```javascript
 // slack-notification-lambda.js
-const https = require('https');
+const https = require("https");
 
 exports.handler = async (event) => {
-    const message = JSON.parse(event.Records[0].Sns.Message);
-    
-    const slackPayload = {
-        channel: '#security-alerts',
-        username: 'Secret Monitor',
-        icon_emoji: ':rotating_light:',
-        attachments: [{
-            color: 'danger',
-            title: message.AlarmName,
-            text: message.NewStateReason,
-            fields: [
-                {
-                    title: 'Alarm',
-                    value: message.AlarmName,
-                    short: true
-                },
-                {
-                    title: 'Status',
-                    value: message.NewStateValue,
-                    short: true
-                }
-            ],
-            footer: 'AWS CloudWatch',
-            ts: Math.floor(Date.now() / 1000)
-        }]
-    };
-    
-    return new Promise((resolve, reject) => {
-        const req = https.request({
-            hostname: 'hooks.slack.com',
-            path: '/services/YOUR/WEBHOOK/URL',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }, (res) => {
-            resolve({ statusCode: 200 });
-        });
-        
-        req.on('error', reject);
-        req.write(JSON.stringify(slackPayload));
-        req.end();
-    });
+  const message = JSON.parse(event.Records[0].Sns.Message);
+
+  const slackPayload = {
+    channel: "#security-alerts",
+    username: "Secret Monitor",
+    icon_emoji: ":rotating_light:",
+    attachments: [
+      {
+        color: "danger",
+        title: message.AlarmName,
+        text: message.NewStateReason,
+        fields: [
+          {
+            title: "Alarm",
+            value: message.AlarmName,
+            short: true,
+          },
+          {
+            title: "Status",
+            value: message.NewStateValue,
+            short: true,
+          },
+        ],
+        footer: "AWS CloudWatch",
+        ts: Math.floor(Date.now() / 1000),
+      },
+    ],
+  };
+
+  return new Promise((resolve, reject) => {
+    const req = https.request(
+      {
+        hostname: "hooks.slack.com",
+        path: "/services/YOUR/WEBHOOK/URL",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+      (res) => {
+        resolve({ statusCode: 200 });
+      }
+    );
+
+    req.on("error", reject);
+    req.write(JSON.stringify(slackPayload));
+    req.end();
+  });
 };
 ```
 
@@ -439,6 +466,7 @@ exports.handler = async (event) => {
    - Count of active alerts
 
 **JSON Configuration:**
+
 ```json
 {
   "dashboard": {
@@ -474,6 +502,7 @@ aws cloudwatch put-dashboard \
 ```
 
 **cloudwatch-dashboard.json:**
+
 ```json
 {
   "widgets": [
@@ -481,8 +510,8 @@ aws cloudwatch put-dashboard \
       "type": "metric",
       "properties": {
         "metrics": [
-          ["AWS/SecretsManager", "GetSecretValueCount", {"stat": "Sum"}],
-          [".", "GetSecretValueErrors", {"stat": "Sum"}]
+          ["AWS/SecretsManager", "GetSecretValueCount", { "stat": "Sum" }],
+          [".", "GetSecretValueErrors", { "stat": "Sum" }]
         ],
         "period": 300,
         "stat": "Sum",
@@ -577,11 +606,11 @@ ec2 = boto3.client('ec2')
 def lambda_handler(event, context):
     # Parse alarm event
     alarm_name = event['detail']['alarmName']
-    
+
     if 'unauthorized-access' in alarm_name:
         # Extract offending IP from alarm metrics
         suspicious_ip = extract_ip_from_alarm(event)
-        
+
         # Add to network ACL deny rule
         ec2.create_network_acl_entry(
             NetworkAclId='acl-12345',
@@ -591,7 +620,7 @@ def lambda_handler(event, context):
             Egress=False,
             CidrBlock=f'{suspicious_ip}/32'
         )
-        
+
         # Send notification
         print(f"Blocked IP: {suspicious_ip}")
 ```
@@ -605,13 +634,13 @@ secretsmanager = boto3.client('secretsmanager')
 
 def lambda_handler(event, context):
     compromised_secret = event['detail']['requestParameters']['secretId']
-    
+
     # Trigger immediate rotation
     response = secretsmanager.rotate_secret(
         SecretId=compromised_secret,
         RotateImmediately=True
     )
-    
+
     print(f"Emergency rotation initiated for: {compromised_secret}")
 ```
 
@@ -627,7 +656,7 @@ aws secretsmanager get-secret-value \
   --secret-id internet-id/prod/fake-secret \
   # This should fail and trigger alarm
 
-# Test excessive access alert  
+# Test excessive access alert
 for i in {1..110}; do
   aws secretsmanager get-secret-value \
     --secret-id internet-id/prod/app > /dev/null 2>&1
@@ -648,10 +677,12 @@ done
 ## Contact Information
 
 **Alert Issues:**
+
 - DevOps: ops@subculture.io
 - Slack: #ops-alerts
 
 **Security Incidents:**
+
 - Security Team: security@subculture.io
 - On-Call: PagerDuty escalation
 - Slack: #security-incidents

@@ -30,7 +30,7 @@ describe("IPFS Upload Service", function () {
       process.env.WEB3_STORAGE_TOKEN = "test-token";
       const hasToken = !!process.env.WEB3_STORAGE_TOKEN;
       expect(hasToken).to.be.true;
-      
+
       delete process.env.WEB3_STORAGE_TOKEN;
       const noToken = !!process.env.WEB3_STORAGE_TOKEN;
       expect(noToken).to.be.false;
@@ -131,10 +131,10 @@ describe("IPFS Upload Service", function () {
       const pid = "test-id";
       const secret = "test-secret";
       const auth = "Basic " + Buffer.from(`${pid}:${secret}`).toString("base64");
-      
+
       expect(auth).to.include("Basic ");
       expect(auth.length).to.be.greaterThan(6);
-      
+
       // Verify it can be decoded
       const decoded = Buffer.from(auth.replace("Basic ", ""), "base64").toString();
       expect(decoded).to.equal(`${pid}:${secret}`);
@@ -143,7 +143,7 @@ describe("IPFS Upload Service", function () {
     it("should format Web3.Storage Bearer token correctly", function () {
       const token = "test-token-123";
       const header = `Bearer ${token}`;
-      
+
       expect(header).to.equal("Bearer test-token-123");
       expect(header).to.include("Bearer ");
     });
@@ -155,7 +155,7 @@ describe("IPFS Upload Service", function () {
       const attempt1 = Math.min(2000 * Math.pow(2, 1), 8000);
       const attempt2 = Math.min(2000 * Math.pow(2, 2), 8000);
       const attempt3 = Math.min(2000 * Math.pow(2, 3), 8000);
-      
+
       expect(attempt0).to.equal(2000);
       expect(attempt1).to.equal(4000);
       expect(attempt2).to.equal(8000);
@@ -170,7 +170,7 @@ describe("IPFS Upload Service", function () {
         if (s.length <= 8) return s;
         return `${s.slice(0, 4)}...${s.slice(-4)}`;
       };
-      
+
       const longId = "1234567890abcdef";
       const masked = maskId(longId);
       expect(masked).to.equal("1234...cdef");
@@ -182,7 +182,7 @@ describe("IPFS Upload Service", function () {
         if (s.length <= 8) return s;
         return `${s.slice(0, 4)}...${s.slice(-4)}`;
       };
-      
+
       const shortId = "short";
       const masked = maskId(shortId);
       expect(masked).to.equal("short");

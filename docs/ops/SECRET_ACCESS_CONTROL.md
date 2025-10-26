@@ -27,6 +27,7 @@ Secrets are strictly isolated by environment:
 ```
 
 **Rules:**
+
 - Development secrets MUST NOT be used in staging/production
 - Production secrets MUST NOT be accessible from dev/staging
 - Cross-environment secret sharing is PROHIBITED
@@ -38,17 +39,20 @@ Secrets are strictly isolated by environment:
 #### 1. Developer
 
 **Access:**
+
 - ✅ Full access to development secrets (read/write)
 - ✅ Read-only access to `.env.example` template
 - ❌ NO access to staging secrets
 - ❌ NO access to production secrets
 
 **Use Cases:**
+
 - Local development
 - Testing new features
 - Debugging issues
 
 **AWS IAM Policy:**
+
 ```json
 {
   "Version": "2012-10-17",
@@ -68,6 +72,7 @@ Secrets are strictly isolated by environment:
 ```
 
 **Vault Policy:**
+
 ```hcl
 # developers-policy.hcl
 path "secret/data/internet-id/dev/*" {
@@ -82,27 +87,27 @@ path "secret/metadata/internet-id/dev/*" {
 #### 2. QA Engineer
 
 **Access:**
+
 - ✅ Read-only access to staging secrets
 - ✅ Full access to test data generators
 - ❌ NO write access to staging secrets
 - ❌ NO access to production secrets
 
 **Use Cases:**
+
 - Integration testing
 - Performance testing
 - Validation of deployments
 
 **AWS IAM Policy:**
+
 ```json
 {
   "Version": "2012-10-17",
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": [
-        "secretsmanager:GetSecretValue",
-        "secretsmanager:DescribeSecret"
-      ],
+      "Action": ["secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"],
       "Resource": "arn:aws:secretsmanager:*:*:secret:internet-id/staging/*"
     }
   ]
@@ -112,18 +117,21 @@ path "secret/metadata/internet-id/dev/*" {
 #### 3. DevOps Engineer
 
 **Access:**
+
 - ✅ Full access to development and staging secrets
 - ✅ Read-only access to production secrets
 - ✅ Permission to trigger deployments
 - ⚠️ Write access to production requires approval
 
 **Use Cases:**
+
 - Deployment management
 - Infrastructure maintenance
 - Secret rotation (staging)
 - Emergency production access (with approval)
 
 **AWS IAM Policy:**
+
 ```json
 {
   "Version": "2012-10-17",
@@ -142,10 +150,7 @@ path "secret/metadata/internet-id/dev/*" {
     },
     {
       "Effect": "Allow",
-      "Action": [
-        "secretsmanager:GetSecretValue",
-        "secretsmanager:DescribeSecret"
-      ],
+      "Action": ["secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"],
       "Resource": "arn:aws:secretsmanager:*:*:secret:internet-id/prod/*"
     }
   ]
@@ -153,6 +158,7 @@ path "secret/metadata/internet-id/dev/*" {
 ```
 
 **Vault Policy:**
+
 ```hcl
 # devops-policy.hcl
 # Full access to dev and staging
@@ -173,36 +179,33 @@ path "secret/data/internet-id/prod/*" {
 #### 4. Security Engineer
 
 **Access:**
+
 - ✅ Full access to all environments (dev, staging, prod)
 - ✅ Audit log access
 - ✅ Secret rotation authority
 - ✅ Access review and revocation rights
 
 **Use Cases:**
+
 - Security audits
 - Incident response
 - Secret rotation
 - Access control management
 
 **AWS IAM Policy:**
+
 ```json
 {
   "Version": "2012-10-17",
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": [
-        "secretsmanager:*"
-      ],
+      "Action": ["secretsmanager:*"],
       "Resource": "arn:aws:secretsmanager:*:*:secret:internet-id/*"
     },
     {
       "Effect": "Allow",
-      "Action": [
-        "cloudtrail:LookupEvents",
-        "cloudwatch:GetMetricData",
-        "logs:FilterLogEvents"
-      ],
+      "Action": ["cloudtrail:LookupEvents", "cloudwatch:GetMetricData", "logs:FilterLogEvents"],
       "Resource": "*"
     }
   ]
@@ -212,26 +215,27 @@ path "secret/data/internet-id/prod/*" {
 #### 5. Application Service Account (Production)
 
 **Access:**
+
 - ✅ Read-only access to environment-specific secrets
 - ❌ NO write access
 - ❌ NO cross-environment access
 - ❌ NO access to secret metadata/versions
 
 **Use Cases:**
+
 - Production API runtime
 - Production web UI runtime
 - Automated jobs (cron, Lambda)
 
 **AWS IAM Policy:**
+
 ```json
 {
   "Version": "2012-10-17",
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": [
-        "secretsmanager:GetSecretValue"
-      ],
+      "Action": ["secretsmanager:GetSecretValue"],
       "Resource": "arn:aws:secretsmanager:us-east-1:*:secret:internet-id/prod/*"
     },
     {
@@ -248,6 +252,7 @@ path "secret/data/internet-id/prod/*" {
 ```
 
 **Vault Policy:**
+
 ```hcl
 # prod-api-policy.hcl
 # Read-only access to production secrets
@@ -281,26 +286,27 @@ path "auth/token/renew-self" {
 #### 6. CI/CD Pipeline
 
 **Access:**
+
 - ✅ Read-only access to secrets for deployment
 - ✅ Temporary credentials (1-hour TTL)
 - ✅ Access logging enabled
 - ❌ NO long-lived credentials
 
 **Use Cases:**
+
 - Automated deployments
 - Integration tests
 - Secret validation
 
 **AWS IAM Policy (with OIDC):**
+
 ```json
 {
   "Version": "2012-10-17",
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": [
-        "secretsmanager:GetSecretValue"
-      ],
+      "Action": ["secretsmanager:GetSecretValue"],
       "Resource": "arn:aws:secretsmanager:*:*:secret:internet-id/${ENVIRONMENT}/*",
       "Condition": {
         "StringEquals": {
@@ -313,6 +319,7 @@ path "auth/token/renew-self" {
 ```
 
 **GitHub OIDC Trust Policy:**
+
 ```json
 {
   "Version": "2012-10-17",
@@ -384,6 +391,7 @@ Date Requested: [YYYY-MM-DD]
 ### Automatic Revocation
 
 Access is automatically revoked when:
+
 - Employee leaves the company (immediate)
 - Employee changes roles (within 24 hours)
 - Temporary access expires
@@ -392,6 +400,7 @@ Access is automatically revoked when:
 ### Manual Revocation
 
 Security team can revoke access:
+
 - Suspected account compromise
 - Policy violation
 - Security incident
@@ -422,13 +431,13 @@ vault token revoke -mode path auth/approle/login
 
 ### MFA Requirements
 
-| Role | MFA Required | Method |
-|------|--------------|--------|
-| Developer | Yes (for production VPN) | Authenticator app |
-| QA Engineer | Yes (for staging VPN) | Authenticator app |
-| DevOps Engineer | Yes (always) | Hardware token or authenticator app |
-| Security Engineer | Yes (always) | Hardware token (YubiKey) |
-| Service Accounts | N/A | Short-lived credentials |
+| Role              | MFA Required             | Method                              |
+| ----------------- | ------------------------ | ----------------------------------- |
+| Developer         | Yes (for production VPN) | Authenticator app                   |
+| QA Engineer       | Yes (for staging VPN)    | Authenticator app                   |
+| DevOps Engineer   | Yes (always)             | Hardware token or authenticator app |
+| Security Engineer | Yes (always)             | Hardware token (YubiKey)            |
+| Service Accounts  | N/A                      | Short-lived credentials             |
 
 ### AWS MFA Configuration
 
@@ -489,11 +498,7 @@ For critical incidents requiring immediate production access:
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": [
-        "secretsmanager:*",
-        "rds:*",
-        "ec2:*"
-      ],
+      "Action": ["secretsmanager:*", "rds:*", "ec2:*"],
       "Resource": "*"
     }
   ]
@@ -501,6 +506,7 @@ For critical incidents requiring immediate production access:
 ```
 
 **Conditions:**
+
 - Assumed only during declared incidents
 - Requires MFA
 - 1-hour session duration
@@ -513,6 +519,7 @@ For critical incidents requiring immediate production access:
 **Process:**
 
 1. **Generate Report** (Week 1)
+
    ```bash
    # List all users with secret access
    aws iam list-users | jq -r '.Users[].UserName' | while read user; do
@@ -564,6 +571,7 @@ All secret access is logged:
 ### Audit Queries
 
 **Recent access to production secrets:**
+
 ```bash
 aws cloudtrail lookup-events \
   --lookup-attributes AttributeKey=ResourceType,AttributeValue=AWS::SecretsManager::Secret \
@@ -572,6 +580,7 @@ aws cloudtrail lookup-events \
 ```
 
 **Failed access attempts:**
+
 ```bash
 aws logs filter-log-events \
   --log-group-name /aws/cloudtrail/logs \
@@ -593,6 +602,7 @@ This access control policy supports compliance with:
 ### Policy Violations
 
 Examples of violations:
+
 - Sharing credentials with unauthorized users
 - Accessing secrets without business need
 - Using production secrets in dev/staging
@@ -602,13 +612,14 @@ Examples of violations:
 
 ### Consequences
 
-| Severity | First Offense | Second Offense | Third Offense |
-|----------|--------------|----------------|---------------|
-| Minor | Warning | Access revoked (7 days) | Permanent revocation |
-| Moderate | Access revoked (30 days) | Written warning | Termination |
-| Severe | Written warning | Termination | Legal action |
+| Severity | First Offense            | Second Offense          | Third Offense        |
+| -------- | ------------------------ | ----------------------- | -------------------- |
+| Minor    | Warning                  | Access revoked (7 days) | Permanent revocation |
+| Moderate | Access revoked (30 days) | Written warning         | Termination          |
+| Severe   | Written warning          | Termination             | Legal action         |
 
 **Severe violations include:**
+
 - Intentional data breach
 - Malicious access to secrets
 - Sharing secrets with external parties
@@ -616,14 +627,17 @@ Examples of violations:
 ## Contact Information
 
 **Access Requests:**
+
 - Email: access-requests@subculture.io
 - Slack: #access-control
 
 **Security Incidents:**
+
 - Emergency: security@subculture.io
 - Slack: #security-incidents
 
 **Questions:**
+
 - DevOps: ops@subculture.io
 - Security: security@subculture.io
 

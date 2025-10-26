@@ -18,7 +18,7 @@ describe("Integration: Platform Binding Workflow", function () {
   before(async function () {
     env = new IntegrationTestEnvironment();
     await env.setup();
-    
+
     creator = env.blockchain.getSigner(0) as ethers.Wallet;
     registryAddress = await env.blockchain.deployRegistry(creator);
 
@@ -52,9 +52,7 @@ describe("Integration: Platform Binding Workflow", function () {
       await bindTx.wait();
 
       // Verify binding
-      const platformKey = ethers.keccak256(
-        ethers.toUtf8Bytes(`youtube:${youtubeId}`)
-      );
+      const platformKey = ethers.keccak256(ethers.toUtf8Bytes(`youtube:${youtubeId}`));
       const boundHash = await registry.platformToHash(platformKey);
       expect(boundHash).to.equal(testFile.hash);
 
@@ -310,7 +308,7 @@ describe("Integration: Platform Binding Workflow", function () {
       // Binding with empty platform should work at contract level
       // (validation should be done at API level)
       await registry.bindPlatform(testFile.hash, "", "someId");
-      
+
       const resolved = await registry.resolveByPlatform("", "someId");
       expect(resolved.contentHash).to.equal(testFile.hash);
     });
@@ -326,7 +324,7 @@ describe("Integration: Platform Binding Workflow", function () {
 
       // Binding with empty ID should work at contract level
       await registry.bindPlatform(testFile.hash, "youtube", "");
-      
+
       const resolved = await registry.resolveByPlatform("youtube", "");
       expect(resolved.contentHash).to.equal(testFile.hash);
     });

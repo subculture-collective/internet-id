@@ -11,8 +11,7 @@ export function parsePlatformInput(
   platform?: string,
   platformId?: string
 ): PlatformInfo | null {
-  if (platform && platformId)
-    return { platform: platform.toLowerCase(), platformId };
+  if (platform && platformId) return { platform: platform.toLowerCase(), platformId };
   if (!input) return null;
   try {
     const u = new URL(input);

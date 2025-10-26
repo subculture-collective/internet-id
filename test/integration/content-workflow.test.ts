@@ -22,7 +22,7 @@ describe("Integration: Content Registration Workflow", function () {
   before(async function () {
     env = new IntegrationTestEnvironment();
     await env.setup();
-    
+
     // Deploy registry contract
     creator = env.blockchain.getSigner(0) as ethers.Wallet;
     registryAddress = await env.blockchain.deployRegistry(creator);
@@ -55,7 +55,7 @@ describe("Integration: Content Registration Workflow", function () {
       // Step 2: Generate manifest
       const manifest = createTestManifest(testFile.hash, creator.address.toLowerCase());
       manifest.signature = await signTestManifest(manifest, creator);
-      
+
       // Write manifest to temp file
       const manifestPath = path.join(os.tmpdir(), "manifest.json");
       await writeFile(manifestPath, JSON.stringify(manifest));
@@ -232,10 +232,10 @@ describe("Integration: Content Registration Workflow", function () {
 
       // Try to register with zero hash
       const zeroHash = ethers.ZeroHash;
-      
+
       // This should succeed but is a valid edge case
       await registry.register(zeroHash, manifestUri);
-      
+
       const entry = await registry.entries(zeroHash);
       expect(entry.contentHash).to.equal(zeroHash);
     });
@@ -247,7 +247,7 @@ describe("Integration: Content Registration Workflow", function () {
 
       // Register with empty manifest URI (allowed by contract)
       await registry.register(testFile.hash, "");
-      
+
       const entry = await registry.entries(testFile.hash);
       expect(entry.manifestURI).to.equal("");
     });

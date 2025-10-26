@@ -60,7 +60,7 @@ describe("Registry Service", function () {
     it("should map chainId to deployed file paths", function () {
       const chainId = 84532;
       const expectedPath = "deployed/baseSepolia.json";
-      
+
       expect(chainId).to.equal(84532);
       expect(expectedPath).to.include("baseSepolia");
     });
@@ -70,8 +70,8 @@ describe("Registry Service", function () {
         "0x1234567890123456789012345678901234567890",
         "0xAbCdEf1234567890123456789012345678901234",
       ];
-      
-      validAddresses.forEach(addr => {
+
+      validAddresses.forEach((addr) => {
         expect(addr).to.match(/^0x[0-9a-fA-F]{40}$/);
       });
     });
@@ -82,7 +82,7 @@ describe("Registry Service", function () {
       const abi = [
         "function resolveByPlatform(string,string) view returns (address creator, bytes32 contentHash, string manifestURI, uint64 timestamp)",
       ];
-      
+
       expect(abi).to.have.lengthOf(1);
       expect(abi[0]).to.include("resolveByPlatform");
       expect(abi[0]).to.include("creator");
@@ -93,27 +93,23 @@ describe("Registry Service", function () {
       const abi = [
         "function entries(bytes32) view returns (address creator, bytes32 contentHash, string manifestURI, uint64 timestamp)",
       ];
-      
+
       expect(abi).to.have.lengthOf(1);
       expect(abi[0]).to.include("entries");
       expect(abi[0]).to.include("bytes32");
     });
 
     it("should define register function", function () {
-      const abi = [
-        "function register(bytes32 contentHash, string manifestURI) external",
-      ];
-      
+      const abi = ["function register(bytes32 contentHash, string manifestURI) external"];
+
       expect(abi).to.have.lengthOf(1);
       expect(abi[0]).to.include("register");
       expect(abi[0]).to.include("external");
     });
 
     it("should define bindPlatform function", function () {
-      const abi = [
-        "function bindPlatform(bytes32,string,string) external",
-      ];
-      
+      const abi = ["function bindPlatform(bytes32,string,string) external"];
+
       expect(abi).to.have.lengthOf(1);
       expect(abi[0]).to.include("bindPlatform");
     });
@@ -125,7 +121,7 @@ describe("Registry Service", function () {
         registryAddress: "0x1234567890123456789012345678901234567890",
         chainId: 84532,
       };
-      
+
       expect(info).to.have.property("registryAddress");
       expect(info).to.have.property("chainId");
       expect(typeof info.registryAddress).to.equal("string");
@@ -139,7 +135,7 @@ describe("Registry Service", function () {
         manifestURI: "ipfs://QmManifest",
         timestamp: 1234567890,
       };
-      
+
       expect(entry).to.have.property("creator");
       expect(entry).to.have.property("contentHash");
       expect(entry).to.have.property("manifestURI");
@@ -157,13 +153,15 @@ describe("Registry Service", function () {
 
     it("should validate ZeroHash constant", function () {
       const zeroHash = ethers.ZeroHash;
-      expect(zeroHash).to.equal("0x0000000000000000000000000000000000000000000000000000000000000000");
+      expect(zeroHash).to.equal(
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      );
     });
 
     it("should convert BigInt timestamp to Number", function () {
       const bigIntTimestamp = 1234567890n;
       const numberTimestamp = Number(bigIntTimestamp);
-      
+
       expect(numberTimestamp).to.equal(1234567890);
       expect(typeof numberTimestamp).to.equal("number");
     });
@@ -172,8 +170,8 @@ describe("Registry Service", function () {
   describe("Platform identification", function () {
     it("should support common platform names", function () {
       const platforms = ["youtube", "twitter", "x", "tiktok", "instagram", "vimeo"];
-      
-      platforms.forEach(platform => {
+
+      platforms.forEach((platform) => {
         expect(typeof platform).to.equal("string");
         expect(platform.length).to.be.greaterThan(0);
       });
@@ -182,7 +180,7 @@ describe("Registry Service", function () {
     it("should handle platform case normalization", function () {
       const platform = "YouTube";
       const normalized = platform.toLowerCase();
-      
+
       expect(normalized).to.equal("youtube");
     });
   });

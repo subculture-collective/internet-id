@@ -71,10 +71,7 @@ aws secretsmanager create-secret \
     {
       "Sid": "ReadApplicationSecrets",
       "Effect": "Allow",
-      "Action": [
-        "secretsmanager:GetSecretValue",
-        "secretsmanager:DescribeSecret"
-      ],
+      "Action": ["secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"],
       "Resource": [
         "arn:aws:secretsmanager:us-east-1:ACCOUNT_ID:secret:internet-id/prod/app-*",
         "arn:aws:secretsmanager:us-east-1:ACCOUNT_ID:secret:internet-id/prod/database-*"
@@ -83,10 +80,7 @@ aws secretsmanager create-secret \
     {
       "Sid": "DecryptSecrets",
       "Effect": "Allow",
-      "Action": [
-        "kms:Decrypt",
-        "kms:DescribeKey"
-      ],
+      "Action": ["kms:Decrypt", "kms:DescribeKey"],
       "Resource": "arn:aws:kms:us-east-1:ACCOUNT_ID:key/KEY_ID",
       "Condition": {
         "StringEquals": {
@@ -150,19 +144,19 @@ aws secretsmanager update-secret \
   "NEXTAUTH_SECRET": "nextauth_signing_key_64_characters_recommended",
   "SESSION_SECRET": "session_signing_key_32_characters_minimum",
   "RATE_LIMIT_EXEMPT_API_KEY": "internal_service_key",
-  
+
   "IPFS_PROJECT_ID": "infura_ipfs_project_id",
   "IPFS_PROJECT_SECRET": "infura_ipfs_project_secret",
   "WEB3_STORAGE_TOKEN": "web3_storage_api_token",
   "PINATA_JWT": "pinata_jwt_token",
-  
+
   "GITHUB_ID": "github_oauth_client_id",
   "GITHUB_SECRET": "github_oauth_client_secret",
   "GOOGLE_CLIENT_ID": "google_oauth_client_id",
   "GOOGLE_CLIENT_SECRET": "google_oauth_client_secret",
   "TWITTER_CLIENT_ID": "twitter_oauth_client_id",
   "TWITTER_CLIENT_SECRET": "twitter_oauth_client_secret",
-  
+
   "S3_ACCESS_KEY_ID": "aws_s3_access_key_for_backups",
   "S3_SECRET_ACCESS_KEY": "aws_s3_secret_key_for_backups",
   "S3_BUCKET": "internet-id-backups",
@@ -203,18 +197,13 @@ aws secretsmanager update-secret \
 
 ```typescript
 // scripts/services/secret-manager.ts
-import {
-  SecretsManagerClient,
-  GetSecretValueCommand,
-} from "@aws-sdk/client-secrets-manager";
+import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
 
 const client = new SecretsManagerClient({
   region: process.env.AWS_REGION || "us-east-1",
 });
 
-export async function loadSecrets(
-  secretId: string
-): Promise<Record<string, string>> {
+export async function loadSecrets(secretId: string): Promise<Record<string, string>> {
   try {
     const command = new GetSecretValueCommand({
       SecretId: secretId,
@@ -298,9 +287,7 @@ async function deployContract() {
   if (environment === "development") {
     privateKey = process.env.PRIVATE_KEY!;
   } else {
-    const blockchainSecrets = await loadSecrets(
-      `internet-id/${environment}/blockchain`
-    );
+    const blockchainSecrets = await loadSecrets(`internet-id/${environment}/blockchain`);
     privateKey = blockchainSecrets.PRIVATE_KEY;
   }
 
@@ -322,33 +309,33 @@ set -e
 
 if [ "$ENVIRONMENT" != "development" ]; then
     echo "Loading secrets from AWS Secrets Manager..."
-    
+
     # Install jq if not present
     apk add --no-cache jq aws-cli
-    
+
     # Fetch application secrets
     APP_SECRET_JSON=$(aws secretsmanager get-secret-value \
         --secret-id "internet-id/$ENVIRONMENT/app" \
         --region ${AWS_REGION:-us-east-1} \
         --query SecretString \
         --output text)
-    
+
     # Export each secret as environment variable
     export API_KEY=$(echo $APP_SECRET_JSON | jq -r .API_KEY)
     export NEXTAUTH_SECRET=$(echo $APP_SECRET_JSON | jq -r .NEXTAUTH_SECRET)
     export IPFS_PROJECT_ID=$(echo $APP_SECRET_JSON | jq -r .IPFS_PROJECT_ID)
     export IPFS_PROJECT_SECRET=$(echo $APP_SECRET_JSON | jq -r .IPFS_PROJECT_SECRET)
     # ... export other secrets
-    
+
     # Fetch database secrets
     DB_SECRET_JSON=$(aws secretsmanager get-secret-value \
         --secret-id "internet-id/$ENVIRONMENT/database" \
         --region ${AWS_REGION:-us-east-1} \
         --query SecretString \
         --output text)
-    
+
     export DATABASE_URL=$(echo $DB_SECRET_JSON | jq -r .DATABASE_URL)
-    
+
     echo "Secrets loaded successfully"
 fi
 
@@ -647,17 +634,17 @@ aws ssm put-parameter \
 
 **Production environment (6 secrets):**
 
-| Secret | Cost/Month |
-|--------|------------|
-| internet-id/prod/app | $0.40 |
-| internet-id/prod/database | $0.40 |
-| internet-id/prod/blockchain | $0.40 |
-| internet-id/staging/app | $0.40 |
-| internet-id/staging/database | $0.40 |
-| internet-id/staging/blockchain | $0.40 |
-| **Total Storage** | **$2.40** |
-| API Calls (est. 100K/month) | $0.50 |
-| **Total** | **~$2.90/month** |
+| Secret                         | Cost/Month       |
+| ------------------------------ | ---------------- |
+| internet-id/prod/app           | $0.40            |
+| internet-id/prod/database      | $0.40            |
+| internet-id/prod/blockchain    | $0.40            |
+| internet-id/staging/app        | $0.40            |
+| internet-id/staging/database   | $0.40            |
+| internet-id/staging/blockchain | $0.40            |
+| **Total Storage**              | **$2.40**        |
+| API Calls (est. 100K/month)    | $0.50            |
+| **Total**                      | **~$2.90/month** |
 
 ## Troubleshooting
 
@@ -666,11 +653,12 @@ aws ssm put-parameter \
 **1. Access Denied Error**
 
 ```
-Error: User: arn:aws:iam::ACCOUNT_ID:role/app is not authorized 
+Error: User: arn:aws:iam::ACCOUNT_ID:role/app is not authorized
 to perform: secretsmanager:GetSecretValue on resource: internet-id/prod/app
 ```
 
 **Solution:**
+
 - Verify IAM policy attached to role
 - Check resource ARN matches
 - Verify KMS key permissions if using custom KMS key
@@ -682,6 +670,7 @@ Error: Secrets Manager can't find the specified secret.
 ```
 
 **Solution:**
+
 - Verify secret exists: `aws secretsmanager list-secrets`
 - Check secret name/ID is correct
 - Verify region matches
@@ -693,6 +682,7 @@ Error: Rotation failed: Unable to finish rotation
 ```
 
 **Solution:**
+
 - Check Lambda function logs: `aws logs tail /aws/lambda/internet-id-rotation`
 - Verify Lambda has network access to database
 - Check database user has necessary permissions
@@ -700,6 +690,7 @@ Error: Rotation failed: Unable to finish rotation
 **4. Slow Application Startup**
 
 **Solution:**
+
 - Use secret caching
 - Fetch secrets in parallel
 - Consider using Parameter Store for non-sensitive config

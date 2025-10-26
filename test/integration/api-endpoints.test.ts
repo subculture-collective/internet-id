@@ -23,13 +23,13 @@ describe("Integration: API Endpoints", function () {
   before(async function () {
     env = new IntegrationTestEnvironment();
     await env.setup();
-    
+
     creator = env.blockchain.getSigner(0) as ethers.Wallet;
     registryAddress = await env.blockchain.deployRegistry(creator);
 
     process.env.REGISTRY_ADDRESS = registryAddress;
     process.env.PRIVATE_KEY = creator.privateKey;
-    
+
     app = env.server.getApp();
   });
 
@@ -43,26 +43,20 @@ describe("Integration: API Endpoints", function () {
 
   describe("Health and Status Endpoints", function () {
     it("GET /api/health should return ok", async function () {
-      const response = await request(app)
-        .get("/api/health")
-        .expect(200);
+      const response = await request(app).get("/api/health").expect(200);
 
       expect(response.body).to.deep.equal({ ok: true });
     });
 
     it("GET /api/network should return chain ID", async function () {
-      const response = await request(app)
-        .get("/api/network")
-        .expect(200);
+      const response = await request(app).get("/api/network").expect(200);
 
       expect(response.body).to.have.property("chainId");
       expect(response.body.chainId).to.be.a("number");
     });
 
     it("GET /api/registry should return registry address", async function () {
-      const response = await request(app)
-        .get("/api/registry")
-        .expect(200);
+      const response = await request(app).get("/api/registry").expect(200);
 
       expect(response.body).to.have.property("registryAddress");
       expect(response.body.registryAddress).to.equal(registryAddress);
@@ -71,9 +65,7 @@ describe("Integration: API Endpoints", function () {
 
   describe("Content Query Endpoints", function () {
     it("GET /api/contents should return empty list initially", async function () {
-      const response = await request(app)
-        .get("/api/contents")
-        .expect(200);
+      const response = await request(app).get("/api/contents").expect(200);
 
       expect(response.body).to.be.an("array");
       expect(response.body).to.have.lengthOf(0);
@@ -97,9 +89,7 @@ describe("Integration: API Endpoints", function () {
         },
       });
 
-      const response = await request(app)
-        .get("/api/contents")
-        .expect(200);
+      const response = await request(app).get("/api/contents").expect(200);
 
       expect(response.body).to.be.an("array");
       expect(response.body).to.have.lengthOf(1);
@@ -109,9 +99,7 @@ describe("Integration: API Endpoints", function () {
 
   describe("Verification Endpoints", function () {
     it("GET /api/verifications should return empty list initially", async function () {
-      const response = await request(app)
-        .get("/api/verifications")
-        .expect(200);
+      const response = await request(app).get("/api/verifications").expect(200);
 
       expect(response.body).to.be.an("array");
       expect(response.body).to.have.lengthOf(0);
@@ -136,9 +124,7 @@ describe("Integration: API Endpoints", function () {
         },
       });
 
-      const response = await request(app)
-        .get("/api/verifications")
-        .expect(200);
+      const response = await request(app).get("/api/verifications").expect(200);
 
       expect(response.body).to.be.an("array");
       expect(response.body).to.have.lengthOf(1);
@@ -149,9 +135,7 @@ describe("Integration: API Endpoints", function () {
 
   describe("Platform Resolution", function () {
     it("GET /api/resolve should return 400 without parameters", async function () {
-      const response = await request(app)
-        .get("/api/resolve")
-        .expect(400);
+      const response = await request(app).get("/api/resolve").expect(400);
 
       expect(response.body).to.have.property("error");
     });
@@ -199,7 +183,7 @@ describe("Integration: API Endpoints", function () {
         creator: creator.address.toLowerCase(),
         timestamp: Math.floor(Date.now() / 1000),
       };
-      
+
       // Write manifest to temp file
       const manifestPath = path.join(os.tmpdir(), `manifest-${Date.now()}.json`);
       await writeFile(manifestPath, JSON.stringify(manifest));
@@ -250,9 +234,7 @@ describe("Integration: API Endpoints", function () {
       // This test validates error handling when database is unavailable
       // In real scenario, database would be disconnected
       // For now, just verify the endpoint structure
-      const response = await request(app)
-        .get("/api/contents")
-        .expect(200);
+      const response = await request(app).get("/api/contents").expect(200);
 
       expect(response.body).to.be.an("array");
     });
@@ -261,8 +243,7 @@ describe("Integration: API Endpoints", function () {
       const originalRpc = process.env.RPC_URL;
       process.env.RPC_URL = "http://invalid-rpc-url:9999";
 
-      const response = await request(app)
-        .get("/api/network");
+      const response = await request(app).get("/api/network");
 
       // Should return error or handle gracefully
       expect(response.status).to.be.oneOf([200, 500]);
@@ -276,18 +257,14 @@ describe("Integration: API Endpoints", function () {
     it("should allow requests within rate limit", async function () {
       // Make several requests
       for (let i = 0; i < 5; i++) {
-        const response = await request(app)
-          .get("/api/health")
-          .expect(200);
-        
+        const response = await request(app).get("/api/health").expect(200);
+
         expect(response.body).to.deep.equal({ ok: true });
       }
     });
 
     it("should include rate limit headers", async function () {
-      const response = await request(app)
-        .get("/api/health")
-        .expect(200);
+      const response = await request(app).get("/api/health").expect(200);
 
       // Check for rate limit headers (if configured)
       // These may not be present in test environment without Redis
@@ -300,9 +277,7 @@ describe("Integration: API Endpoints", function () {
 
   describe("CORS", function () {
     it("should include CORS headers", async function () {
-      const response = await request(app)
-        .get("/api/health")
-        .expect(200);
+      const response = await request(app).get("/api/health").expect(200);
 
       // CORS headers should be present
       expect(response.headers["access-control-allow-origin"]).to.exist;

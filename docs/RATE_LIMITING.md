@@ -13,7 +13,9 @@ The API implements tiered rate limiting with different limits based on endpoint 
 ## Rate Limit Tiers
 
 ### Strict Limits (10 requests/minute)
+
 Applied to expensive operations that consume significant resources:
+
 - `POST /api/upload` - IPFS uploads
 - `POST /api/manifest` - Manifest creation and upload
 - `POST /api/register` - On-chain registration
@@ -24,7 +26,9 @@ Applied to expensive operations that consume significant resources:
 - `POST /api/proof` - Proof generation with file upload
 
 ### Moderate Limits (100 requests/minute)
+
 Applied to read operations and queries:
+
 - `GET /api/resolve` - Resolve platform bindings
 - `GET /api/public-verify` - Public verification queries
 - `GET /api/contents` - List content records
@@ -36,7 +40,9 @@ Applied to read operations and queries:
 - `GET /api/registry` - Registry address
 
 ### Relaxed Limits (1000 requests/minute)
+
 Applied to lightweight status endpoints:
+
 - `GET /api/health` - Health check
 
 ## Configuration
@@ -60,11 +66,13 @@ RATE_LIMIT_EXEMPT_API_KEY=internal_service_key
 For production deployments with multiple API instances, Redis is **strongly recommended** to ensure consistent rate limiting across all instances.
 
 **Without Redis**: Each API instance maintains its own in-memory rate limit counters. This means:
+
 - A client could make 10 requests/minute to Instance A and 10 requests/minute to Instance B
 - Rate limits are reset when the API restarts
 - Not suitable for load-balanced deployments
 
 **With Redis**: All API instances share a centralized rate limit store:
+
 - Rate limits are enforced consistently across all instances
 - Limits persist through API restarts
 - Suitable for production use with load balancing
@@ -72,11 +80,13 @@ For production deployments with multiple API instances, Redis is **strongly reco
 #### Setting up Redis
 
 **Using Docker:**
+
 ```bash
 docker run -d --name redis -p 6379:6379 redis:7-alpine
 ```
 
 **Using Docker Compose** (add to `docker-compose.yml`):
+
 ```yaml
 services:
   redis:
@@ -92,11 +102,13 @@ volumes:
 ```
 
 Then set in `.env`:
+
 ```bash
 REDIS_URL=redis://localhost:6379
 ```
 
 For managed Redis services (AWS ElastiCache, Redis Cloud, etc.), use the connection URL provided by your service:
+
 ```bash
 REDIS_URL=redis://username:password@hostname:port
 ```
@@ -108,12 +120,14 @@ When rate limits are exceeded, the API returns:
 **Status Code**: `429 Too Many Requests`
 
 **Headers**:
+
 - `Retry-After`: Seconds until the rate limit resets
 - `RateLimit-Limit`: Maximum requests allowed in the window
 - `RateLimit-Remaining`: Requests remaining in current window
 - `RateLimit-Reset`: Timestamp when the rate limit resets
 
 **Response Body**:
+
 ```json
 {
   "error": "Too Many Requests",
@@ -127,6 +141,7 @@ When rate limits are exceeded, the API returns:
 ### Handling Rate Limits
 
 Clients should:
+
 1. Check `RateLimit-Remaining` header to track remaining quota
 2. When receiving `429`, read `Retry-After` header
 3. Implement exponential backoff for retries
@@ -137,21 +152,21 @@ Clients should:
 ```typescript
 async function makeRequest(url: string, options: RequestInit = {}) {
   const response = await fetch(url, options);
-  
+
   // Check rate limit headers
-  const remaining = response.headers.get('RateLimit-Remaining');
-  const limit = response.headers.get('RateLimit-Limit');
+  const remaining = response.headers.get("RateLimit-Remaining");
+  const limit = response.headers.get("RateLimit-Limit");
   console.log(`Rate limit: ${remaining}/${limit} remaining`);
-  
+
   if (response.status === 429) {
-    const retryAfter = response.headers.get('Retry-After');
+    const retryAfter = response.headers.get("Retry-After");
     console.warn(`Rate limited. Retry after ${retryAfter} seconds`);
-    
+
     // Wait and retry
-    await new Promise(resolve => setTimeout(resolve, Number(retryAfter) * 1000));
+    await new Promise((resolve) => setTimeout(resolve, Number(retryAfter) * 1000));
     return makeRequest(url, options);
   }
-  
+
   return response;
 }
 ```
@@ -173,11 +188,13 @@ curl -i https://api.example.com/api/health
 Trusted clients can be exempted from rate limiting by setting `RATE_LIMIT_EXEMPT_API_KEY`:
 
 1. Generate a secure API key:
+
    ```bash
    openssl rand -hex 32
    ```
 
 2. Set in `.env`:
+
    ```bash
    RATE_LIMIT_EXEMPT_API_KEY=your_secure_key_here
    ```
@@ -188,6 +205,7 @@ Trusted clients can be exempted from rate limiting by setting `RATE_LIMIT_EXEMPT
    ```
 
 **Security Notes**:
+
 - Keep exempt API keys secure and rotate regularly
 - Only provide to trusted internal services
 - Monitor usage of exempt keys for abuse
@@ -198,6 +216,7 @@ Trusted clients can be exempted from rate limiting by setting `RATE_LIMIT_EXEMPT
 ### Rate Limit Hits
 
 When rate limits are exceeded, the API logs:
+
 ```
 [RATE_LIMIT_HIT] IP: 192.168.1.100, Path: /api/upload, Time: 2024-01-15T10:30:00.000Z
 ```
@@ -205,6 +224,7 @@ When rate limits are exceeded, the API logs:
 ### Recommended Monitoring
 
 Monitor these metrics in production:
+
 - Rate limit hit frequency by endpoint
 - Top IP addresses hitting rate limits
 - Rate limit hit patterns (time of day, specific endpoints)
@@ -213,6 +233,7 @@ Monitor these metrics in production:
 ### Example Log Aggregation Query
 
 If using a log aggregation service (e.g., CloudWatch, Datadog, ELK):
+
 ```
 [RATE_LIMIT_HIT]
 | count by IP, Path
@@ -242,6 +263,7 @@ Expected: First 10 succeed, remaining fail with 429.
 ### Automated Tests
 
 See `test/middleware/rate-limit.test.ts` for comprehensive test coverage:
+
 - Rate limit enforcement for each tier
 - Redis vs in-memory store behavior
 - Authenticated exemptions
@@ -249,6 +271,7 @@ See `test/middleware/rate-limit.test.ts` for comprehensive test coverage:
 - Error message format
 
 Run tests:
+
 ```bash
 npm test -- test/middleware/rate-limit.test.ts
 ```
@@ -265,22 +288,26 @@ npm test -- test/middleware/rate-limit.test.ts
 ## Troubleshooting
 
 ### Rate limits not working
+
 - Check Redis connection if `REDIS_URL` is set
 - Verify middleware is applied to routes
 - Check logs for initialization errors
 
 ### Too strict / too lenient
+
 - Adjust limits in `scripts/middleware/rate-limit.middleware.ts`
 - Consider user feedback and actual usage patterns
 - Monitor API performance under load
 
 ### Redis connection issues
+
 - Verify Redis is running: `redis-cli ping`
 - Check network connectivity
 - Review Redis logs for errors
 - API will fall back to in-memory if Redis fails
 
 ### Rate limits reset unexpectedly
+
 - Using in-memory store without Redis (resets on API restart)
 - Redis data eviction policy too aggressive
 - Check Redis `maxmemory` and `maxmemory-policy` settings

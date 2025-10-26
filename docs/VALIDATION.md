@@ -5,6 +5,7 @@ This document describes the comprehensive input validation and sanitization impl
 ## Overview
 
 All API endpoints validate and sanitize user inputs using:
+
 - **Zod** for schema validation
 - **validator.js** for string sanitization
 - Custom middleware for file validation
@@ -46,6 +47,7 @@ All validation errors return **400 Bad Request** with a consistent JSON structur
 **Example**: `0x742d35Cc6634C0532925a3b844Bc454e4438f44e`
 
 **Rejects**:
+
 - Missing `0x` prefix
 - Wrong length (not 42 characters total)
 - Non-hexadecimal characters
@@ -58,6 +60,7 @@ All validation errors return **400 Bad Request** with a consistent JSON structur
 **Example**: `0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef`
 
 **Rejects**:
+
 - Missing `0x` prefix
 - Wrong length (not 66 characters total)
 - Non-hexadecimal characters
@@ -73,6 +76,7 @@ All validation errors return **400 Bad Request** with a consistent JSON structur
 **Note**: IPFS CIDs use base58 encoding which includes characters 1-9, a-z, A-Z (excluding 0, O, I, l to avoid confusion)
 
 **Rejects**:
+
 - Invalid IPFS protocol
 - Path traversal attempts (`../`)
 - Invalid characters in CID
@@ -84,6 +88,7 @@ All validation errors return **400 Bad Request** with a consistent JSON structur
 **Example**: `https://example.com/manifest.json`
 
 **Rejects**:
+
 - Malformed URLs
 - Dangerous protocols (`javascript:`, `data:`, `file:`, etc.)
 - Non-HTTP(S) protocols
@@ -99,6 +104,7 @@ All validation errors return **400 Bad Request** with a consistent JSON structur
 **Example**: `youtube`, `tik-tok`, `social_media`
 
 **Rejects**:
+
 - Uppercase letters
 - Spaces
 - Special characters
@@ -114,6 +120,7 @@ All validation errors return **400 Bad Request** with a consistent JSON structur
 **Example**: `dQw4w9WgXcQ`, `user/status/123456789`, `user@domain:123`
 
 **Rejects**:
+
 - Control characters
 - Null bytes
 - IDs exceeding 500 characters
@@ -135,6 +142,7 @@ All validation errors return **400 Bad Request** with a consistent JSON structur
 #### Filename Validation
 
 **Rejects**:
+
 - Path traversal attempts (`../`, `./`, `\`)
 - Null bytes (`\0`)
 - Files exceeding 255 characters
@@ -149,11 +157,13 @@ All validation errors return **400 Bad Request** with a consistent JSON structur
 **Example**: `user@example.com`
 
 **Features**:
+
 - Normalizes email addresses (lowercase, removes dots in Gmail addresses)
 - Validates format
 - Maximum 255 characters
 
 **Rejects**:
+
 - Invalid email format
 - Missing @ symbol
 - Invalid domain
@@ -167,6 +177,7 @@ All validation errors return **400 Bad Request** with a consistent JSON structur
 **Example**: `John Doe`, `Jane-Smith`, `User_123`
 
 **Rejects**:
+
 - HTML/script tags
 - Special characters
 - Names exceeding 100 characters
@@ -178,6 +189,7 @@ All validation errors return **400 Bad Request** with a consistent JSON structur
 **Protected**: Yes (requires API key)
 
 **Validation**:
+
 - File is required
 - File size ≤ 1GB
 - MIME type in allowed list
@@ -190,6 +202,7 @@ All validation errors return **400 Bad Request** with a consistent JSON structur
 **Protected**: Yes (requires API key)
 
 **Body Parameters**:
+
 - `contentUri` (required): IPFS or HTTP(S) URI (1-1000 chars)
 - `upload` (optional): "true" or "false"
 - `contentHash` (optional): 0x + 64 hex chars
@@ -201,6 +214,7 @@ All validation errors return **400 Bad Request** with a consistent JSON structur
 **Protected**: Yes (requires API key)
 
 **Body Parameters**:
+
 - `registryAddress` (required): Valid Ethereum address
 - `manifestURI` (required): IPFS or HTTP(S) URI
 - `contentHash` (optional): 0x + 64 hex chars
@@ -212,6 +226,7 @@ All validation errors return **400 Bad Request** with a consistent JSON structur
 **Protected**: Yes (requires API key)
 
 **Body Parameters**:
+
 - `registryAddress` (required): Valid Ethereum address
 - `platform` (required): Lowercase platform name (1-50 chars)
 - `platformId` (required): Platform-specific ID (1-500 chars)
@@ -222,11 +237,13 @@ All validation errors return **400 Bad Request** with a consistent JSON structur
 **Protected**: Yes (requires API key)
 
 **Body Parameters**:
+
 - `registryAddress` (required): Valid Ethereum address
 - `contentHash` (required): 0x + 64 hex chars
 - `bindings` (required): Array of 1-50 binding objects
 
 **Binding Object**:
+
 ```json
 {
   "platform": "youtube",
@@ -239,6 +256,7 @@ All validation errors return **400 Bad Request** with a consistent JSON structur
 **Protected**: No
 
 **Body Parameters**:
+
 - `registryAddress` (required): Valid Ethereum address
 - `manifestURI` (required): IPFS or HTTP(S) URI
 - `rpcUrl` (optional): HTTP(S) URL
@@ -250,6 +268,7 @@ All validation errors return **400 Bad Request** with a consistent JSON structur
 **Protected**: No
 
 **Body Parameters**:
+
 - `registryAddress` (required): Valid Ethereum address
 - `manifestURI` (required): IPFS or HTTP(S) URI
 - `rpcUrl` (optional): HTTP(S) URL
@@ -261,6 +280,7 @@ All validation errors return **400 Bad Request** with a consistent JSON structur
 **Protected**: Yes (requires API key)
 
 **Body Parameters**:
+
 - `registryAddress` (required): Valid Ethereum address
 - `platform` (optional): Lowercase platform name
 - `platformId` (optional): Platform-specific ID
@@ -274,6 +294,7 @@ All validation errors return **400 Bad Request** with a consistent JSON structur
 **Protected**: No
 
 **Query Parameters**:
+
 - `url` (optional): Full platform URL (max 2000 chars)
 - `platform` (optional): Platform name
 - `platformId` (optional): Platform ID
@@ -291,6 +312,7 @@ All validation errors return **400 Bad Request** with a consistent JSON structur
 **Protected**: No
 
 **Query Parameters**:
+
 - `contentHash` (optional): 0x + 64 hex chars
 - `limit` (optional): Number between 1 and 100
 
@@ -299,6 +321,7 @@ All validation errors return **400 Bad Request** with a consistent JSON structur
 **Protected**: No
 
 **URL Parameters**:
+
 - `hash` (required): 0x + 64 hex chars
 
 ### POST /api/users
@@ -306,6 +329,7 @@ All validation errors return **400 Bad Request** with a consistent JSON structur
 **Protected**: No
 
 **Body Parameters** (at least one required):
+
 - `address` (optional): Valid Ethereum address
 - `email` (optional): Valid email address (max 255 chars)
 - `name` (optional): Alphanumeric name (1-100 chars)
@@ -321,8 +345,9 @@ All validation errors return **400 Bad Request** with a consistent JSON structur
 **Action**: Escapes HTML entities (`<`, `>`, `&`, `"`, `'`)
 
 **Example**:
+
 ```typescript
-sanitizeString("<script>alert('xss')</script>")
+sanitizeString("<script>alert('xss')</script>");
 // Returns: "&lt;script&gt;alert(&#x27;xss&#x27;)&lt;/script&gt;"
 ```
 
@@ -333,6 +358,7 @@ sanitizeString("<script>alert('xss')</script>")
 **Purpose**: Prevent malicious URLs
 
 **Action**:
+
 - Validates URL format
 - Rejects dangerous protocols (`javascript:`, `data:`, `file:`)
 - Trims whitespace
@@ -345,6 +371,7 @@ sanitizeString("<script>alert('xss')</script>")
 **Purpose**: Ensure valid numeric input
 
 **Options**:
+
 - `min`: Minimum allowed value
 - `max`: Maximum allowed value
 - `integer`: Require integer (no decimals)

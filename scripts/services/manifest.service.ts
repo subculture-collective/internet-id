@@ -28,7 +28,6 @@ export async function fetchManifest(uri: string): Promise<any> {
     const p = uri.replace("ipfs://", "");
     return fetchHttpsJson(`https://ipfs.io/ipfs/${p}`);
   }
-  if (uri.startsWith("http://") || uri.startsWith("https://"))
-    return fetchHttpsJson(uri);
+  if (uri.startsWith("http://") || uri.startsWith("https://")) return fetchHttpsJson(uri);
   throw new Error("Unsupported manifest URI");
 }

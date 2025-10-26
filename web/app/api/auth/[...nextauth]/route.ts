@@ -29,8 +29,7 @@ if (process.env.NODE_ENV !== "production") {
 // Build providers conditionally so misconfigured providers don't cause redirects
 const providers: any[] = [];
 const GITHUB_ID = process.env.GITHUB_ID || process.env.GITHUB_CLIENT_ID;
-const GITHUB_SECRET =
-  process.env.GITHUB_SECRET || process.env.GITHUB_CLIENT_SECRET;
+const GITHUB_SECRET = process.env.GITHUB_SECRET || process.env.GITHUB_CLIENT_SECRET;
 if (GITHUB_ID && GITHUB_SECRET) {
   providers.push(
     GitHub({
@@ -39,13 +38,10 @@ if (GITHUB_ID && GITHUB_SECRET) {
     })
   );
 } else {
-  console.warn(
-    "[next-auth] GitHub provider not configured (GITHUB_ID/SECRET missing)"
-  );
+  console.warn("[next-auth] GitHub provider not configured (GITHUB_ID/SECRET missing)");
 }
 const GOOGLE_ID = process.env.GOOGLE_ID || process.env.GOOGLE_CLIENT_ID;
-const GOOGLE_SECRET =
-  process.env.GOOGLE_SECRET || process.env.GOOGLE_CLIENT_SECRET;
+const GOOGLE_SECRET = process.env.GOOGLE_SECRET || process.env.GOOGLE_CLIENT_SECRET;
 if (GOOGLE_ID && GOOGLE_SECRET) {
   const scopes =
     process.env.GOOGLE_SCOPES ||
@@ -65,9 +61,7 @@ if (GOOGLE_ID && GOOGLE_SECRET) {
     })
   );
 } else {
-  console.warn(
-    "[next-auth] Google provider not configured (GOOGLE_ID/SECRET missing)"
-  );
+  console.warn("[next-auth] Google provider not configured (GOOGLE_ID/SECRET missing)");
 }
 
 export const authOptions: NextAuthOptions = {
@@ -81,11 +75,7 @@ export const authOptions: NextAuthOptions = {
       // Allow relative callback URLs
       if (url.startsWith("/")) {
         // If redirecting back to signin/register/home, send to profile instead
-        if (
-          url === "/" ||
-          url.startsWith("/signin") ||
-          url.startsWith("/register")
-        ) {
+        if (url === "/" || url.startsWith("/signin") || url.startsWith("/register")) {
           return `${baseUrl}/profile`;
         }
         return `${baseUrl}${url}`;

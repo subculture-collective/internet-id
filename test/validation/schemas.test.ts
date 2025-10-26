@@ -62,7 +62,9 @@ describe("Validation Schemas", function () {
 
   describe("ipfsUriSchema", function () {
     it("should accept valid IPFS URI", function () {
-      const result = ipfsUriSchema.safeParse("ipfs://QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco");
+      const result = ipfsUriSchema.safeParse(
+        "ipfs://QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco"
+      );
       expect(result.success).to.be.true;
     });
 
@@ -101,7 +103,9 @@ describe("Validation Schemas", function () {
 
   describe("manifestUriSchema", function () {
     it("should accept IPFS URI", function () {
-      const result = manifestUriSchema.safeParse("ipfs://QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco");
+      const result = manifestUriSchema.safeParse(
+        "ipfs://QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco"
+      );
       expect(result.success).to.be.true;
     });
 
@@ -324,9 +328,7 @@ describe("Validation Schemas", function () {
     it("should accept oneshot request with bindings array", function () {
       const result = oneshotRequestSchema.safeParse({
         registryAddress: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-        bindings: [
-          { platform: "youtube", platformId: "dQw4w9WgXcQ" },
-        ],
+        bindings: [{ platform: "youtube", platformId: "dQw4w9WgXcQ" }],
       });
       expect(result.success).to.be.true;
     });

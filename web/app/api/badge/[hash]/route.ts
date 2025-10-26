@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { hash: string } }
-) {
+export async function GET(req: NextRequest, { params }: { params: { hash: string } }) {
   const hash = params.hash || "";
-  const short =
-    hash && hash.length > 20 ? `${hash.slice(0, 10)}…${hash.slice(-6)}` : hash;
+  const short = hash && hash.length > 20 ? `${hash.slice(0, 10)}…${hash.slice(-6)}` : hash;
   const sp = req.nextUrl.searchParams;
   const theme = (sp.get("theme") || "dark").toLowerCase();
   const wStr = sp.get("w") || sp.get("width") || sp.get("size");

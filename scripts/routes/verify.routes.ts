@@ -28,7 +28,7 @@ router.post(
         manifestURI: string;
         rpcUrl?: string;
       };
-      
+
       const fileHash = sha256Hex(req.file!.buffer);
       const manifest = await fetchManifest(manifestURI);
       const manifestHashOk = manifest.content_hash === fileHash;
@@ -38,15 +38,14 @@ router.post(
       );
       const provider = getProvider(rpcUrl);
       const entry = await getEntry(registryAddress, fileHash, provider);
-      const creatorOk =
-        (entry?.creator || "").toLowerCase() === recovered.toLowerCase();
+      const creatorOk = (entry?.creator || "").toLowerCase() === recovered.toLowerCase();
       const manifestOk = entry?.manifestURI === manifestURI;
       const status =
         manifestHashOk && creatorOk && manifestOk
           ? "OK"
           : manifestHashOk && creatorOk
-          ? "WARN"
-          : "FAIL";
+            ? "WARN"
+            : "FAIL";
       const result = {
         status,
         fileHash,
@@ -91,7 +90,7 @@ router.post(
         manifestURI: string;
         rpcUrl?: string;
       };
-      
+
       const fileHash = sha256Hex(req.file!.buffer);
       const manifest = await fetchManifest(manifestURI);
       const recovered = ethers.verifyMessage(
@@ -101,12 +100,9 @@ router.post(
       const provider = getProvider(rpcUrl);
       const net = await provider.getNetwork();
       const entry = await getEntry(registryAddress, fileHash, provider);
-      const creatorOk =
-        (entry?.creator || "").toLowerCase() === recovered.toLowerCase();
+      const creatorOk = (entry?.creator || "").toLowerCase() === recovered.toLowerCase();
       const manifestOk = entry?.manifestURI === manifestURI;
-      const topic0 = ethers.id(
-        "ContentRegistered(bytes32,address,string,uint64)"
-      );
+      const topic0 = ethers.id("ContentRegistered(bytes32,address,string,uint64)");
       let txHash: string | undefined;
       try {
         const logs = await provider.getLogs({
@@ -143,8 +139,8 @@ router.post(
             manifest.content_hash === fileHash && creatorOk && manifestOk
               ? "OK"
               : manifest.content_hash === fileHash && creatorOk
-              ? "WARN"
-              : "FAIL",
+                ? "WARN"
+                : "FAIL",
         },
       };
       // persist verification as well

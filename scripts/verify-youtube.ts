@@ -6,10 +6,8 @@ export function extractYouTubeId(input: string): string {
     const url = new URL(input);
     if (url.hostname.includes("youtu.be")) return url.pathname.replace("/", "");
     if (url.hostname.includes("youtube.com")) {
-      if (url.pathname.startsWith("/watch"))
-        return url.searchParams.get("v") || "";
-      if (url.pathname.startsWith("/shorts/"))
-        return url.pathname.split("/")[2] || "";
+      if (url.pathname.startsWith("/watch")) return url.searchParams.get("v") || "";
+      if (url.pathname.startsWith("/shorts/")) return url.pathname.split("/")[2] || "";
     }
     return "";
   } catch {
@@ -45,10 +43,7 @@ async function fetchManifest(manifestURI: string): Promise<any> {
   if (manifestURI.startsWith("ipfs://")) {
     const path = manifestURI.replace("ipfs://", "");
     return fetchHttpsJson(`https://ipfs.io/ipfs/${path}`);
-  } else if (
-    manifestURI.startsWith("http://") ||
-    manifestURI.startsWith("https://")
-  ) {
+  } else if (manifestURI.startsWith("http://") || manifestURI.startsWith("https://")) {
     return fetchHttpsJson(manifestURI);
   } else {
     throw new Error("Unsupported manifest URI scheme");
@@ -58,9 +53,7 @@ async function fetchManifest(manifestURI: string): Promise<any> {
 async function main() {
   const [youtubeUrlOrId, registryAddress] = process.argv.slice(2);
   if (!youtubeUrlOrId || !registryAddress) {
-    console.error(
-      "Usage: npm run verify:youtube -- <youtubeUrlOrId> <registryAddress>"
-    );
+    console.error("Usage: npm run verify:youtube -- <youtubeUrlOrId> <registryAddress>");
     process.exit(1);
   }
 
@@ -78,8 +71,10 @@ async function main() {
   ];
   const registry = new ethers.Contract(registryAddress, abi, provider);
 
-  const { creator, contentHash, manifestURI, timestamp } =
-    await registry.resolveByPlatform("youtube", videoId);
+  const { creator, contentHash, manifestURI, timestamp } = await registry.resolveByPlatform(
+    "youtube",
+    videoId
+  );
   if (!timestamp || contentHash === ethers.ZeroHash) {
     console.error("FAIL: No binding found on-chain for this YouTube videoId");
     process.exit(1);
@@ -89,9 +84,7 @@ async function main() {
   const manifestHash = String(manifest.content_hash || "").toLowerCase();
   const onchainHash = String(contentHash).toLowerCase();
   if (manifestHash !== onchainHash) {
-    console.error(
-      "FAIL: Manifest content_hash does not match on-chain contentHash"
-    );
+    console.error("FAIL: Manifest content_hash does not match on-chain contentHash");
     console.error({ manifestHash, onchainHash, manifestURI });
     process.exit(1);
   }

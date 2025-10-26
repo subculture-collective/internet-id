@@ -25,15 +25,20 @@ router.post(
   validateFile({ required: true, allowedMimeTypes: ALLOWED_MIME_TYPES }),
   async (req: Request, res: Response) => {
     try {
-      const { registryAddress, platform, platformId, uploadContent, bindings: rawBindings } =
-        req.body as {
-          registryAddress: string;
-          platform?: string;
-          platformId?: string;
-          uploadContent?: string;
-          bindings?: string | Array<{ platform: string; platformId: string }>;
-        };
-      
+      const {
+        registryAddress,
+        platform,
+        platformId,
+        uploadContent,
+        bindings: rawBindings,
+      } = req.body as {
+        registryAddress: string;
+        platform?: string;
+        platformId?: string;
+        uploadContent?: string;
+        bindings?: string | Array<{ platform: string; platformId: string }>;
+      };
+
       // Parse bindings if provided as string
       let bindings: Array<{ platform: string; platformId: string }> = [];
       if (rawBindings) {
@@ -58,15 +63,11 @@ router.post(
       }
 
       // 1) Optionally upload content to IPFS (default: do NOT upload)
-      const shouldUploadContent =
-        String(uploadContent).toLowerCase() === "true";
+      const shouldUploadContent = String(uploadContent).toLowerCase() === "true";
       let contentCid: string | undefined;
       let contentUri: string | undefined;
       if (shouldUploadContent) {
-        const tmpContent = await tmpWrite(
-          req.file!.originalname,
-          req.file!.buffer
-        );
+        const tmpContent = await tmpWrite(req.file!.originalname, req.file!.buffer);
         try {
           contentCid = await uploadToIpfs(tmpContent);
           contentUri = `ipfs://${contentCid}`;
@@ -82,8 +83,7 @@ router.post(
       );
       const net = await provider.getNetwork();
       const pk = process.env.PRIVATE_KEY;
-      if (!pk)
-        return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
+      if (!pk) return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
       const wallet = new ethers.Wallet(pk);
       const signature = await wallet.signMessage(ethers.getBytes(fileHash));
       const manifest: any = {
@@ -98,10 +98,7 @@ router.post(
       if (contentUri) manifest.content_uri = contentUri;
 
       // 3) Upload manifest to IPFS
-      const tmpManifest = await tmpWrite(
-        "manifest.json",
-        Buffer.from(JSON.stringify(manifest))
-      );
+      const tmpManifest = await tmpWrite("manifest.json", Buffer.from(JSON.stringify(manifest)));
       let manifestCid: string | undefined;
       try {
         manifestCid = await uploadToIpfs(tmpManifest);
@@ -112,38 +109,20 @@ router.post(
 
       // 4) Register on-chain
       const walletWithProvider = new ethers.Wallet(pk, provider);
-      const abi = [
-        "function register(bytes32 contentHash, string manifestURI) external",
-      ];
-      const registry = new ethers.Contract(
-        registryAddress,
-        abi,
-        walletWithProvider
-      );
+      const abi = ["function register(bytes32 contentHash, string manifestURI) external"];
+      const registry = new ethers.Contract(registryAddress, abi, walletWithProvider);
       const tx = await registry.register(fileHash, manifestURI);
       const receipt = await tx.wait();
 
       // Optional: bind platforms (supports single legacy fields, or array)
       const bindAbi = ["function bindPlatform(bytes32,string,string) external"];
-      const reg2 = new ethers.Contract(
-        registryAddress,
-        bindAbi,
-        walletWithProvider
-      );
+      const reg2 = new ethers.Contract(registryAddress, bindAbi, walletWithProvider);
       const bindTxHashes: string[] = [];
       const bindingsToProcess =
-        bindings.length > 0
-          ? bindings
-          : platform && platformId
-          ? [{ platform, platformId }]
-          : [];
+        bindings.length > 0 ? bindings : platform && platformId ? [{ platform, platformId }] : [];
       for (const b of bindingsToProcess) {
         try {
-          const btx = await reg2.bindPlatform(
-            fileHash,
-            b.platform,
-            b.platformId
-          );
+          const btx = await reg2.bindPlatform(fileHash, b.platform, b.platformId);
           const brec = await btx.wait();
           if (brec?.hash) bindTxHashes.push(brec.hash);
           // upsert DB binding

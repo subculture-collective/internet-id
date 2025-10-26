@@ -9,11 +9,13 @@ import { createHash } from "crypto";
 /**
  * Create a test user object
  */
-export function createTestUser(overrides: Partial<{
-  address: string;
-  email: string;
-  name: string;
-}> = {}) {
+export function createTestUser(
+  overrides: Partial<{
+    address: string;
+    email: string;
+    name: string;
+  }> = {}
+) {
   const randomId = Math.random().toString(36).substring(7);
   return {
     address: overrides.address || ethers.Wallet.createRandom().address.toLowerCase(),
@@ -25,16 +27,18 @@ export function createTestUser(overrides: Partial<{
 /**
  * Create test content data
  */
-export function createTestContent(overrides: Partial<{
-  contentHash: string;
-  contentUri: string;
-  manifestUri: string;
-  creatorAddress: string;
-}> = {}) {
+export function createTestContent(
+  overrides: Partial<{
+    contentHash: string;
+    contentUri: string;
+    manifestUri: string;
+    creatorAddress: string;
+  }> = {}
+) {
   const randomData = Math.random().toString(36);
-  const hash = overrides.contentHash || 
-    "0x" + createHash("sha256").update(randomData).digest("hex");
-  
+  const hash =
+    overrides.contentHash || "0x" + createHash("sha256").update(randomData).digest("hex");
+
   return {
     contentHash: hash,
     contentUri: overrides.contentUri || undefined,
@@ -46,11 +50,13 @@ export function createTestContent(overrides: Partial<{
 /**
  * Create test platform binding data
  */
-export function createTestBinding(overrides: Partial<{
-  platform: string;
-  platformId: string;
-  contentHash: string;
-}> = {}) {
+export function createTestBinding(
+  overrides: Partial<{
+    platform: string;
+    platformId: string;
+    contentHash: string;
+  }> = {}
+) {
   const randomId = Math.random().toString(36).substring(7);
   return {
     platform: overrides.platform || "youtube",
@@ -92,10 +98,7 @@ export function createTestManifest(contentHash: string, creatorAddress: string) 
 /**
  * Generate a valid Ethereum signature for test manifest
  */
-export async function signTestManifest(
-  manifest: any,
-  wallet: ethers.Wallet
-): Promise<string> {
+export async function signTestManifest(manifest: any, wallet: ethers.Wallet): Promise<string> {
   const message = JSON.stringify({
     content_hash: manifest.content_hash,
     content_uri: manifest.content_uri,

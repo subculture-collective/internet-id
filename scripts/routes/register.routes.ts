@@ -28,7 +28,7 @@ router.post(
         manifestURI: string;
         contentHash?: string;
       };
-      
+
       let fileHash: string | undefined;
       if (req.file) {
         fileHash = sha256Hex(req.file.buffer);
@@ -50,8 +50,7 @@ router.post(
         process.env.RPC_URL || "https://sepolia.base.org"
       );
       const pk = process.env.PRIVATE_KEY;
-      if (!pk)
-        return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
+      if (!pk) return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
       const wallet = new ethers.Wallet(pk, provider);
       const abi = [
         "function register(bytes32 contentHash, string manifestURI) external",

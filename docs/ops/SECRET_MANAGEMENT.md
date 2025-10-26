@@ -55,6 +55,7 @@ The Internet-ID project uses a layered secret management approach:
 ### AWS Secrets Manager (Recommended for AWS Deployments)
 
 **Advantages:**
+
 - Native AWS integration
 - Automatic rotation support
 - Built-in encryption (KMS)
@@ -66,6 +67,7 @@ The Internet-ID project uses a layered secret management approach:
 ### HashiCorp Vault (Recommended for Multi-Cloud/On-Premise)
 
 **Advantages:**
+
 - Cloud-agnostic
 - Advanced policy engine
 - Dynamic secrets support
@@ -85,6 +87,7 @@ The Internet-ID project uses a layered secret management approach:
 ### 1. Database Credentials
 
 **Secrets:**
+
 - `POSTGRES_USER` - Database username
 - `POSTGRES_PASSWORD` - Database password
 - `DATABASE_URL` - Full connection string
@@ -96,6 +99,7 @@ The Internet-ID project uses a layered secret management approach:
 ### 2. IPFS Provider Credentials
 
 **Secrets:**
+
 - `IPFS_PROJECT_ID` - Infura IPFS project ID
 - `IPFS_PROJECT_SECRET` - Infura IPFS secret
 - `WEB3_STORAGE_TOKEN` - Web3.Storage API token
@@ -108,6 +112,7 @@ The Internet-ID project uses a layered secret management approach:
 ### 3. Authentication Secrets
 
 **Secrets:**
+
 - `NEXTAUTH_SECRET` - NextAuth session signing key
 - `SESSION_SECRET` - Generic session secret
 - `API_KEY` - API authentication key
@@ -120,6 +125,7 @@ The Internet-ID project uses a layered secret management approach:
 ### 4. OAuth Provider Credentials
 
 **Secrets:**
+
 - `GITHUB_ID` / `GITHUB_SECRET` - GitHub OAuth
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` - Google OAuth
 - `TWITTER_CLIENT_ID` / `TWITTER_CLIENT_SECRET` - Twitter OAuth
@@ -132,6 +138,7 @@ The Internet-ID project uses a layered secret management approach:
 ### 5. Blockchain Private Keys
 
 **Secrets:**
+
 - `PRIVATE_KEY` - Deployer/creator account private key
 
 **Rotation:** Annually or on compromise
@@ -139,6 +146,7 @@ The Internet-ID project uses a layered secret management approach:
 **Critical:** Critical - Controls contract deployment and on-chain operations
 
 **Special Handling:**
+
 - Store in hardware security module (HSM) when possible
 - Use multi-signature wallets for high-value operations
 - Never rotate without updating on-chain registrations
@@ -146,6 +154,7 @@ The Internet-ID project uses a layered secret management approach:
 ### 6. Infrastructure Secrets
 
 **Secrets:**
+
 - `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` - AWS S3 for backups
 - `REDIS_URL` - Redis connection (includes auth)
 - `ALERT_EMAIL` / SMTP credentials
@@ -161,10 +170,12 @@ The Internet-ID project uses a layered secret management approach:
 Secrets should be rotated automatically when supported:
 
 **Supported by AWS Secrets Manager:**
+
 - Database passwords (RDS)
 - API keys (with Lambda rotation)
 
 **Supported by HashiCorp Vault:**
+
 - Database credentials (dynamic secrets)
 - Cloud provider credentials
 
@@ -182,14 +193,14 @@ For secrets requiring manual rotation:
 
 ### Rotation Schedule
 
-| Secret Category | Frequency | Automated | Owner |
-|----------------|-----------|-----------|-------|
-| Database passwords | Quarterly | Yes (preferred) | DevOps |
-| IPFS API keys | Quarterly | Partial | DevOps |
-| NextAuth secrets | Quarterly | Manual | Security |
-| OAuth credentials | Semi-annually | Manual | Security |
-| Private keys | Annually | Manual | Security Lead |
-| Infrastructure keys | Quarterly | Partial | DevOps |
+| Secret Category     | Frequency     | Automated       | Owner         |
+| ------------------- | ------------- | --------------- | ------------- |
+| Database passwords  | Quarterly     | Yes (preferred) | DevOps        |
+| IPFS API keys       | Quarterly     | Partial         | DevOps        |
+| NextAuth secrets    | Quarterly     | Manual          | Security      |
+| OAuth credentials   | Semi-annually | Manual          | Security      |
+| Private keys        | Annually      | Manual          | Security Lead |
+| Infrastructure keys | Quarterly     | Partial         | DevOps        |
 
 ### Rotation Testing
 
@@ -215,6 +226,7 @@ For secrets requiring manual rotation:
 **Access Control:** Developer-level access
 
 **Configuration:**
+
 ```bash
 # Development secrets (non-sensitive)
 POSTGRES_PASSWORD=dev_password_change_me
@@ -223,6 +235,7 @@ NEXTAUTH_SECRET=dev_nextauth_secret_32_chars_min
 ```
 
 **Best Practices:**
+
 - Use non-production credentials
 - Never commit `.env` to version control
 - Use `.env.example` as template
@@ -235,6 +248,7 @@ NEXTAUTH_SECRET=dev_nextauth_secret_32_chars_min
 **Access Control:** DevOps + QA team
 
 **Configuration:**
+
 ```bash
 # Staging - Fetch from secret manager
 export ENVIRONMENT=staging
@@ -242,6 +256,7 @@ export ENVIRONMENT=staging
 ```
 
 **Best Practices:**
+
 - Mirror production secret structure
 - Use separate AWS account or Vault namespace
 - Test rotation procedures in staging first
@@ -253,6 +268,7 @@ export ENVIRONMENT=staging
 **Access Control:** Least privilege (application service accounts only)
 
 **Configuration:**
+
 ```bash
 # Production - Secrets injected at runtime
 export ENVIRONMENT=production
@@ -260,6 +276,7 @@ export ENVIRONMENT=production
 ```
 
 **Best Practices:**
+
 - No human access to production secrets
 - All access via service accounts with IAM roles
 - Enable secret versioning
@@ -285,20 +302,20 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     permissions:
-      id-token: write  # OIDC token for AWS
+      id-token: write # OIDC token for AWS
       contents: read
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: us-east-1
-      
+
       - name: Fetch secrets from AWS Secrets Manager
         run: |
           # Fetch secrets without exposing in logs
@@ -306,14 +323,14 @@ jobs:
             --secret-id internet-id/prod/app \
             --query SecretString \
             --output text)
-          
+
           # Parse and set as environment variables (not echoed)
           echo "::add-mask::$(echo $SECRET_JSON | jq -r .DATABASE_URL)"
           echo "DATABASE_URL=$(echo $SECRET_JSON | jq -r .DATABASE_URL)" >> $GITHUB_ENV
-          
+
           echo "::add-mask::$(echo $SECRET_JSON | jq -r .NEXTAUTH_SECRET)"
           echo "NEXTAUTH_SECRET=$(echo $SECRET_JSON | jq -r .NEXTAUTH_SECRET)" >> $GITHUB_ENV
-      
+
       - name: Deploy Application
         run: |
           # Deployment commands here
@@ -366,13 +383,13 @@ set -e
 # Fetch secrets from AWS Secrets Manager
 if [ "$ENVIRONMENT" = "production" ]; then
     echo "Fetching secrets from AWS Secrets Manager..."
-    
+
     SECRET_JSON=$(aws secretsmanager get-secret-value \
         --secret-id "internet-id/$ENVIRONMENT/app" \
         --region us-east-1 \
         --query SecretString \
         --output text)
-    
+
     # Export secrets as environment variables
     export DATABASE_URL=$(echo $SECRET_JSON | jq -r .DATABASE_URL)
     export NEXTAUTH_SECRET=$(echo $SECRET_JSON | jq -r .NEXTAUTH_SECRET)
@@ -396,16 +413,16 @@ spec:
     spec:
       serviceAccountName: internet-id-api
       containers:
-      - name: api
-        image: internet-id:latest
-        env:
-        - name: ENVIRONMENT
-          value: production
-        
-        # Use External Secrets Operator
-        envFrom:
-        - secretRef:
-            name: internet-id-secrets  # Synced from AWS/Vault
+        - name: api
+          image: internet-id:latest
+          env:
+            - name: ENVIRONMENT
+              value: production
+
+          # Use External Secrets Operator
+          envFrom:
+            - secretRef:
+                name: internet-id-secrets # Synced from AWS/Vault
 ```
 
 **External Secrets Operator:**
@@ -437,14 +454,14 @@ spec:
   target:
     name: internet-id-secrets
   data:
-  - secretKey: DATABASE_URL
-    remoteRef:
-      key: internet-id/prod/app
-      property: DATABASE_URL
-  - secretKey: NEXTAUTH_SECRET
-    remoteRef:
-      key: internet-id/prod/app
-      property: NEXTAUTH_SECRET
+    - secretKey: DATABASE_URL
+      remoteRef:
+        key: internet-id/prod/app
+        property: DATABASE_URL
+    - secretKey: NEXTAUTH_SECRET
+      remoteRef:
+        key: internet-id/prod/app
+        property: NEXTAUTH_SECRET
 ```
 
 ## Access Control
@@ -452,22 +469,26 @@ spec:
 ### Principle of Least Privilege
 
 **Development Team:**
+
 - ✅ Read access to dev secrets
 - ✅ Write access to dev secrets
 - ❌ No access to staging/production secrets
 
 **DevOps Team:**
+
 - ✅ Read access to staging secrets
 - ✅ Write access to staging secrets
 - ✅ Read access to production secrets (emergency only)
 - ⚠️ Write access to production (via approved change process)
 
 **Security Team:**
+
 - ✅ Full access to all environments
 - ✅ Audit log review access
 - ✅ Secret rotation authority
 
 **Application Service Accounts:**
+
 - ✅ Read access to environment-specific secrets only
 - ❌ No write access
 - ❌ No cross-environment access
@@ -481,10 +502,7 @@ spec:
     {
       "Sid": "ReadProductionSecrets",
       "Effect": "Allow",
-      "Action": [
-        "secretsmanager:GetSecretValue",
-        "secretsmanager:DescribeSecret"
-      ],
+      "Action": ["secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"],
       "Resource": "arn:aws:secretsmanager:us-east-1:ACCOUNT_ID:secret:internet-id/prod/*"
     },
     {
@@ -559,7 +577,7 @@ Resources:
       MetricName: UnauthorizedAccessAttempts
       Namespace: AWS/SecretsManager
       Statistic: Sum
-      Period: 300  # 5 minutes
+      Period: 300 # 5 minutes
       EvaluationPeriods: 1
       Threshold: 3
       AlarmActions:
@@ -575,7 +593,7 @@ Resources:
       MetricName: RotationFailure
       Namespace: AWS/SecretsManager
       Statistic: Sum
-      Period: 3600  # 1 hour
+      Period: 3600 # 1 hour
       EvaluationPeriods: 1
       Threshold: 1
       AlarmActions:
@@ -595,7 +613,7 @@ fields @timestamp, userIdentity.principalId, requestParameters.secretId, errorCo
 
 -- Unusual access patterns
 fields @timestamp, userIdentity.principalId, count() as access_count
-| filter eventName = "GetSecretValue" 
+| filter eventName = "GetSecretValue"
 | stats count() by userIdentity.principalId, bin(1h)
 | filter access_count > 100  # Threshold for anomaly
 
@@ -608,15 +626,18 @@ fields @timestamp, userIdentity.principalId, requestParameters.secretId, eventNa
 ### Alert Channels
 
 **Critical Alerts:**
+
 - PagerDuty/Opsgenie (24/7 on-call)
 - Security team Slack channel
 - Email to security@subculture.io
 
 **Warning Alerts:**
+
 - DevOps Slack channel
 - Email to ops@subculture.io
 
 **Info Alerts:**
+
 - CloudWatch dashboard
 - Weekly digest email
 

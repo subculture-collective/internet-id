@@ -9,9 +9,7 @@ describe("Service Layer", function () {
       const hash = sha256Hex(buf);
       expect(hash).to.match(/^0x[0-9a-f]{64}$/);
       // Known SHA-256 hash of "hello world"
-      expect(hash).to.equal(
-        "0xb94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
-      );
+      expect(hash).to.equal("0xb94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9");
     });
   });
 
@@ -33,9 +31,7 @@ describe("Service Layer", function () {
     });
 
     it("parses X/Twitter URL correctly", function () {
-      const result = parsePlatformInput(
-        "https://x.com/user/status/1234567890"
-      );
+      const result = parsePlatformInput("https://x.com/user/status/1234567890");
       expect(result).to.deep.equal({
         platform: "x",
         platformId: "1234567890",

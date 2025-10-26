@@ -25,11 +25,13 @@
 ### Summary
 
 No new security vulnerabilities were introduced by this refactoring. All flagged issues either:
+
 - Pre-existed in the original monolithic code (rate limiting)
 - Are false positives due to safe URL parsing (substring checks)
 - Are intentional system design decisions (manifest fetching)
 
 The refactoring improves security posture by:
+
 - Making code more auditable through modularization
 - Isolating security-sensitive middleware (auth.middleware.ts)
 - Improving testability of individual components

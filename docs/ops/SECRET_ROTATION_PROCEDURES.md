@@ -6,14 +6,14 @@ This document provides step-by-step procedures for rotating all secrets in the I
 
 ## Rotation Schedule
 
-| Secret Type | Frequency | Automation | Owner |
-|------------|-----------|------------|-------|
-| Database passwords | Quarterly (90 days) | Automated (preferred) | DevOps |
-| API keys (IPFS, third-party) | Quarterly (90 days) | Semi-automated | DevOps |
-| NextAuth secrets | Quarterly (90 days) | Manual | Security |
-| OAuth credentials | Semi-annually (180 days) | Manual | Security |
-| Private keys (blockchain) | Annually or on compromise | Manual | Security Lead |
-| Infrastructure keys | Quarterly (90 days) | Semi-automated | DevOps |
+| Secret Type                  | Frequency                 | Automation            | Owner         |
+| ---------------------------- | ------------------------- | --------------------- | ------------- |
+| Database passwords           | Quarterly (90 days)       | Automated (preferred) | DevOps        |
+| API keys (IPFS, third-party) | Quarterly (90 days)       | Semi-automated        | DevOps        |
+| NextAuth secrets             | Quarterly (90 days)       | Manual                | Security      |
+| OAuth credentials            | Semi-annually (180 days)  | Manual                | Security      |
+| Private keys (blockchain)    | Annually or on compromise | Manual                | Security Lead |
+| Infrastructure keys          | Quarterly (90 days)       | Semi-automated        | DevOps        |
 
 ## Pre-Rotation Checklist
 
@@ -31,11 +31,12 @@ Before rotating any secret:
 ### Phase 1: Preparation (1-2 days before)
 
 1. **Test in Staging**
+
    ```bash
    # Rotate in staging first
    export ENVIRONMENT=staging
    npm run rotate-secrets:staging
-   
+
    # Verify application works
    npm run test:integration
    ```
@@ -54,41 +55,46 @@ Before rotating any secret:
 ### Phase 2: Rotation (Maintenance Window)
 
 1. **Generate New Secret**
+
    ```bash
    # Example: Generate new API key
    openssl rand -hex 32
    ```
 
 2. **Store in Secret Manager**
-   
+
    **AWS Secrets Manager:**
+
    ```bash
    aws secretsmanager put-secret-value \
      --secret-id internet-id/prod/app \
      --secret-string "$(cat secrets-new.json)"
    ```
-   
+
    **Vault:**
+
    ```bash
    vault kv put secret/internet-id/prod/app \
      @secrets-new.json
    ```
 
 3. **Deploy Application**
+
    ```bash
    # Rolling deployment to pickup new secrets
    kubectl rollout restart deployment/internet-id-api
-   
+
    # Or for Docker
    docker-compose up -d --force-recreate
    ```
 
 4. **Verify**
+
    ```bash
    # Test endpoints
    curl -H "x-api-key: NEW_API_KEY" \
      https://api.example.com/health
-   
+
    # Check logs for errors
    kubectl logs -f deployment/internet-id-api
    ```
@@ -113,16 +119,18 @@ Before rotating any secret:
 ### Phase 4: Cleanup (2-7 days after)
 
 1. **Revoke Old Secret**
-   
+
    **AWS:**
+
    ```bash
    aws secretsmanager update-secret-version-stage \
      --secret-id internet-id/prod/app \
      --version-stage AWSPREVIOUS \
      --remove-from-version-id OLD_VERSION
    ```
-   
+
    **Vault:**
+
    ```bash
    vault kv delete secret/internet-id/prod/app
    ```
@@ -288,6 +296,7 @@ vault kv patch secret/internet-id/prod/app \
 ⚠️ **CRITICAL: High-risk operation**
 
 **Prerequisites:**
+
 - Requires updating on-chain registry
 - Plan for extended maintenance window
 - Consider using multi-sig for future operations
@@ -350,6 +359,7 @@ If a secret is suspected to be compromised, execute emergency rotation immediate
 ### Immediate Actions (Within 1 hour)
 
 1. **Revoke compromised secret**
+
    ```bash
    # Disable immediately, don't wait
    aws secretsmanager update-secret-version-stage \
@@ -359,21 +369,23 @@ If a secret is suspected to be compromised, execute emergency rotation immediate
    ```
 
 2. **Generate and deploy new secret**
+
    ```bash
    # Generate new
    NEW_SECRET=$(openssl rand -hex 32)
-   
+
    # Update
    aws secretsmanager put-secret-value \
      --secret-id internet-id/prod/app \
      --secret-string "..."
-   
+
    # Force restart all services
    kubectl rollout restart deployment/internet-id-api
    kubectl rollout restart deployment/internet-id-web
    ```
 
 3. **Audit access logs**
+
    ```bash
    # Check who accessed the secret
    aws cloudtrail lookup-events \
@@ -452,18 +464,20 @@ echo "All validations passed!"
 If rotation causes issues:
 
 1. **Immediate rollback**
+
    ```bash
    # Restore previous secret version
    aws secretsmanager update-secret-version-stage \
      --secret-id internet-id/prod/app \
      --version-stage AWSCURRENT \
      --move-to-version-id PREVIOUS_VERSION
-   
+
    # Restart services
    kubectl rollout restart deployment/internet-id-api
    ```
 
 2. **Verify rollback**
+
    ```bash
    # Test functionality
    npm run test:integration
@@ -488,10 +502,10 @@ Maintain a rotation log for compliance:
 ```markdown
 # Secret Rotation Log
 
-| Date | Secret | Type | Rotated By | Status | Notes |
-|------|--------|------|------------|--------|-------|
-| 2025-10-26 | internet-id/prod/app | API_KEY | DevOps | Success | Quarterly rotation |
-| 2025-10-26 | internet-id/prod/database | Password | Automated | Success | RDS auto-rotation |
+| Date       | Secret                    | Type     | Rotated By | Status  | Notes              |
+| ---------- | ------------------------- | -------- | ---------- | ------- | ------------------ |
+| 2025-10-26 | internet-id/prod/app      | API_KEY  | DevOps     | Success | Quarterly rotation |
+| 2025-10-26 | internet-id/prod/database | Password | Automated  | Success | RDS auto-rotation  |
 ```
 
 ### Audit Report
@@ -510,10 +524,12 @@ aws secretsmanager list-secrets \
 ## Contact and Escalation
 
 **Rotation Issues:**
+
 - Primary: DevOps team (ops@subculture.io)
 - Escalation: Security team (security@subculture.io)
 
 **Emergency (Secret Compromise):**
+
 - Immediate: Security Lead (on-call)
 - Email: security@subculture.io
 - Slack: #security-incidents (urgent)

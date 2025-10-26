@@ -3,7 +3,7 @@ import { z, ZodError } from "zod";
 
 /**
  * Validation Middleware
- * 
+ *
  * Provides middleware functions to validate request body, query parameters,
  * and URL parameters against Zod schemas. Returns 400 Bad Request with
  * detailed validation errors in a consistent JSON format.
@@ -158,11 +158,7 @@ export function validateFile(options?: {
     // Validate filename - prevent path traversal
     if (req.file.originalname) {
       const filename = req.file.originalname;
-      if (
-        filename.includes("..") ||
-        filename.includes("/") ||
-        filename.includes("\\")
-      ) {
+      if (filename.includes("..") || filename.includes("/") || filename.includes("\\")) {
         return res.status(400).json({
           error: "Validation failed",
           errors: [

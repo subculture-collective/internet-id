@@ -31,11 +31,11 @@ export async function createApp() {
   // Mount routers with appropriate rate limits
   // Relaxed limits for health/status checks
   app.use("/api", relaxed, healthRoutes);
-  
+
   // Moderate limits for read endpoints
   app.use("/api", moderate, contentRoutes);
   app.use("/api", moderate, verifyRoutes);
-  
+
   // Strict limits for expensive operations
   app.use("/api", strict, uploadRoutes);
   app.use("/api", strict, manifestRoutes);

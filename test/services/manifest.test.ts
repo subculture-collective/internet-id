@@ -9,7 +9,7 @@ describe("Manifest Service", function () {
 
     it("should detect HTTP error status codes", function () {
       const errorStatuses = [400, 404, 500, 503];
-      errorStatuses.forEach(status => {
+      errorStatuses.forEach((status) => {
         const isError = status >= 400;
         expect(isError).to.be.true;
       });
@@ -17,7 +17,7 @@ describe("Manifest Service", function () {
 
     it("should validate successful status codes", function () {
       const successStatuses = [200, 201, 204];
-      successStatuses.forEach(status => {
+      successStatuses.forEach((status) => {
         const isSuccess = status >= 200 && status < 300;
         expect(isSuccess).to.be.true;
       });
@@ -30,11 +30,7 @@ describe("Manifest Service", function () {
     });
 
     it("should handle chunked data concatenation", function () {
-      const chunks = [
-        Buffer.from('{"arr'),
-        Buffer.from('ay":[1'),
-        Buffer.from(',2,3]}')
-      ];
+      const chunks = [Buffer.from('{"arr'), Buffer.from('ay":[1'), Buffer.from(",2,3]}")];
       const combined = Buffer.concat(chunks).toString("utf8");
       const parsed = JSON.parse(combined);
       expect(parsed).to.deep.equal({ array: [1, 2, 3] });
@@ -63,7 +59,7 @@ describe("Manifest Service", function () {
     it("should detect HTTP(S) URIs", function () {
       const httpUri = "http://example.com/manifest.json";
       const httpsUri = "https://example.com/manifest.json";
-      
+
       expect(httpUri.startsWith("http://")).to.be.true;
       expect(httpsUri.startsWith("https://")).to.be.true;
     });
@@ -72,13 +68,12 @@ describe("Manifest Service", function () {
       const unsupportedSchemes = [
         "ftp://example.com/file",
         "file:///local/path",
-        "data:text/plain,content"
+        "data:text/plain,content",
       ];
-      
-      unsupportedSchemes.forEach(uri => {
-        const isSupported = uri.startsWith("ipfs://") || 
-                           uri.startsWith("http://") || 
-                           uri.startsWith("https://");
+
+      unsupportedSchemes.forEach((uri) => {
+        const isSupported =
+          uri.startsWith("ipfs://") || uri.startsWith("http://") || uri.startsWith("https://");
         expect(isSupported).to.be.false;
       });
     });
@@ -102,7 +97,7 @@ describe("Manifest Service", function () {
         signature: "0xsig",
         attestations: [],
       };
-      
+
       expect(manifest).to.have.property("version");
       expect(manifest).to.have.property("algorithm");
       expect(manifest).to.have.property("content_hash");
@@ -113,7 +108,7 @@ describe("Manifest Service", function () {
 
     it("should validate version field", function () {
       const validVersions = ["1.0", "1.1", "2.0"];
-      validVersions.forEach(v => {
+      validVersions.forEach((v) => {
         expect(v).to.match(/^\d+\.\d+$/);
       });
     });
@@ -126,7 +121,7 @@ describe("Manifest Service", function () {
     it("should validate content hash format", function () {
       const hash = "0xabc123def456789012345678901234567890123456789012345678901234567";
       expect(hash).to.match(/^0x[0-9a-f]{62,64}$/);
-      
+
       // Valid 64-char hash
       const validHash = "0x" + "a".repeat(64);
       expect(validHash).to.match(/^0x[0-9a-f]{64}$/);

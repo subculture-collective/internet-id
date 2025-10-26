@@ -110,7 +110,9 @@ describe("Sanitization Utilities", function () {
     });
 
     it("should reject hash without 0x prefix", function () {
-      const result = sanitizeContentHash("1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef");
+      const result = sanitizeContentHash(
+        "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+      );
       expect(result).to.be.null;
     });
 
