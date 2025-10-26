@@ -163,7 +163,11 @@ export class IntegrationTestEnvironment {
     };
 
     // Set test environment variables
-    // Keep DATABASE_URL as-is to use the configured database
+    // Use test database or default to in-memory SQLite for tests
+    if (!process.env.DATABASE_URL) {
+      process.env.DATABASE_URL = process.env.TEST_DATABASE_URL || 
+        "postgresql://internetid:internetid@localhost:5432/internetid_test?schema=public";
+    }
     process.env.RPC_URL = "http://127.0.0.1:8545";
     process.env.LOCAL_RPC_URL = "http://127.0.0.1:8545";
 

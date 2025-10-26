@@ -17,6 +17,24 @@ jobs:
     name: Backend (Lint, Build, Test)
     runs-on: ubuntu-latest
     
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: internetid
+          POSTGRES_PASSWORD: internetid
+          POSTGRES_DB: internetid_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    env:
+      DATABASE_URL: postgresql://internetid:internetid@localhost:5432/internetid_test?schema=public
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -38,6 +56,12 @@ jobs:
       
       - name: Compile Hardhat contracts
         run: npm run build
+      
+      - name: Generate Prisma client
+        run: npm run db:generate
+      
+      - name: Run database migrations
+        run: npx prisma migrate deploy
       
       - name: Run tests
         run: npm test
