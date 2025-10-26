@@ -41,7 +41,9 @@
     "lint:fix:root": "eslint . --ext .ts,.js --fix",
     "lint:fix:web": "cd web && npm run lint:fix",
     "format": "prettier --write \"**/*.{ts,js,json,md}\"",
-    "format:check": "prettier --check \"**/*.{ts,js,json,md}\""
+    "format:check": "prettier --check \"**/*.{ts,js,json,md}\"",
+    "security:scan": "bash scripts/security/scan-secrets.sh",
+    "security:setup-git-secrets": "bash scripts/security/setup-git-secrets.sh"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.1.0",
