@@ -8,6 +8,12 @@ import { PrismaClient } from "@prisma/client";
 import { Express } from "express";
 import { createApp } from "../../scripts/app";
 
+// Set DATABASE_URL before any imports that might use it
+if (!process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = process.env.TEST_DATABASE_URL || 
+    "postgresql://internetid:internetid@localhost:5432/internetid_test?schema=public";
+}
+
 /**
  * Test database instance
  * Uses the main database but with cleanup between tests
@@ -17,12 +23,6 @@ export class TestDatabase {
   private isAvailable: boolean = false;
 
   constructor() {
-    // Ensure DATABASE_URL is set before loading Prisma
-    if (!process.env.DATABASE_URL) {
-      process.env.DATABASE_URL = process.env.TEST_DATABASE_URL || 
-        "postgresql://internetid:internetid@localhost:5432/internetid_test?schema=public";
-    }
-    
     // Use the regular Prisma client which is already configured
     // Test isolation is achieved through cleanup
     const { prisma } = require("../../scripts/db");
