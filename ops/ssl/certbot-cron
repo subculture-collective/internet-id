@@ -1,0 +1,17 @@
+# Crontab for SSL certificate renewal and monitoring
+# Install with: crontab -l | cat - ops/ssl/certbot-cron | crontab -
+# Or in Docker: copy to /etc/cron.d/certbot-renewal
+
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# Set APP_ROOT to the root directory of your application.
+# Update this path as needed, or set APP_ROOT in your environment.
+APP_ROOT=/path/to/your/app/root
+
+# Renew certificates twice daily (Let's Encrypt recommends random times)
+# Certbot will only renew if certificate is within 30 days of expiration
+15 3,15 * * * $APP_ROOT/ops/ssl/manage-certs.sh renew >> /var/log/certbot-renew.log 2>&1
+
+# Check certificate expiration daily and send alerts if < 14 days
+30 8 * * * $APP_ROOT/ops/ssl/check-cert-expiry.sh >> /var/log/certbot-check.log 2>&1

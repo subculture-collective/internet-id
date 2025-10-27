@@ -1,5 +1,81 @@
 version: "3.9"
 services:
+  # Nginx reverse proxy with SSL/TLS termination
+  nginx:
+    image: nginx:1.25-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./ops/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ops/nginx/conf.d/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - certbot_www:/var/www/certbot:ro
+      - certbot_conf:/etc/letsencrypt:ro
+      - nginx_logs:/var/log/nginx
+    environment:
+      - DOMAIN=${DOMAIN:-localhost}
+      - NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx/conf.d
+    depends_on:
+      - api
+      - web
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Certbot for SSL certificate management
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - certbot_www:/var/www/certbot
+      - certbot_conf:/etc/letsencrypt
+      - certbot_logs:/var/log/letsencrypt
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot --webroot-path=/var/www/certbot; sleep 12h & wait $${!}; done;'"
+    depends_on:
+      - nginx
+    restart: unless-stopped
+
+  # Express API server
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - DATABASE_URL=${DATABASE_URL}
+      - API_KEY=${API_KEY}
+      - RPC_URL=${RPC_URL}
+      - IPFS_API_URL=${IPFS_API_URL}
+      - WEB3_STORAGE_TOKEN=${WEB3_STORAGE_TOKEN}
+      - PINATA_JWT=${PINATA_JWT}
+      - REDIS_URL=${REDIS_URL}
+    expose:
+      - "3001"
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  # Next.js web application
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - NEXT_PUBLIC_API_BASE=${NEXT_PUBLIC_API_BASE:-https://${DOMAIN}/api}
+      - NEXT_PUBLIC_SITE_BASE=${NEXT_PUBLIC_SITE_BASE:-https://${DOMAIN}}
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-https://${DOMAIN}}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - DATABASE_URL=${DATABASE_URL}
+    expose:
+      - "3000"
+    depends_on:
+      - db
+      - api
+    restart: unless-stopped
+
   db:
     image: postgres:16-alpine
     environment:
@@ -12,8 +88,8 @@ services:
       -c wal_level=replica
       -c archive_mode=on
       -c archive_command='test ! -f /var/lib/postgresql/backups/wal_archive/%f && cp %p /var/lib/postgresql/backups/wal_archive/%f'
-    ports:
-      - "5432:5432"
+    expose:
+      - "5432"
     volumes:
       - db_data:/var/lib/postgresql/data
       - backup_data:/var/lib/postgresql/backups
@@ -50,3 +126,7 @@ services:
 volumes:
   db_data:
   backup_data:
+  certbot_www:
+  certbot_conf:
+  certbot_logs:
+  nginx_logs:
