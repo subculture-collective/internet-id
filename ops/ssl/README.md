@@ -34,6 +34,7 @@ This directory contains scripts and configuration for managing SSL/TLS certifica
 ### Initial Setup
 
 1. Set environment variables in `.env`:
+
    ```bash
    DOMAIN=yourdomain.com
    SSL_EMAIL=admin@yourdomain.com
@@ -41,6 +42,7 @@ This directory contains scripts and configuration for managing SSL/TLS certifica
    ```
 
 2. Obtain certificate:
+
    ```bash
    ./manage-certs.sh obtain
    ```
@@ -53,16 +55,19 @@ This directory contains scripts and configuration for managing SSL/TLS certifica
 ### Daily Operations
 
 Check certificate status:
+
 ```bash
 ./manage-certs.sh info
 ```
 
 Test certificate validity:
+
 ```bash
 ./manage-certs.sh test
 ```
 
 Test SSL configuration:
+
 ```bash
 ./test-ssl-config.sh
 ```
@@ -72,6 +77,7 @@ Test SSL configuration:
 Automatic renewal happens twice daily via cron (in Docker container).
 
 Manual renewal:
+
 ```bash
 ./manage-certs.sh renew
 ```
@@ -79,11 +85,13 @@ Manual renewal:
 ### Monitoring
 
 Check expiration status:
+
 ```bash
 ./check-cert-expiry.sh
 ```
 
 View logs:
+
 ```bash
 tail -f /var/log/certbot-renew.log
 tail -f /var/log/certbot-check.log
@@ -92,25 +100,27 @@ tail -f /var/log/certbot-alerts.log
 
 ## Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DOMAIN` | Domain name for certificates | `example.com` |
-| `SSL_EMAIL` | Email for Let's Encrypt notifications | `admin@${DOMAIN}` |
-| `SSL_ALERT_EMAIL` | Email for expiration alerts | `${SSL_EMAIL}` |
-| `CERTBOT_STAGING` | Use staging environment (0/1) | `0` |
-| `CERT_WARNING_DAYS` | Days before warning alert | `14` |
-| `CERT_CRITICAL_DAYS` | Days before critical alert | `7` |
+| Variable             | Description                           | Default           |
+| -------------------- | ------------------------------------- | ----------------- |
+| `DOMAIN`             | Domain name for certificates          | `example.com`     |
+| `SSL_EMAIL`          | Email for Let's Encrypt notifications | `admin@${DOMAIN}` |
+| `SSL_ALERT_EMAIL`    | Email for expiration alerts           | `${SSL_EMAIL}`    |
+| `CERTBOT_STAGING`    | Use staging environment (0/1)         | `0`               |
+| `CERT_WARNING_DAYS`  | Days before warning alert             | `14`              |
+| `CERT_CRITICAL_DAYS` | Days before critical alert            | `7`               |
 
 ## Troubleshooting
 
 ### Certificate Not Found
 
 Ensure certificates exist:
+
 ```bash
 ls -la /etc/letsencrypt/live/$DOMAIN/
 ```
 
 Check certbot logs:
+
 ```bash
 docker-compose logs certbot
 ```
@@ -118,12 +128,14 @@ docker-compose logs certbot
 ### Renewal Failing
 
 Common causes:
+
 - Port 80 not accessible
 - DNS not pointing to server
 - Rate limits hit
 - Disk space full
 
 Check webroot permissions:
+
 ```bash
 docker-compose exec nginx ls -la /var/www/certbot
 ```
@@ -131,6 +143,7 @@ docker-compose exec nginx ls -la /var/www/certbot
 ### Testing Without Production Domain
 
 Use Let's Encrypt staging:
+
 ```bash
 export CERTBOT_STAGING=1
 ./manage-certs.sh obtain
@@ -149,6 +162,7 @@ export CERTBOT_STAGING=1
 ## Let's Encrypt Rate Limits
 
 Be aware of Let's Encrypt rate limits:
+
 - 50 certificates per registered domain per week
 - 5 duplicate certificates per week
 - 300 new orders per account per 3 hours
@@ -167,6 +181,7 @@ Use `CERTBOT_STAGING=1` for testing to avoid hitting limits.
 ## Support
 
 For issues or questions:
+
 - Review logs in `/var/log/`
 - Check [Let's Encrypt Community](https://community.letsencrypt.org/)
 - Contact ops team

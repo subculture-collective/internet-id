@@ -53,11 +53,11 @@ All HTTPS responses include:
 
 Three-tier rate limiting:
 
-| Zone | Rate | Burst | Applied To |
-|------|------|-------|------------|
-| general | 100 req/s | 100 | Web pages |
-| api | 30 req/s | 50 | API endpoints |
-| upload | 5 req/s | 3 | Upload/register operations |
+| Zone    | Rate      | Burst | Applied To                 |
+| ------- | --------- | ----- | -------------------------- |
+| general | 100 req/s | 100   | Web pages                  |
+| api     | 30 req/s  | 50    | API endpoints              |
+| upload  | 5 req/s   | 3     | Upload/register operations |
 
 Health check endpoint (`/health`) bypasses rate limiting.
 
@@ -87,6 +87,7 @@ The configuration uses environment variable substitution:
 - `${DOMAIN}` - Your domain name (set in `.env`)
 
 Example in `docker-compose.yml`:
+
 ```yaml
 environment:
   - DOMAIN=${DOMAIN:-localhost}
@@ -95,6 +96,7 @@ environment:
 ### Testing Configuration
 
 Test Nginx configuration syntax:
+
 ```bash
 # In Docker
 docker-compose exec nginx nginx -t
@@ -104,6 +106,7 @@ nginx -t -c ops/nginx/nginx.conf
 ```
 
 Reload configuration without downtime:
+
 ```bash
 docker-compose exec nginx nginx -s reload
 ```
@@ -113,11 +116,13 @@ docker-compose exec nginx nginx -s reload
 ### Adjusting Rate Limits
 
 Edit `nginx.conf`:
+
 ```nginx
 limit_req_zone $binary_remote_addr zone=api:10m rate=30r/s;
 ```
 
 Edit `conf.d/default.conf`:
+
 ```nginx
 location /api/ {
     limit_req zone=api burst=50 nodelay;
@@ -128,11 +133,13 @@ location /api/ {
 ### Modifying CSP Header
 
 Edit `conf.d/default.conf`:
+
 ```nginx
 add_header Content-Security-Policy "..." always;
 ```
 
 Adjust directives based on your application needs:
+
 - `script-src` - JavaScript sources
 - `style-src` - CSS sources
 - `img-src` - Image sources
@@ -148,7 +155,7 @@ server {
     listen 443 ssl http2;
     server_name www.yourdomain.com;
     # ... SSL settings ...
-    
+
     # Redirect to primary domain
     return 301 https://yourdomain.com$request_uri;
 }
@@ -157,11 +164,13 @@ server {
 ### Client Body Size
 
 For larger uploads, adjust in `nginx.conf`:
+
 ```nginx
 client_max_body_size 1G;  # Default: 1GB
 ```
 
 And in the location block:
+
 ```nginx
 location /api/upload {
     client_max_body_size 2G;  # Override for specific endpoint
@@ -182,6 +191,7 @@ docker-compose logs nginx
 ```
 
 Common issues:
+
 - Missing semicolons
 - Mismatched braces
 - Invalid directives
@@ -200,12 +210,14 @@ docker-compose exec nginx openssl x509 -in /etc/letsencrypt/live/$DOMAIN/fullcha
 ### Rate Limiting Too Aggressive
 
 Temporarily disable for testing:
+
 ```nginx
 # Comment out the limit_req line
 # limit_req zone=api burst=50 nodelay;
 ```
 
 Or increase limits:
+
 ```nginx
 limit_req zone=api burst=100 nodelay;
 ```
@@ -213,11 +225,13 @@ limit_req zone=api burst=100 nodelay;
 ### Headers Not Appearing
 
 Ensure `always` is specified:
+
 ```nginx
 add_header X-Custom-Header "value" always;
 ```
 
 Check response with curl:
+
 ```bash
 curl -I https://yourdomain.com
 ```
@@ -234,6 +248,7 @@ worker_connections 1024;  # Adjust based on traffic
 ### Compression
 
 Gzip is enabled by default. Adjust level if needed:
+
 ```nginx
 gzip_comp_level 6;  # 1-9, higher = more CPU but better compression
 ```
@@ -241,6 +256,7 @@ gzip_comp_level 6;  # 1-9, higher = more CPU but better compression
 ### Caching (Optional)
 
 Add proxy caching for static assets:
+
 ```nginx
 proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=my_cache:10m;
 
@@ -266,11 +282,13 @@ location /static/ {
 Target grade: **A+**
 
 Test your configuration:
+
 ```
 https://www.ssllabs.com/ssltest/analyze.html?d=yourdomain.com
 ```
 
 Key requirements for A+:
+
 - TLS 1.2+ only ✓
 - Strong cipher suites ✓
 - Forward secrecy ✓
@@ -288,6 +306,7 @@ Key requirements for A+:
 ## Support
 
 For issues:
+
 - Check Nginx logs: `docker-compose logs nginx`
 - Test configuration: `nginx -t`
 - Review SSL Labs test results

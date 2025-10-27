@@ -27,6 +27,7 @@ Internet
 ```
 
 All external traffic flows through Nginx, which handles:
+
 - HTTP → HTTPS redirect
 - SSL/TLS termination
 - Security headers
@@ -178,6 +179,7 @@ crontab -e
 ```
 
 The cron jobs:
+
 - Renew certificates twice daily (3:15 AM and 3:15 PM)
 - Check expiration daily (8:30 AM)
 - Send email alerts if certificate expires within 14 days
@@ -187,6 +189,7 @@ The cron jobs:
 ### TLS Protocols and Ciphers
 
 The Nginx configuration uses:
+
 - **Protocols:** TLS 1.2 and TLS 1.3 only (TLS 1.0/1.1 disabled)
 - **Ciphers:** Strong ECDHE and DHE cipher suites
 - **Preference:** Client cipher preference disabled (server chooses best cipher)
@@ -222,6 +225,7 @@ All responses include:
 ### OCSP Stapling
 
 Enabled for improved performance and privacy:
+
 - Caches OCSP responses
 - Reduces client-side OCSP lookups
 - Uses Google DNS (8.8.8.8, 8.8.4.4) for resolution
@@ -297,6 +301,7 @@ docker-compose exec nginx ls -la /etc/letsencrypt/live/$DOMAIN
 ```
 
 Common issues:
+
 - Webroot not accessible
 - Firewall blocking port 80
 - DNS not pointing to server
@@ -367,6 +372,7 @@ Already enabled in Nginx configuration for improved performance.
 ### Session Resumption
 
 Configured with:
+
 - 1-day session timeout
 - 50MB session cache
 - Session tickets disabled (security)
@@ -374,6 +380,7 @@ Configured with:
 ### Compression
 
 Gzip enabled for:
+
 - Text files (HTML, CSS, JS)
 - JSON/XML
 - Fonts
@@ -409,6 +416,7 @@ Gzip enabled for:
 ## Support
 
 For issues:
+
 1. Check logs: `docker-compose logs nginx certbot`
 2. Verify configuration: `nginx -t`
 3. Review this documentation
