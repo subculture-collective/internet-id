@@ -387,9 +387,17 @@ export async function getCachedIpfsGateway(cid: string): Promise<string | null> 
  * Invalidate all content-related caches (on content update)
  */
 export async function invalidateContentCaches(contentHash: string): Promise<void> {
+  // Delete content and verification cache
   await Promise.all([
     cacheService.delete(`content:${contentHash}`),
     cacheService.delete(`verification:${contentHash}`),
-    cacheService.deletePattern(`binding:*`), // Invalidate all bindings as they may reference this content
   ]);
+
+  // Delete only the bindings that reference this content
+  const bindingKeys = await cacheService.smembers(`contentBindings:${contentHash}`);
+  if (bindingKeys && bindingKeys.length > 0) {
+    await Promise.all(bindingKeys.map((key: string) => cacheService.delete(key)));
+  }
+  // Remove the reverse index set itself
+  await cacheService.delete(`contentBindings:${contentHash}`);
 }
