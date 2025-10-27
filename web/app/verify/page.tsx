@@ -1,5 +1,7 @@
 "use client";
 import React, { useState } from "react";
+import LoadingSpinner from "../components/LoadingSpinner";
+import ErrorMessage from "../components/ErrorMessage";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:3001";
 
@@ -10,6 +12,7 @@ export default function VerifyPage() {
   const [data, setData] = useState<any>(null);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [verifyLoading, setVerifyLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const runResolve = async () => {
@@ -35,21 +38,28 @@ export default function VerifyPage() {
 
   const runByteVerify = async () => {
     if (!file || !data?.registryAddress || !data?.manifestURI) return;
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("registryAddress", data.registryAddress);
-    fd.append("manifestURI", data.manifestURI);
-    const r = await fetch(`${API_BASE}/api/verify`, {
-      method: "POST",
-      body: fd,
-    });
-    const j = await r.json();
-    if (!r.ok) return alert(j?.error || "Verify failed");
-    alert(
-      j?.status === "OK"
-        ? "Byte-level verification OK ✅"
-        : `Verification ${j?.status}`
-    );
+    try {
+      setVerifyLoading(true);
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("registryAddress", data.registryAddress);
+      fd.append("manifestURI", data.manifestURI);
+      const r = await fetch(`${API_BASE}/api/verify`, {
+        method: "POST",
+        body: fd,
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j?.error || "Verify failed");
+      alert(
+        j?.status === "OK"
+          ? "Byte-level verification OK ✅"
+          : `Verification ${j?.status}`
+      );
+    } catch (e: any) {
+      alert(`Verification error: ${e?.message || String(e)}`);
+    } finally {
+      setVerifyLoading(false);
+    }
   };
 
   return (
@@ -83,11 +93,11 @@ export default function VerifyPage() {
           />
         </div>
         <button onClick={runResolve} disabled={loading}>
-          {loading ? "Resolving..." : "Resolve"}
+          {loading ? <LoadingSpinner size="sm" inline message="Resolving..." /> : "Resolve"}
         </button>
       </div>
 
-      {error && <p style={{ color: "crimson", marginTop: 12 }}>{error}</p>}
+      {error && <ErrorMessage error={error} onRetry={runResolve} />}
       {data && (
         <div style={{ marginTop: 16 }}>
           <h3>Binding</h3>
@@ -130,8 +140,8 @@ export default function VerifyPage() {
             type="file"
             onChange={(e) => setFile(e.target.files?.[0] || null)}
           />
-          <button onClick={runByteVerify} disabled={!file}>
-            Verify file against manifest + on-chain
+          <button onClick={runByteVerify} disabled={!file || verifyLoading}>
+            {verifyLoading ? <LoadingSpinner size="sm" inline message="Verifying..." /> : "Verify file against manifest + on-chain"}
           </button>
         </div>
       )}

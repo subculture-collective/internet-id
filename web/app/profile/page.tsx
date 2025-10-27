@@ -1,18 +1,24 @@
 "use client";
 import { useEffect, useState } from "react";
+import LoadingSpinner from "../components/LoadingSpinner";
+import ErrorMessage from "../components/ErrorMessage";
 
 export default function ProfilePage() {
   const [session, setSession] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
       try {
+        setLoading(true);
         const r = await fetch("/api/auth/session");
         const s = await r.json();
         setSession(s);
       } catch (e: any) {
         setError(e?.message || String(e));
+      } finally {
+        setLoading(false);
       }
     })();
   }, []);
@@ -20,9 +26,10 @@ export default function ProfilePage() {
   return (
     <main style={{ maxWidth: 720, margin: "40px auto", padding: 16 }}>
       <h1>Profile</h1>
-      {error && <div style={{ color: "crimson" }}>{error}</div>}
-      {!session && <div>Loading…</div>}
-      {session && (
+      {error && <ErrorMessage error={error} />}
+      {loading && <LoadingSpinner message="Loading profile..." />}
+      {!loading && !session && <div>Not signed in</div>}
+      {!loading && session && (
         <>
           <div style={{ marginBottom: 12 }}>
             Signed in as <b>{session.user?.email || session.user?.name}</b>

@@ -1,5 +1,10 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
+import { useToast } from "./hooks/useToast";
+import { ToastContainer } from "./components/Toast";
+import LoadingSpinner from "./components/LoadingSpinner";
+import ErrorMessage from "./components/ErrorMessage";
+import SkeletonLoader from "./components/SkeletonLoader";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:3001";
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
@@ -248,8 +253,8 @@ async function getJson<T>(path: string): Promise<T> {
 export default function Home() {
   const [tab, setTab] = useState<string>("upload");
   const [browseRefreshKey, setBrowseRefreshKey] = useState(0);
-  const [toast, setToast] = useState<string | null>(null);
   const [chainId, setChainId] = useState<number | undefined>(undefined);
+  const toast = useToast();
 
   useEffect(() => {
     // Fetch network chainId once for explorer links
@@ -263,8 +268,7 @@ export default function Home() {
         label?: string;
       };
       const what = detail?.label || "value";
-      setToast(`${what} copied to clipboard`);
-      setTimeout(() => setToast(null), 1500);
+      toast.success(`${what} copied to clipboard`);
     };
     if (typeof window !== "undefined") {
       window.addEventListener("copied", handler as EventListener);
@@ -274,23 +278,11 @@ export default function Home() {
         window.removeEventListener("copied", handler as EventListener);
       }
     };
-  }, []);
+  }, [toast]);
   return (
     <main>
       <h1>Internet-ID</h1>
-      {toast && (
-        <div
-          style={{
-            background: "#e6ffed",
-            color: "#1a7f37",
-            padding: 8,
-            borderRadius: 4,
-            marginBottom: 8,
-          }}
-        >
-          {toast}
-        </div>
-      )}
+      <ToastContainer toasts={toast.toasts} onRemove={toast.removeToast} />
       <div className="tabs">
         {[
           ["upload", "Upload"],
@@ -312,35 +304,59 @@ export default function Home() {
           </button>
         ))}
       </div>
-      {tab === "upload" && <UploadForm />}
+      {tab === "upload" && <UploadForm toast={toast} />}
       {tab === "one" && (
         <OneShotForm
+          toast={toast}
           onComplete={() => {
-            setToast(
+            toast.success(
               "One-shot complete: uploaded, manifested, and registered."
             );
             setBrowseRefreshKey((n) => n + 1);
-            setTimeout(() => setToast(null), 3500);
           }}
         />
       )}
-      {tab === "manifest" && <ManifestForm />}
-      {tab === "register" && <RegisterForm />}
-      {tab === "verify" && <VerifyForm />}
-      {tab === "proof" && <ProofForm />}
-      {tab === "bind" && <BindForm />}
+      {tab === "manifest" && <ManifestForm toast={toast} />}
+      {tab === "register" && <RegisterForm toast={toast} />}
+      {tab === "verify" && <VerifyForm toast={toast} />}
+      {tab === "proof" && <ProofForm toast={toast} />}
+      {tab === "bind" && <BindForm toast={toast} />}
       {tab === "browse" && (
-        <BrowseContents refreshKey={browseRefreshKey} chainId={chainId} />
+        <BrowseContents refreshKey={browseRefreshKey} chainId={chainId} toast={toast} />
       )}
-      {tab === "verifications" && <VerificationsView />}
+      {tab === "verifications" && <VerificationsView toast={toast} />}
     </main>
   );
 }
 
-function UploadForm() {
+function UploadForm({ toast }: { toast: ReturnType<typeof useToast> }) {
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<any>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleUpload = async () => {
+    try {
+      setErr(null);
+      setLoading(true);
+      const fd = new FormData();
+      if (!file) return;
+      fd.append("file", file);
+      const r = await postMultipart<{ cid: string; uri: string }>(
+        "/api/upload",
+        fd
+      );
+      setResult(r);
+      toast.success("File uploaded to IPFS successfully!");
+    } catch (e: any) {
+      const errorMsg = e?.message || String(e);
+      setErr(errorMsg);
+      toast.error("Upload failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <section>
       <h2>Upload to IPFS</h2>
@@ -349,34 +365,17 @@ function UploadForm() {
         onChange={(e) => setFile(e.target.files?.[0] || null)}
       />
       <div>
-        <button
-          disabled={!file}
-          onClick={async () => {
-            try {
-              setErr(null);
-              const fd = new FormData();
-              if (!file) return;
-              fd.append("file", file);
-              const r = await postMultipart<{ cid: string; uri: string }>(
-                "/api/upload",
-                fd
-              );
-              setResult(r);
-            } catch (e: any) {
-              setErr(e?.message || String(e));
-            }
-          }}
-        >
-          Upload
+        <button disabled={!file || loading} onClick={handleUpload}>
+          {loading ? <LoadingSpinner size="sm" inline message="Uploading..." /> : "Upload"}
         </button>
       </div>
       {result && <pre>{JSON.stringify(result, null, 2)}</pre>}
-      {err && <pre style={{ color: "crimson" }}>{err}</pre>}
+      {err && <ErrorMessage error={err} onRetry={handleUpload} />}
     </section>
   );
 }
 
-function OneShotForm({ onComplete }: { onComplete?: () => void }) {
+function OneShotForm({ onComplete, toast }: { onComplete?: () => void; toast: ReturnType<typeof useToast> }) {
   const [file, setFile] = useState<File | null>(null);
   const [registryAddress, setRegistryAddress] = useState("");
   const [platform, setPlatform] = useState("youtube");
@@ -610,13 +609,15 @@ function OneShotForm({ onComplete }: { onComplete?: () => void }) {
             setResult(r);
             onComplete?.();
           } catch (e: any) {
-            setErr(e?.message || String(e));
+            const errorMsg = e?.message || String(e);
+            setErr(errorMsg);
+            toast.error("One-shot operation failed");
           } finally {
             setLoading(false);
           }
         }}
       >
-        {loading ? "Running..." : "Run one-shot"}
+        {loading ? <LoadingSpinner size="sm" inline message="Processing..." /> : "Run one-shot"}
       </button>
       {result && (
         <div>
@@ -855,17 +856,40 @@ function OneShotForm({ onComplete }: { onComplete?: () => void }) {
           })()}
         </div>
       )}
-      {err && <pre style={{ color: "crimson" }}>{err}</pre>}
+      {err && <ErrorMessage error={err} />}
     </section>
   );
 }
 
-function ManifestForm() {
+function ManifestForm({ toast }: { toast: ReturnType<typeof useToast> }) {
   const [file, setFile] = useState<File | null>(null);
   const [contentUri, setContentUri] = useState<string>("");
   const [doUpload, setDoUpload] = useState<boolean>(true);
   const [result, setResult] = useState<any>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleCreate = async () => {
+    try {
+      setErr(null);
+      setLoading(true);
+      const fd = new FormData();
+      if (!file) return;
+      fd.append("file", file);
+      fd.append("contentUri", contentUri);
+      fd.append("upload", String(doUpload));
+      const r = await postMultipart("/api/manifest", fd);
+      setResult(r);
+      toast.success("Manifest created successfully!");
+    } catch (e: any) {
+      const errorMsg = e?.message || String(e);
+      setErr(errorMsg);
+      toast.error("Manifest creation failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <section>
       <h2>Create manifest</h2>
@@ -890,37 +914,44 @@ function ManifestForm() {
           Upload manifest to IPFS
         </label>
       </div>
-      <button
-        disabled={!file || !contentUri}
-        onClick={async () => {
-          try {
-            setErr(null);
-            const fd = new FormData();
-            if (!file) return;
-            fd.append("file", file);
-            fd.append("contentUri", contentUri);
-            fd.append("upload", String(doUpload));
-            const r = await postMultipart("/api/manifest", fd);
-            setResult(r);
-          } catch (e: any) {
-            setErr(e?.message || String(e));
-          }
-        }}
-      >
-        Create
+      <button disabled={!file || !contentUri || loading} onClick={handleCreate}>
+        {loading ? <LoadingSpinner size="sm" inline message="Creating..." /> : "Create"}
       </button>
       {result && <pre>{JSON.stringify(result, null, 2)}</pre>}
-      {err && <pre style={{ color: "crimson" }}>{err}</pre>}
+      {err && <ErrorMessage error={err} onRetry={handleCreate} />}
     </section>
   );
 }
 
-function RegisterForm() {
+function RegisterForm({ toast }: { toast: ReturnType<typeof useToast> }) {
   const [file, setFile] = useState<File | null>(null);
   const [manifestURI, setManifestURI] = useState<string>("");
   const [registryAddress, setRegistryAddress] = useState<string>("");
   const [result, setResult] = useState<any>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleRegister = async () => {
+    try {
+      setErr(null);
+      setLoading(true);
+      const fd = new FormData();
+      if (!file) return;
+      fd.append("file", file);
+      fd.append("manifestURI", manifestURI);
+      fd.append("registryAddress", registryAddress);
+      const r = await postMultipart("/api/register", fd);
+      setResult(r);
+      toast.success("Content registered on-chain successfully!");
+    } catch (e: any) {
+      const errorMsg = e?.message || String(e);
+      setErr(errorMsg);
+      toast.error("Registration failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <section>
       <h2>Register on-chain</h2>
@@ -942,36 +973,50 @@ function RegisterForm() {
         onChange={(e) => setFile(e.target.files?.[0] || null)}
       />
       <button
-        disabled={!file || !manifestURI || !registryAddress}
-        onClick={async () => {
-          try {
-            setErr(null);
-            const fd = new FormData();
-            if (!file) return;
-            fd.append("file", file);
-            fd.append("manifestURI", manifestURI);
-            fd.append("registryAddress", registryAddress);
-            const r = await postMultipart("/api/register", fd);
-            setResult(r);
-          } catch (e: any) {
-            setErr(e?.message || String(e));
-          }
-        }}
+        disabled={!file || !manifestURI || !registryAddress || loading}
+        onClick={handleRegister}
       >
-        Register
+        {loading ? <LoadingSpinner size="sm" inline message="Registering..." /> : "Register"}
       </button>
       {result && <pre>{JSON.stringify(result, null, 2)}</pre>}
-      {err && <pre style={{ color: "crimson" }}>{err}</pre>}
+      {err && <ErrorMessage error={err} onRetry={handleRegister} />}
     </section>
   );
 }
 
-function VerifyForm() {
+function VerifyForm({ toast }: { toast: ReturnType<typeof useToast> }) {
   const [file, setFile] = useState<File | null>(null);
   const [manifestURI, setManifestURI] = useState<string>("");
   const [registryAddress, setRegistryAddress] = useState<string>("");
   const [result, setResult] = useState<any>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleVerify = async () => {
+    try {
+      setErr(null);
+      setLoading(true);
+      const fd = new FormData();
+      if (!file) return;
+      fd.append("file", file);
+      fd.append("manifestURI", manifestURI);
+      fd.append("registryAddress", registryAddress);
+      const r = await postMultipart<{ status: string }>("/api/verify", fd);
+      setResult(r);
+      if (r.status === "OK") {
+        toast.success("Verification successful!");
+      } else {
+        toast.warning(`Verification completed with status: ${r.status}`);
+      }
+    } catch (e: any) {
+      const errorMsg = e?.message || String(e);
+      setErr(errorMsg);
+      toast.error("Verification failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <section>
       <h2>Verify</h2>
@@ -993,36 +1038,46 @@ function VerifyForm() {
         onChange={(e) => setFile(e.target.files?.[0] || null)}
       />
       <button
-        disabled={!file || !manifestURI || !registryAddress}
-        onClick={async () => {
-          try {
-            setErr(null);
-            const fd = new FormData();
-            if (!file) return;
-            fd.append("file", file);
-            fd.append("manifestURI", manifestURI);
-            fd.append("registryAddress", registryAddress);
-            const r = await postMultipart("/api/verify", fd);
-            setResult(r);
-          } catch (e: any) {
-            setErr(e?.message || String(e));
-          }
-        }}
+        disabled={!file || !manifestURI || !registryAddress || loading}
+        onClick={handleVerify}
       >
-        Verify
+        {loading ? <LoadingSpinner size="sm" inline message="Verifying..." /> : "Verify"}
       </button>
       {result && <pre>{JSON.stringify(result, null, 2)}</pre>}
-      {err && <pre style={{ color: "crimson" }}>{err}</pre>}
+      {err && <ErrorMessage error={err} onRetry={handleVerify} />}
     </section>
   );
 }
 
-function ProofForm() {
+function ProofForm({ toast }: { toast: ReturnType<typeof useToast> }) {
   const [file, setFile] = useState<File | null>(null);
   const [manifestURI, setManifestURI] = useState<string>("");
   const [registryAddress, setRegistryAddress] = useState<string>("");
   const [result, setResult] = useState<any>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleGenerate = async () => {
+    try {
+      setErr(null);
+      setLoading(true);
+      const fd = new FormData();
+      if (!file) return;
+      fd.append("file", file);
+      fd.append("manifestURI", manifestURI);
+      fd.append("registryAddress", registryAddress);
+      const r = await postMultipart("/api/proof", fd);
+      setResult(r);
+      toast.success("Proof generated successfully!");
+    } catch (e: any) {
+      const errorMsg = e?.message || String(e);
+      setErr(errorMsg);
+      toast.error("Proof generation failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <section>
       <h2>Proof</h2>
@@ -1044,31 +1099,18 @@ function ProofForm() {
         onChange={(e) => setFile(e.target.files?.[0] || null)}
       />
       <button
-        disabled={!file || !manifestURI || !registryAddress}
-        onClick={async () => {
-          try {
-            setErr(null);
-            const fd = new FormData();
-            if (!file) return;
-            fd.append("file", file);
-            fd.append("manifestURI", manifestURI);
-            fd.append("registryAddress", registryAddress);
-            const r = await postMultipart("/api/proof", fd);
-            setResult(r);
-          } catch (e: any) {
-            setErr(e?.message || String(e));
-          }
-        }}
+        disabled={!file || !manifestURI || !registryAddress || loading}
+        onClick={handleGenerate}
       >
-        Generate
+        {loading ? <LoadingSpinner size="sm" inline message="Generating..." /> : "Generate"}
       </button>
       {result && <pre>{JSON.stringify(result, null, 2)}</pre>}
-      {err && <pre style={{ color: "crimson" }}>{err}</pre>}
+      {err && <ErrorMessage error={err} onRetry={handleGenerate} />}
     </section>
   );
 }
 
-function BindForm() {
+function BindForm({ toast }: { toast: ReturnType<typeof useToast> }) {
   const [registryAddress, setRegistryAddress] = useState("");
   const [platform, setPlatform] = useState("youtube");
   const [platformId, setPlatformId] = useState("");
@@ -1080,6 +1122,8 @@ function BindForm() {
   const [platformUrl, setPlatformUrl] = useState<string>("");
   const [result, setResult] = useState<any>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     getJson<{ registryAddress: string; chainId: number }>("/api/registry")
       .then((r) => setRegistryAddress((prev) => prev || r.registryAddress))
@@ -1160,10 +1204,11 @@ function BindForm() {
         placeholder="0x... (bytes32)"
       />
       <button
-        disabled={!registryAddress || !contentHash}
+        disabled={!registryAddress || !contentHash || loading}
         onClick={async () => {
           try {
             setErr(null);
+            setLoading(true);
             let r: any;
             if (bindingsJson && bindingsJson.trim().length > 0) {
               const res = await fetch(`/api/app/bind-many`, {
@@ -1192,15 +1237,20 @@ function BindForm() {
               r = await res.json();
             }
             setResult(r);
+            toast.success("Platform binding successful!");
           } catch (e: any) {
-            setErr(e?.message || String(e));
+            const errorMsg = e?.message || String(e);
+            setErr(errorMsg);
+            toast.error("Binding failed");
+          } finally {
+            setLoading(false);
           }
         }}
       >
-        Bind
+        {loading ? <LoadingSpinner size="sm" inline message="Binding..." /> : "Bind"}
       </button>
       {result && <pre>{JSON.stringify(result, null, 2)}</pre>}
-      {err && <pre style={{ color: "crimson" }}>{err}</pre>}
+      {err && <ErrorMessage error={err} />}
     </section>
   );
 }
@@ -1208,36 +1258,49 @@ function BindForm() {
 function BrowseContents({
   refreshKey = 0,
   chainId,
+  toast,
 }: {
   refreshKey?: number;
   chainId?: number;
+  toast: ReturnType<typeof useToast>;
 }) {
   const [items, setItems] = useState<any[]>([]);
   const [err, setErr] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
   const fetchItems = async () => {
-    const r = await getJson<any[]>("/api/contents");
-    setItems(r);
+    setLoading(true);
+    try {
+      const r = await getJson<any[]>("/api/contents");
+      setItems(r);
+      setErr(null);
+    } catch (e) {
+      const errorMsg = e instanceof Error ? e.message : String(e);
+      setErr(errorMsg);
+      toast.error("Failed to fetch contents");
+    } finally {
+      setLoading(false);
+    }
   };
+
   useEffect(() => {
-    fetchItems().catch((e) => setErr(e?.message || String(e)));
+    fetchItems();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshKey]);
+
   return (
     <section>
       <h2>Browse Contents</h2>
       <button
-        onClick={async () => {
-          try {
-            setErr(null);
-            await fetchItems();
-          } catch (e: any) {
-            setErr(e?.message || String(e));
-          }
-        }}
+        disabled={loading}
+        onClick={fetchItems}
       >
-        Refresh
+        {loading ? <LoadingSpinner size="sm" inline message="Loading..." /> : "Refresh"}
       </button>
-      {err && <pre style={{ color: "crimson" }}>{err}</pre>}
+      {loading && items.length === 0 && (
+        <SkeletonLoader height="60px" count={3} />
+      )}
+      {err && <ErrorMessage error={err} onRetry={fetchItems} />}
       <ul>
         {items.map((c) => (
           <li key={c.id}>
@@ -1522,11 +1585,34 @@ function ShareBlock({
   );
 }
 
-function VerificationsView() {
+function VerificationsView({ toast }: { toast: ReturnType<typeof useToast> }) {
   const [contentHash, setContentHash] = useState("");
   const [limit, setLimit] = useState(50);
   const [items, setItems] = useState<any[]>([]);
   const [err, setErr] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleFetch = async () => {
+    try {
+      setErr(null);
+      setLoading(true);
+      const qs = new URLSearchParams();
+      if (contentHash) qs.set("contentHash", contentHash);
+      if (limit) qs.set("limit", String(limit));
+      const r = await getJson<any[]>(
+        `/api/verifications?${qs.toString()}`
+      );
+      setItems(r);
+      toast.success(`Fetched ${r.length} verification(s)`);
+    } catch (e: any) {
+      const errorMsg = e?.message || String(e);
+      setErr(errorMsg);
+      toast.error("Failed to fetch verifications");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <section>
       <h2>Verifications</h2>
@@ -1544,25 +1630,10 @@ function VerificationsView() {
         min={1}
         max={100}
       />
-      <button
-        onClick={async () => {
-          try {
-            setErr(null);
-            const qs = new URLSearchParams();
-            if (contentHash) qs.set("contentHash", contentHash);
-            if (limit) qs.set("limit", String(limit));
-            const r = await getJson<any[]>(
-              `/api/verifications?${qs.toString()}`
-            );
-            setItems(r);
-          } catch (e: any) {
-            setErr(e?.message || String(e));
-          }
-        }}
-      >
-        Fetch
+      <button disabled={loading} onClick={handleFetch}>
+        {loading ? <LoadingSpinner size="sm" inline message="Fetching..." /> : "Fetch"}
       </button>
-      {err && <pre style={{ color: "crimson" }}>{err}</pre>}
+      {err && <ErrorMessage error={err} onRetry={handleFetch} />}
       <ul>
         {items.map((v) => (
           <li key={v.id}>
