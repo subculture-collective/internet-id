@@ -305,7 +305,6 @@ export const cacheService = new CacheService();
 export async function cacheContent(contentHash: string, data: any): Promise<boolean> {
   return cacheService.set(`content:${contentHash}`, data, {
     ttl: DEFAULT_TTL.CONTENT_METADATA,
-    prefix: "content",
   });
 }
 
