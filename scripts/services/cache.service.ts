@@ -141,7 +141,9 @@ class CacheService {
       this.metrics.hits++;
       return JSON.parse(value) as T;
     } catch (error) {
-      console.error(`[Cache] Error getting key ${key}:`, error);
+      // Sanitize key for logging to prevent potential format string issues
+      const safeKey = String(key).replace(/[^\w:.-]/g, "_");
+      console.error(`[Cache] Error getting key ${safeKey}:`, error);
       this.metrics.errors++;
       return null;
     }
@@ -164,7 +166,9 @@ class CacheService {
       this.metrics.sets++;
       return true;
     } catch (error) {
-      console.error(`[Cache] Error setting key ${key}:`, error);
+      // Sanitize key for logging to prevent potential format string issues
+      const safeKey = String(key).replace(/[^\w:.-]/g, "_");
+      console.error(`[Cache] Error setting key ${safeKey}:`, error);
       this.metrics.errors++;
       return false;
     }
@@ -182,7 +186,9 @@ class CacheService {
       this.metrics.deletes++;
       return true;
     } catch (error) {
-      console.error(`[Cache] Error deleting key ${key}:`, error);
+      // Sanitize key for logging to prevent potential format string issues
+      const safeKey = String(key).replace(/[^\w:.-]/g, "_");
+      console.error(`[Cache] Error deleting key ${safeKey}:`, error);
       this.metrics.errors++;
       return false;
     }
@@ -203,7 +209,9 @@ class CacheService {
       this.metrics.deletes += keys.length;
       return keys.length;
     } catch (error) {
-      console.error(`[Cache] Error deleting pattern ${pattern}:`, error);
+      // Sanitize pattern for logging to prevent potential format string issues
+      const safePattern = String(pattern).replace(/[^\w:.*-]/g, "_");
+      console.error(`[Cache] Error deleting pattern ${safePattern}:`, error);
       this.metrics.errors++;
       return 0;
     }
@@ -232,7 +240,9 @@ class CacheService {
 
     // Cache the result (fire and forget)
     this.set(key, value, options).catch((err) => {
-      console.warn(`[Cache] Failed to cache key ${key}:`, err);
+      // Sanitize key for logging to prevent potential format string issues
+      const safeKey = String(key).replace(/[^\w:.-]/g, "_");
+      console.warn(`[Cache] Failed to cache key ${safeKey}:`, err);
     });
 
     return value;
