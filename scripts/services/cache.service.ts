@@ -394,11 +394,7 @@ export async function invalidateContentCaches(contentHash: string): Promise<void
     cacheService.delete(`verification:${contentHash}`),
   ]);
 
-  // Delete only the bindings that reference this content
-  const bindingKeys = await cacheService.smembers(`contentBindings:${contentHash}`);
-  if (bindingKeys && bindingKeys.length > 0) {
-    await Promise.all(bindingKeys.map((key: string) => cacheService.delete(key)));
-  }
-  // Remove the reverse index set itself
-  await cacheService.delete(`contentBindings:${contentHash}`);
+  // Delete all bindings that might reference this content
+  // Using deletePattern to remove any binding keys
+  await cacheService.deletePattern(`binding:*:*`);
 }
