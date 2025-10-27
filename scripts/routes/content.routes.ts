@@ -57,16 +57,18 @@ router.get(
       const hash = req.params.hash;
 
       // Use cache-aside pattern
-      const item = await cacheService.getOrSet(
-        `content:${hash}`,
-        async () => {
-          return await prisma.content.findUnique({
-            where: { contentHash: hash },
-            include: { bindings: true },
-          });
-        },
-        { ttl: DEFAULT_TTL.CONTENT_METADATA }
-      );
+      // Only cache successful (truthy) results
+      const cacheKey = `content:${hash}`;
+      let item = await cacheService.getCachedContent(cacheKey);
+      if (item === undefined) {
+        item = await prisma.content.findUnique({
+          where: { contentHash: hash },
+          include: { bindings: true },
+        });
+        if (item) {
+          await cacheService.cacheContent(cacheKey, item, { ttl: DEFAULT_TTL.CONTENT_METADATA });
+        }
+      }
 
       if (!item) return res.status(404).json({ error: "Not found" });
       res.json(item);
