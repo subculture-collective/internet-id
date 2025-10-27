@@ -6,6 +6,12 @@ import {
   verificationsQuerySchema,
   contentHashParamSchema,
 } from "../validation/schemas";
+import {
+  cacheService,
+  getCachedContent,
+  cacheContent,
+  DEFAULT_TTL,
+} from "../services/cache.service";
 
 const router = Router();
 
@@ -42,17 +48,28 @@ router.get("/contents", async (_req: Request, res: Response) => {
   }
 });
 
-// Content detail by contentHash
+// Content detail by contentHash - with caching
 router.get(
   "/contents/:hash",
   validateParams(contentHashParamSchema),
   async (req: Request, res: Response) => {
     try {
       const hash = req.params.hash;
-      const item = await prisma.content.findUnique({
-        where: { contentHash: hash },
-        include: { bindings: true },
-      });
+
+      // Use cache-aside pattern
+      // Only cache successful (truthy) results
+      const cacheKey = `content:${hash}`;
+      let item = await cacheService.getCachedContent(cacheKey);
+      if (item === undefined) {
+        item = await prisma.content.findUnique({
+          where: { contentHash: hash },
+          include: { bindings: true },
+        });
+        if (item) {
+          await cacheService.cacheContent(cacheKey, item, { ttl: DEFAULT_TTL.CONTENT_METADATA });
+        }
+      }
+
       if (!item) return res.status(404).json({ error: "Not found" });
       res.json(item);
     } catch (e: any) {
@@ -96,17 +113,26 @@ router.get("/verifications/:id", async (req: Request, res: Response) => {
   }
 });
 
-// Verifications by contentHash
+// Verifications by contentHash - with caching
 router.get(
   "/contents/:hash/verifications",
   validateParams(contentHashParamSchema),
   async (req: Request, res: Response) => {
     try {
       const hash = req.params.hash;
-      const items = await prisma.verification.findMany({
-        where: { contentHash: hash },
-        orderBy: { createdAt: "desc" },
-      });
+
+      // Use cache-aside pattern with shorter TTL for verifications
+      const items = await cacheService.getOrSet(
+        `verifications:${hash}`,
+        async () => {
+          return await prisma.verification.findMany({
+            where: { contentHash: hash },
+            orderBy: { createdAt: "desc" },
+          });
+        },
+        { ttl: DEFAULT_TTL.VERIFICATION_STATUS }
+      );
+
       res.json(items);
     } catch (e: any) {
       res.status(500).json({ error: e?.message || String(e) });

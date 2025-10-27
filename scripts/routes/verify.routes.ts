@@ -7,6 +7,7 @@ import { getProvider, getEntry } from "../services/registry.service";
 import { prisma } from "../db";
 import { validateBody, validateFile } from "../validation/middleware";
 import { verifyRequestSchema, proofRequestSchema, ALLOWED_MIME_TYPES } from "../validation/schemas";
+import { cacheService } from "../services/cache.service";
 
 const router = Router();
 
@@ -67,6 +68,9 @@ router.post(
             status,
           },
         });
+
+        // Invalidate verification cache after new verification
+        await cacheService.delete(`verifications:${fileHash}`);
       } catch (e) {
         console.warn("DB insert verification failed:", e);
       }
@@ -157,6 +161,9 @@ router.post(
             status: proof.verification.status,
           },
         });
+
+        // Invalidate verification cache after new verification
+        await cacheService.delete(`verifications:${fileHash}`);
       } catch (e) {
         console.warn("DB insert verification (proof) failed:", e);
       }

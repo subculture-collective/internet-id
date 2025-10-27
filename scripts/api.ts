@@ -18,8 +18,12 @@ import {
   moderateRateLimit,
   relaxedRateLimit,
 } from "./middleware/rate-limit.middleware";
+import { cacheService } from "./services/cache.service";
 
 async function startServer() {
+  // Initialize cache service
+  await cacheService.connect();
+
   const app = express();
   app.use(cors());
   app.use(express.json({ limit: "50mb" }));
