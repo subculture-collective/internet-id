@@ -30,13 +30,13 @@ The Internet-ID API implements a comprehensive caching layer using Redis to impr
 
 Different data types have different access patterns and staleness tolerance:
 
-| Data Type | TTL | Key Pattern | Rationale |
-|-----------|-----|-------------|-----------|
-| Content Metadata | 10 minutes | `content:{hash}` | Infrequently updated, frequently read |
-| Manifest Data | 15 minutes | `manifest:{uri}` | Immutable once created, expensive to fetch from IPFS |
-| Platform Bindings | 3 minutes | `binding:{platform}:{platformId}` | May change when new bindings created |
-| Verification Results | 5 minutes | `verifications:{hash}` | Grows over time, needs periodic refresh |
-| IPFS Gateway URLs | 30 minutes | `ipfs:{cid}` | Relatively stable gateway availability |
+| Data Type            | TTL        | Key Pattern                       | Rationale                                            |
+| -------------------- | ---------- | --------------------------------- | ---------------------------------------------------- |
+| Content Metadata     | 10 minutes | `content:{hash}`                  | Infrequently updated, frequently read                |
+| Manifest Data        | 15 minutes | `manifest:{uri}`                  | Immutable once created, expensive to fetch from IPFS |
+| Platform Bindings    | 3 minutes  | `binding:{platform}:{platformId}` | May change when new bindings created                 |
+| Verification Results | 5 minutes  | `verifications:{hash}`            | Grows over time, needs periodic refresh              |
+| IPFS Gateway URLs    | 30 minutes | `ipfs:{cid}`                      | Relatively stable gateway availability               |
 
 ### Cache-Aside Pattern
 
@@ -54,6 +54,7 @@ const data = await cacheService.getOrSet(
 ```
 
 **Flow:**
+
 1. Check cache for key
 2. If found (cache hit), return cached value
 3. If not found (cache miss), execute fetch function
@@ -64,16 +65,19 @@ const data = await cacheService.getOrSet(
 Cache invalidation occurs on write operations to maintain consistency:
 
 #### Content Registration
+
 - **Trigger:** New content registered via `/api/register`
 - **Action:** Invalidate `content:{hash}` key
 - **Reason:** Content metadata updated
 
 #### Platform Binding
+
 - **Trigger:** New binding created via `/api/bind` or `/api/bind-many`
 - **Action:** Invalidate `binding:{platform}:{platformId}` key
 - **Reason:** New binding data available
 
 #### Verification
+
 - **Trigger:** New verification via `/api/verify` or `/api/proof`
 - **Action:** Invalidate `verifications:{hash}` key
 - **Reason:** New verification record added to list
@@ -134,12 +138,7 @@ const item = await cacheService.getOrSet(
 const entry = await cacheService.getOrSet(
   `binding:${platform}:${platformId}`,
   async () => {
-    return await resolveByPlatform(
-      registryAddress,
-      platform,
-      platformId,
-      provider
-    );
+    return await resolveByPlatform(registryAddress, platform, platformId, provider);
   },
   { ttl: DEFAULT_TTL.PLATFORM_BINDING }
 );
@@ -164,8 +163,12 @@ const manifest = await cacheService.getOrSet(
 // POST /api/register
 await prisma.content.upsert({
   where: { contentHash: fileHash },
-  create: { /* ... */ },
-  update: { /* ... */ },
+  create: {
+    /* ... */
+  },
+  update: {
+    /* ... */
+  },
 });
 
 // Invalidate cache after write
@@ -193,6 +196,7 @@ Returns real-time cache statistics:
 ```
 
 **Metrics Explanation:**
+
 - `cacheEnabled`: Whether Redis connection is active
 - `hits`: Number of successful cache retrievals
 - `misses`: Number of cache misses (had to fetch from source)
@@ -230,6 +234,7 @@ The caching layer is designed to fail gracefully:
 - **Missing REDIS_URL:** Cache service disabled, logs info message
 
 Example:
+
 ```typescript
 if (!cacheService.isAvailable()) {
   // Falls back to direct database query
@@ -255,12 +260,12 @@ Modify `DEFAULT_TTL` in `cache.service.ts`:
 
 ```typescript
 export const DEFAULT_TTL = {
-  CONTENT_METADATA: 10 * 60,      // 10 minutes
-  MANIFEST: 15 * 60,              // 15 minutes
-  VERIFICATION_STATUS: 5 * 60,    // 5 minutes
-  PLATFORM_BINDING: 3 * 60,       // 3 minutes
-  USER_SESSION: 24 * 60 * 60,     // 24 hours
-  IPFS_GATEWAY: 30 * 60,          // 30 minutes
+  CONTENT_METADATA: 10 * 60, // 10 minutes
+  MANIFEST: 15 * 60, // 15 minutes
+  VERIFICATION_STATUS: 5 * 60, // 5 minutes
+  PLATFORM_BINDING: 3 * 60, // 3 minutes
+  USER_SESSION: 24 * 60 * 60, // 24 hours
+  IPFS_GATEWAY: 30 * 60, // 30 minutes
 };
 ```
 
@@ -273,7 +278,7 @@ Adjust Redis max memory in `cache.service.ts`:
 await client.configSet("maxmemory", "268435456");
 
 // For larger deployments, increase to 512MB or 1GB:
-await client.configSet("maxmemory", "536870912");  // 512MB
+await client.configSet("maxmemory", "536870912"); // 512MB
 await client.configSet("maxmemory", "1073741824"); // 1GB
 ```
 
@@ -305,6 +310,7 @@ npm test -- test/services/cache.test.ts
 ```
 
 Tests cover:
+
 - Basic cache operations (get/set/delete)
 - Cache-aside pattern
 - Metrics collection
@@ -316,12 +322,14 @@ Tests cover:
 ### Cache Not Working
 
 1. **Check Redis Connection:**
+
    ```bash
    redis-cli ping
    # Should return: PONG
    ```
 
 2. **Verify Environment Variable:**
+
    ```bash
    echo $REDIS_URL
    # Should output: redis://localhost:6379
@@ -343,6 +351,7 @@ Tests cover:
 ### High Memory Usage
 
 1. **Check Redis Memory:**
+
    ```bash
    redis-cli info memory
    ```

@@ -49,7 +49,7 @@ router.post(
           create: { platform, platformId, contentId: content?.id },
           update: { contentId: content?.id },
         });
-        
+
         // Invalidate binding cache after creation
         await cacheService.delete(`binding:${platform}:${platformId}`);
       } catch (e) {
@@ -117,7 +117,7 @@ router.post(
               create: { platform, platformId, contentId: content?.id },
               update: { contentId: content?.id },
             });
-            
+
             // Invalidate binding cache after creation
             await cacheService.delete(`binding:${platform}:${platformId}`);
           } catch (e) {

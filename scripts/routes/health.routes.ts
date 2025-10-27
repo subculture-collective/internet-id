@@ -80,7 +80,7 @@ router.get("/resolve", validateQuery(resolveQuerySchema), async (req: Request, r
     }
     const { registryAddress, chainId } = await resolveDefaultRegistry();
     const provider = new ethers.JsonRpcProvider(process.env.RPC_URL || "https://sepolia.base.org");
-    
+
     // Cache platform bindings
     const cacheKey = `binding:${parsed.platform}:${parsed.platformId}`;
     const entry = await cacheService.getOrSet(
@@ -95,7 +95,7 @@ router.get("/resolve", validateQuery(resolveQuerySchema), async (req: Request, r
       },
       { ttl: DEFAULT_TTL.PLATFORM_BINDING }
     );
-    
+
     if (entry.creator === ethers.ZeroAddress)
       return res.status(404).json({
         error: "No binding found",
@@ -134,7 +134,7 @@ router.get(
       const provider = new ethers.JsonRpcProvider(
         process.env.RPC_URL || "https://sepolia.base.org"
       );
-      
+
       // Cache platform binding resolution
       const bindingCacheKey = `binding:${parsed.platform}:${parsed.platformId}`;
       const entry = await cacheService.getOrSet(
@@ -149,7 +149,7 @@ router.get(
         },
         { ttl: DEFAULT_TTL.PLATFORM_BINDING }
       );
-      
+
       if (entry.creator === ethers.ZeroAddress)
         return res.status(404).json({
           error: "No binding found",
@@ -157,7 +157,7 @@ router.get(
           registryAddress,
           chainId,
         });
-      
+
       // Cache manifest fetching
       let manifest: any = null;
       try {
@@ -170,7 +170,7 @@ router.get(
           { ttl: DEFAULT_TTL.MANIFEST }
         );
       } catch {}
-      
+
       return res.json({
         ...parsed,
         creator: entry.creator,

@@ -24,7 +24,7 @@ import { cacheService } from "./services/cache.service";
 export async function createApp() {
   // Initialize cache service
   await cacheService.connect();
-  
+
   const app = express();
   app.use(cors());
   app.use(express.json({ limit: "50mb" }));

@@ -6,7 +6,12 @@ import {
   verificationsQuerySchema,
   contentHashParamSchema,
 } from "../validation/schemas";
-import { cacheService, getCachedContent, cacheContent, DEFAULT_TTL } from "../services/cache.service";
+import {
+  cacheService,
+  getCachedContent,
+  cacheContent,
+  DEFAULT_TTL,
+} from "../services/cache.service";
 
 const router = Router();
 
@@ -50,7 +55,7 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       const hash = req.params.hash;
-      
+
       // Use cache-aside pattern
       const item = await cacheService.getOrSet(
         `content:${hash}`,
@@ -62,7 +67,7 @@ router.get(
         },
         { ttl: DEFAULT_TTL.CONTENT_METADATA }
       );
-      
+
       if (!item) return res.status(404).json({ error: "Not found" });
       res.json(item);
     } catch (e: any) {
@@ -113,7 +118,7 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       const hash = req.params.hash;
-      
+
       // Use cache-aside pattern with shorter TTL for verifications
       const items = await cacheService.getOrSet(
         `verifications:${hash}`,
@@ -125,7 +130,7 @@ router.get(
         },
         { ttl: DEFAULT_TTL.VERIFICATION_STATUS }
       );
-      
+
       res.json(items);
     } catch (e: any) {
       res.status(500).json({ error: e?.message || String(e) });

@@ -242,9 +242,10 @@ class CacheService {
    * Get cache metrics for observability
    */
   getMetrics(): CacheMetrics {
-    const hitRate = this.metrics.hits + this.metrics.misses > 0
-      ? (this.metrics.hits / (this.metrics.hits + this.metrics.misses)) * 100
-      : 0;
+    const hitRate =
+      this.metrics.hits + this.metrics.misses > 0
+        ? (this.metrics.hits / (this.metrics.hits + this.metrics.misses)) * 100
+        : 0;
 
     return {
       ...this.metrics,

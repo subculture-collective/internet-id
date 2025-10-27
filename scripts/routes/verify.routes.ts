@@ -68,7 +68,7 @@ router.post(
             status,
           },
         });
-        
+
         // Invalidate verification cache after new verification
         await cacheService.delete(`verifications:${fileHash}`);
       } catch (e) {
@@ -161,7 +161,7 @@ router.post(
             status: proof.verification.status,
           },
         });
-        
+
         // Invalidate verification cache after new verification
         await cacheService.delete(`verifications:${fileHash}`);
       } catch (e) {

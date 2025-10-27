@@ -98,7 +98,7 @@ router.post(
             txHash: receipt?.hash || undefined,
           },
         });
-        
+
         // Invalidate content cache after registration
         await cacheService.delete(`content:${fileHash}`);
       } catch (e) {
