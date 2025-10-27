@@ -22,6 +22,7 @@ Looking for a plain-English overview? See the pitch: [PITCH.md](./PITCH.md)
 - Express API with optional API key protection
 - **Comprehensive input validation** using Zod (see [docs/VALIDATION.md](./docs/VALIDATION.md))
 - Prisma ORM (SQLite by default; Postgres optional)
+- **Redis caching layer** for improved performance (optional, see [docs/CACHING_ARCHITECTURE.md](./docs/CACHING_ARCHITECTURE.md))
 - Next.js App Router web UI (optional)
 - NextAuth for sign-in (GitHub/Google to start), Prisma adapter
 
@@ -49,8 +50,9 @@ See: [Smart Contract Audit Report](./docs/SMART_CONTRACT_AUDIT.md) | [Security P
 - ✅ Path traversal protection
 - ✅ File upload security with size limits and type restrictions
 - ✅ Rate limiting (when configured with Redis)
+- ✅ Performance optimization with Redis caching layer
 
-See: [Input Validation Documentation](./docs/VALIDATION.md) | [Security Implementation Summary](./SECURITY_IMPLEMENTATION_SUMMARY.md)
+See: [Input Validation Documentation](./docs/VALIDATION.md) | [Security Implementation Summary](./SECURITY_IMPLEMENTATION_SUMMARY.md) | [Caching Security Summary](./CACHING_SECURITY_SUMMARY.md)
 
 ### Reporting Security Issues
 
@@ -359,13 +361,57 @@ curl -H "x-api-key: $API_KEY" -F file=@./video.mp4 \
  -F registryAddress=0x... -F manifestURI=ipfs://... \
  http://localhost:3001/api/register
 
+````
+
+## Performance & Caching
+
+The API includes an optional Redis-based caching layer to improve performance and reduce database load:
+
+### Caching Features
+
+- **Cache-aside pattern**: Automatic fallback to database on cache miss
+- **Smart TTLs**: Different cache lifetimes based on data type
+  - Content metadata: 10 minutes
+  - Manifests: 15 minutes
+  - Platform bindings: 3 minutes
+  - Verification status: 5 minutes
+- **Automatic invalidation**: Caches cleared on writes (register, bind, verify)
+- **LRU eviction**: Keeps most frequently accessed data in memory
+- **Graceful degradation**: Works without Redis, falls back to database
+
+### Setup
+
+1. Start Redis (Docker recommended):
+
+```bash
+docker compose up -d redis
+````
+
+2. Set Redis URL in `.env`:
+
+```bash
+REDIS_URL=redis://localhost:6379
 ```
+
+3. Restart the API - caching will be enabled automatically
+
+### Monitoring
+
+Check cache performance at `/api/cache/metrics`:
+
+```bash
+curl http://localhost:3001/api/cache/metrics
+```
+
+Returns hit rate, cache hits/misses, and error counts.
+
+See [docs/CACHING_ARCHITECTURE.md](./docs/CACHING_ARCHITECTURE.md) for detailed documentation.
 
 ## Database
 
 By default, the project uses a local SQLite file for easy setup.
 
-1) Generate Prisma client and apply migrations:
+1. Generate Prisma client and apply migrations:
 
 ```
 
@@ -374,23 +420,25 @@ npm run db:migrate
 
 ```
 
-2) Inspect data (optional):
+2. Inspect data (optional):
 
 ```
 
 npm run db:studio
 
-````
+```
 
 ### Prisma Schema - Single Source of Truth
 
 ⚠️ **Important**: The repository uses a **single Prisma schema** at `prisma/schema.prisma`.
 
 This schema generates two separate Prisma Clients:
+
 - **Root client** (for API/scripts): `./node_modules/@prisma/client`
 - **Web client** (for Next.js): `../web/node_modules/.prisma/client`
 
 **Never create duplicate schemas** like `web/prisma/schema.prisma`. The single schema ensures:
+
 - No schema drift between API and web
 - Single migration history
 - One place to update models
@@ -400,15 +448,17 @@ See `prisma/README.md` for detailed documentation.
 ### Database Performance & Indexing
 
 The database schema includes comprehensive indexes for optimal query performance:
+
 - **17 indexes** across all tables prevent full table scans
 - **Composite indexes** optimize common multi-column queries
 - **Foreign key indexes** ensure fast JOINs
 - Performance target: Sub-100ms queries for 100k+ records
 
 To verify indexes after migration:
+
 ```bash
 npm run db:verify-indexes
-````
+```
 
 See detailed documentation:
 
