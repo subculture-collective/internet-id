@@ -4,6 +4,7 @@ import { requireApiKey } from "../middleware/auth.middleware";
 import { prisma } from "../db";
 import { validateBody } from "../validation/middleware";
 import { bindRequestSchema, bindManyRequestSchema } from "../validation/schemas";
+import { cacheService } from "../services/cache.service";
 
 const router = Router();
 
@@ -48,6 +49,9 @@ router.post(
           create: { platform, platformId, contentId: content?.id },
           update: { contentId: content?.id },
         });
+        
+        // Invalidate binding cache after creation
+        await cacheService.delete(`binding:${platform}:${platformId}`);
       } catch (e) {
         console.warn("DB upsert platform binding failed:", e);
       }
@@ -113,6 +117,9 @@ router.post(
               create: { platform, platformId, contentId: content?.id },
               update: { contentId: content?.id },
             });
+            
+            // Invalidate binding cache after creation
+            await cacheService.delete(`binding:${platform}:${platformId}`);
           } catch (e) {
             console.warn("DB upsert platform binding (bind-many) failed:", e);
           }

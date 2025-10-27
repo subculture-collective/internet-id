@@ -7,11 +7,26 @@ import { parsePlatformInput } from "../services/platform.service";
 import { fetchManifest } from "../services/manifest.service";
 import { validateQuery } from "../validation/middleware";
 import { resolveQuerySchema, publicVerifyQuerySchema } from "../validation/schemas";
+import { cacheService, DEFAULT_TTL } from "../services/cache.service";
 
 const router = Router();
 
 router.get("/health", (_req: Request, res: Response) => {
   res.json({ ok: true });
+});
+
+// Cache metrics endpoint for observability
+router.get("/cache/metrics", (_req: Request, res: Response) => {
+  try {
+    const metrics = cacheService.getMetrics();
+    const isAvailable = cacheService.isAvailable();
+    res.json({
+      cacheEnabled: isAvailable,
+      ...metrics,
+    });
+  } catch (e: any) {
+    res.status(500).json({ error: e?.message || String(e) });
+  }
 });
 
 // Network info (for UI explorer links)
@@ -53,7 +68,7 @@ router.get("/registry", async (_req: Request, res: Response) => {
   }
 });
 
-// Resolve binding by URL or platform+platformId
+// Resolve binding by URL or platform+platformId - with caching
 router.get("/resolve", validateQuery(resolveQuerySchema), async (req: Request, res: Response) => {
   try {
     const url = (req.query as any).url as string | undefined;
@@ -65,12 +80,22 @@ router.get("/resolve", validateQuery(resolveQuerySchema), async (req: Request, r
     }
     const { registryAddress, chainId } = await resolveDefaultRegistry();
     const provider = new ethers.JsonRpcProvider(process.env.RPC_URL || "https://sepolia.base.org");
-    const entry = await resolveByPlatform(
-      registryAddress,
-      parsed.platform,
-      parsed.platformId,
-      provider
+    
+    // Cache platform bindings
+    const cacheKey = `binding:${parsed.platform}:${parsed.platformId}`;
+    const entry = await cacheService.getOrSet(
+      cacheKey,
+      async () => {
+        return await resolveByPlatform(
+          registryAddress,
+          parsed.platform,
+          parsed.platformId,
+          provider
+        );
+      },
+      { ttl: DEFAULT_TTL.PLATFORM_BINDING }
     );
+    
     if (entry.creator === ethers.ZeroAddress)
       return res.status(404).json({
         error: "No binding found",
@@ -92,7 +117,7 @@ router.get("/resolve", validateQuery(resolveQuerySchema), async (req: Request, r
   }
 });
 
-// Public verify: resolve + include manifest JSON if on IPFS/HTTP
+// Public verify: resolve + include manifest JSON if on IPFS/HTTP - with caching
 router.get(
   "/public-verify",
   validateQuery(publicVerifyQuerySchema),
@@ -109,12 +134,22 @@ router.get(
       const provider = new ethers.JsonRpcProvider(
         process.env.RPC_URL || "https://sepolia.base.org"
       );
-      const entry = await resolveByPlatform(
-        registryAddress,
-        parsed.platform,
-        parsed.platformId,
-        provider
+      
+      // Cache platform binding resolution
+      const bindingCacheKey = `binding:${parsed.platform}:${parsed.platformId}`;
+      const entry = await cacheService.getOrSet(
+        bindingCacheKey,
+        async () => {
+          return await resolveByPlatform(
+            registryAddress,
+            parsed.platform,
+            parsed.platformId,
+            provider
+          );
+        },
+        { ttl: DEFAULT_TTL.PLATFORM_BINDING }
       );
+      
       if (entry.creator === ethers.ZeroAddress)
         return res.status(404).json({
           error: "No binding found",
@@ -122,11 +157,20 @@ router.get(
           registryAddress,
           chainId,
         });
-      // Fetch manifest for convenience
+      
+      // Cache manifest fetching
       let manifest: any = null;
       try {
-        manifest = await fetchManifest(entry.manifestURI);
+        const manifestCacheKey = `manifest:${entry.manifestURI}`;
+        manifest = await cacheService.getOrSet(
+          manifestCacheKey,
+          async () => {
+            return await fetchManifest(entry.manifestURI);
+          },
+          { ttl: DEFAULT_TTL.MANIFEST }
+        );
       } catch {}
+      
       return res.json({
         ...parsed,
         creator: entry.creator,

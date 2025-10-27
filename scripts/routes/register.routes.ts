@@ -6,6 +6,7 @@ import { sha256Hex } from "../services/hash.service";
 import { prisma } from "../db";
 import { validateBody, validateFile } from "../validation/middleware";
 import { registerRequestSchema, ALLOWED_MIME_TYPES } from "../validation/schemas";
+import { cacheService } from "../services/cache.service";
 
 const router = Router();
 
@@ -97,6 +98,9 @@ router.post(
             txHash: receipt?.hash || undefined,
           },
         });
+        
+        // Invalidate content cache after registration
+        await cacheService.delete(`content:${fileHash}`);
       } catch (e) {
         console.warn("DB upsert content failed:", e);
       }
