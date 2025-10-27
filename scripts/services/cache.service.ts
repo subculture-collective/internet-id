@@ -11,6 +11,7 @@ export interface CacheMetrics {
   sets: number;
   deletes: number;
   errors: number;
+  hitRate: number;
 }
 
 export interface CacheOptions {
@@ -31,7 +32,7 @@ export const DEFAULT_TTL = {
 class CacheService {
   private client: RedisClientType | null = null;
   private isConnected = false;
-  private metrics: CacheMetrics = {
+  private metrics: Omit<CacheMetrics, "hitRate"> = {
     hits: 0,
     misses: 0,
     sets: 0,
@@ -260,7 +261,7 @@ class CacheService {
     return {
       ...this.metrics,
       hitRate: parseFloat(hitRate.toFixed(2)),
-    } as CacheMetrics & { hitRate: number };
+    };
   }
 
   /**
@@ -393,11 +394,7 @@ export async function invalidateContentCaches(contentHash: string): Promise<void
     cacheService.delete(`verification:${contentHash}`),
   ]);
 
-  // Delete only the bindings that reference this content
-  const bindingKeys = await cacheService.smembers(`contentBindings:${contentHash}`);
-  if (bindingKeys && bindingKeys.length > 0) {
-    await Promise.all(bindingKeys.map((key: string) => cacheService.delete(key)));
-  }
-  // Remove the reverse index set itself
-  await cacheService.delete(`contentBindings:${contentHash}`);
+  // Delete all bindings that might reference this content
+  // Using deletePattern to remove any binding keys
+  await cacheService.deletePattern(`binding:*:*`);
 }
