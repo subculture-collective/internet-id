@@ -35,6 +35,7 @@ export default function ProfilePage() {
             Signed in as <b>{session.user?.email || session.user?.name}</b>
           </div>
           <div>
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a href="/api/auth/signout" className="btn">
               Sign out
             </a>
@@ -49,9 +50,11 @@ export default function ProfilePage() {
               ))}
             </ul>
             <div style={{ display: "grid", gap: 8 }}>
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
               <a href="/api/auth/signin/google" className="btn">
                 Link Google
               </a>
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
               <a href="/api/auth/signin/github" className="btn">
                 Link GitHub
               </a>
