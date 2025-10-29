@@ -1603,7 +1603,6 @@ function VerificationsView({ toast }: { toast: ReturnType<typeof useToast> }) {
         `/api/verifications?${qs.toString()}`
       );
       setItems(r);
-      toast.success(`Fetched ${r.length} verification(s)`);
     } catch (e: any) {
       const errorMsg = e?.message || String(e);
       setErr(errorMsg);
