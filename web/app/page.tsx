@@ -511,7 +511,7 @@ function OneShotForm({ onComplete, toast }: { onComplete?: () => void; toast: Re
                 );
               }}
               placeholder="Paste a link to your video/post"
-              style={{ flex: 1, minWidth: "200px", width: "100%" }}
+              style={{ flex: 1, minWidth: "200px" }}
             />
             <button
               type="button"
