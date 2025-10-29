@@ -292,7 +292,7 @@ To add support for a new EVM chain:
 1. Add chain configuration to `config/chains.ts`:
    ```typescript
    mychain: {
-     chainId: 12345,
+     chainId: 99999, // Use the actual chain ID from chainlist.org
      name: "mychain",
      displayName: "My Chain",
      rpcUrl: "https://rpc.mychain.io",
@@ -318,7 +318,7 @@ To add support for a new EVM chain:
 
 4. Add deployment file mapping in `scripts/services/registry.service.ts`:
    ```typescript
-   12345: "mychain.json"
+   99999: "mychain.json"
    ```
 
 ## Support
