@@ -1,6 +1,8 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import * as dotenv from "dotenv";
+import { SUPPORTED_CHAINS } from "./config/chains";
+
 dotenv.config();
 
 const config: HardhatUserConfig = {
@@ -13,11 +15,62 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {},
     localhost: {
-      url: process.env.LOCAL_RPC_URL || "http://127.0.0.1:8545",
+      url: SUPPORTED_CHAINS.localhost.rpcUrl,
+    },
+    // Ethereum networks
+    ethereum: {
+      url: SUPPORTED_CHAINS.ethereum.rpcUrl,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      chainId: SUPPORTED_CHAINS.ethereum.chainId,
+    },
+    sepolia: {
+      url: SUPPORTED_CHAINS.sepolia.rpcUrl,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      chainId: SUPPORTED_CHAINS.sepolia.chainId,
+    },
+    // Polygon networks
+    polygon: {
+      url: SUPPORTED_CHAINS.polygon.rpcUrl,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      chainId: SUPPORTED_CHAINS.polygon.chainId,
+    },
+    polygonAmoy: {
+      url: SUPPORTED_CHAINS.polygonAmoy.rpcUrl,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      chainId: SUPPORTED_CHAINS.polygonAmoy.chainId,
+    },
+    // Base networks
+    base: {
+      url: SUPPORTED_CHAINS.base.rpcUrl,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      chainId: SUPPORTED_CHAINS.base.chainId,
     },
     baseSepolia: {
-      url: process.env.RPC_URL || "https://sepolia.base.org",
+      url: process.env.RPC_URL || SUPPORTED_CHAINS.baseSepolia.rpcUrl,
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      chainId: SUPPORTED_CHAINS.baseSepolia.chainId,
+    },
+    // Arbitrum networks
+    arbitrum: {
+      url: SUPPORTED_CHAINS.arbitrum.rpcUrl,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      chainId: SUPPORTED_CHAINS.arbitrum.chainId,
+    },
+    arbitrumSepolia: {
+      url: SUPPORTED_CHAINS.arbitrumSepolia.rpcUrl,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      chainId: SUPPORTED_CHAINS.arbitrumSepolia.chainId,
+    },
+    // Optimism networks
+    optimism: {
+      url: SUPPORTED_CHAINS.optimism.rpcUrl,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      chainId: SUPPORTED_CHAINS.optimism.chainId,
+    },
+    optimismSepolia: {
+      url: SUPPORTED_CHAINS.optimismSepolia.rpcUrl,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      chainId: SUPPORTED_CHAINS.optimismSepolia.chainId,
     },
   },
 };

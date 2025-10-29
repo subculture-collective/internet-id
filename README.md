@@ -130,11 +130,17 @@ View the [CI workflow configuration](.github/workflows/ci.yml) and [workflow run
 1. Install deps
 2. Configure `.env` (see `.env.example`):
    - `PRIVATE_KEY` of the deployer/creator account
-   - `RPC_URL` for Base Sepolia (or your preferred network)
+   - `RPC_URL` for your preferred network (e.g., Base Sepolia, Ethereum Mainnet, Polygon, etc.)
+   - Optional: Chain-specific RPC URLs (e.g., `ETHEREUM_RPC_URL`, `POLYGON_RPC_URL`) to override defaults
    - `IPFS_API_URL` and optional `IPFS_PROJECT_ID`/`IPFS_PROJECT_SECRET` for IPFS uploads
 
 - Optional: `API_KEY` to require `x-api-key` on sensitive endpoints
 - Database: by default uses SQLite via `DATABASE_URL=file:./dev.db`. For Postgres, see below.
+
+**Note on Multi-Chain Deployments:**
+- Each network requires a separate deployment of the ContentRegistry contract
+- Deployed addresses are saved in `deployed/<network>.json` files
+- The registry service automatically resolves the correct contract address based on the chain ID
 
 ### Web app env
 
@@ -149,12 +155,62 @@ If you plan to use the included web UI (`web/`), set:
   - `NEXTAUTH_URL` (e.g., `http://localhost:3000`)
   - `NEXTAUTH_SECRET` (generate a random string)
 
+## Multi-Chain Support
+
+Internet-ID supports deployment and verification across multiple EVM-compatible chains:
+
+### Supported Networks
+
+**Mainnets (Production):**
+- **Ethereum Mainnet** (chain ID: 1) – High security, higher gas costs
+- **Polygon** (chain ID: 137) – Low cost, good UX, MATIC gas token
+- **Base** (chain ID: 8453) – Coinbase L2, low cost, good UX
+- **Arbitrum One** (chain ID: 42161) – Low cost L2
+- **Optimism** (chain ID: 10) – Low cost L2
+
+**Testnets (Development):**
+- **Ethereum Sepolia** (chain ID: 11155111)
+- **Polygon Amoy** (chain ID: 80002)
+- **Base Sepolia** (chain ID: 84532)
+- **Arbitrum Sepolia** (chain ID: 421614)
+- **Optimism Sepolia** (chain ID: 11155420)
+
+### Chain Configuration
+
+Chain configurations are defined in `config/chains.ts` with:
+- RPC URLs (with environment variable overrides)
+- Block explorer URLs
+- Native currency details
+- Gas settings
+
+You can override default RPC URLs via environment variables:
+```bash
+ETHEREUM_RPC_URL=https://your-eth-rpc.com
+POLYGON_RPC_URL=https://your-polygon-rpc.com
+BASE_RPC_URL=https://your-base-rpc.com
+# See .env.example for all options
+```
+
 ## Scripts
 
 - `build` – compile contracts
-- `deploy:base-sepolia` – deploy `ContentRegistry` to Base Sepolia
+
+**Deployment Scripts (Multi-Chain):**
+- `deploy:ethereum` – deploy to Ethereum Mainnet
+- `deploy:sepolia` – deploy to Ethereum Sepolia testnet
+- `deploy:polygon` – deploy to Polygon
+- `deploy:polygon-amoy` – deploy to Polygon Amoy testnet
+- `deploy:base` – deploy to Base
+- `deploy:base-sepolia` – deploy to Base Sepolia testnet
+- `deploy:arbitrum` – deploy to Arbitrum One
+- `deploy:arbitrum-sepolia` – deploy to Arbitrum Sepolia testnet
+- `deploy:optimism` – deploy to Optimism
+- `deploy:optimism-sepolia` – deploy to Optimism Sepolia testnet
+- `deploy:local` – deploy to local Hardhat node
+
+**Other Scripts:**
 - `register` – hash a file and register its hash + manifest URI on-chain
-  - `RPC_URL` for Base Sepolia (or your preferred network). For local, you can use `LOCAL_RPC_URL=http://127.0.0.1:8545`.
+  - `RPC_URL` for your preferred network. For local, you can use `LOCAL_RPC_URL=http://127.0.0.1:8545`.
   - For IPFS uploads: `IPFS_API_URL` and optional `IPFS_PROJECT_ID`/`IPFS_PROJECT_SECRET`
 - `verify` – verify a file against its manifest and on-chain registry
 - `bind:youtube` – bind a YouTube videoId to a previously registered master file
@@ -176,20 +232,43 @@ If you plan to use the included web UI (`web/`), set:
 
 1. Compile and deploy
 
-```
+```bash
 npm i
 npx hardhat compile
-npx hardhat run --network baseSepolia scripts/deploy.ts
+
+# Deploy to Base Sepolia (testnet)
+npm run deploy:base-sepolia
+
+# Or deploy to other networks
+npm run deploy:polygon-amoy  # Polygon testnet
+npm run deploy:sepolia       # Ethereum testnet
+npm run deploy:optimism-sepolia  # Optimism testnet
+npm run deploy:arbitrum-sepolia  # Arbitrum testnet
 ```
 
 Local node option (no faucets needed)
 
-```
+```bash
 # Terminal A: start local node (prefunded accounts)
 npm run node
 
 # Terminal B: deploy locally
 npm run deploy:local
+```
+
+**Production Deployments:**
+
+For mainnet deployments, ensure you have:
+- Sufficient native tokens for gas (ETH, MATIC, etc.)
+- `PRIVATE_KEY` set in `.env`
+- Appropriate RPC URL configured
+
+```bash
+npm run deploy:polygon   # Polygon mainnet (low cost)
+npm run deploy:base      # Base mainnet (low cost L2)
+npm run deploy:arbitrum  # Arbitrum One (low cost L2)
+npm run deploy:optimism  # Optimism (low cost L2)
+npm run deploy:ethereum  # Ethereum mainnet (high cost, high security)
 ```
 
 2. Upload your content and manifest

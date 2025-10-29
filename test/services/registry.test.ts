@@ -184,4 +184,36 @@ describe("Registry Service", function () {
       expect(normalized).to.equal("youtube");
     });
   });
+
+  describe("getProviderForChain", function () {
+    it("should return provider for valid chain ID", function () {
+      const provider = registryService.getProviderForChain(1);
+      expect(provider).to.be.instanceOf(ethers.JsonRpcProvider);
+    });
+
+    it("should return provider for Base Sepolia", function () {
+      const provider = registryService.getProviderForChain(84532);
+      expect(provider).to.be.instanceOf(ethers.JsonRpcProvider);
+    });
+
+    it("should return provider for Polygon", function () {
+      const provider = registryService.getProviderForChain(137);
+      expect(provider).to.be.instanceOf(ethers.JsonRpcProvider);
+    });
+
+    it("should return provider for Arbitrum", function () {
+      const provider = registryService.getProviderForChain(42161);
+      expect(provider).to.be.instanceOf(ethers.JsonRpcProvider);
+    });
+
+    it("should return provider for Optimism", function () {
+      const provider = registryService.getProviderForChain(10);
+      expect(provider).to.be.instanceOf(ethers.JsonRpcProvider);
+    });
+
+    it("should return undefined for invalid chain ID", function () {
+      const provider = registryService.getProviderForChain(999999);
+      expect(provider).to.be.undefined;
+    });
+  });
 });
