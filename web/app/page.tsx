@@ -278,7 +278,7 @@ export default function Home() {
         window.removeEventListener("copied", handler as EventListener);
       }
     };
-  }, [toast]);
+  }, []);
   return (
     <main>
       <h1>Internet-ID</h1>
