@@ -465,7 +465,7 @@ function OneShotForm({ onComplete, toast }: { onComplete?: () => void; toast: Re
           value={platformUrl}
           onChange={(e) => setPlatformUrl(e.target.value)}
           placeholder="Paste a link to your video/post"
-          style={{ flex: 1, minWidth: "200px", width: "100%" }}
+          style={{ flex: 1, minWidth: "200px" }}
         />
         <div style={{ fontSize: 12, color: "#666" }}>
           This will auto-generate the Bindings JSON below.
