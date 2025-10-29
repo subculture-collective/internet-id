@@ -165,7 +165,8 @@ export function getTestnetChains(): ChainConfig[] {
 /**
  * Get block explorer URL for a transaction
  */
-export function getExplorerTxUrl(chainId: number, txHash: string): string | undefined {
+export function getExplorerTxUrl(chainId?: number, txHash?: string): string | undefined {
+  if (!chainId || !txHash) return undefined;
   const chain = getChainById(chainId);
   if (!chain || !chain.blockExplorer) return undefined;
   return `${chain.blockExplorer}/tx/${txHash}`;
@@ -174,7 +175,8 @@ export function getExplorerTxUrl(chainId: number, txHash: string): string | unde
 /**
  * Get block explorer URL for an address
  */
-export function getExplorerAddressUrl(chainId: number, address: string): string | undefined {
+export function getExplorerAddressUrl(chainId?: number, address?: string): string | undefined {
+  if (!chainId || !address) return undefined;
   const chain = getChainById(chainId);
   if (!chain || !chain.blockExplorer) return undefined;
   return `${chain.blockExplorer}/address/${address}`;

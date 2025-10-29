@@ -44,8 +44,8 @@ export async function resolveDefaultRegistry(): Promise<RegistryInfo> {
     try {
       const data = JSON.parse((await readFile(deployedFile)).toString("utf8"));
       if (data?.address) return { registryAddress: data.address, chainId };
-    } catch {
-      // File doesn't exist or is invalid, continue
+    } catch (err) {
+      console.error(`Failed to read or parse registry deployment file "${deployedFile}":`, err);
     }
   }
   throw new Error(`Registry address not configured for chain ID ${chainId}`);
@@ -60,7 +60,8 @@ export async function getRegistryAddress(chainId: number): Promise<string | unde
   try {
     const data = JSON.parse((await readFile(deployedFile)).toString("utf8"));
     return data?.address;
-  } catch {
+  } catch (err) {
+    console.error(`Failed to read registry address from ${deployedFile}:`, err);
     return undefined;
   }
 }
@@ -77,8 +78,11 @@ export async function getAllRegistryAddresses(): Promise<Record<number, string>>
       if (data?.address) {
         addresses[chainId] = data.address;
       }
-    } catch {
-      // Skip if file doesn't exist
+    } catch (err) {
+      // Skip if file doesn't exist - only log non-ENOENT errors
+      if ((err as NodeJS.ErrnoException).code !== "ENOENT") {
+        console.error(`Failed to read registry file ${deployedFile}:`, err);
+      }
     }
   }
   
@@ -173,8 +177,11 @@ export async function resolveByPlatformCrossChain(
           registryAddress,
         };
       }
-    } catch {
-      // Continue to next chain if this one fails
+    } catch (err) {
+      console.error(
+        `Failed to resolve platform binding on chainId ${chainId} (registry: ${registryAddress}):`,
+        err
+      );
       continue;
     }
   }
@@ -205,8 +212,11 @@ export async function getEntryCrossChain(contentHash: string): Promise<CrossChai
           registryAddress,
         };
       }
-    } catch {
-      // Continue to next chain if this one fails
+    } catch (err) {
+      console.error(
+        `Failed to get entry on chainId ${chainId} (registry: ${registryAddress}):`,
+        err
+      );
       continue;
     }
   }
