@@ -73,81 +73,52 @@ export function parsePlatformInput(
   }
 }
 
-// Extract TikTok ID from URL or raw input
-export function extractTikTokId(input: string): string {
+// Generic platform ID extraction helper
+function extractPlatformIdFromUrl(
+  input: string,
+  hostnames: string[],
+  pathTransform?: (pathname: string, hostname: string) => string
+): string {
   try {
     const url = new URL(input);
-    if (url.hostname.includes("tiktok.com")) {
-      // Extract from pathname: /@username/video/1234567890 or /video/1234567890
-      const pathname = url.pathname.replace(/^\/+/, "").replace(/\/$/, "");
-      return pathname;
+    for (const hostname of hostnames) {
+      if (url.hostname.includes(hostname)) {
+        const pathname = url.pathname.replace(/^\/+/, "").replace(/\/$/, "");
+        return pathTransform ? pathTransform(pathname, url.hostname) : pathname;
+      }
     }
     return "";
   } catch {
     return input; // assume raw ID or path
   }
+}
+
+// Extract TikTok ID from URL or raw input
+export function extractTikTokId(input: string): string {
+  return extractPlatformIdFromUrl(input, ["tiktok.com"]);
 }
 
 // Extract Instagram ID from URL or raw input
 export function extractInstagramId(input: string): string {
-  try {
-    const url = new URL(input);
-    if (url.hostname.includes("instagram.com")) {
-      // Extract from pathname: /p/ABC123 or /reel/ABC123 or username
-      const pathname = url.pathname.replace(/^\/+/, "").replace(/\/$/, "");
-      return pathname;
-    }
-    return "";
-  } catch {
-    return input; // assume raw ID or path
-  }
+  return extractPlatformIdFromUrl(input, ["instagram.com"]);
 }
 
 // Extract GitHub ID from URL or raw input
 export function extractGitHubId(input: string): string {
-  try {
-    const url = new URL(input);
-    if (url.hostname.includes("gist.github.com")) {
-      const pathname = url.pathname.replace(/^\/+/, "").replace(/\/$/, "");
+  return extractPlatformIdFromUrl(input, ["gist.github.com", "github.com"], (pathname, hostname) => {
+    if (hostname.includes("gist.github.com")) {
       return `gist/${pathname}`;
     }
-    if (url.hostname.includes("github.com")) {
-      // Extract from pathname: /user/repo or /user/repo/blob/main/file.txt
-      const pathname = url.pathname.replace(/^\/+/, "").replace(/\/$/, "");
-      return pathname;
-    }
-    return "";
-  } catch {
-    return input; // assume raw ID or path
-  }
+    return pathname;
+  });
 }
 
 // Extract Discord ID from URL or raw input
 export function extractDiscordId(input: string): string {
-  try {
-    const url = new URL(input);
-    if (url.hostname.includes("discord.com") || url.hostname.includes("discord.gg")) {
-      // Extract invite code or server/channel IDs
-      const pathname = url.pathname.replace(/^\/+/, "").replace(/\/$/, "");
-      return pathname || url.hostname.replace("discord.gg", "invite");
-    }
-    return "";
-  } catch {
-    return input; // assume raw ID
-  }
+  return extractPlatformIdFromUrl(input, ["discord.com", "discord.gg"]);
 }
 
 // Extract LinkedIn ID from URL or raw input
 export function extractLinkedInId(input: string): string {
-  try {
-    const url = new URL(input);
-    if (url.hostname.includes("linkedin.com")) {
-      // Extract from pathname: /in/username or /posts/activity-id
-      const pathname = url.pathname.replace(/^\/+/, "").replace(/\/$/, "");
-      return pathname;
-    }
-    return "";
-  } catch {
-    return input; // assume raw ID or path
-  }
+  return extractPlatformIdFromUrl(input, ["linkedin.com"]);
 }

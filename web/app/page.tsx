@@ -151,6 +151,7 @@ function platformBindingUrl(platform?: string, platformId?: string) {
   }
   if (p === "github") {
     // Expect repo path like user/repo or gist/user/gistid
+    if (!platformId) return undefined;
     if (platformId.startsWith("gist/")) {
       return `https://gist.github.com/${platformId.replace("gist/", "")}`;
     }
@@ -158,6 +159,7 @@ function platformBindingUrl(platform?: string, platformId?: string) {
   }
   if (p === "discord") {
     // Could be invite code or channel/server path
+    if (!platformId) return undefined;
     if (/^[a-zA-Z0-9]+$/.test(platformId)) {
       return `https://discord.gg/${platformId}`;
     }
