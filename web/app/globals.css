@@ -226,7 +226,7 @@ pre {
   font-size: 13px;
   max-width: 100%;
   word-wrap: break-word;
-  white-space: pre-wrap;
+  white-space: pre;
 }
 
 @media (min-width: 640px) {
