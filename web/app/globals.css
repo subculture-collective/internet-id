@@ -1,53 +1,318 @@
+/* Mobile-first responsive design */
 * {
   box-sizing: border-box;
 }
+
+html {
+  /* Prevent font scaling in landscape while allowing zoom */
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
     Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  /* Prevent horizontal scrolling */
+  overflow-x: hidden;
+  min-width: 320px;
 }
+
 main {
-  padding: 24px;
+  /* Mobile-first: smaller padding on mobile */
+  padding: 12px;
   max-width: 960px;
   margin: 0 auto;
+  /* Prevent content from causing horizontal scroll */
+  width: 100%;
 }
+
+/* Tablet and larger screens */
+@media (min-width: 640px) {
+  main {
+    padding: 24px;
+  }
+}
+
+h1 {
+  font-size: 1.5rem;
+  margin: 0 0 16px 0;
+  word-wrap: break-word;
+}
+
+/* Tablet and larger */
+@media (min-width: 640px) {
+  h1 {
+    font-size: 2rem;
+  }
+}
+
+h2 {
+  font-size: 1.25rem;
+  margin: 0 0 12px 0;
+  word-wrap: break-word;
+}
+
+h3 {
+  font-size: 1.125rem;
+  margin: 12px 0 8px 0;
+  word-wrap: break-word;
+}
+
 section {
   border: 1px solid #e5e7eb;
   border-radius: 8px;
-  padding: 16px;
-  margin: 16px 0;
+  padding: 12px;
+  margin: 12px 0;
+  /* Prevent section overflow */
+  overflow-x: auto;
 }
+
+/* Larger padding on tablets+ */
+@media (min-width: 640px) {
+  section {
+    padding: 16px;
+    margin: 16px 0;
+  }
+}
+
+/* Form controls with mobile-first touch targets */
 input,
 button,
-select {
-  padding: 8px;
+select,
+textarea {
+  /* Minimum 44x44px touch target for accessibility */
+  min-height: 44px;
+  padding: 10px 12px;
   margin: 4px 0;
+  font-size: 16px; /* Prevents iOS zoom on focus */
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  /* Prevent text overflow */
+  max-width: 100%;
 }
+
+input[type="file"] {
+  padding: 8px;
+  min-height: 44px;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  min-height: auto;
+  width: 20px;
+  height: 20px;
+  margin: 0 8px 0 0;
+  cursor: pointer;
+}
+
+input[type="number"] {
+  max-width: 120px;
+}
+
+button {
+  cursor: pointer;
+  background: #fff;
+  white-space: nowrap;
+  /* Prevent button text from wrapping on mobile unless needed */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button:not(:disabled):hover {
+  background: #f9fafb;
+}
+
+button:not(:disabled):active {
+  background: #f3f4f6;
+}
+
+textarea {
+  font-family: monospace;
+  resize: vertical;
+  min-height: 88px;
+}
+
+select {
+  cursor: pointer;
+  background: #fff;
+}
+
 label {
   display: block;
   font-weight: 600;
   margin-top: 8px;
+  word-wrap: break-word;
 }
+
+/* Responsive layout utilities */
 .row {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   align-items: center;
+  /* Allow wrapping on mobile */
+  flex-wrap: wrap;
 }
+
+/* Larger gap on tablets+ */
+@media (min-width: 640px) {
+  .row {
+    gap: 12px;
+  }
+}
+
 .col {
   display: flex;
   flex-direction: column;
-}
-.tabs {
-  display: flex;
   gap: 8px;
 }
+
+/* Responsive tabs - wrap on mobile, horizontal scroll as fallback */
+.tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  /* Prevent horizontal overflow */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Hide scrollbar for cleaner look */
+  scrollbar-width: thin;
+  padding-bottom: 4px;
+}
+
+@media (min-width: 640px) {
+  .tabs {
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+}
+
 .tabs button {
-  padding: 8px 12px;
+  padding: 10px 14px;
+  min-height: 44px;
   border: 1px solid #e5e7eb;
   background: #fff;
   border-radius: 6px;
   cursor: pointer;
+  font-size: 14px;
+  /* Prevent buttons from shrinking too much */
+  flex-shrink: 0;
+  white-space: nowrap;
 }
+
 .tabs button.active {
   background: #f3f4f6;
+  font-weight: 600;
+}
+
+/* Responsive images and media */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Responsive pre/code blocks */
+pre {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  max-width: 100%;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+@media (min-width: 640px) {
+  pre {
+    font-size: 14px;
+  }
+}
+
+code {
+  font-size: 0.875em;
+  word-wrap: break-word;
+}
+
+/* Responsive links */
+a {
+  color: #2563eb;
+  text-decoration: none;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Lists - ensure proper spacing */
+ul, ol {
+  padding-left: 20px;
+}
+
+@media (min-width: 640px) {
+  ul, ol {
+    padding-left: 24px;
+  }
+}
+
+li {
+  margin: 8px 0;
+  word-wrap: break-word;
+}
+
+/* Utility classes for responsive visibility */
+.mobile-only {
+  display: block;
+}
+
+.desktop-only {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .mobile-only {
+    display: none;
+  }
+  .desktop-only {
+    display: block;
+  }
+}
+
+/* Ensure iframes are responsive */
+iframe {
+  max-width: 100%;
+}
+
+/* Responsive tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow-x: auto;
+  display: block;
+}
+
+@media (min-width: 768px) {
+  table {
+    display: table;
+  }
+}
+
+/* Print styles */
+@media print {
+  body {
+    background: white;
+  }
+  
+  .tabs,
+  button:not(.print-show) {
+    display: none;
+  }
 }

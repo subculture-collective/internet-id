@@ -24,7 +24,7 @@ export default function ProfilePage() {
   }, []);
 
   return (
-    <main style={{ maxWidth: 720, margin: "40px auto", padding: 16 }}>
+    <main style={{ maxWidth: 720, margin: "20px auto", padding: 16 }}>
       <h1>Profile</h1>
       {error && <ErrorMessage error={error} />}
       {loading && <LoadingSpinner message="Loading profile..." />}
@@ -42,14 +42,14 @@ export default function ProfilePage() {
           </div>
           <section style={{ marginTop: 24 }}>
             <h3>Linked platforms</h3>
-            <ul>
+            <ul style={{ paddingLeft: 20 }}>
               {(session.accounts || []).map((a: any) => (
                 <li key={`${a.provider}:${a.providerAccountId}`}>
                   {a.provider} – {a.username || a.providerAccountId}
                 </li>
               ))}
             </ul>
-            <div style={{ display: "grid", gap: 8 }}>
+            <div style={{ display: "grid", gap: 8, marginTop: 12 }}>
               {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
               <a href="/api/auth/signin/google" className="btn">
                 Link Google
@@ -66,9 +66,15 @@ export default function ProfilePage() {
       <style jsx>{`
         .btn {
           display: inline-block;
-          padding: 8px 12px;
+          padding: 10px 16px;
+          min-height: 44px;
           border: 1px solid #ddd;
           border-radius: 6px;
+          text-align: center;
+          cursor: pointer;
+        }
+        .btn:hover {
+          background: #f9fafb;
         }
       `}</style>
     </main>
