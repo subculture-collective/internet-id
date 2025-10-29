@@ -140,3 +140,76 @@ export async function getEntry(
     timestamp: Number(entry.timestamp || 0),
   };
 }
+
+export interface CrossChainRegistryEntry extends RegistryEntry {
+  chainId: number;
+  registryAddress: string;
+}
+
+/**
+ * Resolve a platform binding across all supported chains
+ * Returns the first match found, checking chains in priority order
+ */
+export async function resolveByPlatformCrossChain(
+  platform: string,
+  platformId: string
+): Promise<CrossChainRegistryEntry | null> {
+  const addresses = await getAllRegistryAddresses();
+  const chainIds = Object.keys(addresses).map((id) => parseInt(id));
+
+  // Check each chain in order
+  for (const chainId of chainIds) {
+    const registryAddress = addresses[chainId];
+    const provider = getProviderForChain(chainId);
+    if (!provider) continue;
+
+    try {
+      const entry = await resolveByPlatform(registryAddress, platform, platformId, provider);
+      // Check if entry exists (creator is not zero address)
+      if (entry.creator !== ethers.ZeroAddress) {
+        return {
+          ...entry,
+          chainId,
+          registryAddress,
+        };
+      }
+    } catch {
+      // Continue to next chain if this one fails
+      continue;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Get a content entry across all supported chains
+ * Returns the first match found
+ */
+export async function getEntryCrossChain(contentHash: string): Promise<CrossChainRegistryEntry | null> {
+  const addresses = await getAllRegistryAddresses();
+  const chainIds = Object.keys(addresses).map((id) => parseInt(id));
+
+  for (const chainId of chainIds) {
+    const registryAddress = addresses[chainId];
+    const provider = getProviderForChain(chainId);
+    if (!provider) continue;
+
+    try {
+      const entry = await getEntry(registryAddress, contentHash, provider);
+      // Check if entry exists (creator is not zero address)
+      if (entry.creator !== ethers.ZeroAddress) {
+        return {
+          ...entry,
+          chainId,
+          registryAddress,
+        };
+      }
+    } catch {
+      // Continue to next chain if this one fails
+      continue;
+    }
+  }
+
+  return null;
+}

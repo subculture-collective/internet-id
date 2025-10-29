@@ -230,6 +230,46 @@ async function startServer() {
     }
   });
 
+  // Cross-chain resolve: check all supported chains for a platform binding
+  app.get("/api/resolve/cross-chain", moderate, async (req: Request, res: Response) => {
+    try {
+      const url = (req.query as any).url as string | undefined;
+      const platform = (req.query as any).platform as string | undefined;
+      const platformId = (req.query as any).platformId as string | undefined;
+      const parsed = parsePlatformInput(url, platform, platformId);
+      if (!parsed?.platform || !parsed.platformId) {
+        return res.status(400).json({ error: "Provide url or platform + platformId" });
+      }
+
+      // Import registry service functions
+      const { resolveByPlatformCrossChain } = await import("./services/registry.service");
+      const entry = await resolveByPlatformCrossChain(parsed.platform, parsed.platformId);
+
+      if (!entry) {
+        return res.status(404).json({
+          error: "No binding found on any supported chain",
+          ...parsed,
+        });
+      }
+
+      const { getChainById } = await import("../config/chains");
+      const chain = getChainById(entry.chainId);
+
+      return res.json({
+        ...parsed,
+        creator: entry.creator,
+        contentHash: entry.contentHash,
+        manifestURI: entry.manifestURI,
+        timestamp: entry.timestamp,
+        registryAddress: entry.registryAddress,
+        chainId: entry.chainId,
+        chainName: chain?.displayName || `Chain ${entry.chainId}`,
+      });
+    } catch (e: any) {
+      return res.status(500).json({ error: e?.message || String(e) });
+    }
+  });
+
   // Public verify: resolve + include manifest JSON if on IPFS/HTTP - moderate rate limiting
   app.get("/api/public-verify", moderate, async (req: Request, res: Response) => {
     try {
