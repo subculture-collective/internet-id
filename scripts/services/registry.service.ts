@@ -1,6 +1,7 @@
 import { ethers } from "ethers";
 import { readFile } from "fs/promises";
 import * as path from "path";
+import { getChainById, SUPPORTED_CHAINS } from "../../config/chains";
 
 export interface RegistryInfo {
   registryAddress: string;
@@ -14,6 +15,21 @@ export interface RegistryEntry {
   timestamp: number;
 }
 
+// Mapping of chain IDs to deployment file names
+const CHAIN_DEPLOYMENT_FILES: Record<number, string> = {
+  1: "ethereum.json",
+  11155111: "sepolia.json",
+  137: "polygon.json",
+  80002: "polygonAmoy.json",
+  8453: "base.json",
+  84532: "baseSepolia.json",
+  42161: "arbitrum.json",
+  421614: "arbitrumSepolia.json",
+  10: "optimism.json",
+  11155420: "optimismSepolia.json",
+  31337: "localhost.json",
+};
+
 // Helper to resolve default registry address for current network
 export async function resolveDefaultRegistry(): Promise<RegistryInfo> {
   const provider = new ethers.JsonRpcProvider(process.env.RPC_URL || "https://sepolia.base.org");
@@ -21,19 +37,63 @@ export async function resolveDefaultRegistry(): Promise<RegistryInfo> {
   const chainId = Number(net.chainId);
   const override = process.env.REGISTRY_ADDRESS;
   if (override) return { registryAddress: override, chainId };
-  let deployedFile: string | undefined;
-  if (chainId === 84532) deployedFile = path.join(process.cwd(), "deployed", "baseSepolia.json");
-  if (deployedFile) {
+  
+  const deployedFileName = CHAIN_DEPLOYMENT_FILES[chainId];
+  if (deployedFileName) {
+    const deployedFile = path.join(process.cwd(), "deployed", deployedFileName);
     try {
       const data = JSON.parse((await readFile(deployedFile)).toString("utf8"));
       if (data?.address) return { registryAddress: data.address, chainId };
-    } catch {}
+    } catch {
+      // File doesn't exist or is invalid, continue
+    }
   }
-  throw new Error("Registry address not configured");
+  throw new Error(`Registry address not configured for chain ID ${chainId}`);
+}
+
+// Helper to get registry address for a specific chain
+export async function getRegistryAddress(chainId: number): Promise<string | undefined> {
+  const deployedFileName = CHAIN_DEPLOYMENT_FILES[chainId];
+  if (!deployedFileName) return undefined;
+  
+  const deployedFile = path.join(process.cwd(), "deployed", deployedFileName);
+  try {
+    const data = JSON.parse((await readFile(deployedFile)).toString("utf8"));
+    return data?.address;
+  } catch {
+    return undefined;
+  }
+}
+
+// Helper to get all deployed registry addresses
+export async function getAllRegistryAddresses(): Promise<Record<number, string>> {
+  const addresses: Record<number, string> = {};
+  
+  for (const [chainIdStr, fileName] of Object.entries(CHAIN_DEPLOYMENT_FILES)) {
+    const chainId = parseInt(chainIdStr);
+    const deployedFile = path.join(process.cwd(), "deployed", fileName);
+    try {
+      const data = JSON.parse((await readFile(deployedFile)).toString("utf8"));
+      if (data?.address) {
+        addresses[chainId] = data.address;
+      }
+    } catch {
+      // Skip if file doesn't exist
+    }
+  }
+  
+  return addresses;
 }
 
 export function getProvider(rpcUrl?: string): ethers.JsonRpcProvider {
-  return new ethers.JsonRpcProvider(rpcUrl || process.env.RPC_URL || "https://sepolia.base.org");
+  return new ethers.JsonRpcProvider(rpcUrl || process.env.RPC_URL || SUPPORTED_CHAINS.baseSepolia.rpcUrl);
+}
+
+// Helper to get provider for a specific chain
+export function getProviderForChain(chainId: number): ethers.JsonRpcProvider | undefined {
+  const chain = getChainById(chainId);
+  if (!chain) return undefined;
+  return new ethers.JsonRpcProvider(chain.rpcUrl);
 }
 
 export function getRegistryContract(

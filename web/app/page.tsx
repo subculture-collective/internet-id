@@ -5,6 +5,7 @@ import { ToastContainer } from "./components/Toast";
 import LoadingSpinner from "./components/LoadingSpinner";
 import ErrorMessage from "./components/ErrorMessage";
 import SkeletonLoader from "./components/SkeletonLoader";
+import { getExplorerTxUrl, getExplorerAddressUrl } from "../lib/chains";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:3001";
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
@@ -34,41 +35,19 @@ const PLATFORM_OPTIONS = [
   "linkedin",
 ];
 
+// Re-export chain helper functions for backward compatibility
 function explorerTxUrl(
   chainId: number | undefined,
   txHash: string | undefined
 ) {
-  if (!txHash) return undefined;
-  switch (chainId) {
-    case 1:
-      return `https://etherscan.io/tx/${txHash}`;
-    case 11155111:
-      return `https://sepolia.etherscan.io/tx/${txHash}`;
-    case 8453:
-      return `https://basescan.org/tx/${txHash}`;
-    case 84532:
-      return `https://sepolia.basescan.org/tx/${txHash}`;
-    default:
-      return undefined;
-  }
+  return getExplorerTxUrl(chainId, txHash);
 }
+
 function explorerAddressUrl(
   chainId: number | undefined,
   address: string | undefined
 ) {
-  if (!address) return undefined;
-  switch (chainId) {
-    case 1:
-      return `https://etherscan.io/address/${address}`;
-    case 11155111:
-      return `https://sepolia.etherscan.io/address/${address}`;
-    case 8453:
-      return `https://basescan.org/address/${address}`;
-    case 84532:
-      return `https://sepolia.basescan.org/address/${address}`;
-    default:
-      return undefined;
-  }
+  return getExplorerAddressUrl(chainId, address);
 }
 
 function ipfsToGateway(uri: string | undefined) {

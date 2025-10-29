@@ -5,6 +5,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 import { useToast } from "../hooks/useToast";
 import { ToastContainer } from "../components/Toast";
+import { getExplorerTxUrl } from "../../lib/chains";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:3001";
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
@@ -54,18 +55,7 @@ interface DashboardStats {
 function explorerTxUrl(txHash: string | undefined, chainId?: number) {
   if (!txHash) return undefined;
   const id = chainId || 84532; // Default to Base Sepolia
-  switch (id) {
-    case 1:
-      return `https://etherscan.io/tx/${txHash}`;
-    case 11155111:
-      return `https://sepolia.etherscan.io/tx/${txHash}`;
-    case 8453:
-      return `https://basescan.org/tx/${txHash}`;
-    case 84532:
-      return `https://sepolia.basescan.org/tx/${txHash}`;
-    default:
-      return undefined;
-  }
+  return getExplorerTxUrl(id, txHash);
 }
 
 function ipfsToGateway(uri: string | undefined) {
