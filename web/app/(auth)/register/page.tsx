@@ -1,10 +1,10 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 
-export default function RegisterPage() {
+function RegisterContent() {
   const [mounted, setMounted] = useState(false);
   const sp = useSearchParams();
   const callbackUrl = sp.get("callbackUrl") || "/profile";
@@ -49,5 +49,13 @@ export default function RegisterPage() {
         }
       `}</style>
     </main>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: 40, textAlign: "center" }}>Loading...</div>}>
+      <RegisterContent />
+    </Suspense>
   );
 }
