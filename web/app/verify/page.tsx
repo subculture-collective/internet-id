@@ -63,7 +63,7 @@ export default function VerifyPage() {
   };
 
   return (
-    <div style={{ padding: "12px", maxWidth: 860, margin: "0 auto", width: "100%" }}>
+    <div style={{ padding: 12, maxWidth: 860, margin: "0 auto", width: "100%" }}>
       <h1>Verify content</h1>
       <div style={{ display: "grid", gap: 8, marginTop: 12 }}>
         <label>Paste platform URL</label>
