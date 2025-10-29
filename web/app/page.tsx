@@ -364,9 +364,10 @@ function UploadForm({ toast }: { toast: ReturnType<typeof useToast> }) {
       <input
         type="file"
         onChange={(e) => setFile(e.target.files?.[0] || null)}
+        style={{ width: "100%" }}
       />
       <div>
-        <button disabled={!file || loading} onClick={handleUpload}>
+        <button disabled={!file || loading} onClick={handleUpload} style={{ width: "100%", marginTop: "8px" }}>
           {loading ? <LoadingSpinner size="sm" inline message="Uploading..." /> : "Upload"}
         </button>
       </div>
@@ -416,6 +417,7 @@ function OneShotForm({ onComplete, toast }: { onComplete?: () => void; toast: Re
         value={registryAddress}
         onChange={(e) => setRegistryAddress(e.target.value)}
         placeholder="0x..."
+        style={{ width: "100%" }}
       />
       <div
         className="row"
@@ -427,10 +429,11 @@ function OneShotForm({ onComplete, toast }: { onComplete?: () => void; toast: Re
           flexWrap: "wrap",
         }}
       >
-        <label>Platform</label>
+        <label style={{ marginTop: 0 }}>Platform</label>
         <select
           value={platformSelect}
           onChange={(e) => setPlatformSelect(e.target.value)}
+          style={{ minWidth: "150px" }}
         >
           {[
             "youtube",
@@ -462,7 +465,7 @@ function OneShotForm({ onComplete, toast }: { onComplete?: () => void; toast: Re
           value={platformUrl}
           onChange={(e) => setPlatformUrl(e.target.value)}
           placeholder="Paste a link to your video/post"
-          style={{ flex: 1, minWidth: 280 }}
+          style={{ flex: 1, minWidth: "200px" }}
         />
         <div style={{ fontSize: 12, color: "#666" }}>
           This will auto-generate the Bindings JSON below.
@@ -508,7 +511,7 @@ function OneShotForm({ onComplete, toast }: { onComplete?: () => void; toast: Re
                 );
               }}
               placeholder="Paste a link to your video/post"
-              style={{ flex: 1, minWidth: 260 }}
+              style={{ flex: 1, minWidth: "200px" }}
             />
             <button
               type="button"
@@ -581,6 +584,7 @@ function OneShotForm({ onComplete, toast }: { onComplete?: () => void; toast: Re
       <input
         type="file"
         onChange={(e) => setFile(e.target.files?.[0] || null)}
+        style={{ width: "100%" }}
       />
       <button
         disabled={!file || !registryAddress || loading}
@@ -899,11 +903,13 @@ function ManifestForm({ toast }: { toast: ReturnType<typeof useToast> }) {
         value={contentUri}
         onChange={(e) => setContentUri(e.target.value)}
         placeholder="ipfs://<CID>"
+        style={{ width: "100%" }}
       />
       <label>File</label>
       <input
         type="file"
         onChange={(e) => setFile(e.target.files?.[0] || null)}
+        style={{ width: "100%" }}
       />
       <div className="row">
         <label>
@@ -915,7 +921,7 @@ function ManifestForm({ toast }: { toast: ReturnType<typeof useToast> }) {
           Upload manifest to IPFS
         </label>
       </div>
-      <button disabled={!file || !contentUri || loading} onClick={handleCreate}>
+      <button disabled={!file || !contentUri || loading} onClick={handleCreate} style={{ width: "100%", marginTop: "8px" }}>
         {loading ? <LoadingSpinner size="sm" inline message="Creating..." /> : "Create"}
       </button>
       {result && <pre>{JSON.stringify(result, null, 2)}</pre>}
@@ -961,21 +967,25 @@ function RegisterForm({ toast }: { toast: ReturnType<typeof useToast> }) {
         value={registryAddress}
         onChange={(e) => setRegistryAddress(e.target.value)}
         placeholder="0x..."
+        style={{ width: "100%" }}
       />
       <label>Manifest URI</label>
       <input
         value={manifestURI}
         onChange={(e) => setManifestURI(e.target.value)}
         placeholder="ipfs://<manifestCID>"
+        style={{ width: "100%" }}
       />
       <label>File</label>
       <input
         type="file"
         onChange={(e) => setFile(e.target.files?.[0] || null)}
+        style={{ width: "100%" }}
       />
       <button
         disabled={!file || !manifestURI || !registryAddress || loading}
         onClick={handleRegister}
+        style={{ width: "100%", marginTop: "8px" }}
       >
         {loading ? <LoadingSpinner size="sm" inline message="Registering..." /> : "Register"}
       </button>
@@ -1026,21 +1036,25 @@ function VerifyForm({ toast }: { toast: ReturnType<typeof useToast> }) {
         value={registryAddress}
         onChange={(e) => setRegistryAddress(e.target.value)}
         placeholder="0x..."
+        style={{ width: "100%" }}
       />
       <label>Manifest URI</label>
       <input
         value={manifestURI}
         onChange={(e) => setManifestURI(e.target.value)}
         placeholder="ipfs://<manifestCID>"
+        style={{ width: "100%" }}
       />
       <label>File</label>
       <input
         type="file"
         onChange={(e) => setFile(e.target.files?.[0] || null)}
+        style={{ width: "100%" }}
       />
       <button
         disabled={!file || !manifestURI || !registryAddress || loading}
         onClick={handleVerify}
+        style={{ width: "100%", marginTop: "8px" }}
       >
         {loading ? <LoadingSpinner size="sm" inline message="Verifying..." /> : "Verify"}
       </button>
@@ -1087,21 +1101,25 @@ function ProofForm({ toast }: { toast: ReturnType<typeof useToast> }) {
         value={registryAddress}
         onChange={(e) => setRegistryAddress(e.target.value)}
         placeholder="0x..."
+        style={{ width: "100%" }}
       />
       <label>Manifest URI</label>
       <input
         value={manifestURI}
         onChange={(e) => setManifestURI(e.target.value)}
         placeholder="ipfs://<manifestCID>"
+        style={{ width: "100%" }}
       />
       <label>File</label>
       <input
         type="file"
         onChange={(e) => setFile(e.target.files?.[0] || null)}
+        style={{ width: "100%" }}
       />
       <button
         disabled={!file || !manifestURI || !registryAddress || loading}
         onClick={handleGenerate}
+        style={{ width: "100%", marginTop: "8px" }}
       >
         {loading ? <LoadingSpinner size="sm" inline message="Generating..." /> : "Generate"}
       </button>
@@ -1146,11 +1164,13 @@ function BindForm({ toast }: { toast: ReturnType<typeof useToast> }) {
         value={registryAddress}
         onChange={(e) => setRegistryAddress(e.target.value)}
         placeholder="0x..."
+        style={{ width: "100%" }}
       />
       <label>Platform</label>
       <select
         value={platformSelect}
         onChange={(e) => setPlatformSelect(e.target.value)}
+        style={{ width: "100%" }}
       >
         {[
           "youtube",
@@ -1183,6 +1203,7 @@ function BindForm({ toast }: { toast: ReturnType<typeof useToast> }) {
         value={platformUrl}
         onChange={(e) => setPlatformUrl(e.target.value)}
         placeholder="Paste a link to your video/post"
+        style={{ width: "100%" }}
       />
       <div className="row" style={{ marginTop: 8 }}>
         <label>Bindings JSON (optional for multiple)</label>
@@ -1203,6 +1224,7 @@ function BindForm({ toast }: { toast: ReturnType<typeof useToast> }) {
         value={contentHash}
         onChange={(e) => setContentHash(e.target.value)}
         placeholder="0x... (bytes32)"
+        style={{ width: "100%" }}
       />
       <button
         disabled={!registryAddress || !contentHash || loading}
@@ -1410,6 +1432,7 @@ function VerifyInline({
       <input
         type="file"
         onChange={(e) => setFile(e.target.files?.[0] || null)}
+        style={{ width: "100%" }}
       />
       <button
         disabled={!canVerify || loading}
@@ -1620,6 +1643,7 @@ function VerificationsView({ toast }: { toast: ReturnType<typeof useToast> }) {
         value={contentHash}
         onChange={(e) => setContentHash(e.target.value)}
         placeholder="0x... (optional)"
+        style={{ width: "100%" }}
       />
       <label>Limit</label>
       <input
@@ -1628,8 +1652,9 @@ function VerificationsView({ toast }: { toast: ReturnType<typeof useToast> }) {
         onChange={(e) => setLimit(parseInt(e.target.value || "0", 10))}
         min={1}
         max={100}
+        style={{ width: "100%" }}
       />
-      <button disabled={loading} onClick={handleFetch}>
+      <button disabled={loading} onClick={handleFetch} style={{ width: "100%", marginTop: "8px" }}>
         {loading ? <LoadingSpinner size="sm" inline message="Fetching..." /> : "Fetch"}
       </button>
       {err && <ErrorMessage error={err} onRetry={handleFetch} />}
@@ -1643,7 +1668,7 @@ function VerificationsView({ toast }: { toast: ReturnType<typeof useToast> }) {
               <b>recovered:</b> {v.recoveredAddress} <b>onchain:</b>{" "}
               {v.creatorOnchain}
             </div>
-            <div>
+            <div style={{ wordBreak: "break-all" }}>
               <b>manifest:</b> {v.manifestUri}
             </div>
           </li>

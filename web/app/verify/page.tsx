@@ -63,7 +63,7 @@ export default function VerifyPage() {
   };
 
   return (
-    <div style={{ padding: 24, maxWidth: 860, margin: "0 auto" }}>
+    <div style={{ padding: 12, maxWidth: 860, margin: "0 auto", width: "100%" }}>
       <h1>Verify content</h1>
       <div style={{ display: "grid", gap: 8, marginTop: 12 }}>
         <label>Paste platform URL</label>
@@ -71,12 +71,14 @@ export default function VerifyPage() {
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="https://www.youtube.com/watch?v=..."
+          style={{ width: "100%" }}
         />
-        <div style={{ color: "#999" }}>or choose platform + ID</div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ color: "#999", fontSize: "14px" }}>or choose platform + ID</div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <select
             value={platform}
             onChange={(e) => setPlatform(e.target.value)}
+            style={{ flex: "1", minWidth: "150px" }}
           >
             <option value="">Select platform</option>
             <option value="youtube">YouTube</option>
@@ -90,9 +92,10 @@ export default function VerifyPage() {
             value={platformId}
             onChange={(e) => setPlatformId(e.target.value)}
             placeholder="platform id or URL"
+            style={{ flex: "2", minWidth: "200px" }}
           />
         </div>
-        <button onClick={runResolve} disabled={resolveLoading}>
+        <button onClick={runResolve} disabled={resolveLoading} style={{ width: "100%" }}>
           {resolveLoading ? <LoadingSpinner size="sm" inline message="Resolving..." /> : "Resolve"}
         </button>
       </div>
@@ -107,6 +110,8 @@ export default function VerifyPage() {
               color: "#9ef",
               padding: 12,
               borderRadius: 8,
+              overflowX: "auto",
+              fontSize: "13px",
             }}
           >
             {JSON.stringify(
@@ -130,6 +135,8 @@ export default function VerifyPage() {
               color: "#9ef",
               padding: 12,
               borderRadius: 8,
+              overflowX: "auto",
+              fontSize: "13px",
             }}
           >
             {JSON.stringify(data.manifest ?? null, null, 2)}
@@ -139,8 +146,9 @@ export default function VerifyPage() {
           <input
             type="file"
             onChange={(e) => setFile(e.target.files?.[0] || null)}
+            style={{ width: "100%" }}
           />
-          <button onClick={runByteVerify} disabled={!file || verifyLoading}>
+          <button onClick={runByteVerify} disabled={!file || verifyLoading} style={{ width: "100%", marginTop: "8px" }}>
             {verifyLoading ? <LoadingSpinner size="sm" inline message="Verifying..." /> : "Verify file against manifest + on-chain"}
           </button>
         </div>
