@@ -29,6 +29,9 @@ const PLATFORM_OPTIONS = [
   "threads",
   "bluesky",
   "mastodon",
+  "github",
+  "discord",
+  "linkedin",
 ];
 
 function explorerTxUrl(
@@ -145,6 +148,20 @@ function platformBindingUrl(platform?: string, platformId?: string) {
   }
   if (p === "linkedin") {
     return `https://www.linkedin.com/${platformId}`;
+  }
+  if (p === "github") {
+    // Expect repo path like user/repo or gist/user/gistid
+    if (platformId.startsWith("gist/")) {
+      return `https://gist.github.com/${platformId.replace("gist/", "")}`;
+    }
+    return `https://github.com/${platformId}`;
+  }
+  if (p === "discord") {
+    // Could be invite code or channel/server path
+    if (/^[a-zA-Z0-9]+$/.test(platformId)) {
+      return `https://discord.gg/${platformId}`;
+    }
+    return `https://discord.com/${platformId}`;
   }
   if (p === "snapchat" || p === "snap") {
     return `https://www.snapchat.com/add/${platformId}`;
@@ -455,6 +472,9 @@ function OneShotForm({ onComplete, toast }: { onComplete?: () => void; toast: Re
             "threads",
             "bluesky",
             "mastodon",
+            "github",
+            "discord",
+            "linkedin",
           ].map((opt) => (
             <option key={opt} value={opt}>
               {opt}
@@ -1192,6 +1212,9 @@ function BindForm({ toast }: { toast: ReturnType<typeof useToast> }) {
           "threads",
           "bluesky",
           "mastodon",
+          "github",
+          "discord",
+          "linkedin",
         ].map((opt) => (
           <option key={opt} value={opt}>
             {opt}
