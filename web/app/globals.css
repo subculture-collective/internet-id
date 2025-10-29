@@ -295,8 +295,13 @@ iframe {
 table {
   width: 100%;
   border-collapse: collapse;
+}
+
+/* Table responsive wrapper utility */
+.table-responsive {
+  width: 100%;
   overflow-x: auto;
-  display: block;
+  -webkit-overflow-scrolling: touch;
 }
 
 @media (min-width: 768px) {
