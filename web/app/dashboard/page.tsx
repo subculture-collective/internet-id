@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback, useMemo } from "react";
+import Link from "next/link";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 import { useToast } from "../hooks/useToast";
@@ -285,7 +286,7 @@ export default function DashboardPage() {
       >
         <h1 style={{ margin: 0 }}>Verification Dashboard</h1>
         <div style={{ display: "flex", gap: 12 }}>
-          <a
+          <Link
             href="/"
             style={{
               padding: "8px 16px",
@@ -297,8 +298,8 @@ export default function DashboardPage() {
             }}
           >
             ← Home
-          </a>
-          <a
+          </Link>
+          <Link
             href="/profile"
             style={{
               padding: "8px 16px",
@@ -310,7 +311,7 @@ export default function DashboardPage() {
             }}
           >
             Profile
-          </a>
+          </Link>
         </div>
       </div>
 
