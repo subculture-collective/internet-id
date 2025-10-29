@@ -24,7 +24,8 @@ function Toast({ message, type, onClose, duration = 3000 }: ToastProps) {
     }, duration);
 
     return () => clearTimeout(timer);
-  }, [duration, onClose]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [duration]); // Removed onClose to prevent premature dismissal if callback identity changes
 
   const colors = {
     success: { bg: "#e6ffed", border: "#1a7f37", text: "#1a7f37" },

@@ -51,20 +51,34 @@ export default class ErrorBoundary extends React.Component<
             {this.state.error?.message ||
               "An unexpected error occurred. Please try refreshing the page."}
           </p>
-          <button
-            onClick={() => this.setState({ hasError: false, error: undefined })}
-            style={{
-              padding: "8px 16px",
-              backgroundColor: "#dc2626",
-              color: "white",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-              marginTop: "12px",
-            }}
-          >
-            Try again
-          </button>
+          <div style={{ display: "flex", gap: "8px", marginTop: "12px" }}>
+            <button
+              onClick={() => this.setState({ hasError: false, error: undefined })}
+              style={{
+                padding: "8px 16px",
+                backgroundColor: "#dc2626",
+                color: "white",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+              }}
+            >
+              Try again
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              style={{
+                padding: "8px 16px",
+                backgroundColor: "#991b1b",
+                color: "white",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+              }}
+            >
+              Reload page
+            </button>
+          </div>
         </div>
       );
     }

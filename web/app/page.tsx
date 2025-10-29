@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useToast } from "./hooks/useToast";
 import { ToastContainer } from "./components/Toast";
 import LoadingSpinner from "./components/LoadingSpinner";
@@ -278,7 +278,8 @@ export default function Home() {
         window.removeEventListener("copied", handler as EventListener);
       }
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // toast is stable from useToast hook
   return (
     <main>
       <h1>Internet-ID</h1>
@@ -1268,7 +1269,7 @@ function BrowseContents({
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const fetchItems = async () => {
+  const fetchItems = useCallback(async () => {
     setLoading(true);
     try {
       const r = await getJson<any[]>("/api/contents");
@@ -1281,12 +1282,11 @@ function BrowseContents({
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchItems();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refreshKey]);
+  }, [refreshKey, fetchItems]);
 
   return (
     <section>

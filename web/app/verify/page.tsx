@@ -11,13 +11,13 @@ export default function VerifyPage() {
   const [platformId, setPlatformId] = useState("");
   const [data, setData] = useState<any>(null);
   const [file, setFile] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [resolveLoading, setResolveLoading] = useState(false);
   const [verifyLoading, setVerifyLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const runResolve = async () => {
     try {
-      setLoading(true);
+      setResolveLoading(true);
       setError(null);
       setData(null);
       const qs = url
@@ -32,7 +32,7 @@ export default function VerifyPage() {
     } catch (e: any) {
       setError(e?.message || String(e));
     } finally {
-      setLoading(false);
+      setResolveLoading(false);
     }
   };
 
@@ -92,8 +92,8 @@ export default function VerifyPage() {
             placeholder="platform id or URL"
           />
         </div>
-        <button onClick={runResolve} disabled={loading}>
-          {loading ? <LoadingSpinner size="sm" inline message="Resolving..." /> : "Resolve"}
+        <button onClick={runResolve} disabled={resolveLoading}>
+          {resolveLoading ? <LoadingSpinner size="sm" inline message="Resolving..." /> : "Resolve"}
         </button>
       </div>
 
