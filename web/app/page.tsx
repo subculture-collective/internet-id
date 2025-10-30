@@ -211,7 +211,6 @@ function CopyButton({ text, label }: { text?: string; label?: string }) {
       }}
       title={canCopy ? `Copy ${label || "value"}` : "Nothing to copy"}
       aria-label={canCopy ? ariaLabel : "Nothing to copy"}
-      aria-live="polite"
     >
       {copied ? "Copied" : "Copy"}
     </button>

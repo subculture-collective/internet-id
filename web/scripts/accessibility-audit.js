@@ -99,8 +99,17 @@ const accessibilityChecks = [
       // Only check for aria-live in components that should have dynamic content
       const requiresAriaLive = fileName === 'Toast.tsx' || 
                                fileName === 'ErrorMessage.tsx' || 
-                               fileName === 'LoadingSpinner.tsx' ||
-                               fileName === 'page.tsx';
+                               fileName === 'LoadingSpinner.tsx';
+      
+      // page.tsx uses ToastContainer component which has aria-live
+      if (fileName === 'page.tsx') {
+        const usesToastContainer = content.includes('ToastContainer');
+        return {
+          name: 'ARIA Live Regions',
+          passed: usesToastContainer,
+          message: usesToastContainer ? 'Uses ToastContainer with ARIA live regions' : 'Missing ARIA live regions',
+        };
+      }
       
       if (!requiresAriaLive) {
         return { name: 'ARIA Live Regions', passed: true, message: 'N/A for this file' };

@@ -382,16 +382,17 @@ test.describe('Accessibility and Visual Regression', () => {
       await page.goto('/');
       await page.waitForLoadState('networkidle');
       
-      // This test verifies the keyboard handler is set up
-      // Actual toast behavior would require triggering a toast first
-      await page.keyboard.press('Escape');
-      
-      // Verify no errors occur
+      // Register error listener before the action
       const errors: string[] = [];
       page.on('pageerror', (error) => {
         errors.push(error.message);
       });
       
+      // This test verifies the keyboard handler is set up
+      // Actual toast behavior would require triggering a toast first
+      await page.keyboard.press('Escape');
+      
+      // Verify no errors occur
       expect(errors.length).toBe(0);
     });
   });

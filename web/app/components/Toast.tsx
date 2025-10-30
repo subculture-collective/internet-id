@@ -27,18 +27,6 @@ function Toast({ message, type, onClose, duration = 3000 }: ToastProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [duration]); // Removed onClose to prevent premature dismissal if callback identity changes
 
-  useEffect(() => {
-    // Add keyboard support to close toast with Escape key
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
-
   const colors = {
     success: { bg: "#e6ffed", border: "#1a7f37", text: "#1a7f37" },
     error: { bg: "#fef2f2", border: "#dc2626", text: "#dc2626" },
@@ -108,6 +96,20 @@ export interface ToastContainerProps {
 }
 
 export function ToastContainer({ toasts, onRemove }: ToastContainerProps) {
+  useEffect(() => {
+    // Add keyboard support to close the most recent toast with Escape key
+    // Handler is at container level to avoid multiple listeners
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && toasts.length > 0) {
+        // Close the most recent toast (last in array)
+        onRemove(toasts[toasts.length - 1].id);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [toasts, onRemove]);
+
   return (
     <div
       role="region"
