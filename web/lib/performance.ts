@@ -3,10 +3,22 @@
  */
 
 /**
+ * Web Vitals metric structure
+ */
+export interface WebVitalsMetric {
+  name: 'CLS' | 'FCP' | 'FID' | 'INP' | 'LCP' | 'TTFB';
+  value: number;
+  rating: 'good' | 'needs-improvement' | 'poor';
+  delta: number;
+  id: string;
+  navigationType?: string;
+}
+
+/**
  * Report Web Vitals to analytics
  * This can be customized to send to your preferred analytics service
  */
-export function reportWebVitals(metric: any) {
+export function reportWebVitals(metric: WebVitalsMetric) {
   // Log in development
   if (process.env.NODE_ENV === 'development') {
     console.log('[Performance]', {
@@ -38,19 +50,15 @@ export function reportWebVitals(metric: any) {
 }
 
 /**
- * Create a dynamic import for lazy loading
- * Usage: const LazyComponent = dynamic(() => import('./Component'))
+ * Helper to create dynamic import configuration
+ * Usage with next/dynamic:
+ * const DynamicComponent = dynamic(() => import('./Component'), createDynamicOptions({ ssr: false }))
  */
-export function createDynamicImport<T = any>(
-  importFunc: () => Promise<{ default: T }>,
-  options?: {
-    loading?: () => any;
-    ssr?: boolean;
-  }
-) {
-  // This is a helper that returns the import function
-  // Actual usage should be with next/dynamic
-  return { importFunc, options };
+export function createDynamicOptions(options?: {
+  loading?: () => any;
+  ssr?: boolean;
+}) {
+  return options || { ssr: true };
 }
 
 /**

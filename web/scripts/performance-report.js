@@ -57,6 +57,25 @@ function countFiles(dir, extension) {
   return count;
 }
 
+function getJavaScriptSize(dir) {
+  let size = 0;
+  try {
+    const files = fs.readdirSync(dir);
+    files.forEach((file) => {
+      const filePath = path.join(dir, file);
+      const stats = fs.statSync(filePath);
+      if (stats.isDirectory()) {
+        size += getJavaScriptSize(filePath);
+      } else if (file.endsWith('.js')) {
+        size += stats.size;
+      }
+    });
+  } catch (error) {
+    console.error(`Error reading directory ${dir}:`, error.message);
+  }
+  return size;
+}
+
 function generateReport() {
   if (!fs.existsSync(BUILD_DIR)) {
     console.error('Build directory not found. Run `npm run build` first.');
@@ -66,6 +85,7 @@ function generateReport() {
   const totalSize = getDirectorySize(BUILD_DIR);
   const jsCount = countFiles(BUILD_DIR, '.js');
   const cssCount = countFiles(BUILD_DIR, '.css');
+  const jsSize = getJavaScriptSize(BUILD_DIR);
   
   const staticDir = path.join(BUILD_DIR, 'static');
   const staticSize = fs.existsSync(staticDir) ? getDirectorySize(staticDir) : 0;
@@ -75,6 +95,8 @@ function generateReport() {
     buildSize: {
       total: totalSize,
       totalFormatted: formatBytes(totalSize),
+      javascript: jsSize,
+      javascriptFormatted: formatBytes(jsSize),
       static: staticSize,
       staticFormatted: formatBytes(staticSize),
     },
@@ -85,9 +107,9 @@ function generateReport() {
     },
     budgets: {
       javascript: {
-        limit: 800 * 1024, // 800 KB (baseline 736 KB)
-        current: staticSize,
-        status: staticSize < 800 * 1024 ? 'PASS' : 'FAIL',
+        limit: 3 * 1024 * 1024, // 3 MB (baseline 2.57 MB, target 1.5 MB)
+        current: jsSize,
+        status: jsSize < 3 * 1024 * 1024 ? 'PASS' : 'FAIL',
       },
       total: {
         limit: 12 * 1024 * 1024, // 12 MB (baseline 10.22 MB)
@@ -104,6 +126,7 @@ function generateReport() {
   console.log('\n📊 Performance Report\n');
   console.log('Build Information:');
   console.log(`  Total size: ${report.buildSize.totalFormatted}`);
+  console.log(`  JavaScript size: ${report.buildSize.javascriptFormatted}`);
   console.log(`  Static size: ${report.buildSize.staticFormatted}`);
   console.log(`  JavaScript files: ${report.fileCount.javascript}`);
   console.log(`  CSS files: ${report.fileCount.css}`);

@@ -5,8 +5,9 @@
       "resourceSizes": [
         {
           "resourceType": "script",
-          "budget": 800,
-          "baseline": 736
+          "budget": 3000,
+          "baseline": 2570,
+          "target": 1500
         },
         {
           "resourceType": "total",
@@ -52,7 +53,12 @@
   ],
   "notes": {
     "baseline": "Initial measurements taken 2025-10-30",
-    "target": "Reduce script budget to 600KB and total to 8MB over time",
-    "strategy": "Implement code splitting and lazy loading to reduce initial bundle"
+    "measurements": {
+      "totalBuild": "10.22 MB",
+      "javascript": "2.57 MB",
+      "static": "736 KB"
+    },
+    "target": "Reduce JavaScript to 1.5 MB and total to 8 MB over time",
+    "strategy": "Implement code splitting and lazy loading to reduce initial bundle. The main page.tsx (1683 lines) should be split into separate form components."
   }
 }
