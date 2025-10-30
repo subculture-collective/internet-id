@@ -5,6 +5,44 @@ import { WebVitals } from "./web-vitals";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_BASE || "https://internet-id.io";
 
+// Organization structured data - defined outside component to avoid recreation on every render
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Internet-ID",
+  description:
+    "Blockchain-based content verification and authentication platform",
+  url: siteUrl,
+  logo: `${siteUrl}/logo.png`,
+  sameAs: [
+    "https://github.com/subculture-collective/internet-id",
+    "https://twitter.com/subcultureio",
+  ],
+  contactPoint: {
+    "@type": "ContactPoint",
+    contactType: "Technical Support",
+    email: "support@subculture.io",
+  },
+};
+
+// Website structured data - defined outside component to avoid recreation on every render
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Internet-ID",
+  url: siteUrl,
+  description:
+    "Anchor and verify human-created content on blockchain with cryptographic proof",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: `${siteUrl}/verify?q={search_term_string}`,
+    },
+    "query-input": "required name=search_term_string",
+  },
+};
+
 export const metadata: Metadata = {
   title: {
     default: "Internet-ID - Verify Human-Created Content On-Chain",
@@ -92,44 +130,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Organization structured data
-  const organizationSchema = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: "Internet-ID",
-    description:
-      "Blockchain-based content verification and authentication platform",
-    url: siteUrl,
-    logo: `${siteUrl}/logo.png`,
-    sameAs: [
-      "https://github.com/subculture-collective/internet-id",
-      "https://twitter.com/subcultureio",
-    ],
-    contactPoint: {
-      "@type": "ContactPoint",
-      contactType: "Technical Support",
-      email: "support@subculture.io",
-    },
-  };
-
-  // Website structured data
-  const websiteSchema = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "Internet-ID",
-    url: siteUrl,
-    description:
-      "Anchor and verify human-created content on blockchain with cryptographic proof",
-    potentialAction: {
-      "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: `${siteUrl}/verify?q={search_term_string}`,
-      },
-      "query-input": "required name=search_term_string",
-    },
-  };
-
   return (
     <html lang="en" suppressHydrationWarning>
       <head>

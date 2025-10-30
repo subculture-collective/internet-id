@@ -34,7 +34,7 @@ export default function GoogleAnalytics() {
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
           
-          gtag('config', '${measurementId}', {
+          gtag('config', ${JSON.stringify(measurementId)}, {
             page_path: window.location.pathname,
           });
         `}
