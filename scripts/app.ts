@@ -10,6 +10,7 @@ import verifyRoutes from "./routes/verify.routes";
 import bindingRoutes from "./routes/binding.routes";
 import contentRoutes from "./routes/content.routes";
 import oneshotRoutes from "./routes/oneshot.routes";
+import badgeRoutes from "./routes/badge.routes";
 
 // Import rate limiting middleware
 import {
@@ -41,6 +42,7 @@ export async function createApp() {
   // Moderate limits for read endpoints
   app.use("/api", moderate, contentRoutes);
   app.use("/api", moderate, verifyRoutes);
+  app.use("/api", moderate, badgeRoutes);
 
   // Strict limits for expensive operations
   app.use("/api", strict, uploadRoutes);
