@@ -200,7 +200,7 @@ This will create a `gas-report.txt` file with detailed gas usage for all contrac
 2. **Immutable Deployment Parameters**: If contract has deployment-time constants, mark them as `immutable`
    - Estimated savings: ~2100 gas per read of immutable vs storage
 
-3. **Custom Errors**: Replace string-based `require` messages with custom errors (Solidity 0.8.4+)
+3. **Custom Errors**: Replace string-based `require` messages with custom errors (available since Solidity 0.8.4, current version: 0.8.20)
    - Already using short strings which is relatively efficient
    - Custom errors would save ~50 gas per revert
 

@@ -16,8 +16,8 @@ import { ethers } from "hardhat";
  */
 describe("Gas Regression Tests", function () {
   const MAX_DEPLOYMENT_GAS = 850000;
-  const MAX_REGISTER_SHORT_URI_GAS = 73000; // Actual: ~70,846 gas
-  const MAX_REGISTER_LONG_URI_GAS = 145000; // Actual: ~138,948 gas (varies with URI length)
+  const MAX_REGISTER_SHORT_URI_GAS = 72000; // Actual: ~70,846 gas, 3% buffer
+  const MAX_REGISTER_LONG_URI_GAS = 143000; // Actual: ~138,948 gas, 3% buffer (varies with URI length)
   const MAX_BIND_PLATFORM_GAS = 100000;
   const MAX_UPDATE_MANIFEST_GAS = 35000;
   const MAX_REVOKE_GAS = 28000;
