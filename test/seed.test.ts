@@ -4,7 +4,8 @@
 
 import { expect } from "chai";
 import { PrismaClient } from "@prisma/client";
-import { execSync } from "child_process";
+import * as fs from "fs";
+import packageJson from "../package.json";
 
 describe("Database Seed", () => {
   let prisma: PrismaClient;
@@ -31,24 +32,20 @@ describe("Database Seed", () => {
 
   describe("Seed Script Structure", () => {
     it("should have a valid seed script file", () => {
-      const fs = require("fs");
       const seedPath = "./prisma/seed.ts";
       expect(fs.existsSync(seedPath)).to.be.true;
     });
 
     it("should have seed configuration in package.json", () => {
-      const packageJson = require("../package.json");
       expect(packageJson.prisma).to.exist;
       expect(packageJson.prisma.seed).to.equal("ts-node prisma/seed.ts");
     });
 
     it("should have db:seed script in package.json", () => {
-      const packageJson = require("../package.json");
       expect(packageJson.scripts["db:seed"]).to.equal("ts-node prisma/seed.ts");
     });
 
     it("should have db:reset script in package.json", () => {
-      const packageJson = require("../package.json");
       expect(packageJson.scripts["db:reset"]).to.equal(
         "prisma migrate reset --force && npm run db:seed"
       );
@@ -57,20 +54,17 @@ describe("Database Seed", () => {
 
   describe("Seed Documentation", () => {
     it("should have SEED_DATA.md documentation", () => {
-      const fs = require("fs");
       const docPath = "./prisma/SEED_DATA.md";
       expect(fs.existsSync(docPath)).to.be.true;
     });
 
     it("should document seed usage in README.md", () => {
-      const fs = require("fs");
       const readme = fs.readFileSync("./README.md", "utf-8");
       expect(readme).to.include("db:seed");
       expect(readme).to.include("db:reset");
     });
 
     it("should document seed in .env.example", () => {
-      const fs = require("fs");
       const envExample = fs.readFileSync("./.env.example", "utf-8");
       expect(envExample).to.include("Database Seed Data");
     });
