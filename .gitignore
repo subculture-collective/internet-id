@@ -62,6 +62,12 @@ lerna-debug.log*
 out/
 .vercel/
 
+# Playwright E2E testing
+test-results/
+playwright-report/
+playwright/.cache/
+.playwright/
+
 # Security scans
 security-scans/
 secret-scan-*.txt
