@@ -157,7 +157,6 @@ describe("Security Headers Middleware", function () {
 
       const next = () => {
         // Check for critical security headers
-        const headerKeys = Object.keys(headers);
         
         // Permissions-Policy should be set
         expect(headers["Permissions-Policy"]).to.exist;

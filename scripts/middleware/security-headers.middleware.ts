@@ -98,7 +98,7 @@ export const securityHeaders = helmet({
       frameSrc: ["'none'"],
       baseUri: ["'self'"],
       formAction: ["'self'"],
-      frameAncestors: ["'none'"], // Prevent embedding in iframes
+      "frame-ancestors": ["'none'"], // Prevent embedding in iframes
       upgradeInsecureRequests: [], // Upgrade HTTP to HTTPS
     },
     reportOnly: false, // Set to true for testing, false to enforce

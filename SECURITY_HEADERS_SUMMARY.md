@@ -466,7 +466,7 @@ Status: ✅ No known vulnerabilities (verified via GitHub Advisory Database)
 ### Header Scanner Results
 
 Expected grade: **A** or **A+** on:
-- securityheaters.com
+- securityheaders.com
 - Mozilla Observatory
 
 ## Future Enhancements
