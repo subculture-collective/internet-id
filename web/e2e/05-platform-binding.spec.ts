@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-import { isCI } from './utils/test-helpers';
 
 test.describe('Platform Binding and Verification', () => {
   test('should display platform binding options', async ({ page }) => {
