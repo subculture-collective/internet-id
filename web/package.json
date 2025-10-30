@@ -11,7 +11,16 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
     "prisma:generate": "prisma generate --schema ../prisma/schema.prisma --generator client-web",
-    "postinstall": "prisma generate --schema ../prisma/schema.prisma --generator client-web"
+    "postinstall": "prisma generate --schema ../prisma/schema.prisma --generator client-web",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:chromium": "playwright test --project=chromium",
+    "test:e2e:firefox": "playwright test --project=firefox",
+    "test:e2e:webkit": "playwright test --project=webkit",
+    "test:e2e:mobile": "playwright test --project=\"Mobile Chrome\" --project=\"Mobile Safari\"",
+    "test:e2e:report": "playwright show-report"
   },
   "dependencies": {
     "@auth/pg-adapter": "^1.10.0",
@@ -25,6 +34,7 @@
     "react-dom": "18.3.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.56.1",
     "@types/node": "20.12.12",
     "@types/qrcode": "^1.5.5",
     "@types/react": "18.2.74",
@@ -32,6 +42,7 @@
     "eslint": "^8.57.1",
     "eslint-config-next": "^15.5.6",
     "eslint-config-prettier": "^10.1.8",
+    "playwright": "^1.56.1",
     "prettier": "^3.6.2",
     "prisma": "^6.17.0",
     "typescript": "5.6.3"

@@ -108,9 +108,7 @@ Configuration files:
 
 This project uses GitHub Actions to ensure code quality and prevent regressions. The CI workflow runs automatically on pull requests and pushes to the main branch.
 
-### CI Workflow
-
-The workflow includes two parallel jobs:
+### CI Workflows
 
 1. **Backend Job**:
    - Installs dependencies
@@ -125,7 +123,14 @@ The workflow includes two parallel jobs:
    - Checks code formatting
    - Builds the Next.js application
 
-View the [CI workflow configuration](.github/workflows/ci.yml) and [workflow runs](https://github.com/subculture-collective/internet-id/actions/workflows/ci.yml).
+3. **E2E Tests** (manual trigger):
+   - Runs comprehensive end-to-end tests with Playwright
+   - Tests across Chromium, Firefox, and WebKit browsers
+   - Validates mobile responsiveness
+   - Performs visual regression testing
+   - Can run against preview deployments
+
+View the [CI workflow configuration](.github/workflows/ci.yml) and [E2E workflow configuration](.github/workflows/e2e-tests.yml).
 
 **Note**: This CI workflow is part of the project roadmap to guard against regressions (see [#10](https://github.com/subculture-collective/internet-id/issues/10)).
 
@@ -253,6 +258,12 @@ BASE_RPC_URL=https://your-base-rpc.com
   - `npm run lint` – run ESLint on web package
   - `npm run lint:fix` – automatically fix ESLint issues in web package
   - `npm run format` – format web code with Prettier
+  - `npm run test:e2e` – run end-to-end tests with Playwright
+  - `npm run test:e2e:ui` – run E2E tests in interactive UI mode
+  - `npm run test:e2e:chromium` – run E2E tests on Chromium only
+  - `npm run test:e2e:firefox` – run E2E tests on Firefox only
+  - `npm run test:e2e:webkit` – run E2E tests on WebKit (Safari) only
+  - `npm run test:e2e:mobile` – run E2E tests on mobile viewports
 
 ## Quickstart
 
@@ -679,6 +690,61 @@ npm run verify:youtube -- https://www.youtube.com/watch?v=<YouTubeVideoId> 0xReg
 
 ```
 
+## End-to-End Testing
+
+The web application includes a comprehensive E2E test suite built with [Playwright](https://playwright.dev/):
+
+### Quick Start
+
+```bash
+cd web
+npm run test:e2e
+```
+
+### Features
+
+- **Multi-browser testing**: Chromium, Firefox, WebKit (Safari)
+- **Mobile testing**: iPhone 12, Pixel 5 viewports
+- **Visual regression**: Screenshot comparison for UI changes
+- **Accessibility testing**: WCAG compliance, ARIA roles, keyboard navigation
+- **85+ test cases** covering all major user flows:
+  - Navigation and page loading
+  - Authentication with OAuth providers
+  - Dashboard and content viewing
+  - Content upload and registration
+  - Platform binding and verification
+  - Profile and account management
+
+### Running Tests
+
+```bash
+# Run all E2E tests
+npm run test:e2e
+
+# Interactive UI mode (best for development)
+npm run test:e2e:ui
+
+# Debug mode with step-by-step execution
+npm run test:e2e:debug
+
+# Test specific browsers
+npm run test:e2e:chromium
+npm run test:e2e:firefox
+npm run test:e2e:webkit
+
+# Mobile viewport testing
+npm run test:e2e:mobile
+```
+
+### CI Integration
+
+E2E tests can be triggered manually via GitHub Actions workflow:
+
+1. Go to [Actions](https://github.com/subculture-collective/internet-id/actions/workflows/e2e-tests.yml)
+2. Click "Run workflow"
+3. Optionally specify custom base URL for testing preview deployments
+
+See the complete [E2E Testing Guide](./web/E2E_TESTING.md) for detailed documentation, debugging tips, and best practices.
 
 ## Documentation
 
@@ -696,6 +762,7 @@ npm run verify:youtube -- https://www.youtube.com/watch?v=<YouTubeVideoId> 0xReg
 - **[Database Indexing Strategy](./docs/DATABASE_INDEXING_STRATEGY.md)** - Query optimization and indexes
 - **[Multi-Chain Deployment](./docs/MULTI_CHAIN_DEPLOYMENT.md)** - Deploying to multiple EVM chains
 - **[Platform Verification](./docs/PLATFORM_VERIFICATION.md)** - Platform binding details (YouTube, TikTok, etc.)
+- **[E2E Testing Guide](./web/E2E_TESTING.md)** - End-to-end testing with Playwright
 
 ### Operations & Security
 
