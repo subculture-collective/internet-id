@@ -49,7 +49,7 @@ export const securityHeaders = helmet({
       scriptSrc: [
         "'self'",
         // Allow nonce-based inline scripts
-        (req: Request, res: Response) => `'nonce-${res.locals.cspNonce}'`,
+        (_req: any, res: any) => `'nonce-${res.locals.cspNonce}'`,
       ],
       styleSrc: [
         "'self'",
