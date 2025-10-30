@@ -30,6 +30,7 @@ export default function LoadingSpinner({
         borderRadius: "50%",
         animation: "spin 0.8s linear infinite",
       }}
+      aria-hidden="true"
     />
   );
 
@@ -41,6 +42,9 @@ export default function LoadingSpinner({
           alignItems: "center",
           gap: "8px",
         }}
+        role="status"
+        aria-live="polite"
+        aria-label={message || "Loading"}
       >
         {spinner}
         {message && <span>{message}</span>}
@@ -50,6 +54,10 @@ export default function LoadingSpinner({
 
   return (
     <div
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+      aria-label={message || "Loading"}
       style={{
         display: "flex",
         flexDirection: "column",

@@ -187,6 +187,10 @@ function platformBindingUrl(platform?: string, platformId?: string) {
 function CopyButton({ text, label }: { text?: string; label?: string }) {
   const [copied, setCopied] = useState(false);
   const canCopy = Boolean(text);
+  const ariaLabel = copied 
+    ? `${label || "Value"} copied to clipboard` 
+    : `Copy ${label || "value"} to clipboard`;
+  
   return (
     <button
       style={{ marginLeft: 6, fontSize: 12, padding: "2px 6px" }}
@@ -206,6 +210,7 @@ function CopyButton({ text, label }: { text?: string; label?: string }) {
         } catch {}
       }}
       title={canCopy ? `Copy ${label || "value"}` : "Nothing to copy"}
+      aria-label={canCopy ? ariaLabel : "Nothing to copy"}
     >
       {copied ? "Copied" : "Copy"}
     </button>
@@ -279,10 +284,10 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // toast is stable from useToast hook
   return (
-    <main>
+    <main id="main-content" role="main">
       <h1>Internet-ID</h1>
       <ToastContainer toasts={toast.toasts} onRemove={toast.removeToast} />
-      <div className="tabs">
+      <nav aria-label="Main navigation" className="tabs">
         {[
           ["upload", "Upload"],
           ["one", "One-shot"],
@@ -298,11 +303,13 @@ export default function Home() {
             key={key}
             onClick={() => setTab(key)}
             className={tab === key ? "active" : ""}
+            aria-pressed={tab === key}
+            aria-label={`${label} tab`}
           >
             {label}
           </button>
         ))}
-      </div>
+      </nav>
       {tab === "upload" && <UploadForm toast={toast} />}
       {tab === "one" && (
         <OneShotForm
@@ -357,19 +364,24 @@ function UploadForm({ toast }: { toast: ReturnType<typeof useToast> }) {
   };
 
   return (
-    <section>
-      <h2>Upload to IPFS</h2>
-      <input
-        type="file"
-        onChange={(e) => setFile(e.target.files?.[0] || null)}
-        style={{ width: "100%" }}
-      />
+    <section aria-labelledby="upload-heading">
+      <h2 id="upload-heading">Upload to IPFS</h2>
+      <label htmlFor="upload-file-input">
+        Select file to upload
+        <input
+          id="upload-file-input"
+          type="file"
+          onChange={(e) => setFile(e.target.files?.[0] || null)}
+          style={{ width: "100%" }}
+          aria-required="true"
+        />
+      </label>
       <div>
-        <button disabled={!file || loading} onClick={handleUpload} style={{ width: "100%", marginTop: "8px" }}>
+        <button disabled={!file || loading} onClick={handleUpload} style={{ width: "100%", marginTop: "8px" }} aria-label="Upload file to IPFS">
           {loading ? <LoadingSpinner size="sm" inline message="Uploading..." /> : "Upload"}
         </button>
       </div>
-      {result && <pre>{JSON.stringify(result, null, 2)}</pre>}
+      {result && <pre aria-label="Upload result">{JSON.stringify(result, null, 2)}</pre>}
       {err && <ErrorMessage error={err} onRetry={handleUpload} />}
     </section>
   );
@@ -842,7 +854,7 @@ function OneShotForm({ onComplete, toast }: { onComplete?: () => void; toast: Re
                               <span>QR:</span>
                               <img
                                 src={qrUrl}
-                                alt="QR"
+                                alt={`QR code for ${b.platform} verification link`}
                                 width={96}
                                 height={96}
                               />
@@ -1596,7 +1608,7 @@ function ShareBlock({
                     style={{ display: "flex", alignItems: "center", gap: 8 }}
                   >
                     <span>QR:</span>
-                    <img src={qrUrl} alt="QR" width={72} height={72} />
+                    <img src={qrUrl} alt={`QR code for ${b.platform} verification link`} width={72} height={72} />
                   </div>
                 </li>
               );

@@ -22,6 +22,8 @@
     "test:e2e:webkit": "playwright test --project=webkit",
     "test:e2e:mobile": "playwright test --project=\"Mobile Chrome\" --project=\"Mobile Safari\"",
     "test:e2e:report": "playwright show-report",
+    "test:a11y": "playwright test e2e/07-accessibility.spec.ts",
+    "audit:a11y": "node scripts/accessibility-audit.js",
     "perf:audit": "lhci autorun",
     "perf:collect": "lhci collect",
     "perf:assert": "lhci assert",
