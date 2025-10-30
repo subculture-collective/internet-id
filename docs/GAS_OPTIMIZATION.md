@@ -71,7 +71,7 @@ emit ContentRegistered(..., currentTime);
 
 **Benefit:** Avoids duplicate timestamp casting operations, saving ~6 gas per function call.
 
-### 4. Use Calldata for Internal Functions
+### 4. Use Calldata for Internal Functions (Solidity 0.8.8+)
 
 **Before:**
 ```solidity
@@ -83,7 +83,9 @@ function _platformKey(string memory platform, string memory platformId) internal
 function _platformKey(string calldata platform, string calldata platformId) internal pure
 ```
 
-**Benefit:** Avoids copying string data from calldata to memory, saving ~100-300 gas depending on string length.
+**Note:** Internal functions with `calldata` parameters are supported since Solidity 0.8.8. This contract uses Solidity 0.8.20.
+
+**Benefit:** Avoids copying string data from calldata to memory when called from external/public functions with calldata parameters, saving ~100-300 gas depending on string length.
 
 ## Measured Gas Costs
 
