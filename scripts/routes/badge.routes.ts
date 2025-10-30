@@ -40,11 +40,17 @@ router.get(
       let svg = await cacheService.get(cacheKey);
       
       if (!svg) {
-        // Fetch content data from database
-        const content = await prisma.content.findUnique({
-          where: { contentHash: hash },
-          include: { bindings: true },
-        });
+        // Fetch content data from database (gracefully handle errors)
+        let content = null;
+        try {
+          content = await prisma.content.findUnique({
+            where: { contentHash: hash },
+            include: { bindings: true },
+          });
+        } catch (dbError) {
+          // Database unavailable - continue with unverified badge
+          console.warn('Database query failed, generating unverified badge:', dbError);
+        }
 
         // Prepare badge data
         const badgeData: BadgeData = {
@@ -187,11 +193,17 @@ router.get(
       let status = await cacheService.get(cacheKey);
       
       if (!status) {
-        // Fetch content data
-        const content = await prisma.content.findUnique({
-          where: { contentHash: hash },
-          include: { bindings: true },
-        });
+        // Fetch content data (gracefully handle errors)
+        let content = null;
+        try {
+          content = await prisma.content.findUnique({
+            where: { contentHash: hash },
+            include: { bindings: true },
+          });
+        } catch (dbError) {
+          // Database unavailable - return unverified status
+          console.warn('Database query failed for status check:', dbError);
+        }
 
         status = {
           contentHash: hash,
