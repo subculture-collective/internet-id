@@ -16,7 +16,6 @@ This repo scaffolds a minimal on-chain content provenance flow:
 - **Architecture Overview:** See [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) for system design and component interactions
 - **Plain-English Pitch:** [PITCH.md](./PITCH.md) explains the problem and solution
 
-Looking for a plain-English overview? See the pitch: [PITCH.md](./PITCH.md)
 
 ## Stack
 
