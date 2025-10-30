@@ -27,6 +27,18 @@ function Toast({ message, type, onClose, duration = 3000 }: ToastProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [duration]); // Removed onClose to prevent premature dismissal if callback identity changes
 
+  useEffect(() => {
+    // Add keyboard support to close toast with Escape key
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   const colors = {
     success: { bg: "#e6ffed", border: "#1a7f37", text: "#1a7f37" },
     error: { bg: "#fef2f2", border: "#dc2626", text: "#dc2626" },
@@ -38,6 +50,9 @@ function Toast({ message, type, onClose, duration = 3000 }: ToastProps) {
 
   return (
     <div
+      role="alert"
+      aria-live={type === "error" ? "assertive" : "polite"}
+      aria-atomic="true"
       style={{
         backgroundColor: color.bg,
         border: `1px solid ${color.border}`,
@@ -67,7 +82,7 @@ function Toast({ message, type, onClose, duration = 3000 }: ToastProps) {
           padding: "0 4px",
           lineHeight: 1,
         }}
-        aria-label="Close"
+        aria-label="Close notification"
       >
         ×
       </button>
@@ -95,6 +110,9 @@ export interface ToastContainerProps {
 export function ToastContainer({ toasts, onRemove }: ToastContainerProps) {
   return (
     <div
+      role="region"
+      aria-label="Notifications"
+      aria-live="polite"
       style={{
         position: "fixed",
         top: "20px",

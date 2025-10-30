@@ -108,6 +108,9 @@ export default function ErrorMessage({
 
   return (
     <div
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
       style={{
         padding: "16px",
         margin: "8px 0",
@@ -123,7 +126,7 @@ export default function ErrorMessage({
           gap: "12px",
         }}
       >
-        <div style={{ color: "#dc2626", fontSize: "20px" }}>⚠</div>
+        <div style={{ color: "#dc2626", fontSize: "20px" }} aria-hidden="true">⚠</div>
         <div style={{ flex: 1 }}>
           <h3
             style={{

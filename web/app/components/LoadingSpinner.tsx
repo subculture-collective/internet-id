@@ -21,6 +21,9 @@ export default function LoadingSpinner({
 
   const spinner = (
     <div
+      role="status"
+      aria-live="polite"
+      aria-label={message || "Loading"}
       style={{
         display: "inline-block",
         width: spinnerSize,
@@ -41,15 +44,20 @@ export default function LoadingSpinner({
           alignItems: "center",
           gap: "8px",
         }}
+        role="status"
+        aria-live="polite"
       >
         {spinner}
-        {message && <span>{message}</span>}
+        {message && <span aria-label={message}>{message}</span>}
       </span>
     );
   }
 
   return (
     <div
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
       style={{
         display: "flex",
         flexDirection: "column",
@@ -60,7 +68,7 @@ export default function LoadingSpinner({
       }}
     >
       {spinner}
-      {message && <div style={{ color: "#6b7280" }}>{message}</div>}
+      {message && <div style={{ color: "#6b7280" }} aria-label={message}>{message}</div>}
       <style jsx>{`
         @keyframes spin {
           to {

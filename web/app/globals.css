@@ -11,6 +11,72 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Skip to main content link - WCAG 2.1 AA requirement */
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #000;
+  color: #fff;
+  padding: 8px 16px;
+  text-decoration: none;
+  z-index: 10000;
+  font-weight: 600;
+  border-radius: 0 0 4px 0;
+}
+
+.skip-to-content:focus {
+  top: 0;
+}
+
+/* Enhanced focus indicators for accessibility - WCAG 2.1 AA requirement */
+a:focus,
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 3px solid #1d4ed8;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1);
+}
+
+/* Ensure focus is visible for keyboard users */
+*:focus-visible {
+  outline: 3px solid #1d4ed8;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1);
+}
+
+/* Remove outline for mouse users but keep for keyboard */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Ensure sufficient color contrast for links - WCAG 2.1 AA requirement */
+a {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+a:hover {
+  color: #1e40af;
+}
+
+a:visited {
+  color: #7c3aed;
+}
+
+/* Button hover/active states with sufficient contrast */
+button:not(:disabled):hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+button:not(:disabled):active {
+  background: #e5e7eb;
+  border-color: #6b7280;
+}
+
 /* Font rendering and performance already optimized above */
 
 body {
@@ -130,13 +196,7 @@ button:disabled {
   cursor: not-allowed;
 }
 
-button:not(:disabled):hover {
-  background: #f9fafb;
-}
-
-button:not(:disabled):active {
-  background: #f3f4f6;
-}
+/* Button hover/active states defined above in accessibility section */
 
 textarea {
   font-family: monospace;
@@ -245,16 +305,10 @@ code {
   word-wrap: break-word;
 }
 
-/* Responsive links */
+/* Responsive links - styles defined above for better contrast */
 a {
-  color: #2563eb;
-  text-decoration: none;
   word-wrap: break-word;
   overflow-wrap: break-word;
-}
-
-a:hover {
-  text-decoration: underline;
 }
 
 /* Lists - ensure proper spacing */
