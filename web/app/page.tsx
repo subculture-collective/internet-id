@@ -855,7 +855,7 @@ function OneShotForm({ onComplete, toast }: { onComplete?: () => void; toast: Re
                               <span>QR:</span>
                               <img
                                 src={qrUrl}
-                                alt="QR"
+                                alt={`QR code for ${b.platform} verification link`}
                                 width={96}
                                 height={96}
                               />
@@ -1609,7 +1609,7 @@ function ShareBlock({
                     style={{ display: "flex", alignItems: "center", gap: 8 }}
                   >
                     <span>QR:</span>
-                    <img src={qrUrl} alt="QR" width={72} height={72} />
+                    <img src={qrUrl} alt={`QR code for ${b.platform} verification link`} width={72} height={72} />
                   </div>
                 </li>
               );

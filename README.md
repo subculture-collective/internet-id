@@ -15,6 +15,7 @@ This repo scaffolds a minimal on-chain content provenance flow:
 - **New here?** Start with the [Contributor Onboarding Guide](./docs/CONTRIBUTOR_ONBOARDING.md)
 - **Architecture Overview:** See [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) for system design and component interactions
 - **Plain-English Pitch:** [PITCH.md](./PITCH.md) explains the problem and solution
+- **Accessibility:** See [web/ACCESSIBILITY.md](./web/ACCESSIBILITY.md) for WCAG 2.1 AA conformance and [web/ACCESSIBILITY_TESTING.md](./web/ACCESSIBILITY_TESTING.md) for testing guide
 
 
 ## Stack
