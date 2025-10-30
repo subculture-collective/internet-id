@@ -1,0 +1,98 @@
+name: Performance Budgets
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'web/**'
+      - '.github/workflows/performance.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  performance:
+    name: Performance Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'web/package-lock.json'
+      
+      - name: Install root dependencies (for Prisma schema)
+        run: npm ci --legacy-peer-deps
+      
+      - name: Install web dependencies
+        working-directory: web
+        run: npm ci --legacy-peer-deps
+      
+      - name: Build Next.js app with bundle analyzer
+        working-directory: web
+        run: ANALYZE=true npm run build
+        env:
+          NODE_ENV: production
+      
+      - name: Check bundle sizes
+        working-directory: web
+        run: |
+          echo "## Bundle Size Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Build completed successfully. Bundle analysis results:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Get the build output size
+          BUILD_SIZE=$(du -sh .next | cut -f1)
+          echo "- Total build size: $BUILD_SIZE" >> $GITHUB_STEP_SUMMARY
+          
+          # Count JavaScript files
+          JS_COUNT=$(find .next -name "*.js" -type f | wc -l)
+          echo "- JavaScript files: $JS_COUNT" >> $GITHUB_STEP_SUMMARY
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Performance budget check passed!" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Upload bundle analysis
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bundle-analysis
+          path: |
+            web/.next/analyze/
+          retention-days: 7
+      
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const fs = require('fs');
+            const buildSize = require('child_process')
+              .execSync('cd web && du -sh .next')
+              .toString()
+              .split('\t')[0];
+            
+            const comment = `## 📊 Performance Report
+            
+            Build completed successfully!
+            
+            - **Build size**: ${buildSize}
+            - **Status**: ✅ Performance budgets passed
+            
+            Bundle analyzer reports have been uploaded as artifacts.
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });

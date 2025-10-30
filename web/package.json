@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev -p 3000",
     "build": "next build",
+    "build:analyze": "ANALYZE=true npm run build",
     "start": "next start -p 3000",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
@@ -20,7 +21,10 @@
     "test:e2e:firefox": "playwright test --project=firefox",
     "test:e2e:webkit": "playwright test --project=webkit",
     "test:e2e:mobile": "playwright test --project=\"Mobile Chrome\" --project=\"Mobile Safari\"",
-    "test:e2e:report": "playwright show-report"
+    "test:e2e:report": "playwright show-report",
+    "perf:audit": "lhci autorun",
+    "perf:collect": "lhci collect",
+    "perf:assert": "lhci assert"
   },
   "dependencies": {
     "@auth/pg-adapter": "^1.10.0",
@@ -34,6 +38,8 @@
     "react-dom": "18.3.1"
   },
   "devDependencies": {
+    "@lhci/cli": "^0.15.1",
+    "@next/bundle-analyzer": "^16.0.1",
     "@playwright/test": "^1.56.1",
     "@types/node": "20.12.12",
     "@types/qrcode": "^1.5.5",

@@ -3,10 +3,15 @@
   box-sizing: border-box;
 }
 
+/* Optimize font rendering */
 html {
-  /* Prevent font scaling in landscape while allowing zoom */
-  -webkit-text-size-adjust: 100%;
+  font-display: swap;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* Font rendering and performance already optimized above */
 
 body {
   margin: 0;
