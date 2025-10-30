@@ -525,13 +525,35 @@ npm run db:migrate
 
 ```
 
-2. Inspect data (optional):
+2. Seed the database with test data (optional but recommended for development):
+
+```
+
+npm run db:seed
+
+```
+
+This populates the database with sample users, contents, platform bindings, and verifications. See [prisma/SEED_DATA.md](./prisma/SEED_DATA.md) for details.
+
+3. Inspect data (optional):
 
 ```
 
 npm run db:studio
 
 ```
+
+### Resetting the Database
+
+To clear all data and start fresh:
+
+```
+
+npm run db:reset
+
+```
+
+This will drop the database, run migrations, and reseed test data. **⚠️ Warning:** This deletes ALL data!
 
 ### Prisma Schema - Single Source of Truth
 

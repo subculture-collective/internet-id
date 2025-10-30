@@ -229,58 +229,40 @@ docker compose exec db psql -U internetid -d internetid
 
 **Important**: Both root and web packages use the **same Prisma schema** at `prisma/schema.prisma`. Never create a separate schema in `web/prisma/`.
 
-#### Database Seeding (Optional)
+#### Database Seeding (Recommended for Development)
 
-Create test data for development:
+The repository includes a comprehensive seed script that populates your database with test data:
 
 ```bash
-# Create seed script (example)
-cat > prisma/seed.ts << 'EOF'
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
-
-async function main() {
-  // Create test user
-  const user = await prisma.user.upsert({
-    where: { email: 'test@example.com' },
-    update: {},
-    create: {
-      email: 'test@example.com',
-      name: 'Test User',
-      address: '0x1234567890123456789012345678901234567890',
-    },
-  });
-
-  // Create test content
-  await prisma.content.create({
-    data: {
-      contentHash: '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
-      contentUri: 'ipfs://QmTest123',
-      manifestUri: 'ipfs://QmManifest123',
-      creatorAddress: user.address!,
-      creatorId: user.id,
-    },
-  });
-
-  console.log('Seeded database with test data');
-}
-
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
-EOF
-
-# Add to package.json scripts
-# "db:seed": "ts-node prisma/seed.ts"
-
-# Run seed
+# Seed the database with test data
 npm run db:seed
 ```
+
+This creates:
+- **5 test creator accounts** with deterministic Ethereum addresses
+- **5 sample content entries** (video, image, audio, document, tutorial)
+- **10 platform bindings** (YouTube, TikTok, GitHub, Instagram, Discord, LinkedIn)
+- **3 verification records** (mix of verified and failed)
+
+**Benefits:**
+- No need for manual API calls to create test data
+- Deterministic data for consistent testing
+- Ready-to-use platform bindings for verification testing
+- Front-end developers can work without on-chain writes
+
+**Reset Database:**
+
+To clear all data and reseed:
+
+```bash
+npm run db:reset
+```
+
+**⚠️ Warning:** This deletes ALL data in your database!
+
+**Documentation:**
+
+For detailed information about the seed data structure, test accounts, and usage examples, see [prisma/SEED_DATA.md](../prisma/SEED_DATA.md).
 
 ### 4. Smart Contract Setup
 
