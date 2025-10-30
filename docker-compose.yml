@@ -88,8 +88,8 @@ services:
       -c wal_level=replica
       -c archive_mode=on
       -c archive_command='test ! -f /var/lib/postgresql/backups/wal_archive/%f && cp %p /var/lib/postgresql/backups/wal_archive/%f'
-    expose:
-      - "5432"
+    ports:
+      - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
       - backup_data:/var/lib/postgresql/backups

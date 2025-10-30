@@ -5,6 +5,9 @@
   "engines": {
     "node": ">=10.16.0"
   },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "scripts": {
     "build": "hardhat compile",
     "clean": "hardhat clean",
@@ -46,6 +49,8 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev --name init",
     "db:studio": "prisma studio",
+    "db:seed": "ts-node prisma/seed.ts",
+    "db:reset": "prisma migrate reset --force && npm run db:seed",
     "db:verify-indexes": "ts-node scripts/verify-indexes.ts",
     "backup:full": "bash ops/backup/backup-database.sh full",
     "backup:incremental": "bash ops/backup/backup-database.sh incremental",

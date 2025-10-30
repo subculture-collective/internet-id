@@ -10,6 +10,6 @@
     "types": ["node", "hardhat"],
     "outDir": "dist"
   },
-  "include": ["hardhat.config.ts", "scripts", "test", "typechain-types"],
+  "include": ["hardhat.config.ts", "scripts", "test", "typechain-types", "prisma"],
   "files": ["./hardhat.config.ts"]
 }
