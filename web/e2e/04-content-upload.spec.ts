@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-import path from 'path';
 import { isCI } from './utils/test-helpers';
 
 test.describe('Content Upload and Registration', () => {
