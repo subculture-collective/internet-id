@@ -1,5 +1,6 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
+import "hardhat-gas-reporter";
 import * as dotenv from "dotenv";
 import { SUPPORTED_CHAINS } from "./config/chains";
 
@@ -11,6 +12,13 @@ const config: HardhatUserConfig = {
     settings: {
       optimizer: { enabled: true, runs: 200 },
     },
+  },
+  gasReporter: {
+    enabled: process.env.REPORT_GAS ? true : false,
+    currency: "USD",
+    outputFile: process.env.REPORT_GAS ? "gas-report.txt" : undefined,
+    noColors: process.env.REPORT_GAS ? true : false,
+    coinmarketcap: process.env.COINMARKETCAP_API_KEY,
   },
   networks: {
     hardhat: {},
