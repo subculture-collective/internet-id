@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Use the edge runtime for lower latency and global distribution of analytics endpoint.
+// This enables faster response times for users worldwide and efficient handling of analytics events.
 export const runtime = 'edge';
 
 export async function POST(request: NextRequest) {

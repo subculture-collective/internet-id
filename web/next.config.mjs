@@ -40,7 +40,7 @@ const nextConfig = {
   
   // Enable strict mode for better performance
   experimental: {
-    optimizePackageImports: ['qrcode', 'react-dom'],
+    optimizePackageImports: ['qrcode'],
   },
   
   // During build, lint but don't fail on pre-existing warnings/errors

@@ -90,17 +90,22 @@ export function prefetchRoute(href: string) {
 
 /**
  * Check if browser supports WebP format
+ * Result is memoized to avoid redundant checks
  */
+let webpSupportPromise: Promise<boolean> | null = null;
+
 export function supportsWebP(): Promise<boolean> {
   if (typeof window === 'undefined') return Promise.resolve(false);
-  
-  return new Promise((resolve) => {
+  if (webpSupportPromise) return webpSupportPromise;
+
+  webpSupportPromise = new Promise((resolve) => {
     const webP = new Image();
     webP.onload = webP.onerror = () => {
       resolve(webP.height === 2);
     };
     webP.src = 'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
   });
+  return webpSupportPromise;
 }
 
 /**

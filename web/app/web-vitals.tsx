@@ -15,7 +15,17 @@ export function WebVitals() {
 
     // Use `navigator.sendBeacon()` if available, falling back to `fetch()`
     if (navigator.sendBeacon) {
-      navigator.sendBeacon(url, body);
+      const queued = navigator.sendBeacon(url, body);
+      if (!queued) {
+        fetch(url, {
+          body,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          keepalive: true,
+        }).catch(console.error);
+      }
     } else {
       fetch(url, {
         body,

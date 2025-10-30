@@ -29,10 +29,14 @@ jobs:
           cache-dependency-path: 'web/package-lock.json'
       
       - name: Install root dependencies (for Prisma schema)
+        # Using --legacy-peer-deps to bypass peer dependency conflicts between next-auth and next@canary.
+        # The peer dependency issue will be resolved when next-auth is updated to support Next.js 15.
         run: npm ci --legacy-peer-deps
       
       - name: Install web dependencies
         working-directory: web
+        # Using --legacy-peer-deps to bypass peer dependency conflicts between next-auth and next@canary.
+        # The peer dependency issue will be resolved when next-auth is updated to support Next.js 15.
         run: npm ci --legacy-peer-deps
       
       - name: Build Next.js app with bundle analyzer
