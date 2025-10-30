@@ -83,11 +83,13 @@ Internet-ID is a decentralized content provenance system that enables creators t
 **Purpose**: Immutable on-chain registry for content provenance
 
 **Key Functions**:
+
 - `register(contentHash, manifestURI)` - Anchor content hash and manifest location on-chain
 - `bindPlatform(contentHash, platform, platformId)` - Link platform-specific IDs (e.g., YouTube video IDs) to original content
 - `resolveByPlatform(platform, platformId)` - Look up content by platform binding
 
 **Storage**:
+
 - Mapping: `contentHash → Entry(creator, manifestURI, timestamp)`
 - Mapping: `platformKey → contentHash` (for YouTube, TikTok, etc.)
 
@@ -100,6 +102,7 @@ Internet-ID is a decentralized content provenance system that enables creators t
 **Key Endpoints**:
 
 **Protected Endpoints** (require `x-api-key` header when `API_KEY` is set):
+
 - `POST /api/upload` - Upload files to IPFS
 - `POST /api/manifest` - Generate and optionally upload manifest JSON
 - `POST /api/register` - Register content hash on-chain via ContentRegistry
@@ -107,6 +110,7 @@ Internet-ID is a decentralized content provenance system that enables creators t
 - `POST /api/bind-many` - Bind multiple platform IDs in batch
 
 **Public Endpoints**:
+
 - `GET /api/health` - Server health check
 - `GET /api/contents` - List registered content
 - `POST /api/verify` - Verify file against manifest and on-chain entry
@@ -116,12 +120,14 @@ Internet-ID is a decentralized content provenance system that enables creators t
 - `GET /api/qr?url=...` - Generate QR code for share links
 
 **Key Services**:
+
 - **IPFS Service**: Multi-provider upload with automatic fallback (Web3.Storage → Pinata → Infura)
 - **Registry Service**: Blockchain interactions using ethers.js
 - **Cache Service**: Redis-based caching for performance (optional)
 - **Rate Limiting**: Tiered rate limits (strict/moderate/relaxed) using Redis or in-memory store
 
 **Dependencies**:
+
 - Express.js for HTTP server
 - Ethers.js v6 for blockchain interactions
 - Prisma ORM for database access
@@ -135,11 +141,13 @@ Internet-ID is a decentralized content provenance system that enables creators t
 **Key Models**:
 
 **Content Management**:
+
 - `Content` - Registered content with hash, manifest URI, creator info
 - `PlatformBinding` - Links content to platform-specific IDs
 - `Verification` - History of verification attempts
 
 **Authentication (NextAuth)**:
+
 - `User` - User accounts (email, wallet address)
 - `Account` - OAuth provider accounts (GitHub, Google, Twitter, etc.)
 - `Session` - Active user sessions
@@ -147,6 +155,7 @@ Internet-ID is a decentralized content provenance system that enables creators t
 **Schema Location**: Single source of truth at `prisma/schema.prisma`
 
 **Generators**: Two Prisma clients generated from one schema:
+
 - Root client for API/scripts: `./node_modules/@prisma/client`
 - Web client for Next.js: `../web/node_modules/.prisma/client`
 
@@ -159,28 +168,34 @@ Internet-ID is a decentralized content provenance system that enables creators t
 **Key Pages/Features**:
 
 **Upload & Registration**:
+
 - `/upload` - Upload files to IPFS
 - `/manifest` - Create manifest JSON
 - `/register` - Register content on-chain
 - `/oneshot` - One-click flow: upload → manifest → register (with optional content upload)
 
 **Verification**:
+
 - `/verify` - Public verification page (shareable)
 - `/proof` - Generate portable proof bundles
 
 **Platform Bindings**:
+
 - `/bind` - Bind single platform ID
 - `/bind-many` - Batch bind multiple platform IDs
 
 **Account & Auth**:
+
 - `/account` - User profile and linked OAuth accounts
 - NextAuth integration for GitHub, Google, Twitter, TikTok, etc.
 
 **Browse & Share**:
+
 - `/contents` - Browse registered content
 - Share block with badge, QR code, embed HTML
 
 **Technologies**:
+
 - Next.js 15 (App Router)
 - NextAuth v4 for authentication
 - React 18 (Server Components)
@@ -191,16 +206,19 @@ Internet-ID is a decentralized content provenance system that enables creators t
 **Purpose**: Decentralized storage for content files and manifest JSON
 
 **Providers** (with automatic fallback):
+
 1. **Web3.Storage** - Primary, free tier available
 2. **Pinata** - Fallback, JWT authentication
 3. **Infura** - Fallback, project credentials required
 4. **Local Kubo Node** - Optional, for self-hosting
 
 **What Gets Stored**:
+
 - Content files (videos, images, documents)
 - Manifest JSON files (metadata + signature)
 
 **Why IPFS**:
+
 - Content-addressed (CID = hash of content)
 - Decentralized and censorship-resistant
 - Verifiable integrity
@@ -332,6 +350,7 @@ When `REDIS_URL` is configured, the API uses Redis for:
 ### Database Indexes
 
 17 indexes optimize common queries:
+
 - Content lookup by hash (unique)
 - Creator filtering (non-unique)
 - Platform binding resolution (unique composite)
@@ -362,22 +381,22 @@ See: [Multi-Chain Deployment Guide](./MULTI_CHAIN_DEPLOYMENT.md)
 
 ## Technology Stack Summary
 
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| Smart Contracts | Solidity 0.8.20 | Immutable content registry |
-| Development | Hardhat + TypeScript | Contract compilation, testing, deployment |
-| Blockchain | Ethers.js v6 | Web3 interactions |
-| API | Express.js | REST API server |
-| Database | Prisma ORM | Type-safe database access |
-| Storage | PostgreSQL / SQLite | Relational data storage |
-| Cache | Redis | Performance optimization |
-| IPFS | ipfs-http-client | Decentralized file storage |
-| Web | Next.js 15 (App Router) | User interface |
-| Auth | NextAuth v4 | OAuth integration |
-| Validation | Zod | Input validation schemas |
-| Linting | ESLint + Prettier | Code quality |
-| Testing | Mocha + Chai | Unit and integration tests |
-| CI/CD | GitHub Actions | Automated testing |
+| Layer           | Technology              | Purpose                                   |
+| --------------- | ----------------------- | ----------------------------------------- |
+| Smart Contracts | Solidity 0.8.20         | Immutable content registry                |
+| Development     | Hardhat + TypeScript    | Contract compilation, testing, deployment |
+| Blockchain      | Ethers.js v6            | Web3 interactions                         |
+| API             | Express.js              | REST API server                           |
+| Database        | Prisma ORM              | Type-safe database access                 |
+| Storage         | PostgreSQL / SQLite     | Relational data storage                   |
+| Cache           | Redis                   | Performance optimization                  |
+| IPFS            | ipfs-http-client        | Decentralized file storage                |
+| Web             | Next.js 15 (App Router) | User interface                            |
+| Auth            | NextAuth v4             | OAuth integration                         |
+| Validation      | Zod                     | Input validation schemas                  |
+| Linting         | ESLint + Prettier       | Code quality                              |
+| Testing         | Mocha + Chai            | Unit and integration tests                |
+| CI/CD           | GitHub Actions          | Automated testing                         |
 
 ## Environment Configuration
 

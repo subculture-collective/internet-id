@@ -6,20 +6,20 @@ Welcome to Internet-ID! This guide will help you set up your development environ
 
 ### Required Tools
 
-| Tool | Minimum Version | Recommended | Check Version |
-|------|----------------|-------------|---------------|
-| Node.js | 18.0.0 | 20.12.0+ | `node --version` |
-| npm | 9.0.0 | 10.0.0+ | `npm --version` |
-| Git | 2.30.0 | Latest | `git --version` |
+| Tool    | Minimum Version | Recommended | Check Version    |
+| ------- | --------------- | ----------- | ---------------- |
+| Node.js | 18.0.0          | 20.12.0+    | `node --version` |
+| npm     | 9.0.0           | 10.0.0+     | `npm --version`  |
+| Git     | 2.30.0          | Latest      | `git --version`  |
 
 ### Optional Tools
 
-| Tool | Purpose | Installation |
-|------|---------|--------------|
-| Docker | PostgreSQL, Redis | [docker.com](https://www.docker.com/) |
-| Docker Compose | Orchestrate services | Included with Docker Desktop |
-| PostgreSQL Client | Database inspection | `psql` or GUI tool |
-| Redis Client | Cache inspection | `redis-cli` or RedisInsight |
+| Tool              | Purpose              | Installation                          |
+| ----------------- | -------------------- | ------------------------------------- |
+| Docker            | PostgreSQL, Redis    | [docker.com](https://www.docker.com/) |
+| Docker Compose    | Orchestrate services | Included with Docker Desktop          |
+| PostgreSQL Client | Database inspection  | `psql` or GUI tool                    |
+| Redis Client      | Cache inspection     | `redis-cli` or RedisInsight           |
 
 ## Quick Start (5 Minutes)
 
@@ -167,11 +167,13 @@ EOF
 ```
 
 **Generate `NEXTAUTH_SECRET`**:
+
 ```bash
 openssl rand -base64 32
 ```
 
 **Getting OAuth Credentials**:
+
 - **GitHub**: [github.com/settings/developers](https://github.com/settings/developers)
 - **Google**: [console.cloud.google.com](https://console.cloud.google.com/) → APIs & Services → Credentials
 - **Twitter**: [developer.twitter.com](https://developer.twitter.com/)
@@ -306,6 +308,7 @@ npm run deploy:base-sepolia
 ```
 
 **Getting Testnet Tokens**:
+
 - **Base Sepolia**: [faucet.quicknode.com/base/sepolia](https://faucet.quicknode.com/base/sepolia)
 - **Ethereum Sepolia**: [sepoliafaucet.com](https://sepoliafaucet.com/)
 - **Polygon Amoy**: [faucet.polygon.technology](https://faucet.polygon.technology/)
@@ -519,6 +522,7 @@ git push origin feature/your-feature-name
 ### 6. Pull Request Guidelines
 
 **Before submitting**:
+
 - [ ] All tests pass (`npm run test`)
 - [ ] Linting passes (`npm run lint`)
 - [ ] Code is formatted (`npm run format`)
@@ -527,23 +531,29 @@ git push origin feature/your-feature-name
 - [ ] Security scan clean (if contract changes)
 
 **PR Description Template**:
+
 ```markdown
 ## Summary
+
 Brief description of changes
 
 ## Changes Made
+
 - Item 1
 - Item 2
 
 ## Testing
+
 - [ ] Unit tests added/updated
 - [ ] Integration tests added/updated
 - [ ] Manual testing completed
 
 ## Screenshots (if UI changes)
+
 [Attach screenshots]
 
 ## Related Issues
+
 Closes #123
 ```
 
@@ -607,6 +617,7 @@ npm run dev
 #### 1. Database Connection Errors
 
 **SQLite**:
+
 ```bash
 # Check file exists
 ls -la dev.db
@@ -616,6 +627,7 @@ npm run db:migrate
 ```
 
 **PostgreSQL**:
+
 ```bash
 # Check Docker container
 docker compose ps
