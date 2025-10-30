@@ -1,0 +1,64 @@
+{
+  "budgets": [
+    {
+      "path": "/*",
+      "resourceSizes": [
+        {
+          "resourceType": "script",
+          "budget": 3000,
+          "baseline": 2570,
+          "target": 1500
+        },
+        {
+          "resourceType": "total",
+          "budget": 12000,
+          "baseline": 10220
+        },
+        {
+          "resourceType": "document",
+          "budget": 50
+        },
+        {
+          "resourceType": "stylesheet",
+          "budget": 50
+        },
+        {
+          "resourceType": "font",
+          "budget": 100
+        },
+        {
+          "resourceType": "image",
+          "budget": 200
+        }
+      ],
+      "timings": [
+        {
+          "metric": "interactive",
+          "budget": 5000
+        },
+        {
+          "metric": "first-contentful-paint",
+          "budget": 2000
+        },
+        {
+          "metric": "largest-contentful-paint",
+          "budget": 2500
+        },
+        {
+          "metric": "cumulative-layout-shift",
+          "budget": 0.1
+        }
+      ]
+    }
+  ],
+  "notes": {
+    "baseline": "Initial measurements taken 2025-10-30",
+    "measurements": {
+      "totalBuild": "10.22 MB",
+      "javascript": "2.57 MB",
+      "static": "736 KB"
+    },
+    "target": "Reduce JavaScript to 1.5 MB and total to 8 MB over time",
+    "strategy": "Implement code splitting and lazy loading to reduce initial bundle. The main page.tsx (1683 lines) should be split into separate form components."
+  }
+}

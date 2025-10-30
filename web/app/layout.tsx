@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import ErrorBoundary from "./components/ErrorBoundary";
+import { WebVitals } from "./web-vitals";
 
 export const metadata: Metadata = {
   title: "Internet-ID",
@@ -28,7 +29,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Preconnect to external domains for faster resource loading */}
+        <link rel="preconnect" href="https://ipfs.io" />
+        <link rel="dns-prefetch" href="https://ipfs.io" />
+      </head>
       <body suppressHydrationWarning>
+        <WebVitals />
         <ErrorBoundary>{children}</ErrorBoundary>
       </body>
     </html>
