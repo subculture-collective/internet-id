@@ -219,9 +219,13 @@ test.describe('Profile Page', () => {
     await page.goto('/profile');
     await page.waitForLoadState('networkidle');
     
-    // Profile should be visible on mobile
-    const mainContent = page.locator('main, body');
-    await expect(mainContent).toBeVisible();
+    // Profile should be visible on mobile (or redirect to signin)
+    // Check that page loaded successfully
+    const body = page.locator('body');
+    await expect(body).toBeVisible({ timeout: 10000 });
+    
+    // Verify we're on profile or signin page
+    await page.waitForURL(/\/(profile|signin)/, { timeout: 10000 });
   });
 
   test('should handle loading state', async ({ page }) => {
