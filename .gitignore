@@ -64,6 +64,10 @@ lerna-debug.log*
 out/
 .vercel/
 
+# Performance reports
+performance-report.json
+.lighthouseci/
+
 # Playwright E2E testing
 test-results/
 playwright-report/

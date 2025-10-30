@@ -24,7 +24,8 @@
     "test:e2e:report": "playwright show-report",
     "perf:audit": "lhci autorun",
     "perf:collect": "lhci collect",
-    "perf:assert": "lhci assert"
+    "perf:assert": "lhci assert",
+    "perf:report": "node scripts/performance-report.js"
   },
   "dependencies": {
     "@auth/pg-adapter": "^1.10.0",

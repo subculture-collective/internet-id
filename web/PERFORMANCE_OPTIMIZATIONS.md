@@ -32,6 +32,14 @@
   - Added `-webkit-font-smoothing: antialiased` for better rendering
   - Uses system fonts (already optimal, no external font loading)
 
+### 3a. Security and Performance Headers
+- **File**: `web/next.config.mjs`
+- **Headers Added**:
+  - `X-DNS-Prefetch-Control: on` - Enables DNS prefetching
+  - `X-Frame-Options: SAMEORIGIN` - Prevents clickjacking
+  - `X-Content-Type-Options: nosniff` - Prevents MIME type sniffing
+  - `Referrer-Policy: strict-origin-when-cross-origin` - Controls referrer information
+
 ### 4. Resource Hints
 - **File**: `web/app/layout.tsx`
 - **Changes**:
@@ -69,6 +77,24 @@
   - Reports bundle sizes in PR comments
   - Uploads bundle analysis artifacts
   - Prevents performance regressions
+
+### 8. Performance Utilities
+- **File**: `web/lib/performance.ts`
+- **Utilities**:
+  - `reportWebVitals()` - Send metrics to analytics
+  - `deferScript()` - Defer non-critical scripts
+  - `prefetchRoute()` - Prefetch routes for faster navigation
+  - `supportsWebP()` - Detect WebP support
+  - `observeImages()` - Lazy load images with Intersection Observer
+
+### 9. Performance Report Script
+- **File**: `web/scripts/performance-report.js`
+- **Features**:
+  - Analyzes build output size
+  - Compares against performance budgets
+  - Generates JSON report
+  - Fails CI if budgets are exceeded
+  - Run with: `npm run perf:report`
 
 ## Recommended Next Steps
 

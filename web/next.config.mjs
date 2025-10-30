@@ -35,11 +35,7 @@ const nextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   
-  // Optimize fonts
-  optimizeFonts: true,
-  
   // Production bundle optimizations
-  swcMinify: true,
   productionBrowserSourceMaps: false, // Disable source maps in production for smaller bundles
   
   // Enable strict mode for better performance
@@ -55,9 +51,30 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   
-  // Configure headers for better caching
+  // Configure headers for better caching and security
   async headers() {
     return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+        ],
+      },
       {
         source: '/:all*(svg|jpg|jpeg|png|gif|ico|webp|avif)',
         headers: [

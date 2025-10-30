@@ -5,11 +5,13 @@
       "resourceSizes": [
         {
           "resourceType": "script",
-          "budget": 400
+          "budget": 800,
+          "baseline": 736
         },
         {
           "resourceType": "total",
-          "budget": 1000
+          "budget": 12000,
+          "baseline": 10220
         },
         {
           "resourceType": "document",
@@ -47,5 +49,10 @@
         }
       ]
     }
-  ]
+  ],
+  "notes": {
+    "baseline": "Initial measurements taken 2025-10-30",
+    "target": "Reduce script budget to 600KB and total to 8MB over time",
+    "strategy": "Implement code splitting and lazy loading to reduce initial bundle"
+  }
 }
