@@ -11,6 +11,11 @@ This repo scaffolds a minimal on-chain content provenance flow:
 
 > Note: This proves provenance, not truth. It helps distinguish opted-in human-created content from anonymous deepfakes.
 
+**📚 Documentation:**
+- **New here?** Start with the [Contributor Onboarding Guide](./docs/CONTRIBUTOR_ONBOARDING.md)
+- **Architecture Overview:** See [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) for system design and component interactions
+- **Plain-English Pitch:** [PITCH.md](./PITCH.md) explains the problem and solution
+
 Looking for a plain-English overview? See the pitch: [PITCH.md](./PITCH.md)
 
 ## Stack
@@ -127,33 +132,55 @@ View the [CI workflow configuration](.github/workflows/ci.yml) and [workflow run
 
 ## Setup
 
-1. Install deps
-2. Configure `.env` (see `.env.example`):
-   - `PRIVATE_KEY` of the deployer/creator account
-   - `RPC_URL` for your preferred network (e.g., Base Sepolia, Ethereum Mainnet, Polygon, etc.)
-   - Optional: Chain-specific RPC URLs (e.g., `ETHEREUM_RPC_URL`, `POLYGON_RPC_URL`) to override defaults
-   - `IPFS_API_URL` and optional `IPFS_PROJECT_ID`/`IPFS_PROJECT_SECRET` for IPFS uploads
+**Quick Start:** See the [Contributor Onboarding Guide](./docs/CONTRIBUTOR_ONBOARDING.md) for detailed setup instructions.
 
-- Optional: `API_KEY` to require `x-api-key` on sensitive endpoints
-- Database: by default uses SQLite via `DATABASE_URL=file:./dev.db`. For Postgres, see below.
+### Essential Configuration
+
+1. **Install dependencies:**
+   ```bash
+   npm install --legacy-peer-deps
+   ```
+
+2. **Configure environment:**
+   ```bash
+   cp .env.example .env
+   # Edit .env and set:
+   # - PRIVATE_KEY (deployer wallet private key)
+   # - RPC_URL (blockchain RPC endpoint, e.g., https://sepolia.base.org)
+   # - IPFS provider (Web3.Storage, Pinata, or Infura credentials)
+   # - DATABASE_URL (default: file:./dev.db for SQLite)
+   # See .env.example for all options and descriptions
+   ```
+
+3. **Set up database:**
+   ```bash
+   npm run db:generate
+   npm run db:migrate
+   ```
+
+4. **Compile contracts:**
+   ```bash
+   npm run build
+   ```
+
+### Web App Configuration
+
+If you plan to use the web UI (`web/`), create `web/.env.local`:
+
+```bash
+cp web/.env.example web/.env.local
+# Edit web/.env.local and set:
+# - NEXT_PUBLIC_API_BASE (API server URL, e.g., http://localhost:3001)
+# - NEXTAUTH_SECRET (generate with: openssl rand -base64 32)
+# - DATABASE_URL (must match root .env)
+# - OAuth provider credentials (GitHub, Google, Twitter, etc.)
+# See web/.env.example for complete configuration
+```
 
 **Note on Multi-Chain Deployments:**
 - Each network requires a separate deployment of the ContentRegistry contract
 - Deployed addresses are saved in `deployed/<network>.json` files
 - The registry service automatically resolves the correct contract address based on the chain ID
-
-### Web app env
-
-If you plan to use the included web UI (`web/`), set:
-
-- `NEXT_PUBLIC_API_BASE` – base URL for the Express API (e.g., `http://localhost:3001`)
-- `NEXT_PUBLIC_API_KEY` – if your API enforces `x-api-key`
-- `NEXT_PUBLIC_SITE_BASE` – the canonical origin for generating share links/badges (e.g., `https://yourdomain.com`). Falls back to `window.location.origin`.
-- Auth providers (when using sign-in): set provider secrets in `web/.env.local`
-  - `GITHUB_ID`, `GITHUB_SECRET`
-  - `GOOGLE_ID`, `GOOGLE_SECRET`
-  - `NEXTAUTH_URL` (e.g., `http://localhost:3000`)
-  - `NEXTAUTH_SECRET` (generate a random string)
 
 ## Multi-Chain Support
 
@@ -630,6 +657,31 @@ npm run bind:youtube -- ./master.mp4 <YouTubeVideoId> 0xRegistry
 npm run verify:youtube -- https://www.youtube.com/watch?v=<YouTubeVideoId> 0xRegistry
 
 ```
+
+
+## Documentation
+
+### Getting Started
+
+- **[Contributor Onboarding Guide](./docs/CONTRIBUTOR_ONBOARDING.md)** - Complete setup instructions, development workflow, and troubleshooting
+- **[Architecture Overview](./docs/ARCHITECTURE.md)** - System design, component interactions, and data flow
+- **[PITCH.md](./PITCH.md)** - Plain-English explanation of the problem and solution
+
+### Technical Documentation
+
+- **[Input Validation](./docs/VALIDATION.md)** - Zod schemas and security validation
+- **[Caching Architecture](./docs/CACHING_ARCHITECTURE.md)** - Redis caching implementation details
+- **[Rate Limiting](./docs/RATE_LIMITING.md)** - API rate limiting configuration
+- **[Database Indexing Strategy](./docs/DATABASE_INDEXING_STRATEGY.md)** - Query optimization and indexes
+- **[Multi-Chain Deployment](./docs/MULTI_CHAIN_DEPLOYMENT.md)** - Deploying to multiple EVM chains
+- **[Platform Verification](./docs/PLATFORM_VERIFICATION.md)** - Platform binding details (YouTube, TikTok, etc.)
+
+### Operations & Security
+
+- **[Security Policy](./SECURITY_POLICY.md)** - Reporting vulnerabilities and security practices
+- **[Smart Contract Audit](./docs/SMART_CONTRACT_AUDIT.md)** - Security analysis and audit results
+- **[Database Backup & Recovery](./docs/ops/DATABASE_BACKUP_RECOVERY.md)** - Backup and disaster recovery procedures
+- **[Secret Management](./docs/ops/SECRET_MANAGEMENT.md)** - Managing sensitive credentials in production
 
 ## Next steps
 
