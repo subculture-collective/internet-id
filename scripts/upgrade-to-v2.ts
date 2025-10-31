@@ -76,15 +76,19 @@ async function main() {
   console.log("✓ Storage state preserved");
 
   // Update deployment info
+  const oldImplementation = deploymentInfo.implementation;
+  const oldVersion = deploymentInfo.version;
+  
+  deploymentInfo.previousImplementations = deploymentInfo.previousImplementations || [];
+  deploymentInfo.previousImplementations.push({
+    address: oldImplementation,
+    version: oldVersion,
+    deployedAt: deploymentInfo.deployedAt || deploymentInfo.upgradedAt,
+  });
+  
   deploymentInfo.implementation = newImplementationAddress;
   deploymentInfo.version = "2.0.0";
   deploymentInfo.upgradedAt = new Date().toISOString();
-  deploymentInfo.previousImplementations = deploymentInfo.previousImplementations || [];
-  deploymentInfo.previousImplementations.push({
-    address: deploymentInfo.implementation,
-    version: "1.0.0",
-    upgradedAt: deploymentInfo.upgradedAt,
-  });
 
   try {
     writeFileSync(deployedPath, JSON.stringify(deploymentInfo, null, 2));

@@ -12,9 +12,9 @@ contract ContentRegistryV2 is ContentRegistryV1 {
     /// @notice Counter for total registrations (new feature in V2)
     uint256 public totalRegistrations;
 
-    /// @notice Storage gap adjustment for V2 (reduced by 1 to account for new variable)
-    /// @dev We used 1 slot for totalRegistrations, so reduce __gap accordingly
-    uint256[46] private __gapV2;
+    /// @notice Storage gap for future upgrades (reduced by 1 for totalRegistrations)
+    /// @dev Original __gap was 47 slots, reduced to 46 for the new totalRegistrations variable
+    uint256[46] private __gap;
 
     /// @notice Emitted when content is registered (V2 enhanced event)
     event ContentRegisteredV2(bytes32 indexed contentHash, address indexed creator, string manifestURI, uint64 timestamp, uint256 registrationNumber);
@@ -27,19 +27,16 @@ contract ContentRegistryV2 is ContentRegistryV1 {
 
     /// @notice Register new content with its manifest URI (V2 with counter)
     /// @dev Content can only be registered once. Timestamp is used as existence check.
+    /// @dev This extends the base register function with a registration counter
     /// @param contentHash The hash of the content to register (e.g., SHA-256)
     /// @param manifestURI The URI pointing to the content's manifest file
     function registerV2(bytes32 contentHash, string calldata manifestURI) external {
-        require(entries[contentHash].timestamp == 0, "Already registered");
-        uint64 currentTime = uint64(block.timestamp);
-        entries[contentHash] = Entry({
-            creator: msg.sender,
-            timestamp: currentTime,
-            manifestURI: manifestURI
-        });
+        // Use parent register function for core logic
+        this.register(contentHash, manifestURI);
+        
+        // Add V2-specific functionality
         totalRegistrations++;
-        emit ContentRegisteredV2(contentHash, msg.sender, manifestURI, currentTime, totalRegistrations);
-        emit ContentRegistered(contentHash, msg.sender, manifestURI, currentTime);
+        emit ContentRegisteredV2(contentHash, msg.sender, manifestURI, uint64(block.timestamp), totalRegistrations);
     }
 
     /// @notice Get total number of registrations (new feature in V2)
