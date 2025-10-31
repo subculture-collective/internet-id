@@ -22,6 +22,10 @@ function generateApiKey(): string {
 
 /**
  * Hash an API key for storage
+ * 
+ * Note: SHA-256 is appropriate here because API keys are cryptographically random
+ * 32-byte values, not user-chosen passwords. Unlike passwords, they don't need
+ * slow key derivation functions like bcrypt/scrypt since they have sufficient entropy.
  */
 function hashApiKey(key: string): string {
   return createHash("sha256").update(key).digest("hex");
