@@ -67,7 +67,16 @@
     "format": "prettier --write \"**/*.{ts,js,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,js,json,md}\"",
     "security:scan": "bash scripts/security/scan-secrets.sh",
-    "security:setup-git-secrets": "bash scripts/security/setup-git-secrets.sh"
+    "security:setup-git-secrets": "bash scripts/security/setup-git-secrets.sh",
+    "docker:build:api": "docker build -f Dockerfile.api -t internet-id-api:latest --target runner .",
+    "docker:build:web": "docker build -f web/Dockerfile -t internet-id-web:latest --target runner .",
+    "docker:build": "npm run docker:build:api && npm run docker:build:web",
+    "docker:up:dev": "docker compose up -d",
+    "docker:up:staging": "docker compose -f docker-compose.staging.yml up -d",
+    "docker:up:production": "docker compose -f docker-compose.production.yml up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "smoke-test": "bash scripts/smoke-test.sh"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.1.0",

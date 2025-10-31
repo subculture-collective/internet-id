@@ -15,6 +15,9 @@ const withBundleAnalyzer = bundleAnalyzer({
 const nextConfig = {
   reactStrictMode: true,
   
+  // Docker support: Enable standalone output for optimized production builds
+  output: 'standalone',
+  
   // Performance: Enable production optimizations
   poweredByHeader: false, // Remove X-Powered-By header
   compress: true, // Enable gzip compression

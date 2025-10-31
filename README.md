@@ -324,6 +324,46 @@ npm run deploy:ethereum  # Ethereum mainnet (high cost, high security)
 
 ```
 
+## Docker Deployment
+
+For production and staging environments, use Docker for containerized deployment:
+
+### Quick Start with Docker Compose
+
+```bash
+# Development (local testing)
+docker compose up -d
+
+# Staging environment
+docker compose -f docker-compose.staging.yml up -d
+
+# Production environment
+docker compose -f docker-compose.production.yml up -d
+```
+
+### Container Images
+
+The project provides two Docker images:
+
+1. **API Server** (`Dockerfile.api`):
+   - Express API server
+   - Hardhat contracts
+   - Prisma database client
+   - Multi-stage build for optimized size
+
+2. **Web Application** (`web/Dockerfile`):
+   - Next.js application
+   - Standalone output for production
+   - Multi-stage build for optimized size
+
+### Environment-Specific Configurations
+
+- **Development**: `docker-compose.yml` - Local development with SQLite
+- **Staging**: `docker-compose.staging.yml` - Staging with PostgreSQL, Redis, auto-deployment
+- **Production**: `docker-compose.production.yml` - Production with HA, resource limits, backups
+
+See [Deployment Playbook](./docs/ops/DEPLOYMENT_PLAYBOOK.md) for complete deployment instructions.
+
 ## IPFS providers
 
 Set one of the following in `.env` before uploading. By default, the uploader tries providers in this order and falls back on failures: Web3.Storage → Pinata → Infura. You can also run a local IPFS node.
@@ -794,6 +834,12 @@ See the complete [E2E Testing Guide](./web/E2E_TESTING.md) for detailed document
 - **[Observability Quick Start](./docs/ops/OBSERVABILITY_QUICKSTART.md)** - 5-minute guide to monitoring in production
 - **[Database Backup & Recovery](./docs/ops/DATABASE_BACKUP_RECOVERY.md)** - Backup and disaster recovery procedures
 - **[Secret Management](./docs/ops/SECRET_MANAGEMENT.md)** - Managing sensitive credentials in production
+
+### Deployment & Infrastructure
+
+- **[Deployment Playbook](./docs/ops/DEPLOYMENT_PLAYBOOK.md)** - Complete guide for staging and production deployments
+- **[Environment Variables Reference](./docs/ops/ENVIRONMENT_VARIABLES.md)** - Comprehensive configuration documentation
+- **[Ops Scripts](./ops/README.md)** - Backup, restore, and SSL management scripts
 
 ## Next steps
 
