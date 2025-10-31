@@ -3,7 +3,10 @@ import { ethers } from "ethers";
 import { ConfigManager } from "../config";
 import { sha256HexFromFile, fetchManifest } from "../utils";
 
-export async function verifyCommand(input: string, options: any): Promise<void> {
+export async function verifyCommand(
+  input: string,
+  options: Record<string, string | undefined>
+): Promise<void> {
   console.log("🔍 Internet ID Verify\n");
 
   const config = new ConfigManager();
@@ -59,7 +62,7 @@ export async function verifyCommand(input: string, options: any): Promise<void> 
     // Fetch and verify manifest
     console.log("\n3️⃣  Fetching manifest...");
     const manifest = await fetchManifest(manifestUri);
-    contentHash = manifest.content_hash;
+    contentHash = manifest.content_hash as string;
     console.log(`   Content hash from manifest: ${contentHash}`);
     console.log(`   Creator DID: ${manifest.creator_did}`);
     console.log(`   Created at: ${manifest.created_at}`);
@@ -67,7 +70,7 @@ export async function verifyCommand(input: string, options: any): Promise<void> 
     // Verify signature
     console.log("\n4️⃣  Verifying signature...");
     const messageBytes = ethers.getBytes(contentHash);
-    const recoveredAddress = ethers.verifyMessage(messageBytes, manifest.signature);
+    const recoveredAddress = ethers.verifyMessage(messageBytes, manifest.signature as string);
     console.log(`   Recovered signer: ${recoveredAddress}`);
 
     // Verify on-chain
@@ -109,8 +112,9 @@ export async function verifyCommand(input: string, options: any): Promise<void> 
       console.log(`   Match: ${entry.creator.toLowerCase() === recoveredAddress.toLowerCase()}`);
       process.exit(1);
     }
-  } catch (error: any) {
-    console.error(`\n❌ Error: ${error.message || error}`);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`\n❌ Error: ${errorMessage}`);
     process.exit(1);
   }
 }

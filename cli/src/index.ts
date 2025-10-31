@@ -19,8 +19,9 @@ program
   .action(async () => {
     try {
       await initCommand();
-    } catch (error: any) {
-      console.error(`Error: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error(`Error: ${errorMessage}`);
       process.exit(1);
     }
   });
@@ -37,11 +38,12 @@ program
   .option("-r, --rpc-url <url>", "RPC URL (overrides config)")
   .option("-g, --registry <address>", "Registry contract address (overrides config)")
   .option("-p, --ipfs-provider <provider>", "IPFS provider: web3storage, pinata, infura, local")
-  .action(async (file: string, options: any) => {
+  .action(async (file: string, options: Record<string, string | boolean | undefined>) => {
     try {
       await uploadCommand(file, options);
-    } catch (error: any) {
-      console.error(`Error: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error(`Error: ${errorMessage}`);
       process.exit(1);
     }
   });
@@ -54,11 +56,12 @@ program
   )
   .option("-r, --rpc-url <url>", "RPC URL (overrides config)")
   .option("-g, --registry <address>", "Registry contract address (overrides config)")
-  .action(async (input: string, options: any) => {
+  .action(async (input: string, options: Record<string, string | undefined>) => {
     try {
       await verifyCommand(input, options);
-    } catch (error: any) {
-      console.error(`Error: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error(`Error: ${errorMessage}`);
       process.exit(1);
     }
   });

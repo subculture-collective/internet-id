@@ -42,7 +42,7 @@ export function getAddress(privateKey: string): string {
  */
 export async function uploadToIpfs(
   filePath: string,
-  provider: "web3storage" | "pinata" | "infura",
+  provider: "web3storage" | "pinata" | "infura" | "local",
   credentials: {
     web3StorageToken?: string;
     pinataJwt?: string;
@@ -61,6 +61,13 @@ export async function uploadToIpfs(
       credentials.ipfsApiUrl || "https://ipfs.infura.io:5001",
       credentials.infuraProjectId!,
       credentials.infuraProjectSecret!
+    );
+  } else if (provider === "local") {
+    return uploadViaInfura(
+      filePath,
+      credentials.ipfsApiUrl || "http://127.0.0.1:5001",
+      "",
+      ""
     );
   }
   throw new Error("Unsupported IPFS provider");
@@ -122,7 +129,7 @@ async function uploadViaInfura(
 /**
  * Fetch manifest from IPFS or HTTP(S)
  */
-export async function fetchManifest(uri: string): Promise<any> {
+export async function fetchManifest(uri: string): Promise<Record<string, unknown>> {
   if (uri.startsWith("ipfs://")) {
     const path = uri.replace("ipfs://", "");
     const url = `https://ipfs.io/ipfs/${path}`;
@@ -144,7 +151,7 @@ export function createManifest(
   contentUri: string,
   creatorAddress: string,
   signature: string
-): any {
+): Record<string, unknown> {
   return {
     version: "1.0",
     algorithm: "sha256",

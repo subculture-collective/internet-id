@@ -1,9 +1,12 @@
-import { readFileSync, existsSync } from "fs";
+import { existsSync, writeFileSync } from "fs";
 import { ethers } from "ethers";
 import { ConfigManager } from "../config";
 import { sha256HexFromFile, signMessage, getAddress, uploadToIpfs, createManifest } from "../utils";
 
-export async function uploadCommand(filePath: string, options: any): Promise<void> {
+export async function uploadCommand(
+  filePath: string,
+  options: Record<string, string | boolean | undefined>
+): Promise<void> {
   console.log("📤 Internet ID Upload & Register\n");
 
   // Validate file exists
@@ -14,10 +17,14 @@ export async function uploadCommand(filePath: string, options: any): Promise<voi
 
   // Load configuration
   const config = new ConfigManager();
-  const privateKey = options.privateKey || config.get("privateKey");
-  const rpcUrl = options.rpcUrl || config.get("rpcUrl");
-  const registryAddress = options.registry || config.get("registryAddress");
-  const ipfsProvider = (options.ipfsProvider || config.get("ipfsProvider")) as any;
+  const privateKey = (options.privateKey || config.get("privateKey")) as string;
+  const rpcUrl = (options.rpcUrl || config.get("rpcUrl")) as string;
+  const registryAddress = (options.registry || config.get("registryAddress")) as string;
+  const ipfsProvider = (options.ipfsProvider || config.get("ipfsProvider")) as
+    | "web3storage"
+    | "pinata"
+    | "infura"
+    | "local";
 
   if (!privateKey) {
     console.error("❌ Error: Private key not configured. Run: internet-id init");
@@ -69,7 +76,7 @@ export async function uploadCommand(filePath: string, options: any): Promise<voi
     console.log("\n4️⃣  Uploading manifest to IPFS...");
     const manifestJson = JSON.stringify(manifest, null, 2);
     const manifestPath = `/tmp/manifest-${Date.now()}.json`;
-    require("fs").writeFileSync(manifestPath, manifestJson);
+    writeFileSync(manifestPath, manifestJson);
 
     const credentials = {
       web3StorageToken: config.get("web3StorageToken"),
@@ -108,8 +115,9 @@ export async function uploadCommand(filePath: string, options: any): Promise<voi
     console.log(`   Manifest URI: ${manifestUri}`);
     console.log(`   Transaction: ${receipt?.hash}`);
     console.log(`   Registry: ${registryAddress}`);
-  } catch (error: any) {
-    console.error(`\n❌ Error: ${error.message || error}`);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`\n❌ Error: ${errorMessage}`);
     process.exit(1);
   }
 }

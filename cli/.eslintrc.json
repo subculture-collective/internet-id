@@ -10,7 +10,10 @@
     "sourceType": "module",
     "project": "./tsconfig.json"
   },
-  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
   "plugins": ["@typescript-eslint"],
   "rules": {
     "@typescript-eslint/no-explicit-any": "warn",
@@ -22,15 +25,5 @@
       }
     ]
   },
-  "ignorePatterns": [
-    "node_modules/",
-    "dist/",
-    "cache/",
-    "artifacts/",
-    "typechain-types/",
-    "coverage/",
-    ".nyc_output/",
-    "web/",
-    "cli/"
-  ]
+  "ignorePatterns": ["node_modules/", "dist/"]
 }

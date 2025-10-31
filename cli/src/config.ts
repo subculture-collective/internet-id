@@ -31,7 +31,7 @@ export class ConfigManager {
         const data = fs.readFileSync(this.configPath, "utf-8");
         return JSON.parse(data);
       }
-    } catch (error) {
+    } catch (_error) {
       console.warn("Warning: Could not load config file, using defaults");
     }
     return {};
@@ -49,8 +49,9 @@ export class ConfigManager {
     return this.config[key];
   }
 
-  public set(key: keyof InternetIdConfig, value: any): void {
-    this.config[key] = value;
+  public set(key: keyof InternetIdConfig, value: string | undefined): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (this.config as any)[key] = value;
   }
 
   public getAll(): InternetIdConfig {
