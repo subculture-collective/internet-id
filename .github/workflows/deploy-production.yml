@@ -171,7 +171,9 @@ jobs:
             git checkout $VERSION
             
             # Pull new images
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            # Note: GITHUB_TOKEN is used for container registry authentication
+            # Ensure Docker login output is not echoed to logs
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin 2>&1 | grep -v "WARNING"
             docker compose -f $COMPOSE_FILE pull
             
             # Run database migrations

@@ -48,6 +48,7 @@ server {
     add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
     
     # Content Security Policy - Adjust based on your application needs
+    # TODO: Remove 'unsafe-inline' and 'unsafe-eval' by using nonces/hashes for better XSS protection
     add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://ipfs.io https://*.infura.io https://*.web3.storage https://*.pinata.cloud https://sepolia.base.org https://*.base.org; frame-ancestors 'none'; base-uri 'self'; form-action 'self';" always;
     
     # X-Frame-Options (prevent clickjacking)

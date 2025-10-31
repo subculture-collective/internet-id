@@ -96,8 +96,8 @@ fi
 if [ "$BASE_URL" = "http://localhost:3001" ]; then
     WEB_URL="http://localhost:3000"
 else
-    WEB_URL="${BASE_URL/api/}"
-    WEB_URL="${WEB_URL%/}"
+    # Extract protocol and domain, remove /api path if present
+    WEB_URL=$(echo "$BASE_URL" | sed 's|/api.*$||')
 fi
 
 echo ""
