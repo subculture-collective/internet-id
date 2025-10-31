@@ -1,0 +1,50 @@
+# Dependencies
+node_modules
+../node_modules
+
+# Build outputs
+.next
+out
+
+# Database files
+*.db
+*.db-journal
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.local
+.env*.local
+
+# Testing
+test-results
+playwright-report
+playwright/.cache
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp
+*.tmp
+
+# Cache
+.cache
+.eslintcache
+
+# Documentation
+*.md
+!README.md
+
+# Git
+.git
+.gitignore

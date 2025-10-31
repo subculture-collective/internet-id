@@ -1,0 +1,319 @@
+name: Deploy to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag to deploy (e.g., v1.0.0 or git SHA)'
+        required: true
+        type: string
+      skip_tests:
+        description: 'Skip smoke tests after deployment (NOT RECOMMENDED)'
+        required: false
+        default: 'false'
+        type: boolean
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  API_IMAGE_NAME: ${{ github.repository }}-api
+  WEB_IMAGE_NAME: ${{ github.repository }}-web
+
+jobs:
+  # Pre-deployment validation
+  validate:
+    name: Pre-deployment Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.version }}
+      
+      - name: Validate version exists
+        run: |
+          if ! git rev-parse ${{ github.event.inputs.version }} >/dev/null 2>&1; then
+            echo "❌ Version ${{ github.event.inputs.version }} does not exist"
+            exit 1
+          fi
+          echo "✅ Version ${{ github.event.inputs.version }} validated"
+      
+      - name: Check for breaking changes
+        run: |
+          echo "Checking for database migrations..."
+          if git diff HEAD~1 HEAD -- prisma/schema.prisma | grep -q "^+"; then
+            echo "⚠️ Database schema changes detected"
+            echo "Ensure migrations are tested in staging first!"
+          fi
+
+  # Build and push production images
+  build:
+    name: Build Production Images
+    runs-on: ubuntu-latest
+    needs: validate
+    
+    outputs:
+      api_image_tag: ${{ steps.meta-api.outputs.tags }}
+      web_image_tag: ${{ steps.meta-web.outputs.tags }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.version }}
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Extract API metadata
+        id: meta-api
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.API_IMAGE_NAME }}
+          tags: |
+            type=raw,value=${{ github.event.inputs.version }}
+            type=raw,value=production-latest
+      
+      - name: Build and push API image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.api
+          push: true
+          tags: ${{ steps.meta-api.outputs.tags }}
+          labels: ${{ steps.meta-api.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          target: runner
+      
+      - name: Extract Web metadata
+        id: meta-web
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.WEB_IMAGE_NAME }}
+          tags: |
+            type=raw,value=${{ github.event.inputs.version }}
+            type=raw,value=production-latest
+      
+      - name: Build and push Web image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./web/Dockerfile
+          push: true
+          tags: ${{ steps.meta-web.outputs.tags }}
+          labels: ${{ steps.meta-web.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          target: runner
+
+  # Deploy to production with manual approval
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: production
+      url: https://internet-id.example.com
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.version }}
+      
+      - name: Create backup before deployment
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USER }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          script: |
+            cd /opt/internet-id
+            
+            # Create pre-deployment backup
+            docker compose -f docker-compose.production.yml exec -T backup \
+              /opt/backup-scripts/backup-database.sh full
+            
+            echo "✅ Pre-deployment backup completed"
+      
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        env:
+          VERSION: ${{ github.event.inputs.version }}
+          COMPOSE_FILE: docker-compose.production.yml
+          API_IMAGE: ${{ needs.build.outputs.api_image_tag }}
+          WEB_IMAGE: ${{ needs.build.outputs.web_image_tag }}
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USER }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          envs: VERSION,COMPOSE_FILE,API_IMAGE,WEB_IMAGE
+          script: |
+            cd /opt/internet-id
+            
+            # Record current version for rollback
+            git rev-parse HEAD > .deployment-backup
+            
+            # Pull new version
+            git fetch origin
+            git checkout $VERSION
+            
+            # Pull new images
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            docker compose -f $COMPOSE_FILE pull
+            
+            # Run database migrations
+            echo "Running database migrations..."
+            docker compose -f $COMPOSE_FILE run --rm api npx prisma migrate deploy
+            
+            # Blue-green deployment: Start new containers
+            echo "Starting new containers..."
+            docker compose -f $COMPOSE_FILE up -d --no-deps --scale api=4 --scale web=4 --no-recreate api web
+            
+            # Wait for new containers to be healthy
+            echo "Waiting for health checks..."
+            sleep 30
+            
+            # Verify health
+            for i in {1..5}; do
+              if docker compose -f $COMPOSE_FILE ps api | grep -q "healthy"; then
+                echo "✅ New containers are healthy"
+                break
+              fi
+              if [ $i -eq 5 ]; then
+                echo "❌ Health check failed"
+                exit 1
+              fi
+              sleep 10
+            done
+            
+            # Scale down old containers
+            echo "Scaling down old containers..."
+            docker compose -f $COMPOSE_FILE up -d --no-deps --scale api=2 --scale web=2 api web
+            
+            # Final cleanup
+            docker image prune -af --filter "until=48h"
+            
+            echo "✅ Production deployment completed"
+      
+      - name: Wait for stabilization
+        run: sleep 60
+      
+      - name: Run smoke tests
+        if: ${{ github.event.inputs.skip_tests != 'true' }}
+        run: |
+          echo "Running smoke tests against production environment..."
+          
+          # Health check for API
+          API_HEALTH=$(curl -s -o /dev/null -w "%{http_code}" https://internet-id.example.com/api/health)
+          if [ "$API_HEALTH" != "200" ]; then
+            echo "❌ API health check failed with status: $API_HEALTH"
+            exit 1
+          fi
+          echo "✅ API health check passed"
+          
+          # Health check for Web
+          WEB_HEALTH=$(curl -s -o /dev/null -w "%{http_code}" https://internet-id.example.com)
+          if [ "$WEB_HEALTH" != "200" ]; then
+            echo "❌ Web health check failed with status: $WEB_HEALTH"
+            exit 1
+          fi
+          echo "✅ Web health check passed"
+          
+          # Check API metrics endpoint
+          METRICS_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://internet-id.example.com/api/metrics)
+          if [ "$METRICS_STATUS" != "200" ]; then
+            echo "❌ Metrics endpoint check failed"
+            exit 1
+          fi
+          echo "✅ Metrics endpoint check passed"
+          
+          # Check database connectivity
+          NETWORK_STATUS=$(curl -s https://internet-id.example.com/api/network | jq -r '.chainId')
+          if [ -z "$NETWORK_STATUS" ]; then
+            echo "❌ API network check failed"
+            exit 1
+          fi
+          echo "✅ API network check passed (chainId: $NETWORK_STATUS)"
+          
+          # Verify content registration endpoint is accessible
+          REGISTRY_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://internet-id.example.com/api/registry)
+          if [ "$REGISTRY_STATUS" != "200" ]; then
+            echo "❌ Registry endpoint check failed"
+            exit 1
+          fi
+          echo "✅ Registry endpoint check passed"
+          
+          echo "🎉 All smoke tests passed!"
+      
+      - name: Notify success
+        if: success()
+        run: |
+          echo "🎉 Production deployment successful!"
+          echo "Version: ${{ github.event.inputs.version }}"
+          # Add notification logic here (Slack, Discord, email, etc.)
+      
+      - name: Notify failure
+        if: failure()
+        run: |
+          echo "❌ Production deployment failed!"
+          echo "Immediate rollback recommended!"
+          # Add notification logic here (Slack, Discord, email, etc.)
+
+  # Rollback workflow
+  rollback:
+    name: Rollback Production
+    runs-on: ubuntu-latest
+    needs: [validate, build, deploy]
+    if: failure()
+    environment:
+      name: production
+    
+    steps:
+      - name: Emergency rollback
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USER }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          script: |
+            cd /opt/internet-id
+            
+            echo "🚨 Initiating emergency rollback..."
+            
+            # Get previous version
+            PREV_VERSION=$(cat .deployment-backup)
+            
+            if [ -z "$PREV_VERSION" ]; then
+              echo "❌ No backup version found"
+              exit 1
+            fi
+            
+            # Checkout previous version
+            git checkout $PREV_VERSION
+            
+            # Restore from backup if needed
+            echo "Checking if database rollback is needed..."
+            # docker compose -f docker-compose.production.yml exec -T backup \
+            #   /opt/backup-scripts/restore-database.sh full
+            
+            # Rollback containers
+            docker compose -f docker-compose.production.yml up -d --force-recreate
+            
+            # Wait for health
+            sleep 30
+            
+            echo "✅ Rollback completed to version: $PREV_VERSION"
+            echo "⚠️ Manual verification required!"

@@ -1,0 +1,136 @@
+version: "3.9"
+
+# Docker Compose configuration for STAGING environment
+# This file extends docker-compose.yml with staging-specific settings
+
+services:
+  # Nginx reverse proxy with SSL/TLS termination
+  nginx:
+    environment:
+      - DOMAIN=${DOMAIN:-staging.internet-id.example.com}
+      - NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx/conf.d
+    volumes:
+      - ./ops/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ops/nginx/conf.d/staging.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - certbot_www:/var/www/certbot:ro
+      - certbot_conf:/etc/letsencrypt:ro
+      - nginx_logs:/var/log/nginx
+
+  # Express API server
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+      target: runner
+    image: internet-id-api:staging
+    environment:
+      - NODE_ENV=staging
+      - DATABASE_URL=${DATABASE_URL}
+      - API_KEY=${API_KEY}
+      - RPC_URL=${RPC_URL}
+      - IPFS_API_URL=${IPFS_API_URL}
+      - WEB3_STORAGE_TOKEN=${WEB3_STORAGE_TOKEN}
+      - PINATA_JWT=${PINATA_JWT}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - LOG_LEVEL=${LOG_LEVEL:-debug}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Next.js web application
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+      target: runner
+    image: internet-id-web:staging
+    environment:
+      - NODE_ENV=staging
+      - NEXT_PUBLIC_API_BASE=${NEXT_PUBLIC_API_BASE:-https://${DOMAIN}/api}
+      - NEXT_PUBLIC_SITE_BASE=${NEXT_PUBLIC_SITE_BASE:-https://${DOMAIN}}
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-https://${DOMAIN}}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - DATABASE_URL=${DATABASE_URL}
+      - GITHUB_ID=${GITHUB_ID}
+      - GITHUB_SECRET=${GITHUB_SECRET}
+      - GOOGLE_ID=${GOOGLE_ID}
+      - GOOGLE_SECRET=${GOOGLE_SECRET}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # PostgreSQL database
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-internetid}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-internetid_staging}
+      # Enable WAL archiving for point-in-time recovery
+    command: >
+      postgres
+      -c wal_level=replica
+      -c archive_mode=on
+      -c archive_command='test ! -f /var/lib/postgresql/backups/wal_archive/%f && cp %p /var/lib/postgresql/backups/wal_archive/%f'
+      -c max_wal_size=1GB
+      -c min_wal_size=80MB
+    volumes:
+      - db_data_staging:/var/lib/postgresql/data
+      - backup_data_staging:/var/lib/postgresql/backups
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis cache
+  redis:
+    image: redis:7-alpine
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data_staging:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backup service for automated database backups
+  backup:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-internetid}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-internetid_staging}
+      BACKUP_DIR: /var/lib/postgresql/backups
+      RETENTION_DAYS: ${RETENTION_DAYS:-7}
+      S3_BUCKET: ${S3_BUCKET:-}
+      S3_REGION: ${S3_REGION:-us-east-1}
+    volumes:
+      - backup_data_staging:/var/lib/postgresql/backups
+      - ./ops/backup:/opt/backup-scripts:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    entrypoint: /bin/sh
+    command: -c "apk add --no-cache bash && while true; do /opt/backup-scripts/backup-database.sh full; sleep 86400; done"
+    restart: unless-stopped
+
+volumes:
+  db_data_staging:
+  backup_data_staging:
+  redis_data_staging:
+  certbot_www:
+  certbot_conf:
+  certbot_logs:
+  nginx_logs:

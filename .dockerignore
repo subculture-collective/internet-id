@@ -1,0 +1,83 @@
+# Git
+.git
+.gitignore
+.github
+
+# Dependencies
+node_modules
+web/node_modules
+
+# Build outputs
+.next
+dist
+build
+out
+typechain-types
+
+# Database
+*.db
+*.db-journal
+dev.db
+dev.db-journal
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Environment files
+.env
+.env.local
+.env*.local
+web/.env.local
+web/.env*.local
+
+# Testing
+coverage
+.nyc_output
+test-results
+playwright-report
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp
+temp
+*.tmp
+
+# Documentation (not needed in container)
+*.md
+!README.md
+docs
+
+# CI/CD
+.github/workflows
+
+# Backup files
+backup_data
+backups
+
+# Cache
+.cache
+.parcel-cache
+.eslintcache
+
+# Hardhat
+cache
+artifacts
+
+# Misc
+proof.json
+manifest.json

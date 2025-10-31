@@ -1,34 +1,76 @@
 # Dockerfile for Internet-ID API Server
-FROM node:20-alpine
+# Multi-stage build for optimized production image
+
+# Stage 1: Dependencies
+FROM node:20-alpine AS deps
+WORKDIR /app
 
 # Install build dependencies
 RUN apk add --no-cache python3 make g++
-
-# Set working directory
-WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
 COPY tsconfig.json ./
 
-# Install dependencies
+# Install dependencies (production only)
 RUN npm ci --legacy-peer-deps --only=production
+
+# Stage 2: Builder
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+# Install build dependencies
+RUN apk add --no-cache python3 make g++
+
+# Copy package files
+COPY package*.json ./
+COPY tsconfig.json ./
+
+# Install all dependencies (including dev dependencies for build)
+RUN npm ci --legacy-peer-deps
 
 # Copy application files
 COPY scripts ./scripts
 COPY contracts ./contracts
 COPY prisma ./prisma
+COPY config ./config
 COPY hardhat.config.ts ./
 
 # Generate Prisma client
 RUN npx prisma generate
 
-# Compile TypeScript (for scripts)
-RUN npm run build || true
+# Compile contracts and TypeScript
+RUN npm run build
+
+# Stage 3: Production runner
+FROM node:20-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+# Install runtime dependencies only
+RUN apk add --no-cache bash
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001
+
+# Copy production dependencies from deps stage
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/package*.json ./
+
+# Copy built artifacts from builder stage
+COPY --from=builder /app/scripts ./scripts
+COPY --from=builder /app/contracts ./contracts
+COPY --from=builder /app/config ./config
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/typechain-types ./typechain-types
+COPY --from=builder /app/artifacts ./artifacts
+COPY --from=builder /app/hardhat.config.ts ./
+COPY --from=builder /app/tsconfig.json ./
+
+# Generate Prisma client in production stage
+RUN npx prisma generate
 
 # Set ownership
 RUN chown -R nodejs:nodejs /app
