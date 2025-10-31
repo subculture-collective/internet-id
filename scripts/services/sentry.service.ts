@@ -262,7 +262,7 @@ class SentryService {
    */
   getErrorHandler(): ReturnType<typeof Sentry.Handlers.errorHandler> {
     if (!this.initialized) {
-      return ((_err, _req, _res, next) => next()) as ReturnType<typeof Sentry.Handlers.errorHandler>;
+      return ((_err, _req, _res, next) => next(_err)) as ReturnType<typeof Sentry.Handlers.errorHandler>;
     }
     return Sentry.Handlers.errorHandler({
       shouldHandleError() {

@@ -115,13 +115,6 @@ export async function createApp() {
       correlationId: req.correlationId,
     });
 
-    // Capture error in Sentry
-    sentryService.captureException(err, {
-      method: req.method,
-      path: req.path,
-      correlationId: req.correlationId,
-    });
-
     res.status(err.status || 500).json({
       error: process.env.NODE_ENV === "production" 
         ? "Internal server error" 
