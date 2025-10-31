@@ -1,4 +1,4 @@
-import * as pino from "pino";
+import pino = require("pino");
 import { randomUUID } from "crypto";
 
 /**

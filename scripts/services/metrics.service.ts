@@ -1,4 +1,4 @@
-import * as client from "prom-client";
+import client = require("prom-client");
 import { logger } from "./logger.service";
 
 /**
