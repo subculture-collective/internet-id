@@ -9,6 +9,7 @@ import { validateQuery } from "../validation/middleware";
 import { resolveQuerySchema, publicVerifyQuerySchema } from "../validation/schemas";
 import { cacheService, DEFAULT_TTL } from "../services/cache.service";
 import { prisma } from "../db";
+import { metricsService } from "../services/metrics.service";
 
 const router = Router();
 
@@ -28,19 +29,23 @@ router.get("/health", async (_req: Request, res: Response) => {
     try {
       await prisma.$queryRaw`SELECT 1`;
       checks.services.database = { status: "healthy" };
+      metricsService.updateHealthCheckStatus("database", "healthy", true);
     } catch (dbError: any) {
       checks.services.database = { 
         status: "unhealthy", 
         error: dbError.message 
       };
       checks.status = "degraded";
+      metricsService.updateHealthCheckStatus("database", "unhealthy", false);
     }
 
     // Check cache service
+    const cacheAvailable = cacheService.isAvailable();
     checks.services.cache = {
-      status: cacheService.isAvailable() ? "healthy" : "disabled",
-      enabled: cacheService.isAvailable(),
+      status: cacheAvailable ? "healthy" : "disabled",
+      enabled: cacheAvailable,
     };
+    metricsService.updateHealthCheckStatus("cache", cacheAvailable ? "healthy" : "degraded", cacheAvailable);
 
     // Check blockchain RPC connectivity
     try {
@@ -52,13 +57,19 @@ router.get("/health", async (_req: Request, res: Response) => {
         status: "healthy",
         blockNumber,
       };
+      metricsService.updateHealthCheckStatus("blockchain", "healthy", true);
     } catch (rpcError: any) {
       checks.services.blockchain = {
         status: "unhealthy",
         error: rpcError.message,
       };
       checks.status = "degraded";
+      metricsService.updateHealthCheckStatus("blockchain", "unhealthy", false);
     }
+
+    // Update overall health status metric
+    const overallHealthy = checks.status === "ok";
+    metricsService.updateHealthCheckStatus("api", checks.status, overallHealthy);
 
     const statusCode = checks.status === "ok" ? 200 : 503;
     res.status(statusCode).json(checks);
@@ -216,7 +227,7 @@ router.get(
         });
 
       // Cache manifest fetching
-      let manifest: any = null;
+      let manifest = null;
       try {
         const manifestCacheKey = `manifest:${entry.manifestURI}`;
         manifest = await cacheService.getOrSet(
@@ -226,7 +237,9 @@ router.get(
           },
           { ttl: DEFAULT_TTL.MANIFEST }
         );
-      } catch {}
+      } catch (_error) {
+        // Manifest fetch failed, continue without it
+      }
 
       return res.json({
         ...parsed,
