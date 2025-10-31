@@ -11,6 +11,7 @@ export function metricsMiddleware() {
     // Capture response to record metrics
     const originalSend = res.send;
     res.send = function (data: any) {
+      // Restore original send first to prevent recursion
       res.send = originalSend;
       
       const durationSeconds = (Date.now() - startTime) / 1000;
@@ -24,7 +25,7 @@ export function metricsMiddleware() {
         durationSeconds
       );
 
-      return res.send(data);
+      return originalSend.call(this, data);
     };
 
     next();

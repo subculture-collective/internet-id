@@ -152,8 +152,7 @@ export function requestLoggerMiddleware() {
     req.log = logger.child({ correlationId });
 
     // Log incoming request
-    req.log.info({
-      msg: "Incoming request",
+    req.log.info("Incoming request", {
       method: req.method,
       url: req.url,
       userAgent: req.headers["user-agent"],
@@ -163,18 +162,18 @@ export function requestLoggerMiddleware() {
     // Capture response
     const originalSend = res.send;
     res.send = function (data: any) {
+      // Restore original send first to prevent recursion
       res.send = originalSend;
       const duration = Date.now() - startTime;
 
-      req.log.info({
-        msg: "Request completed",
+      req.log.info("Request completed", {
         method: req.method,
         url: req.url,
         statusCode: res.statusCode,
         duration,
       });
 
-      return res.send(data);
+      return originalSend.call(this, data);
     };
 
     next();
