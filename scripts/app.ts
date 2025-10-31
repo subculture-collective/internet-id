@@ -34,12 +34,22 @@ import { logger, requestLoggerMiddleware } from "./services/logger.service";
 import { metricsService } from "./services/metrics.service";
 import { metricsMiddleware } from "./middleware/metrics.middleware";
 import metricsRoutes from "./routes/metrics.routes";
+import { sentryService } from "./services/sentry.service";
 
 export async function createApp() {
+  // Initialize Sentry error tracking
+  sentryService.initialize();
+
   // Initialize cache service
   await cacheService.connect();
 
   const app = express();
+  
+  // Sentry request handler (must be first middleware)
+  app.use(sentryService.getRequestHandler());
+  
+  // Sentry tracing handler (for performance monitoring)
+  app.use(sentryService.getTracingHandler());
   
   // Request logging middleware (before other middleware)
   app.use(requestLoggerMiddleware());
@@ -93,6 +103,32 @@ export async function createApp() {
   app.use("/api", strict, oneshotRoutes);
 
   logger.info("Application routes configured");
+
+  // Sentry error handler (must be after all routes)
+  app.use(sentryService.getErrorHandler());
+
+  // Global error handler
+  app.use((err: Error & { status?: number }, req: express.Request & { correlationId?: string }, res: express.Response) => {
+    logger.error("Unhandled error", err, {
+      method: req.method,
+      path: req.path,
+      correlationId: req.correlationId,
+    });
+
+    // Capture error in Sentry
+    sentryService.captureException(err, {
+      method: req.method,
+      path: req.path,
+      correlationId: req.correlationId,
+    });
+
+    res.status(err.status || 500).json({
+      error: process.env.NODE_ENV === "production" 
+        ? "Internal server error" 
+        : err.message,
+      correlationId: req.correlationId,
+    });
+  });
 
   return app;
 }

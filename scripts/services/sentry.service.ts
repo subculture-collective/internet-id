@@ -43,7 +43,7 @@ class SentryService {
         serverName: process.env.HOSTNAME || "internet-id-api",
         
         // Filter out sensitive data
-        beforeSend(event, hint) {
+        beforeSend(event) {
           // Remove sensitive headers
           if (event.request?.headers) {
             delete event.request.headers["authorization"];
@@ -235,9 +235,9 @@ class SentryService {
   /**
    * Get Sentry request handler middleware (Express)
    */
-  getRequestHandler() {
+  getRequestHandler(): ReturnType<typeof Sentry.Handlers.requestHandler> {
     if (!this.initialized) {
-      return (_req: any, _res: any, next: any) => next();
+      return ((_req, _res, next) => next()) as ReturnType<typeof Sentry.Handlers.requestHandler>;
     }
     return Sentry.Handlers.requestHandler();
   }
@@ -245,9 +245,9 @@ class SentryService {
   /**
    * Get Sentry tracing handler middleware (Express)
    */
-  getTracingHandler() {
+  getTracingHandler(): ReturnType<typeof Sentry.Handlers.tracingHandler> {
     if (!this.initialized) {
-      return (_req: any, _res: any, next: any) => next();
+      return ((_req, _res, next) => next()) as ReturnType<typeof Sentry.Handlers.tracingHandler>;
     }
     return Sentry.Handlers.tracingHandler();
   }
@@ -255,12 +255,12 @@ class SentryService {
   /**
    * Get Sentry error handler middleware (Express)
    */
-  getErrorHandler() {
+  getErrorHandler(): ReturnType<typeof Sentry.Handlers.errorHandler> {
     if (!this.initialized) {
-      return (_err: any, _req: any, _res: any, next: any) => next();
+      return ((_err, _req, _res, next) => next()) as ReturnType<typeof Sentry.Handlers.errorHandler>;
     }
     return Sentry.Handlers.errorHandler({
-      shouldHandleError(error) {
+      shouldHandleError() {
         // Capture all errors
         return true;
       },

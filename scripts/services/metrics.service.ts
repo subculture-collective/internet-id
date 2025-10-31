@@ -18,6 +18,10 @@ class MetricsService {
   private cacheMissTotal: client.Counter;
   private dbQueryDuration: client.Histogram;
   private activeConnections: client.Gauge;
+  private blockchainTransactionTotal: client.Counter;
+  private blockchainTransactionDuration: client.Histogram;
+  private healthCheckStatus: client.Gauge;
+  private queueDepth: client.Gauge;
 
   constructor() {
     // Create a new registry
@@ -109,6 +113,39 @@ class MetricsService {
       registers: [this.register],
     });
 
+    // Blockchain transaction counter
+    this.blockchainTransactionTotal = new client.Counter({
+      name: "blockchain_transactions_total",
+      help: "Total number of blockchain transactions",
+      labelNames: ["operation", "status", "chain_id"],
+      registers: [this.register],
+    });
+
+    // Blockchain transaction duration histogram
+    this.blockchainTransactionDuration = new client.Histogram({
+      name: "blockchain_transaction_duration_seconds",
+      help: "Duration of blockchain transactions in seconds",
+      labelNames: ["operation", "chain_id"],
+      buckets: [1, 5, 10, 30, 60, 120, 300],
+      registers: [this.register],
+    });
+
+    // Health check status gauge
+    this.healthCheckStatus = new client.Gauge({
+      name: "health_check_status",
+      help: "Health check status (1=healthy, 0=unhealthy)",
+      labelNames: ["service", "status"],
+      registers: [this.register],
+    });
+
+    // Queue depth gauge (for future queue implementation)
+    this.queueDepth = new client.Gauge({
+      name: "queue_depth",
+      help: "Number of pending jobs in queue",
+      labelNames: ["queue_name"],
+      registers: [this.register],
+    });
+
     logger.info("Metrics service initialized");
   }
 
@@ -190,6 +227,38 @@ class MetricsService {
    */
   decrementConnections(): void {
     this.activeConnections.dec();
+  }
+
+  /**
+   * Record blockchain transaction
+   */
+  recordBlockchainTransaction(
+    operation: string,
+    status: "success" | "failure",
+    chainId: string,
+    durationSeconds: number
+  ): void {
+    this.blockchainTransactionTotal.labels(operation, status, chainId).inc();
+    this.blockchainTransactionDuration.labels(operation, chainId).observe(durationSeconds);
+  }
+
+  /**
+   * Update health check status
+   */
+  updateHealthCheckStatus(
+    service: string,
+    status: "healthy" | "unhealthy" | "degraded",
+    isHealthy: boolean
+  ): void {
+    // Set gauge to 1 for healthy, 0 for unhealthy
+    this.healthCheckStatus.labels(service, status).set(isHealthy ? 1 : 0);
+  }
+
+  /**
+   * Update queue depth
+   */
+  updateQueueDepth(queueName: string, depth: number): void {
+    this.queueDepth.labels(queueName).set(depth);
   }
 
   /**
