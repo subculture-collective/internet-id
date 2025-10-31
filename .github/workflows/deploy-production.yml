@@ -172,8 +172,7 @@ jobs:
             
             # Pull new images
             # Note: GITHUB_TOKEN is used for container registry authentication
-            # Ensure Docker login output is not echoed to logs
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin 2>&1 | grep -v "WARNING"
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin > /dev/null 2>&1
             docker compose -f $COMPOSE_FILE pull
             
             # Run database migrations
@@ -182,7 +181,7 @@ jobs:
             
             # Blue-green deployment: Start new containers
             echo "Starting new containers..."
-            docker compose -f $COMPOSE_FILE up -d --no-deps --scale api=4 --scale web=4 --no-recreate api web
+            docker compose -f $COMPOSE_FILE up -d --no-deps --scale api=4 --scale web=4 api web
             
             # Wait for new containers to be healthy
             echo "Waiting for health checks..."

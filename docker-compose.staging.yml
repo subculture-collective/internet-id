@@ -105,7 +105,10 @@ services:
 
   # Backup service for automated database backups
   backup:
-    image: postgres:16-alpine
+    build:
+      context: .
+      dockerfile: Dockerfile.backup
+    image: internet-id-backup:staging
     environment:
       POSTGRES_HOST: db
       POSTGRES_PORT: 5432
@@ -123,7 +126,7 @@ services:
       db:
         condition: service_healthy
     entrypoint: /bin/sh
-    command: -c "apk add --no-cache bash && while true; do /opt/backup-scripts/backup-database.sh full; sleep 86400; done"
+    command: -c "while true; do /opt/backup-scripts/backup-database.sh full; sleep 86400; done"
     restart: unless-stopped
 
 volumes:

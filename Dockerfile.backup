@@ -1,0 +1,11 @@
+# Dockerfile for backup service
+FROM postgres:16-alpine
+
+# Install bash and AWS CLI for backup operations
+RUN apk add --no-cache bash aws-cli
+
+# Set working directory
+WORKDIR /opt/backup-scripts
+
+# Default command (overridden by docker-compose)
+CMD ["bash"]

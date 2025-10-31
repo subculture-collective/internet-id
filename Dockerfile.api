@@ -12,8 +12,8 @@ RUN apk add --no-cache python3 make g++
 COPY package*.json ./
 COPY tsconfig.json ./
 
-# Install dependencies
-RUN npm ci --legacy-peer-deps
+# Install production dependencies only
+RUN npm ci --legacy-peer-deps --only=production
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
@@ -42,6 +42,9 @@ RUN npx prisma generate
 # Compile contracts and TypeScript
 RUN npm run build
 
+# Generate Prisma client again to ensure it's in node_modules
+RUN npx prisma generate
+
 # Stage 3: Production runner
 FROM node:20-alpine AS runner
 WORKDIR /app
@@ -55,9 +58,9 @@ RUN apk add --no-cache bash
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001
 
-# Copy production dependencies from deps stage
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/package*.json ./
+# Copy production dependencies and Prisma client from builder stage
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package*.json ./
 
 # Copy built artifacts from builder stage
 COPY --from=builder /app/scripts ./scripts
@@ -68,9 +71,6 @@ COPY --from=builder /app/typechain-types ./typechain-types
 COPY --from=builder /app/artifacts ./artifacts
 COPY --from=builder /app/hardhat.config.ts ./
 COPY --from=builder /app/tsconfig.json ./
-
-# Generate Prisma client in production stage
-RUN npx prisma generate
 
 # Set ownership
 RUN chown -R nodejs:nodejs /app

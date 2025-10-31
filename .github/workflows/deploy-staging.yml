@@ -167,8 +167,7 @@ jobs:
             
             # Pull new images
             # Note: GITHUB_TOKEN is used for container registry authentication
-            # Ensure Docker login output is not echoed to logs
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin 2>&1 | grep -v "WARNING"
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin > /dev/null 2>&1
             docker compose -f $COMPOSE_FILE pull
             
             # Run database migrations
@@ -178,7 +177,7 @@ jobs:
             docker compose -f $COMPOSE_FILE run --rm api npm run db:seed || true
             
             # Deploy with zero-downtime rolling update
-            docker compose -f $COMPOSE_FILE up -d --no-deps --build api web
+            docker compose -f $COMPOSE_FILE up -d --no-deps api web
             
             # Wait for services to be healthy
             sleep 10

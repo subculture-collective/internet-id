@@ -157,7 +157,10 @@ services:
 
   # Backup service for automated database backups
   backup:
-    image: postgres:16-alpine
+    build:
+      context: .
+      dockerfile: Dockerfile.backup
+    image: internet-id-backup:production
     environment:
       POSTGRES_HOST: db
       POSTGRES_PORT: 5432
@@ -178,7 +181,7 @@ services:
         condition: service_healthy
     entrypoint: /bin/sh
     # Run backups every 6 hours in production
-    command: -c "apk add --no-cache bash aws-cli && while true; do /opt/backup-scripts/backup-database.sh full; sleep 21600; done"
+    command: -c "while true; do /opt/backup-scripts/backup-database.sh full; sleep 21600; done"
     restart: always
 
 volumes:
