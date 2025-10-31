@@ -190,8 +190,8 @@ package.json                        # New dependencies
 
 | Package | Version | Purpose |
 |---------|---------|---------|
-| pino | 9.6.0 | High-performance JSON logger |
-| pino-pretty | 13.0.0 | Pretty-print logs in development |
+| pino | 10.1.0 | High-performance JSON logger |
+| pino-pretty | 13.1.2 | Pretty-print logs in development |
 | prom-client | 15.1.3 | Prometheus metrics client |
 
 **Security:** ✅ No vulnerabilities found in new dependencies

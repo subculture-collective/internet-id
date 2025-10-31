@@ -202,7 +202,7 @@ class MetricsService {
   /**
    * Get metrics as JSON
    */
-  async getMetricsJson(): Promise<any[]> {
+  async getMetricsJson(): Promise<client.Metric[]> {
     return this.register.getMetricsAsJSON();
   }
 

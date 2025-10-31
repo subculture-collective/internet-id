@@ -93,8 +93,12 @@ class LoggerService {
    * Log error message
    */
   error(msg: string, error?: Error, context?: LogContext): void {
-    const logContext = { ...context, error: error?.message, stack: error?.stack };
-    this.logger.child(logContext).error(msg);
+    if (context) {
+      const logContext = { ...context, error: error?.message, stack: error?.stack };
+      this.logger.child(logContext).error(msg);
+    } else {
+      this.logger.error({ error: error?.message, stack: error?.stack }, msg);
+    }
   }
 
   /**

@@ -165,8 +165,6 @@ LOGTAIL_SOURCE_TOKEN=your_logtail_source_token
 Modify `scripts/services/logger.service.ts` to add Logtail transport:
 
 ```typescript
-import { pino } from '@logtail/pino';
-
 // Add after imports
 const logtailToken = process.env.LOGTAIL_SOURCE_TOKEN;
 

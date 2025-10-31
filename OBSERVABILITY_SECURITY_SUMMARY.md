@@ -28,8 +28,8 @@ Analysis Result: No security vulnerabilities detected
 
 **Tool:** GitHub Advisory Database  
 **Dependencies Scanned:**
-- pino@9.6.0
-- pino-pretty@13.0.0
+- pino@10.1.0
+- pino-pretty@13.1.2
 - prom-client@15.1.3
 
 **Result:** ✅ **No known vulnerabilities**
