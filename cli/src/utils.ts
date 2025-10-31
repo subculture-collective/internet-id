@@ -1,5 +1,5 @@
 import { createHash } from "crypto";
-import { readFileSync, createReadStream } from "fs";
+import { createReadStream } from "fs";
 import { pipeline } from "stream/promises";
 import { ethers } from "ethers";
 import axios from "axios";
@@ -52,33 +52,40 @@ export async function uploadToIpfs(
   }
 ): Promise<string> {
   if (provider === "web3storage") {
-    return uploadViaWeb3Storage(filePath, credentials.web3StorageToken!);
+    if (!credentials.web3StorageToken) {
+      throw new Error("Web3.Storage token is required for web3storage provider");
+    }
+    return uploadViaWeb3Storage(filePath, credentials.web3StorageToken);
   } else if (provider === "pinata") {
-    return uploadViaPinata(filePath, credentials.pinataJwt!);
+    if (!credentials.pinataJwt) {
+      throw new Error("Pinata JWT is required for pinata provider");
+    }
+    return uploadViaPinata(filePath, credentials.pinataJwt);
   } else if (provider === "infura") {
+    if (!credentials.infuraProjectId || !credentials.infuraProjectSecret) {
+      throw new Error("Infura Project ID and Secret are required for infura provider");
+    }
     return uploadViaInfura(
       filePath,
       credentials.ipfsApiUrl || "https://ipfs.infura.io:5001",
-      credentials.infuraProjectId!,
-      credentials.infuraProjectSecret!
+      credentials.infuraProjectId,
+      credentials.infuraProjectSecret
     );
   } else if (provider === "local") {
-    return uploadViaInfura(
-      filePath,
-      credentials.ipfsApiUrl || "http://127.0.0.1:5001",
-      "",
-      ""
-    );
+    return uploadViaLocal(filePath, credentials.ipfsApiUrl || "http://127.0.0.1:5001");
   }
   throw new Error("Unsupported IPFS provider");
 }
 
 async function uploadViaWeb3Storage(filePath: string, token: string): Promise<string> {
-  const data = readFileSync(filePath);
-  const response = await axios.post("https://api.web3.storage/upload", data, {
+  // Use streaming for memory efficiency with large files
+  const form = new FormData();
+  form.append("file", createReadStream(filePath));
+  
+  const response = await axios.post("https://api.web3.storage/upload", form, {
     headers: {
       Authorization: `Bearer ${token}`,
-      "Content-Type": "application/octet-stream",
+      ...form.getHeaders(),
     },
   });
   return response.data.cid;
@@ -106,13 +113,35 @@ async function uploadViaInfura(
   const addUrl = `${apiUrl.replace(/\/$/, "")}/api/v0/add?pin=true&wrap-with-directory=false`;
   const auth = "Basic " + Buffer.from(`${projectId}:${projectSecret}`).toString("base64");
 
-  const data = readFileSync(filePath);
+  // Use streaming for memory efficiency
   const form = new FormData();
-  form.append("file", data, { filename: "file" });
+  form.append("file", createReadStream(filePath));
 
   const response = await axios.post(addUrl, form, {
     headers: {
       Authorization: auth,
+      ...form.getHeaders(),
+    },
+  });
+
+  const body = response.data;
+  if (typeof body === "string") {
+    const lines = body.trim().split(/\r?\n/).filter(Boolean);
+    const last = JSON.parse(lines[lines.length - 1]);
+    return last.Hash;
+  }
+  return body.Hash;
+}
+
+async function uploadViaLocal(filePath: string, apiUrl: string): Promise<string> {
+  const addUrl = `${apiUrl.replace(/\/$/, "")}/api/v0/add?pin=true&wrap-with-directory=false`;
+
+  // No auth header for local IPFS nodes
+  const form = new FormData();
+  form.append("file", createReadStream(filePath));
+
+  const response = await axios.post(addUrl, form, {
+    headers: {
       ...form.getHeaders(),
     },
   });

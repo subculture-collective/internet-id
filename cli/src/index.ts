@@ -5,6 +5,19 @@ import { initCommand } from "./commands/init";
 import { uploadCommand } from "./commands/upload";
 import { verifyCommand } from "./commands/verify";
 
+interface UploadOptions {
+  uploadContent?: boolean;
+  privateKey?: string;
+  rpcUrl?: string;
+  registry?: string;
+  ipfsProvider?: string;
+}
+
+interface VerifyOptions {
+  rpcUrl?: string;
+  registry?: string;
+}
+
 const program = new Command();
 
 program
@@ -38,7 +51,7 @@ program
   .option("-r, --rpc-url <url>", "RPC URL (overrides config)")
   .option("-g, --registry <address>", "Registry contract address (overrides config)")
   .option("-p, --ipfs-provider <provider>", "IPFS provider: web3storage, pinata, infura, local")
-  .action(async (file: string, options: Record<string, string | boolean | undefined>) => {
+  .action(async (file: string, options: UploadOptions) => {
     try {
       await uploadCommand(file, options);
     } catch (error: unknown) {
@@ -56,7 +69,7 @@ program
   )
   .option("-r, --rpc-url <url>", "RPC URL (overrides config)")
   .option("-g, --registry <address>", "Registry contract address (overrides config)")
-  .action(async (input: string, options: Record<string, string | undefined>) => {
+  .action(async (input: string, options: VerifyOptions) => {
     try {
       await verifyCommand(input, options);
     } catch (error: unknown) {

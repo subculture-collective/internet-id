@@ -3,10 +3,12 @@ import { ethers } from "ethers";
 import { ConfigManager } from "../config";
 import { sha256HexFromFile, fetchManifest } from "../utils";
 
-export async function verifyCommand(
-  input: string,
-  options: Record<string, string | undefined>
-): Promise<void> {
+interface VerifyOptions {
+  rpcUrl?: string;
+  registry?: string;
+}
+
+export async function verifyCommand(input: string, options: VerifyOptions): Promise<void> {
   console.log("🔍 Internet ID Verify\n");
 
   const config = new ConfigManager();

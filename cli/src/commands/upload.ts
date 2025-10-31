@@ -3,10 +3,15 @@ import { ethers } from "ethers";
 import { ConfigManager } from "../config";
 import { sha256HexFromFile, signMessage, getAddress, uploadToIpfs, createManifest } from "../utils";
 
-export async function uploadCommand(
-  filePath: string,
-  options: Record<string, string | boolean | undefined>
-): Promise<void> {
+interface UploadOptions {
+  uploadContent?: boolean;
+  privateKey?: string;
+  rpcUrl?: string;
+  registry?: string;
+  ipfsProvider?: string;
+}
+
+export async function uploadCommand(filePath: string, options: UploadOptions): Promise<void> {
   console.log("📤 Internet ID Upload & Register\n");
 
   // Validate file exists
