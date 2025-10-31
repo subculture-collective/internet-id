@@ -3,6 +3,7 @@
 ## Implemented Optimizations
 
 ### 1. Next.js Configuration Enhancements
+
 - **File**: `web/next.config.mjs`
 - **Changes**:
   - Enabled `compress: true` for gzip compression
@@ -16,6 +17,7 @@
   - Added bundle analyzer support (`ANALYZE=true npm run build`)
 
 ### 2. Web Vitals Monitoring
+
 - **Files**: `web/app/web-vitals.tsx`, `web/app/api/analytics/route.ts`
 - **Changes**:
   - Implemented Web Vitals tracking using Next.js built-in hooks
@@ -25,6 +27,7 @@
   - Logs metrics in development, sends to analytics in production
 
 ### 3. Font Optimization
+
 - **File**: `web/app/globals.css`
 - **Changes**:
   - Added `font-display: swap` to prevent FOIT (Flash of Invisible Text)
@@ -33,6 +36,7 @@
   - Uses system fonts (already optimal, no external font loading)
 
 ### 3a. Security and Performance Headers
+
 - **File**: `web/next.config.mjs`
 - **Headers Added**:
   - `X-DNS-Prefetch-Control: on` - Enables DNS prefetching
@@ -41,12 +45,14 @@
   - `Referrer-Policy: strict-origin-when-cross-origin` - Controls referrer information
 
 ### 4. Resource Hints
+
 - **File**: `web/app/layout.tsx`
 - **Changes**:
   - Added `preconnect` to IPFS gateway for faster third-party connections
   - Added `dns-prefetch` as fallback for older browsers
 
 ### 5. Performance Budgets
+
 - **File**: `web/performance-budget.json`
 - **Budget Limits**:
   - JavaScript: 400 KB
@@ -62,6 +68,7 @@
   - Cumulative Layout Shift: 0.1
 
 ### 6. Lighthouse CI Integration
+
 - **File**: `web/lighthouserc.json`
 - **Configuration**:
   - Runs 3 audits per session for consistency
@@ -70,6 +77,7 @@
   - Automated assertions for Core Web Vitals
 
 ### 7. CI/CD Performance Checks
+
 - **File**: `.github/workflows/performance.yml`
 - **Features**:
   - Runs on every PR affecting web code
@@ -79,6 +87,7 @@
   - Prevents performance regressions
 
 ### 8. Performance Utilities
+
 - **File**: `web/lib/performance.ts`
 - **Utilities**:
   - `reportWebVitals()` - Send metrics to analytics
@@ -88,6 +97,7 @@
   - `observeImages()` - Lazy load images with Intersection Observer
 
 ### 9. Performance Report Script
+
 - **File**: `web/scripts/performance-report.js`
 - **Features**:
   - Analyzes build output size
@@ -99,7 +109,9 @@
 ## Recommended Next Steps
 
 ### Code Splitting (Future Enhancement)
+
 The main page.tsx (1683 lines) contains multiple form components that could benefit from lazy loading:
+
 - Upload Form
 - One-shot Form
 - Manifest Form
@@ -113,13 +125,16 @@ The main page.tsx (1683 lines) contains multiple form components that could bene
 **Recommendation**: Extract each form into separate components under `web/app/forms/` and use `next/dynamic` with `ssr: false` for client-side only forms. This would reduce initial bundle size significantly.
 
 ### Image Optimization (Future Enhancement)
+
 - Replace `<img>` tags with Next.js `<Image>` component
 - Add proper width/height attributes to prevent CLS
 - Generate placeholder images for better perceived performance
 - Consider using `blur` placeholder option
 
 ### Third-Party Script Optimization
+
 Currently, no third-party scripts are detected. If added in the future:
+
 - Use `next/script` with appropriate loading strategy (`defer` or `async`)
 - Load analytics scripts after user interaction
 - Consider using Partytown for heavy third-party scripts
@@ -127,11 +142,13 @@ Currently, no third-party scripts are detected. If added in the future:
 ## Core Web Vitals Targets
 
 ### Current Status
+
 - ✅ Configuration in place to achieve targets
 - ✅ Monitoring enabled
 - ✅ CI checks configured
 
 ### Targets
+
 - **LCP (Largest Contentful Paint)**: < 2.5s
   - Current optimizations: Image optimization, font optimization, compression
 - **FID (First Input Delay)**: < 100ms
@@ -142,10 +159,12 @@ Currently, no third-party scripts are detected. If added in the future:
 ## Monitoring & Analytics
 
 ### Development
+
 - Web Vitals metrics logged to console
 - Bundle analyzer available via `npm run build:analyze`
 
 ### Production (To Implement)
+
 - Configure analytics service integration in `/api/analytics/route.ts`
 - Options: Google Analytics 4, Vercel Analytics, or custom solution
 - Set up Real User Monitoring (RUM) dashboard
@@ -153,6 +172,7 @@ Currently, no third-party scripts are detected. If added in the future:
 ## Performance Testing
 
 ### Local Testing
+
 ```bash
 # Build with bundle analysis
 npm run build:analyze
@@ -162,6 +182,7 @@ npm run perf:audit
 ```
 
 ### CI Testing
+
 - Automated on every PR
 - Performance budgets enforced
 - Bundle size regression detection
@@ -169,10 +190,12 @@ npm run perf:audit
 ## CDN & Caching Strategy
 
 ### Static Assets
+
 - Cache-Control headers configured for 1 year (immutable)
 - Manifest cached for 24 hours with revalidation
 
 ### Recommended CDN Configuration
+
 - Serve static assets from edge locations
 - Enable Brotli compression (better than gzip)
 - Use HTTP/2 or HTTP/3

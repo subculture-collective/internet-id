@@ -81,6 +81,7 @@ npm run test:e2e
 ### Test Modes
 
 #### Headless Mode (Default)
+
 Tests run in background without visible browser:
 
 ```bash
@@ -88,6 +89,7 @@ npm run test:e2e
 ```
 
 #### Headed Mode
+
 Watch tests run in real browsers:
 
 ```bash
@@ -95,6 +97,7 @@ npm run test:e2e:headed
 ```
 
 #### UI Mode (Interactive)
+
 Best for development - interactive test runner with time-travel debugging:
 
 ```bash
@@ -102,6 +105,7 @@ npm run test:e2e:ui
 ```
 
 #### Debug Mode
+
 Run tests with Playwright Inspector for step-by-step debugging:
 
 ```bash
@@ -197,6 +201,7 @@ npm run test:e2e:debug
 ```
 
 Features:
+
 - Step through each test action
 - Pick selectors from the page
 - View console logs
@@ -211,6 +216,7 @@ npm run test:e2e:ui
 ```
 
 Features:
+
 - Watch tests run in real-time
 - See test timeline
 - Pick locators interactively
@@ -239,6 +245,7 @@ npx playwright test --video on
 ```
 
 Find artifacts in:
+
 - `test-results/` - Screenshots, videos, traces
 - `playwright-report/` - HTML test report
 
@@ -247,9 +254,9 @@ Find artifacts in:
 View browser console during tests:
 
 ```typescript
-test('debug example', async ({ page }) => {
-  page.on('console', msg => console.log(msg.text()));
-  await page.goto('/');
+test("debug example", async ({ page }) => {
+  page.on("console", (msg) => console.log(msg.text()));
+  await page.goto("/");
 });
 ```
 
@@ -258,8 +265,8 @@ test('debug example', async ({ page }) => {
 Add breakpoints in tests:
 
 ```typescript
-test('debug example', async ({ page }) => {
-  await page.goto('/');
+test("debug example", async ({ page }) => {
+  await page.goto("/");
   await page.pause(); // Opens inspector
   // ... rest of test
 });
@@ -270,18 +277,18 @@ test('debug example', async ({ page }) => {
 ### Basic Test Structure
 
 ```typescript
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test.describe('Feature Name', () => {
-  test('should do something', async ({ page }) => {
+test.describe("Feature Name", () => {
+  test("should do something", async ({ page }) => {
     // Navigate to page
-    await page.goto('/');
-    
+    await page.goto("/");
+
     // Perform actions
-    await page.click('button');
-    
+    await page.click("button");
+
     // Assert expectations
-    await expect(page.locator('h1')).toBeVisible();
+    await expect(page.locator("h1")).toBeVisible();
   });
 });
 ```
@@ -291,53 +298,57 @@ test.describe('Feature Name', () => {
 Import utilities from `test-helpers.ts`:
 
 ```typescript
-import { waitForApiResponse, expectVisible } from './utils/test-helpers';
+import { waitForApiResponse, expectVisible } from "./utils/test-helpers";
 
-test('example', async ({ page }) => {
-  await page.goto('/');
-  
+test("example", async ({ page }) => {
+  await page.goto("/");
+
   // Wait for API response
-  await waitForApiResponse(page, '/api/contents');
-  
+  await waitForApiResponse(page, "/api/contents");
+
   // Check visibility
-  await expectVisible(page, '.content-list');
+  await expectVisible(page, ".content-list");
 });
 ```
 
 ### Best Practices
 
 1. **Use data-testid for stability**:
+
    ```typescript
    await page.locator('[data-testid="submit-button"]').click();
    ```
 
 2. **Wait for navigation**:
+
    ```typescript
-   await page.waitForURL('/dashboard');
+   await page.waitForURL("/dashboard");
    ```
 
 3. **Handle async operations**:
+
    ```typescript
-   await page.waitForLoadState('networkidle');
+   await page.waitForLoadState("networkidle");
    ```
 
 4. **Use descriptive selectors**:
+
    ```typescript
    // Good
-   await page.getByRole('button', { name: 'Submit' }).click();
-   
+   await page.getByRole("button", { name: "Submit" }).click();
+
    // Avoid
-   await page.locator('button').nth(2).click();
+   await page.locator("button").nth(2).click();
    ```
 
 5. **Group related tests**:
    ```typescript
-   test.describe('Authentication', () => {
-     test.describe('Sign In', () => {
+   test.describe("Authentication", () => {
+     test.describe("Sign In", () => {
        // Sign in tests
      });
-     
-     test.describe('Sign Up', () => {
+
+     test.describe("Sign Up", () => {
        // Sign up tests
      });
    });
@@ -362,28 +373,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      
+          node-version: "20"
+
       - name: Install dependencies
         run: |
           npm ci --legacy-peer-deps
           cd web && npm ci --legacy-peer-deps
-      
+
       - name: Install Playwright browsers
         working-directory: web
         run: npx playwright install --with-deps
-      
+
       - name: Start API server
         run: npm run start:api &
-      
+
       - name: Run E2E tests
         working-directory: web
         run: npm run test:e2e
-      
+
       - name: Upload test report
         if: always()
         uses: actions/upload-artifact@v4
@@ -424,7 +435,7 @@ Each test should be independent:
 ```typescript
 test.beforeEach(async ({ page }) => {
   // Setup for each test
-  await page.goto('/');
+  await page.goto("/");
 });
 
 test.afterEach(async ({ page }) => {
@@ -440,11 +451,11 @@ For complex pages, use page object pattern:
 ```typescript
 class DashboardPage {
   constructor(private page: Page) {}
-  
+
   async navigateTo() {
-    await this.page.goto('/dashboard');
+    await this.page.goto("/dashboard");
   }
-  
+
   async getContentCount() {
     return await this.page.locator('[data-testid="content-item"]').count();
   }
@@ -457,13 +468,13 @@ Make tests more stable:
 
 ```typescript
 // Use waitFor instead of static timeouts
-await page.waitForSelector('.content', { state: 'visible' });
+await page.waitForSelector(".content", { state: "visible" });
 
 // Retry on failure
 test.describe.configure({ retries: 2 });
 
 // Wait for network idle
-await page.waitForLoadState('networkidle');
+await page.waitForLoadState("networkidle");
 ```
 
 ### 4. Skip Tests Conditionally
@@ -471,9 +482,9 @@ await page.waitForLoadState('networkidle');
 Skip tests based on environment:
 
 ```typescript
-test.skip(process.env.CI === 'true', 'Requires OAuth credentials');
+test.skip(process.env.CI === "true", "Requires OAuth credentials");
 
-test.skip(!process.env.ENABLE_UPLOADS, 'Upload tests disabled');
+test.skip(!process.env.ENABLE_UPLOADS, "Upload tests disabled");
 ```
 
 ### 5. Organize Test Data
@@ -481,9 +492,9 @@ test.skip(!process.env.ENABLE_UPLOADS, 'Upload tests disabled');
 Use fixtures for test data:
 
 ```typescript
-import { testData } from './fixtures/users';
+import { testData } from "./fixtures/users";
 
-test('example', async ({ page }) => {
+test("example", async ({ page }) => {
   await page.fill('[name="email"]', testData.user1.email);
 });
 ```
@@ -497,6 +508,7 @@ test('example', async ({ page }) => {
 **Problem**: Tests exceed timeout limit
 
 **Solutions**:
+
 ```bash
 # Increase timeout
 npx playwright test --timeout=60000
@@ -512,6 +524,7 @@ use: {
 **Problem**: `Executable doesn't exist` error
 
 **Solution**:
+
 ```bash
 npx playwright install
 ```
@@ -521,6 +534,7 @@ npx playwright install
 **Problem**: Dev server can't start on port 3000
 
 **Solution**:
+
 ```bash
 # Kill process on port 3000
 lsof -ti:3000 | xargs kill -9
@@ -534,6 +548,7 @@ BASE_URL=http://localhost:3001 npm run test:e2e
 **Problem**: OAuth tests fail without credentials
 
 **Solution**: OAuth tests are skipped by default. To enable:
+
 ```bash
 export GITHUB_TEST_EMAIL=test@example.com
 export GITHUB_TEST_PASSWORD=testpass
@@ -545,6 +560,7 @@ npm run test:e2e
 **Problem**: Screenshot comparison fails
 
 **Solution**:
+
 ```bash
 # Update baseline screenshots
 npx playwright test --update-snapshots
@@ -557,13 +573,9 @@ npx playwright test --update-snapshots
 Log all requests:
 
 ```typescript
-page.on('request', request => 
-  console.log('>>', request.method(), request.url())
-);
+page.on("request", (request) => console.log(">>", request.method(), request.url()));
 
-page.on('response', response =>
-  console.log('<<', response.status(), response.url())
-);
+page.on("response", (response) => console.log("<<", response.status(), response.url()));
 ```
 
 #### Console Errors
@@ -571,8 +583,8 @@ page.on('response', response =>
 Catch JavaScript errors:
 
 ```typescript
-page.on('pageerror', error => {
-  console.error('Page error:', error);
+page.on("pageerror", (error) => {
+  console.error("Page error:", error);
 });
 ```
 

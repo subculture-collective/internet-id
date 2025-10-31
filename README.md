@@ -12,11 +12,11 @@ This repo scaffolds a minimal on-chain content provenance flow:
 > Note: This proves provenance, not truth. It helps distinguish opted-in human-created content from anonymous deepfakes.
 
 **📚 Documentation:**
+
 - **New here?** Start with the [Contributor Onboarding Guide](./docs/CONTRIBUTOR_ONBOARDING.md)
 - **Architecture Overview:** See [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) for system design and component interactions
 - **Plain-English Pitch:** [PITCH.md](./PITCH.md) explains the problem and solution
 - **Accessibility:** See [web/ACCESSIBILITY.md](./web/ACCESSIBILITY.md) for WCAG 2.1 AA conformance and [web/ACCESSIBILITY_TESTING.md](./web/ACCESSIBILITY_TESTING.md) for testing guide
-
 
 ## Stack
 
@@ -142,11 +142,13 @@ View the [CI workflow configuration](.github/workflows/ci.yml) and [E2E workflow
 ### Essential Configuration
 
 1. **Install dependencies:**
+
    ```bash
    npm install --legacy-peer-deps
    ```
 
 2. **Configure environment:**
+
    ```bash
    cp .env.example .env
    # Edit .env and set:
@@ -158,6 +160,7 @@ View the [CI workflow configuration](.github/workflows/ci.yml) and [E2E workflow
    ```
 
 3. **Set up database:**
+
    ```bash
    npm run db:generate
    npm run db:migrate
@@ -183,6 +186,7 @@ cp web/.env.example web/.env.local
 ```
 
 **Note on Multi-Chain Deployments:**
+
 - Each network requires a separate deployment of the ContentRegistry contract
 - Deployed addresses are saved in `deployed/<network>.json` files
 - The registry service automatically resolves the correct contract address based on the chain ID
@@ -194,6 +198,7 @@ Internet-ID supports deployment and verification across multiple EVM-compatible 
 ### Supported Networks
 
 **Mainnets (Production):**
+
 - **Ethereum Mainnet** (chain ID: 1) – High security, higher gas costs
 - **Polygon** (chain ID: 137) – Low cost, good UX, MATIC gas token
 - **Base** (chain ID: 8453) – Coinbase L2, low cost, good UX
@@ -201,6 +206,7 @@ Internet-ID supports deployment and verification across multiple EVM-compatible 
 - **Optimism** (chain ID: 10) – Low cost L2
 
 **Testnets (Development):**
+
 - **Ethereum Sepolia** (chain ID: 11155111)
 - **Polygon Amoy** (chain ID: 80002)
 - **Base Sepolia** (chain ID: 84532)
@@ -210,12 +216,14 @@ Internet-ID supports deployment and verification across multiple EVM-compatible 
 ### Chain Configuration
 
 Chain configurations are defined in `config/chains.ts` with:
+
 - RPC URLs (with environment variable overrides)
 - Block explorer URLs
 - Native currency details
 - Gas settings
 
 You can override default RPC URLs via environment variables:
+
 ```bash
 ETHEREUM_RPC_URL=https://your-eth-rpc.com
 POLYGON_RPC_URL=https://your-polygon-rpc.com
@@ -228,6 +236,7 @@ BASE_RPC_URL=https://your-base-rpc.com
 - `build` – compile contracts
 
 **Deployment Scripts (Multi-Chain):**
+
 - `deploy:ethereum` – deploy to Ethereum Mainnet
 - `deploy:sepolia` – deploy to Ethereum Sepolia testnet
 - `deploy:polygon` – deploy to Polygon
@@ -241,6 +250,7 @@ BASE_RPC_URL=https://your-base-rpc.com
 - `deploy:local` – deploy to local Hardhat node
 
 **Other Scripts:**
+
 - `register` – hash a file and register its hash + manifest URI on-chain
   - `RPC_URL` for your preferred network. For local, you can use `LOCAL_RPC_URL=http://127.0.0.1:8545`.
   - For IPFS uploads: `IPFS_API_URL` and optional `IPFS_PROJECT_ID`/`IPFS_PROJECT_SECRET`
@@ -297,6 +307,7 @@ npm run deploy:local
 **Production Deployments:**
 
 For mainnet deployments, ensure you have:
+
 - Sufficient native tokens for gas (ETH, MATIC, etc.)
 - `PRIVATE_KEY` set in `.env`
 - Appropriate RPC URL configured
@@ -778,19 +789,42 @@ See the complete [E2E Testing Guide](./web/E2E_TESTING.md) for detailed document
 - Support Merkle batch anchoring.
 - Add selective disclosure/zk proof of “is a real person” VC.
 
-## Public API for Third-Party Integrations
+## CLI Tool and SDK for Programmatic Access
 
-Internet ID provides a **public API** for developers to build integrations, tools, and services on top of the platform.
+Internet ID provides multiple ways to interact with the platform programmatically:
 
-### Features
+### CLI Tool
 
-- ✅ **RESTful API** with versioning (`/api/v1/`)
-- ✅ **Multiple authentication methods**: API keys and JWT tokens
-- ✅ **Rate limiting** per API key tier (free: 100 req/min, paid: 1000 req/min)
-- ✅ **OpenAPI/Swagger documentation** at `/api/docs`
-- ✅ **Official TypeScript/JavaScript SDK** (`@internet-id/sdk`)
+Command-line tool for content registration and verification. Perfect for automation, scripting, and CI/CD workflows.
 
-### Quick Start
+```bash
+# Install globally
+npm install -g @internet-id/cli
+
+# Configure credentials
+internet-id init
+
+# Upload and register content
+internet-id upload ./my-video.mp4
+
+# Verify content
+internet-id verify ./my-video.mp4
+```
+
+**Features:**
+
+- ✅ Interactive configuration with `init` command
+- ✅ Privacy mode (only manifest uploaded by default)
+- ✅ Optional content upload to IPFS
+- ✅ Content verification by file or manifest URI
+- ✅ Support for multiple IPFS providers (Web3.Storage, Pinata, Infura, local)
+- ✅ Multi-chain support (Base, Ethereum, Polygon, Arbitrum, Optimism)
+
+**Documentation:** [CLI README](./cli/README.md)
+
+### TypeScript/JavaScript SDK
+
+Official SDK for building integrations and tools.
 
 ```bash
 # Install the SDK
@@ -798,26 +832,46 @@ npm install @internet-id/sdk
 ```
 
 ```typescript
-import { InternetIdClient } from '@internet-id/sdk';
+import { InternetIdClient } from "@internet-id/sdk";
 
 const client = new InternetIdClient({
-  apiKey: 'iid_your_api_key_here'
+  apiKey: "iid_your_api_key_here",
 });
 
 // Verify content by platform URL
 const result = await client.verifyByPlatform({
-  url: 'https://youtube.com/watch?v=abc123'
+  url: "https://youtube.com/watch?v=abc123",
 });
 
 console.log(result.verified); // true or false
 console.log(result.creator); // Creator's Ethereum address
 ```
 
-### Documentation
+**Features:**
+
+- ✅ Full TypeScript support with type definitions
+- ✅ Content verification and metadata retrieval
+- ✅ API key management
+- ✅ JWT authentication
+- ✅ Automatic rate limiting and error handling
+
+**Documentation:** [SDK README](./sdk/typescript/README.md)
+
+### Public API
+
+RESTful API for third-party integrations.
+
+**Features:**
+
+- ✅ Versioned API (`/api/v1/`)
+- ✅ Multiple authentication methods (API keys, JWT tokens)
+- ✅ Rate limiting per tier (free: 100 req/min, paid: 1000 req/min)
+- ✅ OpenAPI/Swagger documentation at `/api/docs`
+
+**Documentation:**
 
 - **[Public API Documentation](./docs/PUBLIC_API.md)** - Complete API reference
 - **[Developer Onboarding Guide](./docs/DEVELOPER_ONBOARDING.md)** - Get started quickly
-- **[SDK Documentation](./sdk/typescript/README.md)** - TypeScript/JavaScript SDK usage
 - **Interactive API Explorer**: http://localhost:3001/api/docs (when running locally)
 
 ## API reference (summary)

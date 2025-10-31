@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ hash: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ hash: string }> }) {
   const { hash } = await params;
   const short = hash && hash.length > 20 ? `${hash.slice(0, 10)}…${hash.slice(-6)}` : hash;
   const sp = req.nextUrl.searchParams;

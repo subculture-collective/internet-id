@@ -5,15 +5,12 @@ import { ToastMessage, ToastType } from "../components/Toast";
 export function useToast() {
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
-  const addToast = useCallback(
-    (message: string, type: ToastType = "info", duration?: number) => {
-      const id = crypto.randomUUID();
-      const newToast: ToastMessage = { id, message, type, duration };
-      setToasts((prev) => [...prev, newToast]);
-      return id;
-    },
-    []
-  );
+  const addToast = useCallback((message: string, type: ToastType = "info", duration?: number) => {
+    const id = crypto.randomUUID();
+    const newToast: ToastMessage = { id, message, type, duration };
+    setToasts((prev) => [...prev, newToast]);
+    return id;
+  }, []);
 
   const removeToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));

@@ -92,19 +92,19 @@ Add custom event tracking for key actions:
 
 ```typescript
 // Track verification completion
-gtag('event', 'verification_complete', {
+gtag("event", "verification_complete", {
   content_hash: contentHash,
   platform: platform,
 });
 
 // Track content registration
-gtag('event', 'content_registered', {
+gtag("event", "content_registered", {
   registry_address: registryAddress,
   transaction_hash: txHash,
 });
 
 // Track badge downloads
-gtag('event', 'badge_download', {
+gtag("event", "badge_download", {
   content_hash: contentHash,
   badge_theme: theme,
 });
@@ -125,18 +125,21 @@ gtag('event', 'badge_download', {
 Choose one of these verification methods:
 
 #### Method A: HTML File Upload
+
 1. Download the verification HTML file
 2. Upload it to `web/public/` directory
 3. Deploy your site
 4. Click "Verify" in Search Console
 
 #### Method B: DNS Verification (Recommended)
+
 1. Copy the TXT record provided
 2. Add it to your DNS settings
 3. Wait for DNS propagation (up to 24 hours)
 4. Click "Verify" in Search Console
 
 #### Method C: HTML Meta Tag
+
 Add the verification meta tag to your `.env.local`:
 
 ```bash
@@ -178,15 +181,18 @@ verification: {
 Choose one of these methods:
 
 #### Method A: XML File Upload
+
 1. Download the BingSiteAuth.xml file
 2. Upload to `web/public/`
 3. Deploy and verify
 
 #### Method B: DNS Verification
+
 1. Add the provided CNAME record to your DNS
 2. Click "Verify"
 
 #### Method C: Import from Google Search Console (Easiest)
+
 1. Click "Import from Google Search Console"
 2. Authorize the connection
 3. Your site will be automatically verified

@@ -22,79 +22,79 @@ Add this script to your HTML to dynamically insert verification badges:
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-  <title>My Page</title>
-</head>
-<body>
-  <div id="badge-container"></div>
-  
-  <script>
-    // Internet ID Badge Widget
-    (function() {
-      const InternetIDBadge = {
-        create: function(options) {
-          const {
-            hash,
-            theme = 'dark',
-            size = 'medium',
-            style = 'rounded',
-            showTimestamp = false,
-            showPlatform = false,
-            platform = null,
-            container = document.body,
-            clickable = true,
-            apiBase = 'http://localhost:3001',
-            siteBase = window.location.origin
-          } = options;
-          
-          // Build badge URL
-          const params = new URLSearchParams();
-          params.set('theme', theme);
-          params.set('size', size);
-          params.set('style', style);
-          if (showTimestamp) params.set('showTimestamp', 'true');
-          if (showPlatform) params.set('showPlatform', 'true');
-          if (platform) params.set('platform', platform);
-          
-          const badgeUrl = `${apiBase}/api/badge/${hash}/svg?${params.toString()}`;
-          const verifyUrl = `${siteBase}/verify?hash=${hash}`;
-          
-          // Create elements
-          const img = document.createElement('img');
-          img.src = badgeUrl;
-          img.alt = 'Verified on Internet ID';
-          img.style.display = 'inline-block';
-          
-          if (clickable) {
-            const link = document.createElement('a');
-            link.href = verifyUrl;
-            link.target = '_blank';
-            link.rel = 'noopener noreferrer';
-            link.style.display = 'inline-block';
-            link.style.textDecoration = 'none';
-            link.appendChild(img);
-            container.appendChild(link);
-            return link;
-          } else {
-            container.appendChild(img);
-            return img;
-          }
-        }
-      };
-      
-      // Make globally accessible
-      window.InternetIDBadge = InternetIDBadge;
-    })();
-    
-    // Usage
-    InternetIDBadge.create({
-      hash: '0x1234567890abcdef...',
-      theme: 'dark',
-      size: 'medium',
-      container: document.getElementById('badge-container')
-    });
-  </script>
-</body>
+  <head>
+    <title>My Page</title>
+  </head>
+  <body>
+    <div id="badge-container"></div>
+
+    <script>
+      // Internet ID Badge Widget
+      (function () {
+        const InternetIDBadge = {
+          create: function (options) {
+            const {
+              hash,
+              theme = "dark",
+              size = "medium",
+              style = "rounded",
+              showTimestamp = false,
+              showPlatform = false,
+              platform = null,
+              container = document.body,
+              clickable = true,
+              apiBase = "http://localhost:3001",
+              siteBase = window.location.origin,
+            } = options;
+
+            // Build badge URL
+            const params = new URLSearchParams();
+            params.set("theme", theme);
+            params.set("size", size);
+            params.set("style", style);
+            if (showTimestamp) params.set("showTimestamp", "true");
+            if (showPlatform) params.set("showPlatform", "true");
+            if (platform) params.set("platform", platform);
+
+            const badgeUrl = `${apiBase}/api/badge/${hash}/svg?${params.toString()}`;
+            const verifyUrl = `${siteBase}/verify?hash=${hash}`;
+
+            // Create elements
+            const img = document.createElement("img");
+            img.src = badgeUrl;
+            img.alt = "Verified on Internet ID";
+            img.style.display = "inline-block";
+
+            if (clickable) {
+              const link = document.createElement("a");
+              link.href = verifyUrl;
+              link.target = "_blank";
+              link.rel = "noopener noreferrer";
+              link.style.display = "inline-block";
+              link.style.textDecoration = "none";
+              link.appendChild(img);
+              container.appendChild(link);
+              return link;
+            } else {
+              container.appendChild(img);
+              return img;
+            }
+          },
+        };
+
+        // Make globally accessible
+        window.InternetIDBadge = InternetIDBadge;
+      })();
+
+      // Usage
+      InternetIDBadge.create({
+        hash: "0x1234567890abcdef...",
+        theme: "dark",
+        size: "medium",
+        container: document.getElementById("badge-container"),
+      });
+    </script>
+  </body>
 </html>
 ```
 
@@ -108,10 +108,10 @@ Add this script to your HTML to dynamically insert verification badges:
 <div id="my-badge"></div>
 <script>
   InternetID.createBadge({
-    hash: '0x1234567890abcdef...',
-    theme: 'blue',
-    size: 'large',
-    container: '#my-badge'
+    hash: "0x1234567890abcdef...",
+    theme: "blue",
+    size: "large",
+    container: "#my-badge",
   });
 </script>
 ```
@@ -123,13 +123,13 @@ Add this script to your HTML to dynamically insert verification badges:
 ### Using the Built-in Component
 
 ```tsx
-import { VerificationBadge } from '@/app/components/VerificationBadge';
+import { VerificationBadge } from "@/app/components/VerificationBadge";
 
 function MyComponent() {
   return (
     <div>
       <h1>My Verified Content</h1>
-      <VerificationBadge 
+      <VerificationBadge
         hash="0x1234567890abcdef..."
         theme="blue"
         size="large"
@@ -145,19 +145,19 @@ export default MyComponent;
 ### Custom React Component
 
 ```tsx
-import React from 'react';
+import React from "react";
 
 interface BadgeProps {
   hash: string;
-  theme?: 'dark' | 'light' | 'blue' | 'green' | 'purple';
-  size?: 'small' | 'medium' | 'large';
+  theme?: "dark" | "light" | "blue" | "green" | "purple";
+  size?: "small" | "medium" | "large";
 }
 
-export function Badge({ hash, theme = 'dark', size = 'medium' }: BadgeProps) {
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:3001';
+export function Badge({ hash, theme = "dark", size = "medium" }: BadgeProps) {
+  const apiBase = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:3001";
   const badgeUrl = `${apiBase}/api/badge/${hash}/svg?theme=${theme}&size=${size}`;
   const verifyUrl = `/verify?hash=${hash}`;
-  
+
   return (
     <a href={verifyUrl} target="_blank" rel="noopener noreferrer">
       <img src={badgeUrl} alt="Verified on Internet ID" />
@@ -169,30 +169,28 @@ export function Badge({ hash, theme = 'dark', size = 'medium' }: BadgeProps) {
 ### Using the Badge Hook
 
 ```tsx
-import { useBadgeUrls } from '@/app/components/VerificationBadge';
-import { useState } from 'react';
+import { useBadgeUrls } from "@/app/components/VerificationBadge";
+import { useState } from "react";
 
 function BadgeEmbed() {
-  const hash = '0x1234567890abcdef...';
+  const hash = "0x1234567890abcdef...";
   const { badgeUrl, verifyUrl, html, markdown } = useBadgeUrls(hash, {
-    theme: 'blue',
-    size: 'large'
+    theme: "blue",
+    size: "large",
   });
-  
+
   const [copied, setCopied] = useState(false);
-  
+
   const copyMarkdown = () => {
     navigator.clipboard.writeText(markdown);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
-  
+
   return (
     <div>
       <img src={badgeUrl} alt="Verified" />
-      <button onClick={copyMarkdown}>
-        {copied ? 'Copied!' : 'Copy Markdown'}
-      </button>
+      <button onClick={copyMarkdown}>{copied ? "Copied!" : "Copy Markdown"}</button>
     </div>
   );
 }
@@ -206,44 +204,35 @@ function BadgeEmbed() {
 
 ```vue
 <template>
-  <a 
-    :href="verifyUrl" 
-    target="_blank" 
-    rel="noopener noreferrer"
-    class="badge-link"
-  >
-    <img 
-      :src="badgeUrl" 
-      alt="Verified on Internet ID"
-      class="badge-image"
-    />
+  <a :href="verifyUrl" target="_blank" rel="noopener noreferrer" class="badge-link">
+    <img :src="badgeUrl" alt="Verified on Internet ID" class="badge-image" />
   </a>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from "vue";
 
 interface Props {
   hash: string;
-  theme?: 'dark' | 'light' | 'blue' | 'green' | 'purple';
-  size?: 'small' | 'medium' | 'large';
-  style?: 'flat' | 'rounded' | 'pill' | 'minimal';
+  theme?: "dark" | "light" | "blue" | "green" | "purple";
+  size?: "small" | "medium" | "large";
+  style?: "flat" | "rounded" | "pill" | "minimal";
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  theme: 'dark',
-  size: 'medium',
-  style: 'rounded'
+  theme: "dark",
+  size: "medium",
+  style: "rounded",
 });
 
-const apiBase = import.meta.env.VITE_API_BASE || 'http://localhost:3001';
+const apiBase = import.meta.env.VITE_API_BASE || "http://localhost:3001";
 const siteBase = import.meta.env.VITE_SITE_BASE || window.location.origin;
 
 const badgeUrl = computed(() => {
   const params = new URLSearchParams({
     theme: props.theme,
     size: props.size,
-    style: props.style
+    style: props.style,
   });
   return `${apiBase}/api/badge/${props.hash}/svg?${params.toString()}`;
 });
@@ -269,42 +258,38 @@ const verifyUrl = computed(() => {
 
 ```vue
 <template>
-  <a 
-    :href="verifyUrl" 
-    target="_blank" 
-    rel="noopener noreferrer"
-  >
+  <a :href="verifyUrl" target="_blank" rel="noopener noreferrer">
     <img :src="badgeUrl" alt="Verified on Internet ID" />
   </a>
 </template>
 
 <script>
 export default {
-  name: 'VerificationBadge',
+  name: "VerificationBadge",
   props: {
     hash: {
       type: String,
-      required: true
+      required: true,
     },
     theme: {
       type: String,
-      default: 'dark'
+      default: "dark",
     },
     size: {
       type: String,
-      default: 'medium'
-    }
+      default: "medium",
+    },
   },
   computed: {
     badgeUrl() {
-      const apiBase = process.env.VUE_APP_API_BASE || 'http://localhost:3001';
+      const apiBase = process.env.VUE_APP_API_BASE || "http://localhost:3001";
       return `${apiBase}/api/badge/${this.hash}/svg?theme=${this.theme}&size=${this.size}`;
     },
     verifyUrl() {
       const siteBase = process.env.VUE_APP_SITE_BASE || window.location.origin;
       return `${siteBase}/verify?hash=${this.hash}`;
-    }
-  }
+    },
+  },
 };
 </script>
 ```
@@ -327,23 +312,23 @@ function internetid_badge_shortcode($atts) {
         'size' => 'medium',
         'style' => 'rounded',
     ), $atts);
-    
+
     if (empty($atts['hash'])) {
         return '<p>Error: Badge hash is required</p>';
     }
-    
+
     $api_base = get_option('internetid_api_base', 'http://localhost:3001');
     $site_base = get_option('internetid_site_base', home_url());
-    
+
     $params = http_build_query(array(
         'theme' => $atts['theme'],
         'size' => $atts['size'],
         'style' => $atts['style']
     ));
-    
+
     $badge_url = esc_url($api_base . '/api/badge/' . $atts['hash'] . '/svg?' . $params);
     $verify_url = esc_url($site_base . '/verify?hash=' . $atts['hash']);
-    
+
     return sprintf(
         '<a href="%s" target="_blank" rel="noopener noreferrer"><img src="%s" alt="Verified on Internet ID" style="display: inline-block;" /></a>',
         $verify_url,
@@ -398,14 +383,14 @@ function internetid_settings_page_html() {
 function internetid_register_settings() {
     register_setting('internetid_settings', 'internetid_api_base');
     register_setting('internetid_settings', 'internetid_site_base');
-    
+
     add_settings_section(
         'internetid_section',
         'Badge Configuration',
         null,
         'internetid-settings'
     );
-    
+
     add_settings_field(
         'internetid_api_base',
         'API Base URL',
@@ -413,7 +398,7 @@ function internetid_register_settings() {
         'internetid-settings',
         'internetid_section'
     );
-    
+
     add_settings_field(
         'internetid_site_base',
         'Site Base URL',
@@ -467,10 +452,10 @@ This project's authenticity is verified on-chain.
 ```markdown
 ## Verified Content
 
-| Content | Status |
-|---------|--------|
-| Documentation | [![Verified](https://api.internet-id.com/api/badge/0x1234.../svg?size=small&theme=green)](https://internet-id.com/verify?hash=0x1234...) |
-| Source Code | [![Verified](https://api.internet-id.com/api/badge/0x5678.../svg?size=small&theme=green)](https://internet-id.com/verify?hash=0x5678...) |
+| Content        | Status                                                                                                                                   |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Documentation  | [![Verified](https://api.internet-id.com/api/badge/0x1234.../svg?size=small&theme=green)](https://internet-id.com/verify?hash=0x1234...) |
+| Source Code    | [![Verified](https://api.internet-id.com/api/badge/0x5678.../svg?size=small&theme=green)](https://internet-id.com/verify?hash=0x5678...) |
 | Release Binary | [![Verified](https://api.internet-id.com/api/badge/0x9abc.../svg?size=small&theme=green)](https://internet-id.com/verify?hash=0x9abc...) |
 ```
 
@@ -483,21 +468,28 @@ This project's authenticity is verified on-chain.
 ```html
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>My Verified Content</title>
-</head>
-<body>
-  <article>
-    <h1>My Article</h1>
-    <p>This content is verified on Internet ID.</p>
-    
-    <!-- Verification Badge -->
-    <a href="https://internet-id.com/verify?hash=0x1234..." target="_blank" rel="noopener noreferrer">
-      <img src="https://api.internet-id.com/api/badge/0x1234.../svg?theme=dark&size=medium" alt="Verified on Internet ID" />
-    </a>
-  </article>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>My Verified Content</title>
+  </head>
+  <body>
+    <article>
+      <h1>My Article</h1>
+      <p>This content is verified on Internet ID.</p>
+
+      <!-- Verification Badge -->
+      <a
+        href="https://internet-id.com/verify?hash=0x1234..."
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <img
+          src="https://api.internet-id.com/api/badge/0x1234.../svg?theme=dark&size=medium"
+          alt="Verified on Internet ID"
+        />
+      </a>
+    </article>
+  </body>
 </html>
 ```
 
@@ -506,20 +498,20 @@ This project's authenticity is verified on-chain.
 ```html
 <picture>
   <!-- Small screens: small badge -->
-  <source 
-    media="(max-width: 768px)" 
+  <source
+    media="(max-width: 768px)"
     srcset="https://api.internet-id.com/api/badge/0x1234.../svg?size=small"
-  >
+  />
   <!-- Medium screens: medium badge -->
-  <source 
-    media="(max-width: 1024px)" 
+  <source
+    media="(max-width: 1024px)"
     srcset="https://api.internet-id.com/api/badge/0x1234.../svg?size=medium"
-  >
+  />
   <!-- Large screens: large badge -->
-  <img 
-    src="https://api.internet-id.com/api/badge/0x1234.../svg?size=large" 
+  <img
+    src="https://api.internet-id.com/api/badge/0x1234.../svg?size=large"
     alt="Verified on Internet ID"
-  >
+  />
 </picture>
 ```
 
@@ -530,11 +522,11 @@ This project's authenticity is verified on-chain.
   <div class="container">
     <h1>Authentic Content Creator</h1>
     <p>All my content is verified on-chain</p>
-    
+
     <div class="badge-container">
       <a href="https://internet-id.com/verify?hash=0x1234..." target="_blank">
-        <img 
-          src="https://api.internet-id.com/api/badge/0x1234.../svg?theme=blue&size=large&style=pill" 
+        <img
+          src="https://api.internet-id.com/api/badge/0x1234.../svg?theme=blue&size=large&style=pill"
           alt="Verified Creator"
           style="margin: 20px auto; display: block;"
         />
@@ -550,15 +542,15 @@ This project's authenticity is verified on-chain.
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
   }
-  
+
   .badge-container {
     margin-top: 30px;
   }
-  
+
   .badge-container img {
     transition: transform 0.2s ease;
   }
-  
+
   .badge-container img:hover {
     transform: scale(1.05);
   }
@@ -604,11 +596,11 @@ const badgeUrl = `${apiBase}/api/badge/${hash}/svg?theme=dark&_t=${timestamp}`;
 ### 4. Handle Loading States
 
 ```javascript
-const img = document.createElement('img');
+const img = document.createElement("img");
 img.src = badgeUrl;
-img.alt = 'Verified on Internet ID';
+img.alt = "Verified on Internet ID";
 img.onerror = () => {
-  img.src = '/fallback-badge.svg'; // Provide fallback
+  img.src = "/fallback-badge.svg"; // Provide fallback
 };
 ```
 
@@ -634,6 +626,7 @@ Use appropriate sizes for different screen sizes:
 ## Support
 
 For additional support or custom integration assistance:
+
 - Visit the badge showcase: `/badges`
 - Read the API documentation: `docs/BADGE_API.md`
 - Open an issue on GitHub

@@ -6,43 +6,45 @@ Internet-ID supports deployment across multiple EVM-compatible blockchain networ
 
 ### Production Networks (Mainnets)
 
-| Network | Chain ID | Gas Token | Use Case | Cost |
-|---------|----------|-----------|----------|------|
-| Ethereum Mainnet | 1 | ETH | Maximum security | High |
-| Polygon | 137 | MATIC | Low cost, high throughput | Low |
-| Base | 8453 | ETH | Coinbase ecosystem, low cost | Low |
-| Arbitrum One | 42161 | ETH | Low cost L2 | Low |
-| Optimism | 10 | ETH | Low cost L2 | Low |
+| Network          | Chain ID | Gas Token | Use Case                     | Cost |
+| ---------------- | -------- | --------- | ---------------------------- | ---- |
+| Ethereum Mainnet | 1        | ETH       | Maximum security             | High |
+| Polygon          | 137      | MATIC     | Low cost, high throughput    | Low  |
+| Base             | 8453     | ETH       | Coinbase ecosystem, low cost | Low  |
+| Arbitrum One     | 42161    | ETH       | Low cost L2                  | Low  |
+| Optimism         | 10       | ETH       | Low cost L2                  | Low  |
 
 ### Test Networks (Testnets)
 
-| Network | Chain ID | Faucet | Explorer |
-|---------|----------|--------|----------|
-| Ethereum Sepolia | 11155111 | [Sepolia Faucet](https://sepoliafaucet.com/) | [Sepolia Etherscan](https://sepolia.etherscan.io) |
-| Polygon Amoy | 80002 | [Amoy Faucet](https://faucet.polygon.technology/) | [Amoy PolygonScan](https://amoy.polygonscan.com) |
-| Base Sepolia | 84532 | [Base Faucet](https://www.coinbase.com/faucets/base-ethereum-sepolia-faucet) | [Base Sepolia Scan](https://sepolia.basescan.org) |
-| Arbitrum Sepolia | 421614 | [Arbitrum Faucet](https://faucet.quicknode.com/arbitrum/sepolia) | [Arbiscan Sepolia](https://sepolia.arbiscan.io) |
-| Optimism Sepolia | 11155420 | [Optimism Faucet](https://app.optimism.io/faucet) | [Optimism Sepolia Scan](https://sepolia-optimism.etherscan.io) |
+| Network          | Chain ID | Faucet                                                                       | Explorer                                                       |
+| ---------------- | -------- | ---------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Ethereum Sepolia | 11155111 | [Sepolia Faucet](https://sepoliafaucet.com/)                                 | [Sepolia Etherscan](https://sepolia.etherscan.io)              |
+| Polygon Amoy     | 80002    | [Amoy Faucet](https://faucet.polygon.technology/)                            | [Amoy PolygonScan](https://amoy.polygonscan.com)               |
+| Base Sepolia     | 84532    | [Base Faucet](https://www.coinbase.com/faucets/base-ethereum-sepolia-faucet) | [Base Sepolia Scan](https://sepolia.basescan.org)              |
+| Arbitrum Sepolia | 421614   | [Arbitrum Faucet](https://faucet.quicknode.com/arbitrum/sepolia)             | [Arbiscan Sepolia](https://sepolia.arbiscan.io)                |
+| Optimism Sepolia | 11155420 | [Optimism Faucet](https://app.optimism.io/faucet)                            | [Optimism Sepolia Scan](https://sepolia-optimism.etherscan.io) |
 
 ## Deployment Steps
 
 ### Prerequisites
 
 1. **Install Dependencies**
+
    ```bash
    npm install --legacy-peer-deps
    ```
 
 2. **Configure Environment Variables**
-   
+
    Create a `.env` file (copy from `.env.example`):
+
    ```bash
    # Your deployer private key
    PRIVATE_KEY=your_private_key_here
-   
+
    # Default RPC URL (used by scripts)
    RPC_URL=https://sepolia.base.org
-   
+
    # Optional: Override RPC URLs for specific chains
    ETHEREUM_RPC_URL=https://your-eth-rpc.com
    POLYGON_RPC_URL=https://your-polygon-rpc.com
@@ -72,6 +74,7 @@ npm run deploy:optimism-sepolia # Optimism Sepolia
 ```
 
 **Output:**
+
 ```
 ContentRegistry deployed to: 0x1234567890123456789012345678901234567890
 Saved address to: /path/to/deployed/baseSepolia.json
@@ -80,6 +83,7 @@ Saved address to: /path/to/deployed/baseSepolia.json
 ### Deploy to Mainnet
 
 ⚠️ **Warning**: Mainnet deployments cost real money. Ensure you have:
+
 - Sufficient gas tokens (ETH, MATIC, etc.)
 - Verified your deployment works on testnet
 - Reviewed gas costs for your target chain
@@ -114,6 +118,7 @@ deployed/
 ```
 
 Each file contains:
+
 ```json
 {
   "address": "0x1234567890123456789012345678901234567890"
@@ -127,11 +132,11 @@ Each file contains:
 The registry service automatically resolves contract addresses based on chain ID:
 
 ```typescript
-import { 
+import {
   resolveDefaultRegistry,
   getRegistryAddress,
   getAllRegistryAddresses,
-  getProviderForChain
+  getProviderForChain,
 } from "./scripts/services/registry.service";
 
 // Get registry for current network
@@ -158,6 +163,7 @@ curl "http://localhost:3001/api/resolve/cross-chain?platform=youtube&platformId=
 ```
 
 Response includes chain information:
+
 ```json
 {
   "platform": "youtube",
@@ -193,6 +199,7 @@ const txUrl = getExplorerTxUrl(137, "0x1234...");
 ### Choosing a Chain
 
 **For Development:**
+
 - Start with **Base Sepolia** or **Polygon Amoy** (free testnet tokens)
 - Test cross-chain features on multiple testnets
 
@@ -234,6 +241,7 @@ const txUrl = getExplorerTxUrl(137, "0x1234...");
 ### Deployment Fails
 
 **Error: Insufficient funds**
+
 ```
 Solution: Ensure wallet has gas tokens for the target chain
 - Check balance at block explorer
@@ -242,6 +250,7 @@ Solution: Ensure wallet has gas tokens for the target chain
 ```
 
 **Error: Network not configured**
+
 ```
 Solution: Check hardhat.config.ts includes the network
 - Verify chain is in SUPPORTED_CHAINS (config/chains.ts)
@@ -252,6 +261,7 @@ Solution: Check hardhat.config.ts includes the network
 ### Resolution Issues
 
 **Error: Registry address not configured**
+
 ```
 Solution: Deploy contract to the target chain first
 - Run appropriate deploy:* script
@@ -260,6 +270,7 @@ Solution: Deploy contract to the target chain first
 ```
 
 **Cross-chain resolution returns 404**
+
 ```
 Solution: Platform binding doesn't exist on any chain
 - Verify content was registered on-chain
@@ -290,6 +301,7 @@ ARBITRUM_RPC_URL=https://rpc.ankr.com/arbitrum
 To add support for a new EVM chain:
 
 1. Add chain configuration to `config/chains.ts`:
+
    ```typescript
    mychain: {
      chainId: 99999, // Use the actual chain ID from chainlist.org
@@ -303,6 +315,7 @@ To add support for a new EVM chain:
    ```
 
 2. Add network to `hardhat.config.ts`:
+
    ```typescript
    mychain: {
      url: SUPPORTED_CHAINS.mychain.rpcUrl,
@@ -312,6 +325,7 @@ To add support for a new EVM chain:
    ```
 
 3. Add deployment script to `package.json`:
+
    ```json
    "deploy:mychain": "hardhat run --network mychain scripts/deploy.ts"
    ```
@@ -324,6 +338,7 @@ To add support for a new EVM chain:
 ## Support
 
 For issues or questions:
+
 - Open an issue on [GitHub](https://github.com/subculture-collective/internet-id/issues)
 - Check existing [documentation](../README.md)
 - Review [security policy](../SECURITY_POLICY.md)

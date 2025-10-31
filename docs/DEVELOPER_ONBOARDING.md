@@ -11,6 +11,7 @@ Internet ID API supports two authentication methods:
 #### Option A: API Keys (Recommended for Server-Side Apps)
 
 Best for:
+
 - Backend services
 - Server-to-server integrations
 - Automated scripts and bots
@@ -18,6 +19,7 @@ Best for:
 #### Option B: JWT Tokens (Recommended for User-Scoped Access)
 
 Best for:
+
 - User-facing applications
 - Mobile apps
 - Frontend applications needing user-specific access
@@ -31,11 +33,11 @@ You'll need a JWT token first to create API keys. Follow these steps:
 1. **Sign a message with your wallet** (using MetaMask, WalletConnect, etc.):
 
 ```typescript
-import { ethers } from 'ethers';
+import { ethers } from "ethers";
 
 const provider = new ethers.BrowserProvider(window.ethereum);
 const signer = await provider.getSigner();
-const message = 'Sign in to Internet ID API';
+const message = "Sign in to Internet ID API";
 const signature = await signer.signMessage(message);
 const address = await signer.getAddress();
 ```
@@ -83,23 +85,23 @@ Or use direct HTTP requests with your preferred HTTP client.
 #### Using the SDK:
 
 ```typescript
-import { InternetIdClient } from '@internet-id/sdk';
+import { InternetIdClient } from "@internet-id/sdk";
 
 const client = new InternetIdClient({
-  apiKey: 'iid_your_api_key_here'
+  apiKey: "iid_your_api_key_here",
 });
 
 // Verify a YouTube video
 const result = await client.verifyByPlatform({
-  url: 'https://youtube.com/watch?v=abc123'
+  url: "https://youtube.com/watch?v=abc123",
 });
 
 if (result.verified) {
-  console.log('✅ Content is verified!');
-  console.log('Creator:', result.creator);
-  console.log('Registered on:', new Date(result.timestamp * 1000));
+  console.log("✅ Content is verified!");
+  console.log("Creator:", result.creator);
+  console.log("Registered on:", new Date(result.timestamp * 1000));
 } else {
-  console.log('❌ Content not verified');
+  console.log("❌ Content not verified");
 }
 ```
 
@@ -115,33 +117,33 @@ curl -H "x-api-key: iid_your_api_key_here" \
 ### Verify Content on Your Platform
 
 ```typescript
-import { InternetIdClient } from '@internet-id/sdk';
+import { InternetIdClient } from "@internet-id/sdk";
 
 const client = new InternetIdClient({ apiKey: process.env.INTERNET_ID_API_KEY });
 
 async function checkContentAuthenticity(platformUrl: string) {
   try {
     const result = await client.verifyByPlatform({ url: platformUrl });
-    
+
     if (result.verified) {
       return {
         isVerified: true,
         creator: result.creator,
         registeredAt: new Date(result.timestamp * 1000),
         blockchain: result.chainId,
-        manifest: result.manifest
+        manifest: result.manifest,
       };
     }
-    
+
     return { isVerified: false };
   } catch (error) {
-    console.error('Verification failed:', error);
+    console.error("Verification failed:", error);
     return { isVerified: false, error };
   }
 }
 
 // Usage
-const verification = await checkContentAuthenticity('https://youtube.com/watch?v=xyz');
+const verification = await checkContentAuthenticity("https://youtube.com/watch?v=xyz");
 console.log(verification);
 ```
 
@@ -150,17 +152,17 @@ console.log(verification);
 ```typescript
 async function listUserContent(creatorAddress: string) {
   const client = new InternetIdClient({ apiKey: process.env.INTERNET_ID_API_KEY });
-  
+
   const response = await client.listContent({
     creator: creatorAddress,
     limit: 50,
-    offset: 0
+    offset: 0,
   });
-  
-  return response.data.map(item => ({
+
+  return response.data.map((item) => ({
     hash: item.contentHash,
-    platforms: item.bindings?.map(b => `${b.platform}/${b.platformId}`),
-    createdAt: new Date(item.createdAt)
+    platforms: item.bindings?.map((b) => `${b.platform}/${b.platformId}`),
+    createdAt: new Date(item.createdAt),
   }));
 }
 ```
@@ -170,35 +172,35 @@ async function listUserContent(creatorAddress: string) {
 ```typescript
 async function getVerificationBadge(contentUrl: string) {
   const client = new InternetIdClient({ apiKey: process.env.INTERNET_ID_API_KEY });
-  
+
   const result = await client.verifyByPlatform({ url: contentUrl });
-  
+
   if (result.verified) {
     return {
-      type: 'verified',
-      text: '✓ Verified by Internet ID',
+      type: "verified",
+      text: "✓ Verified by Internet ID",
       creator: result.creator,
-      badgeUrl: `https://api.internet-id.io/api/badge/${result.contentHash}?theme=light&w=200`
+      badgeUrl: `https://api.internet-id.io/api/badge/${result.contentHash}?theme=light&w=200`,
     };
   }
-  
-  return { type: 'unverified', text: 'Not verified' };
+
+  return { type: "unverified", text: "Not verified" };
 }
 ```
 
 ### Monitor Content Verification Status
 
 ```typescript
-import { InternetIdClient } from '@internet-id/sdk';
+import { InternetIdClient } from "@internet-id/sdk";
 
 class VerificationMonitor {
   private client: InternetIdClient;
   private checkInterval: NodeJS.Timeout | null = null;
-  
+
   constructor(apiKey: string) {
     this.client = new InternetIdClient({ apiKey });
   }
-  
+
   startMonitoring(contentHashes: string[], onUpdate: (hash: string, verified: boolean) => void) {
     this.checkInterval = setInterval(async () => {
       for (const hash of contentHashes) {
@@ -211,7 +213,7 @@ class VerificationMonitor {
       }
     }, 60000); // Check every minute
   }
-  
+
   stopMonitoring() {
     if (this.checkInterval) {
       clearInterval(this.checkInterval);
@@ -222,12 +224,9 @@ class VerificationMonitor {
 
 // Usage
 const monitor = new VerificationMonitor(process.env.INTERNET_ID_API_KEY!);
-monitor.startMonitoring(
-  ['0xabc...', '0xdef...'],
-  (hash, verified) => {
-    console.log(`${hash}: ${verified ? '✓' : '✗'}`);
-  }
-);
+monitor.startMonitoring(["0xabc...", "0xdef..."], (hash, verified) => {
+  console.log(`${hash}: ${verified ? "✓" : "✗"}`);
+});
 ```
 
 ## Best Practices
@@ -256,7 +255,7 @@ async function verifyWithRetry(client: InternetIdClient, url: string, maxRetries
     } catch (error: any) {
       if (error.response?.status === 429 && attempt < maxRetries - 1) {
         const delay = Math.pow(2, attempt) * 1000; // Exponential backoff
-        await new Promise(resolve => setTimeout(resolve, delay));
+        await new Promise((resolve) => setTimeout(resolve, delay));
         continue;
       }
       throw error;
@@ -275,7 +274,7 @@ async function verifyWithRetry(client: InternetIdClient, url: string, maxRetries
 // Example: Simple in-memory cache
 class VerificationCache {
   private cache = new Map<string, { result: any; expires: number }>();
-  
+
   get(key: string) {
     const entry = this.cache.get(key);
     if (!entry) return null;
@@ -285,11 +284,11 @@ class VerificationCache {
     }
     return entry.result;
   }
-  
+
   set(key: string, result: any, ttlSeconds = 300) {
     this.cache.set(key, {
       result,
-      expires: Date.now() + ttlSeconds * 1000
+      expires: Date.now() + ttlSeconds * 1000,
     });
   }
 }
@@ -308,13 +307,13 @@ async function safeVerify(client: InternetIdClient, url: string) {
     return { success: true, data: result };
   } catch (error: any) {
     if (error.response?.status === 404) {
-      return { success: true, data: { verified: false, reason: 'not_registered' } };
+      return { success: true, data: { verified: false, reason: "not_registered" } };
     }
     if (error.response?.status === 429) {
-      return { success: false, reason: 'rate_limit_exceeded' };
+      return { success: false, reason: "rate_limit_exceeded" };
     }
-    console.error('Verification error:', error);
-    return { success: false, reason: 'unknown_error' };
+    console.error("Verification error:", error);
+    return { success: false, reason: "unknown_error" };
   }
 }
 ```
@@ -327,14 +326,15 @@ For testing, point to the development server:
 
 ```typescript
 const client = new InternetIdClient({
-  baseURL: 'http://localhost:3001/api/v1',
-  apiKey: 'iid_test_key'
+  baseURL: "http://localhost:3001/api/v1",
+  apiKey: "iid_test_key",
 });
 ```
 
 ### Test Data
 
 Use test content hashes and platform IDs for development:
+
 - Test hash: `0x0000000000000000000000000000000000000000000000000000000000000001`
 - Test platform: `youtube`
 - Test platform ID: `test_video_123`
@@ -364,6 +364,7 @@ Explore the API interactively using Swagger UI:
 ## Feedback
 
 We'd love to hear about your experience! Please:
+
 - Open an issue for bugs or feature requests
 - Share your integration on our community forum _(coming soon)_
 - Contribute to the SDK or documentation

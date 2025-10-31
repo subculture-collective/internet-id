@@ -9,6 +9,7 @@ This document summarizes the WCAG 2.1 Level AA accessibility improvements implem
 ### 1. Semantic HTML Structure
 
 #### Skip-to-Content Link
+
 - **Location**: `web/app/layout.tsx`
 - **Implementation**: Added keyboard-accessible skip link that appears on first Tab press
 - **Functionality**: Jumps to main content area (#main-content)
@@ -16,12 +17,14 @@ This document summarizes the WCAG 2.1 Level AA accessibility improvements implem
 - **Testing**: Verified in `web/e2e/07-accessibility.spec.ts`
 
 #### ARIA Landmarks
+
 - **Main Content**: Added `id="main-content"` and `role="main"` to main element
 - **Navigation**: Tab navigation uses `<nav>` with `aria-label="Main navigation"`
 - **Sections**: All major sections use `aria-labelledby` attributes
 - **Testing**: Validated proper landmark structure in accessibility tests
 
 #### Heading Hierarchy
+
 - **H1**: Single h1 per page ("Internet-ID")
 - **H2**: Section headings (Upload to IPFS, Create manifest, etc.)
 - **H3**: Subsection headings (Result, Share, etc.)
@@ -32,46 +35,38 @@ This document summarizes the WCAG 2.1 Level AA accessibility improvements implem
 #### Component Enhancements
 
 **LoadingSpinner.tsx**
+
 ```tsx
 // Added ARIA attributes
-<div
-  role="status"
-  aria-live="polite"
-  aria-label={message || "Loading"}
-  aria-busy="true"
-/>
+<div role="status" aria-live="polite" aria-label={message || "Loading"} aria-busy="true" />
 ```
 
 **Toast.tsx**
+
 ```tsx
 // Toast notifications with proper ARIA
-<div
-  role="alert"
-  aria-live={type === "error" ? "assertive" : "polite"}
-  aria-atomic="true"
-/>
+<div role="alert" aria-live={type === "error" ? "assertive" : "polite"} aria-atomic="true" />
 ```
 
 **ErrorMessage.tsx**
+
 ```tsx
 // Error messages announced immediately
-<div
-  role="alert"
-  aria-live="assertive"
-  aria-atomic="true"
-/>
+<div role="alert" aria-live="assertive" aria-atomic="true" />
 ```
 
 **CopyButton Component**
+
 ```tsx
 // Dynamic ARIA labels based on state
-aria-label={copied 
-  ? `${label} copied to clipboard` 
+aria-label={copied
+  ? `${label} copied to clipboard`
   : `Copy ${label} to clipboard`}
 aria-live="polite"
 ```
 
 #### Form Accessibility
+
 - All file inputs wrapped with descriptive labels
 - Added `aria-required="true"` to required fields
 - Input IDs linked to label `htmlFor` attributes
@@ -80,10 +75,11 @@ aria-live="polite"
 ### 3. Keyboard Navigation
 
 #### Focus Management
+
 - **Focus Indicators**: 3px solid blue outline (#1d4ed8) with 2px offset
 - **Focus Shadow**: Additional subtle shadow for enhanced visibility
 - **Contrast**: Focus indicators maintain 3:1 contrast ratio minimum
-- **CSS Implementation**: 
+- **CSS Implementation**:
   ```css
   *:focus-visible {
     outline: 3px solid #1d4ed8;
@@ -93,12 +89,14 @@ aria-live="polite"
   ```
 
 #### Keyboard Shortcuts
+
 - **Tab/Shift+Tab**: Navigate through interactive elements
 - **Enter/Space**: Activate buttons and links
 - **Escape**: Close toast notifications (implemented in Toast component)
 - **Skip Link**: Visible on Tab, activates with Enter
 
 #### Tab Order
+
 - Logical tab order maintained through proper HTML structure
 - No `tabindex` manipulation (except for skip link)
 - All interactive elements keyboard accessible
@@ -106,18 +104,21 @@ aria-live="polite"
 ### 4. Color Contrast (WCAG AA Compliance)
 
 #### Updated Color Palette
+
 - **Links**: `#1d4ed8` (darker blue for better contrast)
 - **Link Hover**: `#1e40af` (even darker on hover)
 - **Link Visited**: `#7c3aed` (purple with sufficient contrast)
 - **Focus Outline**: `#1d4ed8` (3px solid)
 
 #### Contrast Ratios
+
 - Normal text: 4.5:1 minimum ✅
 - Large text (18pt+): 3:1 minimum ✅
 - Interactive elements: 3:1 minimum ✅
 - Focus indicators: 3:1 minimum ✅
 
 #### Button States
+
 - **Default**: White background with gray border
 - **Hover**: `#f3f4f6` background with darker border
 - **Active**: `#e5e7eb` background
@@ -128,10 +129,13 @@ aria-live="polite"
 #### Automated Testing
 
 **Custom Audit Script** (`web/scripts/accessibility-audit.js`)
+
 ```bash
 npm run audit:a11y
 ```
+
 Checks:
+
 - ARIA labels on buttons
 - Alt text on images
 - Form labels
@@ -139,10 +143,13 @@ Checks:
 - Role attributes
 
 **Playwright Tests** (`web/e2e/07-accessibility.spec.ts`)
+
 ```bash
 npm run test:a11y
 ```
+
 Covers:
+
 - Document structure
 - Skip-to-content functionality
 - Keyboard navigation
@@ -151,10 +158,13 @@ Covers:
 - Tab button states
 
 **Lighthouse Integration**
+
 ```bash
 npm run perf:audit
 ```
+
 Validates:
+
 - Accessibility score (target: 90+)
 - Color contrast
 - ARIA validity
@@ -164,6 +174,7 @@ Validates:
 #### Documentation
 
 **ACCESSIBILITY.md** (4.9 KB)
+
 - WCAG 2.1 Level AA conformance statement
 - Feature documentation
 - Keyboard shortcuts reference
@@ -172,6 +183,7 @@ Validates:
 - Issue reporting process
 
 **ACCESSIBILITY_TESTING.md** (7.5 KB)
+
 - Quick start guide
 - Automated testing instructions
 - Manual testing procedures
@@ -184,16 +196,19 @@ Validates:
 ### 6. Additional Improvements
 
 #### Image Accessibility
+
 - QR codes: Descriptive alt text (e.g., "QR code for youtube verification link")
 - All images verified to have alt attributes
 - Decorative images marked with `aria-hidden="true"`
 
 #### Touch Targets
+
 - Minimum 44x44px size for all interactive elements
 - Consistent padding across form controls
 - Mobile-friendly design maintained
 
 #### Error Handling
+
 - Error messages use `role="alert"`
 - Assertive announcement for critical errors
 - Clear error messages with suggestions
@@ -202,6 +217,7 @@ Validates:
 ## 📊 Testing Results
 
 ### Automated Audit Results
+
 ```
 ✅ All accessibility checks passed!
 - 45 checks completed
@@ -212,6 +228,7 @@ Validates:
 ```
 
 ### Build & Lint Status
+
 ```
 ✅ Build: Successful
 ✅ Lint: Passed (only unrelated warnings)
@@ -219,6 +236,7 @@ Validates:
 ```
 
 ### Test Coverage
+
 - ✅ Skip-to-content link
 - ✅ Document structure and landmarks
 - ✅ Heading hierarchy
@@ -232,6 +250,7 @@ Validates:
 ## 🎯 WCAG 2.1 Level AA Conformance
 
 ### Principle 1: Perceivable
+
 - ✅ 1.1.1 Non-text Content (Level A)
 - ✅ 1.3.1 Info and Relationships (Level A)
 - ✅ 1.3.2 Meaningful Sequence (Level A)
@@ -239,6 +258,7 @@ Validates:
 - ✅ 1.4.11 Non-text Contrast (Level AA)
 
 ### Principle 2: Operable
+
 - ✅ 2.1.1 Keyboard (Level A)
 - ✅ 2.1.2 No Keyboard Trap (Level A)
 - ✅ 2.4.1 Bypass Blocks (Level A)
@@ -247,6 +267,7 @@ Validates:
 - ✅ 2.4.7 Focus Visible (Level AA)
 
 ### Principle 3: Understandable
+
 - ✅ 3.1.1 Language of Page (Level A)
 - ✅ 3.2.3 Consistent Navigation (Level AA)
 - ✅ 3.2.4 Consistent Identification (Level AA)
@@ -254,32 +275,39 @@ Validates:
 - ✅ 3.3.2 Labels or Instructions (Level A)
 
 ### Principle 4: Robust
+
 - ✅ 4.1.2 Name, Role, Value (Level A)
 - ✅ 4.1.3 Status Messages (Level AA)
 
 ## 📝 Files Modified
 
 ### Components
+
 - `web/app/components/LoadingSpinner.tsx` - Added ARIA attributes
 - `web/app/components/Toast.tsx` - Added ARIA live regions, keyboard support
 - `web/app/components/ErrorMessage.tsx` - Added role="alert"
 
 ### Pages
+
 - `web/app/layout.tsx` - Added skip-to-content link
 - `web/app/page.tsx` - Added ARIA landmarks, labels, improved form accessibility
 
 ### Styles
+
 - `web/app/globals.css` - Enhanced focus indicators, improved color contrast
 
 ### Tests
+
 - `web/e2e/07-accessibility.spec.ts` - Comprehensive accessibility test suite
 
 ### Documentation
+
 - `web/ACCESSIBILITY.md` - User-facing accessibility documentation
 - `web/ACCESSIBILITY_TESTING.md` - Developer testing guide
 - `README.md` - Added accessibility documentation links
 
 ### Tooling
+
 - `web/scripts/accessibility-audit.js` - Automated audit script
 - `web/package.json` - Added `audit:a11y` and `test:a11y` scripts
 
@@ -297,6 +325,7 @@ While WCAG 2.1 Level AA compliance has been achieved, these enhancements could b
 ## 📞 Support
 
 For accessibility questions or issues:
+
 - Email: support@subculture.io
 - GitHub Issues: https://github.com/subculture-collective/internet-id/issues
 

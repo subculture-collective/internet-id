@@ -153,7 +153,7 @@ router.get(
   async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { hash } = req.params;
-      
+
       if (!hash || !CONTENT_HASH_PATTERN.test(hash)) {
         return res.status(400).json({
           error: "Invalid hash format",

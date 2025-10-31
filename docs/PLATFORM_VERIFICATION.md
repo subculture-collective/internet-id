@@ -20,11 +20,13 @@ The Internet-ID system supports verification for the following platforms:
 **Verification Approach**: Video ID or channel verification via URL parsing
 
 **URL Formats**:
+
 - Standard watch URL: `https://www.youtube.com/watch?v=VIDEO_ID`
 - Short URL: `https://youtu.be/VIDEO_ID`
 - Shorts URL: `https://www.youtube.com/shorts/VIDEO_ID`
 
 **Usage**:
+
 ```bash
 # Bind YouTube video to content
 npm run bind:youtube -- <masterFilePath> <youtubeVideoId> <registryAddress>
@@ -34,6 +36,7 @@ npm run verify:youtube -- <youtubeUrlOrId> <registryAddress>
 ```
 
 **Limitations**:
+
 - Requires valid YouTube video ID
 - Video must be publicly accessible for verification
 - Re-encoded versions on YouTube can be bound to original content
@@ -45,14 +48,17 @@ npm run verify:youtube -- <youtubeUrlOrId> <registryAddress>
 **Verification Approach**: Video ID or user profile verification via URL parsing
 
 **URL Formats**:
+
 - Video with username: `https://www.tiktok.com/@username/video/1234567890`
 - Video without username: `https://www.tiktok.com/video/1234567890`
 - Mobile URL: `https://m.tiktok.com/@user/video/9876543210`
 
-**Extracted ID Format**: 
+**Extracted ID Format**:
+
 - `@username/video/1234567890` or `video/1234567890`
 
 **Usage**:
+
 ```bash
 # Bind TikTok video to content
 npm run bind:tiktok -- <masterFilePath> <tiktokId> <registryAddress>
@@ -62,6 +68,7 @@ npm run verify:tiktok -- <tiktokUrlOrId> <registryAddress>
 ```
 
 **Limitations**:
+
 - Requires publicly accessible TikTok content
 - Platform ID should include username path when available
 - TikTok's content algorithm may show re-encoded versions
@@ -73,16 +80,19 @@ npm run verify:tiktok -- <tiktokUrlOrId> <registryAddress>
 **Verification Approach**: Post shortcode or profile bio verification via URL parsing
 
 **URL Formats**:
+
 - Post URL: `https://www.instagram.com/p/SHORTCODE/`
 - Reel URL: `https://www.instagram.com/reel/SHORTCODE/`
 - Profile URL: `https://www.instagram.com/username/`
 
-**Extracted ID Format**: 
+**Extracted ID Format**:
+
 - `p/SHORTCODE` for posts
 - `reel/SHORTCODE` for reels
 - `username` for profiles
 
 **Usage**:
+
 ```bash
 # Bind Instagram post to content
 npm run bind:instagram -- <masterFilePath> <instagramId> <registryAddress>
@@ -92,6 +102,7 @@ npm run verify:instagram -- <instagramUrlOrId> <registryAddress>
 ```
 
 **Limitations**:
+
 - Requires publicly accessible Instagram content
 - Private profiles cannot be verified by third parties
 - Instagram may compress or modify uploaded content
@@ -103,16 +114,19 @@ npm run verify:instagram -- <instagramUrlOrId> <registryAddress>
 **Verification Approach**: Repository file or gist verification
 
 **URL Formats**:
+
 - Repository: `https://github.com/user/repo`
 - File in repo: `https://github.com/user/repo/blob/main/file.txt`
 - Gist: `https://gist.github.com/user/gistid`
 
-**Extracted ID Format**: 
+**Extracted ID Format**:
+
 - `user/repo` for repositories
 - `user/repo/blob/main/file.txt` for files
 - `gist/user/gistid` for gists
 
 **Usage**:
+
 ```bash
 # Bind GitHub repository to content
 npm run bind:github -- <masterFilePath> <githubId> <registryAddress>
@@ -122,11 +136,13 @@ npm run verify:github -- <githubUrlOrId> <registryAddress>
 ```
 
 **Verification Methods**:
+
 1. **Repository README**: Add content hash to README.md
 2. **Gist**: Create a gist containing the content hash
 3. **File in repo**: Add verification file with content hash
 
 **Limitations**:
+
 - Repository/gist must be publicly accessible
 - Verification requires on-chain binding before creating verification proof
 - Private repositories cannot be verified by third parties
@@ -138,16 +154,19 @@ npm run verify:github -- <githubUrlOrId> <registryAddress>
 **Verification Approach**: Server invite or custom status verification
 
 **URL Formats**:
+
 - Invite URL (discord.gg): `https://discord.gg/INVITE_CODE`
 - Invite URL (discord.com): `https://discord.com/invite/INVITE_CODE`
 - Channel URL: `https://discord.com/channels/SERVER_ID/CHANNEL_ID`
 
-**Extracted ID Format**: 
+**Extracted ID Format**:
+
 - `INVITE_CODE` for discord.gg invites
 - `invite/INVITE_CODE` for discord.com invites
 - `channels/SERVER_ID/CHANNEL_ID` for channel links
 
 **Usage**:
+
 ```bash
 # Bind Discord server to content
 npm run bind:discord -- <masterFilePath> <discordId> <registryAddress>
@@ -157,11 +176,13 @@ npm run verify:discord -- <discordUrlOrId> <registryAddress>
 ```
 
 **Verification Methods**:
+
 1. **Server Description**: Add content hash to server description
 2. **Custom Status**: Set custom status with content hash
 3. **Channel Topic**: Add verification hash to channel topic
 
 **Limitations**:
+
 - Server must be publicly accessible or user must be a member
 - Invite codes may expire
 - Verification requires appropriate server permissions
@@ -173,16 +194,19 @@ npm run verify:discord -- <discordUrlOrId> <registryAddress>
 **Verification Approach**: Profile summary or post verification
 
 **URL Formats**:
+
 - Profile: `https://www.linkedin.com/in/username/`
 - Post: `https://www.linkedin.com/posts/activity-ID/`
 - Company: `https://www.linkedin.com/company/companyname/`
 
-**Extracted ID Format**: 
+**Extracted ID Format**:
+
 - `in/username` for profiles
 - `posts/activity-ID` for posts
 - `company/companyname` for companies
 
 **Usage**:
+
 ```bash
 # Bind LinkedIn profile to content
 npm run bind:linkedin -- <masterFilePath> <linkedinId> <registryAddress>
@@ -192,11 +216,13 @@ npm run verify:linkedin -- <linkedinUrlOrId> <registryAddress>
 ```
 
 **Verification Methods**:
+
 1. **Profile Summary**: Add content hash to profile summary
 2. **Post Content**: Create a post with the content hash
 3. **Company Description**: Add verification to company page
 
 **Limitations**:
+
 - Profile must be publicly visible
 - LinkedIn's privacy settings may restrict visibility
 - Posts may have limited lifetime or visibility
@@ -208,16 +234,19 @@ npm run verify:linkedin -- <linkedinUrlOrId> <registryAddress>
 For all platforms, the verification process follows these steps:
 
 1. **Register Content**: Register your original content hash on-chain
+
    ```bash
    npm run register -- <filePath> <manifestURI> <registryAddress>
    ```
 
 2. **Bind Platform ID**: Bind your platform-specific ID to the content hash
+
    ```bash
    npm run bind:<platform> -- <masterFilePath> <platformId> <registryAddress>
    ```
 
 3. **Verify Binding**: Verify the platform binding is correct
+
    ```bash
    npm run verify:<platform> -- <platformUrlOrId> <registryAddress>
    ```
@@ -227,6 +256,7 @@ For all platforms, the verification process follows these steps:
 ## Web UI Integration
 
 All platforms are integrated into the web UI with:
+
 - Platform selection dropdown in One-shot, Bind forms
 - Automatic URL parsing for all supported platforms
 - Platform-specific verification badges and links
@@ -235,6 +265,7 @@ All platforms are integrated into the web UI with:
 ## API Integration
 
 The API supports platform verification through:
+
 - `/api/resolve?platform=<platform>&platformId=<id>` - Resolve platform binding
 - `/api/public-verify?platform=<platform>&platformId=<id>` - Public verification
 
@@ -265,6 +296,7 @@ The API supports platform verification through:
 ### Support
 
 For additional help:
+
 - Check the [GitHub Issues](https://github.com/subculture-collective/internet-id/issues)
 - Review test files for examples: `test/verify-*.test.ts`
 - See the main [README.md](../README.md) for general setup
@@ -272,6 +304,7 @@ For additional help:
 ## Future Enhancements
 
 Planned features for platform verification:
+
 - Automated verification proof generation
 - Platform-specific metadata extraction
 - Multi-chain support for bindings
