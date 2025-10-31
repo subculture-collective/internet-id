@@ -237,7 +237,7 @@ router.get(
           },
           { ttl: DEFAULT_TTL.MANIFEST }
         );
-      } catch {
+      } catch (_error) {
         // Manifest fetch failed, continue without it
       }
 

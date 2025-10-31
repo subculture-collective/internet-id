@@ -108,7 +108,7 @@ export async function createApp() {
   app.use(sentryService.getErrorHandler());
 
   // Global error handler
-  app.use((err: Error & { status?: number }, req: express.Request & { correlationId?: string }, res: express.Response) => {
+  app.use((err: Error & { status?: number }, req: express.Request & { correlationId?: string }, res: express.Response, _next: express.NextFunction) => {
     logger.error("Unhandled error", err, {
       method: req.method,
       path: req.path,

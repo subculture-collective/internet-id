@@ -53,12 +53,17 @@ class SentryService {
           
           // Remove sensitive query parameters
           if (event.request?.query_string) {
-            const sensitiveParams = ["token", "key", "secret", "password"];
+            const sensitiveParams = ["token", "key", "secret", "password", "apikey", "api_key"];
+            let queryString = event.request.query_string;
+            
+            // Parse and filter query string
             sensitiveParams.forEach(param => {
-              if (event.request?.query_string?.includes(param)) {
-                event.request.query_string = "[FILTERED]";
-              }
+              // Match param=value or param=value& patterns (case insensitive)
+              const regex = new RegExp(`(${param}=[^&]*)`, "gi");
+              queryString = queryString.replace(regex, `${param}=[FILTERED]`);
             });
+            
+            event.request.query_string = queryString;
           }
           
           return event;
