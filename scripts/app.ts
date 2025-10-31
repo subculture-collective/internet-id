@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import swaggerUi from "swagger-ui-express";
 
 // Import routers
 import healthRoutes from "./routes/health.routes";
@@ -12,6 +13,9 @@ import contentRoutes from "./routes/content.routes";
 import oneshotRoutes from "./routes/oneshot.routes";
 import badgeRoutes from "./routes/badge.routes";
 
+// Import v1 API routes
+import v1Routes from "./routes/v1/index";
+
 // Import rate limiting middleware
 import {
   strictRateLimit,
@@ -21,6 +25,9 @@ import {
 
 // Import cache service
 import { cacheService } from "./services/cache.service";
+
+// Import swagger spec
+import { swaggerSpec } from "./services/swagger.service";
 
 export async function createApp() {
   // Initialize cache service
@@ -35,7 +42,16 @@ export async function createApp() {
   const moderate = await moderateRateLimit;
   const relaxed = await relaxedRateLimit;
 
-  // Mount routers with appropriate rate limits
+  // Swagger documentation
+  app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  app.get("/api/docs.json", (req, res) => {
+    res.json(swaggerSpec);
+  });
+
+  // Mount v1 API routes (versioned)
+  app.use("/api/v1", moderate, v1Routes);
+
+  // Mount legacy routers with appropriate rate limits
   // Relaxed limits for health/status checks
   app.use("/api", relaxed, healthRoutes);
 

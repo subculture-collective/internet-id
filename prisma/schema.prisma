@@ -25,6 +25,7 @@ model User {
   contents      Content[]
   accounts      Account[]
   sessions      Session[]
+  apiKeys       ApiKey[]
 
   @@index([createdAt])
 }
@@ -130,4 +131,23 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  key         String    @unique // hashed API key
+  name        String? // optional name for the key
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tier        String    @default("free") // free, paid
+  rateLimit   Int       @default(100) // requests per minute
+  isActive    Boolean   @default(true)
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([key, isActive])
+  @@index([expiresAt])
 }

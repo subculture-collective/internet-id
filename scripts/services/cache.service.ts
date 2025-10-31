@@ -60,12 +60,14 @@ class CacheService {
         url: redisUrl,
         socket: {
           reconnectStrategy: (retries) => {
+            // Stop after 3 attempts
+            if (retries >= 3) return false;
             // Exponential backoff: 50ms, 100ms, 200ms, ..., up to 3s
             const delay = Math.min(50 * Math.pow(2, retries), 3000);
             console.log(`[Cache] Reconnecting to Redis (attempt ${retries + 1})...`);
             return delay;
           },
-          connectTimeout: 5000, // 5 second connection timeout
+          connectTimeout: 3000, // 3 second connection timeout
         },
       });
 
@@ -87,7 +89,16 @@ class CacheService {
         console.log("[Cache] Redis client reconnecting...");
       });
 
-      await this.client.connect();
+      // Add timeout wrapper for connect
+      let timeoutId: NodeJS.Timeout;
+      await Promise.race([
+        this.client.connect(),
+        new Promise((_, reject) => {
+          timeoutId = setTimeout(() => reject(new Error('Connection timeout')), 3000);
+        })
+      ]).finally(() => {
+        if (timeoutId) clearTimeout(timeoutId);
+      });
 
       // Configure Redis for LRU eviction
       // maxmemory-policy: allkeys-lru evicts any key using LRU when max memory is reached

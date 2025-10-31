@@ -778,7 +778,51 @@ See the complete [E2E Testing Guide](./web/E2E_TESTING.md) for detailed document
 - Support Merkle batch anchoring.
 - Add selective disclosure/zk proof of “is a real person” VC.
 
+## Public API for Third-Party Integrations
+
+Internet ID provides a **public API** for developers to build integrations, tools, and services on top of the platform.
+
+### Features
+
+- ✅ **RESTful API** with versioning (`/api/v1/`)
+- ✅ **Multiple authentication methods**: API keys and JWT tokens
+- ✅ **Rate limiting** per API key tier (free: 100 req/min, paid: 1000 req/min)
+- ✅ **OpenAPI/Swagger documentation** at `/api/docs`
+- ✅ **Official TypeScript/JavaScript SDK** (`@internet-id/sdk`)
+
+### Quick Start
+
+```bash
+# Install the SDK
+npm install @internet-id/sdk
+```
+
+```typescript
+import { InternetIdClient } from '@internet-id/sdk';
+
+const client = new InternetIdClient({
+  apiKey: 'iid_your_api_key_here'
+});
+
+// Verify content by platform URL
+const result = await client.verifyByPlatform({
+  url: 'https://youtube.com/watch?v=abc123'
+});
+
+console.log(result.verified); // true or false
+console.log(result.creator); // Creator's Ethereum address
+```
+
+### Documentation
+
+- **[Public API Documentation](./docs/PUBLIC_API.md)** - Complete API reference
+- **[Developer Onboarding Guide](./docs/DEVELOPER_ONBOARDING.md)** - Get started quickly
+- **[SDK Documentation](./sdk/typescript/README.md)** - TypeScript/JavaScript SDK usage
+- **Interactive API Explorer**: http://localhost:3001/api/docs (when running locally)
+
 ## API reference (summary)
+
+### Legacy Endpoints
 
 Auth: If `API_KEY` is set, include `x-api-key: $API_KEY` in requests for protected endpoints.
 
@@ -799,6 +843,10 @@ Auth: If `API_KEY` is set, include `x-api-key: $API_KEY` in requests for protect
 - Web-only:
   - `GET /api/badge/[hash]` – SVG badge with `theme` and `w` (width)
   - `GET /api/qr?url=...` – QR PNG for a share URL
+
+### V1 Public API Endpoints
+
+See [Public API Documentation](./docs/PUBLIC_API.md) for the complete v1 API reference.
 
 ```
 
