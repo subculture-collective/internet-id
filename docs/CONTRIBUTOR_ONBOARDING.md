@@ -239,12 +239,14 @@ npm run db:seed
 ```
 
 This creates:
+
 - **5 test creator accounts** with deterministic Ethereum addresses
 - **5 sample content entries** (video, image, audio, document, tutorial)
 - **10 platform bindings** (YouTube, TikTok, GitHub, Instagram, Discord, LinkedIn)
 - **3 verification records** (mix of verified and failed)
 
 **Benefits:**
+
 - No need for manual API calls to create test data
 - Deterministic data for consistent testing
 - Ready-to-use platform bindings for verification testing

@@ -1,4 +1,4 @@
-import { Page, expect } from '@playwright/test';
+import { Page, expect } from "@playwright/test";
 
 /**
  * Utility functions for E2E tests
@@ -14,11 +14,7 @@ export async function waitForNavigation(page: Page, url: string | RegExp) {
 /**
  * Fill form field by label text
  */
-export async function fillFormField(
-  page: Page,
-  label: string,
-  value: string
-) {
+export async function fillFormField(page: Page, label: string, value: string) {
   const input = page.getByLabel(label);
   await input.fill(value);
 }
@@ -27,7 +23,7 @@ export async function fillFormField(
  * Click button by text
  */
 export async function clickButton(page: Page, text: string | RegExp) {
-  const button = page.getByRole('button', { name: text });
+  const button = page.getByRole("button", { name: text });
   await button.click();
 }
 
@@ -42,7 +38,7 @@ export async function waitForApiResponse(
   return page.waitForResponse(
     (response) => {
       const url = response.url();
-      if (typeof urlPattern === 'string') {
+      if (typeof urlPattern === "string") {
         return url.includes(urlPattern);
       }
       return urlPattern.test(url);
@@ -84,9 +80,9 @@ export function generateTestData() {
  */
 export async function createTestFile(
   filename: string,
-  content: string = 'Test content for E2E testing'
+  content: string = "Test content for E2E testing"
 ): Promise<{ filename: string; content: string; buffer: Buffer }> {
-  const buffer = Buffer.from(content, 'utf-8');
+  const buffer = Buffer.from(content, "utf-8");
   return {
     filename,
     content,
@@ -105,7 +101,7 @@ export function isCI(): boolean {
  * Get API base URL
  */
 export function getApiBaseUrl(): string {
-  return process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:3001';
+  return process.env.NEXT_PUBLIC_API_BASE || "http://localhost:3001";
 }
 
 /**

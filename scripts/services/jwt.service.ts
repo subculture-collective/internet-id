@@ -5,7 +5,7 @@ const isProduction = process.env.NODE_ENV === "production";
 if (!process.env.JWT_SECRET && isProduction) {
   throw new Error(
     "JWT_SECRET environment variable is required in production. " +
-    "Generate a strong secret with: openssl rand -base64 32"
+      "Generate a strong secret with: openssl rand -base64 32"
   );
 }
 
@@ -49,10 +49,10 @@ export function verifyJwtToken(token: string): JwtPayload | null {
  */
 export function extractTokenFromHeader(authHeader?: string): string | null {
   if (!authHeader) return null;
-  
+
   if (authHeader.startsWith("Bearer ")) {
     return authHeader.substring(7);
   }
-  
+
   return authHeader;
 }

@@ -9,6 +9,7 @@ This document details the gas optimizations implemented in the ContentRegistry s
 ### 1. Storage Layout Optimization (Struct Packing)
 
 **Before:**
+
 ```solidity
 struct Entry {
     address creator;      // 20 bytes - Slot 0
@@ -19,6 +20,7 @@ struct Entry {
 ```
 
 **After:**
+
 ```solidity
 struct Entry {
     address creator;      // 20 bytes - Slot 0 (bytes 0-19)
@@ -32,6 +34,7 @@ struct Entry {
 ### 2. Removed Redundant Storage
 
 **Before:**
+
 ```solidity
 struct Entry {
     bytes32 contentHash;  // Stored redundantly
@@ -41,6 +44,7 @@ mapping(bytes32 => Entry) public entries; // contentHash is already the key
 ```
 
 **After:**
+
 ```solidity
 struct Entry {
     // contentHash removed - it's the mapping key
@@ -53,6 +57,7 @@ struct Entry {
 ### 3. Cache Timestamp Calculation
 
 **Before:**
+
 ```solidity
 entries[contentHash] = Entry({
     timestamp: uint64(block.timestamp)  // First cast
@@ -61,6 +66,7 @@ emit ContentRegistered(..., uint64(block.timestamp)); // Second cast
 ```
 
 **After:**
+
 ```solidity
 uint64 currentTime = uint64(block.timestamp);
 entries[contentHash] = Entry({
@@ -74,11 +80,13 @@ emit ContentRegistered(..., currentTime);
 ### 4. Use Calldata for Internal Functions (Solidity 0.8.8+)
 
 **Before:**
+
 ```solidity
 function _platformKey(string memory platform, string memory platformId) internal pure
 ```
 
 **After:**
+
 ```solidity
 function _platformKey(string calldata platform, string calldata platformId) internal pure
 ```
@@ -91,9 +99,9 @@ function _platformKey(string calldata platform, string calldata platformId) inte
 
 ### Deployment Costs
 
-| Metric | Cost (gas) |
-|--------|------------|
-| Contract Deployment | 825,317 |
+| Metric              | Cost (gas) |
+| ------------------- | ---------- |
+| Contract Deployment | 825,317    |
 
 ### Function Costs
 
@@ -101,35 +109,35 @@ All costs measured with optimizer enabled (200 runs).
 
 #### register(bytes32 contentHash, string calldata manifestURI)
 
-| URI Length | Gas Cost |
-|------------|----------|
-| Short URI (~10 chars) | ~50,368 |
-| Medium URI (~30 chars) | ~71,650 |
-| Long URI (~60 chars) | ~115,935 |
+| URI Length             | Gas Cost |
+| ---------------------- | -------- |
+| Short URI (~10 chars)  | ~50,368  |
+| Medium URI (~30 chars) | ~71,650  |
+| Long URI (~60 chars)   | ~115,935 |
 
 **Note:** Gas cost increases linearly with URI length due to string storage.
 
 #### bindPlatform(bytes32 contentHash, string calldata platform, string calldata platformId)
 
-| Scenario | Gas Cost |
-|----------|----------|
-| First binding | ~78,228 |
-| Subsequent bindings | ~95,640 |
+| Scenario            | Gas Cost |
+| ------------------- | -------- |
+| First binding       | ~78,228  |
+| Subsequent bindings | ~95,640  |
 
 **Note:** First binding costs less because array initialization is cheaper.
 
 #### updateManifest(bytes32 contentHash, string calldata newManifestURI)
 
-| URI Length | Gas Cost |
-|------------|----------|
-| Similar length URI | ~33,227 |
-| Different length URI | ~33,263 |
+| URI Length           | Gas Cost |
+| -------------------- | -------- |
+| Similar length URI   | ~33,227  |
+| Different length URI | ~33,263  |
 
 #### revoke(bytes32 contentHash)
 
-| Metric | Gas Cost |
-|--------|----------|
-| Revoke (clear manifest) | ~26,407 |
+| Metric                  | Gas Cost |
+| ----------------------- | -------- |
+| Revoke (clear manifest) | ~26,407  |
 
 #### resolveByPlatform(string calldata platform, string calldata platformId) (view function)
 
@@ -139,13 +147,13 @@ This is a view function and does not consume gas when called externally. Interna
 
 Comparison of gas costs before and after optimization:
 
-| Function | Before | After | Savings | % Improvement |
-|----------|--------|-------|---------|---------------|
-| Deployment | 855,191 | 825,317 | 29,874 | 3.5% |
-| register (avg) | 115,317 | 71,650 | 43,667 | **37.9%** |
-| bindPlatform (avg) | 95,219 | 92,690 | 2,529 | 2.7% |
-| updateManifest | 35,234 | 33,245 | 1,989 | 5.6% |
-| revoke | 28,396 | 26,407 | 1,989 | 7.0% |
+| Function           | Before  | After   | Savings | % Improvement |
+| ------------------ | ------- | ------- | ------- | ------------- |
+| Deployment         | 855,191 | 825,317 | 29,874  | 3.5%          |
+| register (avg)     | 115,317 | 71,650  | 43,667  | **37.9%**     |
+| bindPlatform (avg) | 95,219  | 92,690  | 2,529   | 2.7%          |
+| updateManifest     | 35,234  | 33,245  | 1,989   | 5.6%          |
+| revoke             | 28,396  | 26,407  | 1,989   | 7.0%          |
 
 **Total average savings: ~37.9% on register (most commonly used function)**
 
@@ -166,6 +174,7 @@ Assuming average gas price of 30 gwei and ETH price of $2000:
 ### Savings at Scale
 
 For 10,000 registrations:
+
 - Before: 10,000 × $6.92 = **$69,200**
 - After: 10,000 × $4.30 = **$43,000**
 - **Total savings: $26,200** (37.9%)
@@ -175,6 +184,7 @@ For 10,000 registrations:
 Gas regression tests are implemented in `test/ContentRegistry.gas.ts` to ensure optimizations are maintained over time.
 
 Run gas regression tests:
+
 ```bash
 npm test -- test/ContentRegistry.gas.ts
 ```

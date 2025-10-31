@@ -95,20 +95,20 @@ export interface AuthTokenResponse {
 
 /**
  * Internet ID SDK Client
- * 
+ *
  * Example usage:
  * ```typescript
  * import { InternetIdClient } from '@internet-id/sdk';
- * 
+ *
  * const client = new InternetIdClient({
  *   apiKey: 'iid_your_api_key_here'
  * });
- * 
+ *
  * // Verify content by platform URL
  * const result = await client.verifyByPlatform({
  *   url: 'https://youtube.com/watch?v=abc123'
  * });
- * 
+ *
  * // Verify content by hash
  * const result2 = await client.verifyByHash('0x123...');
  * ```
@@ -120,7 +120,7 @@ export class InternetIdClient {
     // Note: Default production URL is a placeholder
     // Update this to your actual API endpoint in production
     const baseURL = config.baseURL || "https://api.internet-id.io/api/v1";
-    
+
     this.client = axios.create({
       baseURL,
       timeout: config.timeout || 30000,

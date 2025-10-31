@@ -58,10 +58,10 @@ describe("JWT Service", () => {
     it("should return null for tampered token", () => {
       const payload = { userId: "test-user" };
       const token = generateJwtToken(payload);
-      
+
       // Tamper with the token by replacing characters in the signature
       const parts = token.split(".");
-      parts[2] = 'x'.repeat(parts[2].length);
+      parts[2] = "x".repeat(parts[2].length);
       const tamperedToken = parts.join(".");
 
       const decoded = verifyJwtToken(tamperedToken);

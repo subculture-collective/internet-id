@@ -92,8 +92,8 @@ class CacheService {
       await Promise.race([
         this.client.connect(),
         new Promise((_, reject) => {
-          timeoutId = setTimeout(() => reject(new Error('Connection timeout')), 3000);
-        })
+          timeoutId = setTimeout(() => reject(new Error("Connection timeout")), 3000);
+        }),
       ]).finally(() => {
         if (timeoutId) clearTimeout(timeoutId);
       });

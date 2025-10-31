@@ -8,9 +8,7 @@ dotenv.config();
 async function main() {
   const [filePath, githubId, registryAddress] = process.argv.slice(2);
   if (!filePath || !githubId || !registryAddress) {
-    console.error(
-      "Usage: npm run bind:github -- <masterFilePath> <githubId> <registryAddress>"
-    );
+    console.error("Usage: npm run bind:github -- <masterFilePath> <githubId> <registryAddress>");
     process.exit(1);
   }
 

@@ -157,13 +157,13 @@ describe("Security Headers Middleware", function () {
 
       const next = () => {
         // Check for critical security headers
-        
+
         // Permissions-Policy should be set
         expect(headers["Permissions-Policy"]).to.exist;
-        
+
         // CSP nonce should be generated
         expect(res.locals.cspNonce).to.be.a("string");
-        
+
         done();
       };
 

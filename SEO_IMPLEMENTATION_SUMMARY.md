@@ -7,6 +7,7 @@ This document provides an overview of all SEO best practices implemented in the 
 ### Meta Tags & Metadata (Per-Page Optimization)
 
 #### Root Layout (`web/app/layout.tsx`)
+
 - ✅ **Title template**: Dynamic title with site branding
 - ✅ **Description**: Comprehensive, keyword-rich description
 - ✅ **Keywords**: Targeted SEO keywords array
@@ -29,6 +30,7 @@ This document provides an overview of all SEO best practices implemented in the 
 #### Page-Specific Layouts
 
 **Verify Page** (`web/app/verify/layout.tsx`)
+
 - ✅ Unique title and description
 - ✅ Open Graph tags
 - ✅ Twitter Card tags
@@ -37,6 +39,7 @@ This document provides an overview of all SEO best practices implemented in the 
 - ✅ VerifyAction structured data (JSON-LD)
 
 **Badges Page** (`web/app/badges/layout.tsx`)
+
 - ✅ Unique title and description
 - ✅ Targeted keywords
 - ✅ Open Graph tags
@@ -45,21 +48,25 @@ This document provides an overview of all SEO best practices implemented in the 
 - ✅ Breadcrumb structured data (JSON-LD)
 
 **Dashboard Page** (`web/app/dashboard/layout.tsx`)
+
 - ✅ Private page metadata (noindex, nofollow)
 - ✅ Canonical URL
 
 **Profile Page** (`web/app/profile/layout.tsx`)
+
 - ✅ Private page metadata (noindex, nofollow)
 - ✅ Canonical URL
 
 **Auth Pages** (`web/app/(auth)/layout.tsx`)
+
 - ✅ Private page metadata (noindex, nofollow)
 
 ### Technical SEO
 
 #### Robots.txt (`web/app/robots.ts`)
+
 - ✅ **File type**: Next.js App Router route handler
-- ✅ **User agent**: Wildcard (*) for all crawlers
+- ✅ **User agent**: Wildcard (\*) for all crawlers
 - ✅ **Allow directives**: Public pages allowed
 - ✅ **Disallow directives**: Private pages and API routes blocked
   - `/api/` - API endpoints
@@ -68,6 +75,7 @@ This document provides an overview of all SEO best practices implemented in the 
 - ✅ **Sitemap reference**: Points to sitemap.xml
 
 #### Sitemap.xml (`web/app/sitemap.ts`)
+
 - ✅ **File type**: Next.js App Router route handler
 - ✅ **Dynamic generation**: Automatically generates sitemap
 - ✅ **Pages included**:
@@ -83,6 +91,7 @@ This document provides an overview of all SEO best practices implemented in the 
 #### Structured Data (JSON-LD)
 
 **Organization Schema** (`web/app/layout.tsx`)
+
 - ✅ Organization type
 - ✅ Name and description
 - ✅ URL and logo
@@ -90,16 +99,19 @@ This document provides an overview of all SEO best practices implemented in the 
 - ✅ Contact point
 
 **Website Schema** (`web/app/layout.tsx`)
+
 - ✅ WebSite type
 - ✅ Name, URL, description
 - ✅ SearchAction for site search
 
 **Breadcrumb Schema** (`web/app/verify/layout.tsx`, `web/app/badges/layout.tsx`)
+
 - ✅ BreadcrumbList type
 - ✅ Position-based items
 - ✅ Home → Page hierarchy
 
 **WebPage Schema** (`web/app/verify/layout.tsx`)
+
 - ✅ WebPage type with SoftwareApplication
 - ✅ Security application category
 - ✅ Free offering (price: 0)
@@ -107,25 +119,31 @@ This document provides an overview of all SEO best practices implemented in the 
 ### Page Optimization
 
 #### Title Optimization
+
 All page titles include:
+
 - ✅ Primary keywords
 - ✅ Clear value proposition
 - ✅ Brand name
 - ✅ Optimal length (50-60 characters)
 
 Examples:
+
 - "Internet-ID - Verify Human-Created Content On-Chain"
 - "Verify Content | Internet-ID"
 - "Verification Badges | Internet-ID"
 
 #### Description Optimization
+
 All meta descriptions include:
+
 - ✅ Target keywords
 - ✅ Clear benefits
 - ✅ Call to action
 - ✅ Optimal length (150-160 characters)
 
 #### Crawlability
+
 - ✅ No render-blocking resources
 - ✅ Proper semantic HTML structure
 - ✅ Server-side rendering (SSR) support
@@ -135,17 +153,20 @@ All meta descriptions include:
 ### Analytics & Tracking (Ready to Enable)
 
 #### Google Analytics 4
+
 - ✅ **Component created**: `web/app/components/GoogleAnalytics.tsx`
 - ✅ **Environment variable support**: `NEXT_PUBLIC_GA_MEASUREMENT_ID`
 - ✅ **Custom event tracking**: Helper function provided
 - ✅ **Documentation**: Full setup guide in `docs/SEO_ANALYTICS_SETUP.md`
 
 **To Enable**:
+
 1. Add measurement ID to `.env.local`
 2. Import and add component to root layout
 3. Deploy changes
 
 #### Search Console Verification
+
 - ✅ **Meta tag support**: Built into root layout
 - ✅ **Environment variable**: `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`
 - ✅ **Documentation**: Setup instructions provided
@@ -170,6 +191,7 @@ All meta descriptions include:
 ## 📋 Next Steps (Manual Actions Required)
 
 ### 1. Analytics Setup (Priority: High)
+
 - [ ] Create Google Analytics 4 property
 - [ ] Add measurement ID to environment variables
 - [ ] Enable GoogleAnalytics component in root layout
@@ -180,6 +202,7 @@ All meta descriptions include:
 **Documentation**: `docs/SEO_ANALYTICS_SETUP.md`
 
 ### 2. Search Console Setup (Priority: High)
+
 - [ ] Add property to Google Search Console
 - [ ] Verify ownership (HTML meta tag method)
 - [ ] Submit sitemap.xml
@@ -191,6 +214,7 @@ All meta descriptions include:
 **Documentation**: `docs/SEO_ANALYTICS_SETUP.md`
 
 ### 3. Content Creation (Priority: Medium)
+
 - [ ] Create "Getting Started" guide
 - [ ] Write first use case/case study
 - [ ] Add FAQ page with structured data
@@ -201,6 +225,7 @@ All meta descriptions include:
 **Documentation**: `docs/SEO_CONTENT_STRATEGY.md`
 
 ### 4. Visual Assets (Priority: Medium)
+
 - [ ] Create Open Graph image (1200x630px)
 - [ ] Create Twitter Card image (1200x675px)
 - [ ] Design logo.png for structured data
@@ -208,12 +233,14 @@ All meta descriptions include:
 - [ ] Add alt text to all images
 
 **Estimated Time**: 1-2 days  
-**Files Needed**: 
+**Files Needed**:
+
 - `web/public/og-image.png`
 - `web/public/twitter-image.png`
 - `web/public/logo.png`
 
 ### 5. Link Building (Priority: Low)
+
 - [ ] Submit to Product Hunt
 - [ ] Create guest post outreach list
 - [ ] Engage in relevant communities (Reddit, Discord)
@@ -275,6 +302,7 @@ npm run build
 ```
 
 Verify output includes:
+
 - ✅ `○ /robots.txt` - Static route
 - ✅ `○ /sitemap.xml` - Static route
 - ✅ All pages render without errors
@@ -304,12 +332,14 @@ Verify output includes:
 Run these tools to validate implementation:
 
 1. **Lighthouse SEO Audit**:
+
    ```bash
    npm run perf:audit
    ```
+
    Target: 90+ SEO score
 
-2. **Google Rich Results Test**: 
+2. **Google Rich Results Test**:
    - URL: https://search.google.com/test/rich-results
    - Check: All structured data validates
 
@@ -324,6 +354,7 @@ Run these tools to validate implementation:
 ## 📊 Success Metrics
 
 ### Short-term (1-3 months)
+
 - Pages indexed in Google: 100%
 - Sitemap submitted and accepted
 - Google Analytics tracking active
@@ -331,6 +362,7 @@ Run these tools to validate implementation:
 - Initial keyword rankings established
 
 ### Medium-term (3-6 months)
+
 - 10+ keywords ranking in top 50
 - 100+ organic visitors per month
 - Domain authority 20+
@@ -338,6 +370,7 @@ Run these tools to validate implementation:
 - Conversion rate 2%+
 
 ### Long-term (6-12 months)
+
 - 50+ keywords ranking in top 50
 - 5+ keywords in top 10
 - 1,000+ organic visitors per month
@@ -348,18 +381,21 @@ Run these tools to validate implementation:
 ## 🛠️ Maintenance
 
 ### Weekly Tasks
+
 - [ ] Check Search Console for errors
 - [ ] Review top search queries
 - [ ] Monitor ranking changes
 - [ ] Check for broken links
 
 ### Monthly Tasks
+
 - [ ] Analyze traffic trends
 - [ ] Update low-performing content
 - [ ] Create new content based on search data
 - [ ] Review and respond to user feedback
 
 ### Quarterly Tasks
+
 - [ ] Conduct comprehensive SEO audit
 - [ ] Update keyword strategy
 - [ ] Review and update structured data
@@ -369,6 +405,7 @@ Run these tools to validate implementation:
 ## 📚 Resources
 
 ### Documentation
+
 - [Next.js Metadata API](https://nextjs.org/docs/app/building-your-application/optimizing/metadata)
 - [Google Search Central](https://developers.google.com/search/docs)
 - [Schema.org Structured Data](https://schema.org/)
@@ -376,6 +413,7 @@ Run these tools to validate implementation:
 - [Twitter Cards](https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/abouts-cards)
 
 ### Tools
+
 - [Google Search Console](https://search.google.com/search-console)
 - [Google Analytics](https://analytics.google.com/)
 - [Bing Webmaster Tools](https://www.bing.com/webmasters)
@@ -383,6 +421,7 @@ Run these tools to validate implementation:
 - [PageSpeed Insights](https://pagespeed.web.dev/)
 
 ### Internal Documentation
+
 - `docs/SEO_ANALYTICS_SETUP.md` - Analytics and tracking setup
 - `docs/SEO_CONTENT_STRATEGY.md` - Content strategy and planning
 - `web/app/components/GoogleAnalytics.tsx` - GA4 implementation

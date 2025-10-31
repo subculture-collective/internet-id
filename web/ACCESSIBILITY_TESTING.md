@@ -23,6 +23,7 @@ npm run audit:a11y
 ```
 
 This checks for:
+
 - ARIA labels on buttons
 - Alt text on images
 - Form input labels
@@ -45,6 +46,7 @@ npm run test:e2e:headed -- 07-accessibility.spec.ts
 ```
 
 The test suite covers:
+
 - Document structure and landmarks
 - Heading hierarchy
 - Skip-to-content link
@@ -68,6 +70,7 @@ npm run perf:collect
 ```
 
 Lighthouse checks:
+
 - Accessibility score (must be 90+)
 - ARIA attribute validity
 - Color contrast ratios
@@ -169,11 +172,13 @@ Lighthouse checks:
 Use this checklist when implementing new features:
 
 ### Semantic HTML
+
 - [ ] Use proper heading hierarchy (h1, h2, h3, etc.)
 - [ ] Use semantic elements (main, nav, section, article, etc.)
 - [ ] Use landmark roles or ARIA landmarks
 
 ### ARIA Attributes
+
 - [ ] Add aria-label to icons and icon-only buttons
 - [ ] Use aria-live for dynamic content updates
 - [ ] Use aria-pressed for toggle buttons
@@ -181,29 +186,34 @@ Use this checklist when implementing new features:
 - [ ] Use role="status" for loading indicators
 
 ### Forms
+
 - [ ] All inputs have associated labels
 - [ ] Required fields are marked with aria-required
 - [ ] Error messages are linked with aria-describedby
 - [ ] Form validation provides clear feedback
 
 ### Keyboard Navigation
+
 - [ ] All interactive elements are keyboard accessible
 - [ ] Focus indicators are visible and clear
 - [ ] Tab order is logical
 - [ ] Escape key closes modals/dialogs
 
 ### Images and Media
+
 - [ ] All images have descriptive alt text
 - [ ] Decorative images use alt="" or aria-hidden="true"
 - [ ] Complex images have detailed descriptions
 
 ### Color and Contrast
+
 - [ ] Text meets 4.5:1 contrast ratio (normal text)
 - [ ] Large text meets 3:1 contrast ratio (18pt+)
 - [ ] Interactive elements meet 3:1 contrast ratio
 - [ ] Color is not the only way to convey information
 
 ### Dynamic Content
+
 - [ ] Loading states are announced to screen readers
 - [ ] Success/error messages are announced
 - [ ] Content updates don't cause unexpected focus changes
@@ -213,6 +223,7 @@ Use this checklist when implementing new features:
 ### Issue: Focus indicator not visible
 
 **Solution:** Ensure CSS includes proper focus styles:
+
 ```css
 *:focus-visible {
   outline: 3px solid #1d4ed8;
@@ -223,6 +234,7 @@ Use this checklist when implementing new features:
 ### Issue: Screen reader not announcing updates
 
 **Solution:** Add aria-live region:
+
 ```tsx
 <div aria-live="polite" aria-atomic="true">
   {message}
@@ -232,6 +244,7 @@ Use this checklist when implementing new features:
 ### Issue: Button without accessible name
 
 **Solution:** Add aria-label:
+
 ```tsx
 <button aria-label="Close dialog" onClick={onClose}>
   ×
@@ -241,6 +254,7 @@ Use this checklist when implementing new features:
 ### Issue: Form input without label
 
 **Solution:** Associate label with input:
+
 ```tsx
 <label htmlFor="email-input">Email</label>
 <input id="email-input" type="email" />
@@ -249,15 +263,18 @@ Use this checklist when implementing new features:
 ## Resources
 
 ### Official Guidelines
+
 - [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
 - [ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/)
 
 ### Testing Tools
+
 - [axe DevTools](https://www.deque.com/axe/devtools/)
 - [WAVE Browser Extension](https://wave.webaim.org/extension/)
 - [Lighthouse](https://developers.google.com/web/tools/lighthouse)
 
 ### Learning Resources
+
 - [WebAIM](https://webaim.org/)
 - [The A11Y Project](https://www.a11yproject.com/)
 - [MDN Accessibility](https://developer.mozilla.org/en-US/docs/Web/Accessibility)
@@ -286,4 +303,4 @@ Accessibility is an ongoing effort. We:
 
 ---
 
-*For questions, contact: support@subculture.io*
+_For questions, contact: support@subculture.io_

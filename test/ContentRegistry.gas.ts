@@ -3,10 +3,10 @@ import { ethers } from "hardhat";
 
 /**
  * Gas Regression Tests for ContentRegistry
- * 
+ *
  * These tests ensure that gas optimizations are maintained over time.
  * If these tests fail, it means the gas usage has increased and should be investigated.
- * 
+ *
  * BASELINE GAS USAGE (after optimization):
  * - Deployment: ~825,317 gas
  * - register: 50,368 - 115,935 gas (avg: ~71,650)
@@ -26,7 +26,7 @@ describe("Gas Regression Tests", function () {
     const Factory = await ethers.getContractFactory("ContentRegistry");
     const registry = await Factory.deploy();
     const deployReceipt = await registry.deploymentTransaction()?.wait();
-    
+
     const gasUsed = deployReceipt?.gasUsed || 0n;
     expect(gasUsed).to.be.lessThan(MAX_DEPLOYMENT_GAS);
   });
@@ -72,7 +72,7 @@ describe("Gas Regression Tests", function () {
 
     const hash = ethers.keccak256(ethers.toUtf8Bytes("test-content"));
     const uri = "ipfs://QmTest/manifest.json";
-    
+
     await registry.connect(creator).register(hash, uri);
 
     const tx = await registry.connect(creator).bindPlatform(hash, "youtube", "dQw4w9WgXcQ");
@@ -91,7 +91,7 @@ describe("Gas Regression Tests", function () {
     const hash = ethers.keccak256(ethers.toUtf8Bytes("test-content"));
     const uri = "ipfs://QmTest/manifest.json";
     const newUri = "ipfs://QmNewTest/manifest.json";
-    
+
     await registry.connect(creator).register(hash, uri);
 
     const tx = await registry.connect(creator).updateManifest(hash, newUri);
@@ -109,7 +109,7 @@ describe("Gas Regression Tests", function () {
 
     const hash = ethers.keccak256(ethers.toUtf8Bytes("test-content"));
     const uri = "ipfs://QmTest/manifest.json";
-    
+
     await registry.connect(creator).register(hash, uri);
 
     const tx = await registry.connect(creator).revoke(hash);

@@ -149,5 +149,5 @@ For accessibility-related questions or concerns, please contact:
 
 ---
 
-*Last updated: October 30, 2025*
-*WCAG 2.1 Level AA Conformance*
+_Last updated: October 30, 2025_
+_WCAG 2.1 Level AA Conformance_

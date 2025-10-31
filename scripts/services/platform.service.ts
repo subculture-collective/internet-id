@@ -105,12 +105,16 @@ export function extractInstagramId(input: string): string {
 
 // Extract GitHub ID from URL or raw input
 export function extractGitHubId(input: string): string {
-  return extractPlatformIdFromUrl(input, ["gist.github.com", "github.com"], (pathname, hostname) => {
-    if (hostname.includes("gist.github.com")) {
-      return `gist/${pathname}`;
+  return extractPlatformIdFromUrl(
+    input,
+    ["gist.github.com", "github.com"],
+    (pathname, hostname) => {
+      if (hostname.includes("gist.github.com")) {
+        return `gist/${pathname}`;
+      }
+      return pathname;
     }
-    return pathname;
-  });
+  );
 }
 
 // Extract Discord ID from URL or raw input

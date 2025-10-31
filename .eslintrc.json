@@ -30,6 +30,7 @@
     "typechain-types/",
     "coverage/",
     ".nyc_output/",
-    "web/"
+    "web/",
+    "cli/"
   ]
 }

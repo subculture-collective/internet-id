@@ -36,11 +36,12 @@ curl -H "Authorization: Bearer your_jwt_token_here" \
 Rate limits vary by tier:
 
 | Tier | Requests per Minute |
-|------|---------------------|
+| ---- | ------------------- |
 | Free | 100                 |
 | Paid | 1000                |
 
 Rate limit headers are included in responses:
+
 - `X-RateLimit-Limit`: Maximum requests per window
 - `X-RateLimit-Remaining`: Remaining requests in current window
 - `X-RateLimit-Reset`: Time when the rate limit resets (Unix timestamp)
@@ -50,6 +51,7 @@ Rate limit headers are included in responses:
 The API uses URL path versioning. The current version is `v1`, accessible at `/api/v1/`.
 
 We follow semantic versioning principles:
+
 - **Minor updates** (new features, backward-compatible): No version change required
 - **Major updates** (breaking changes): New version path (e.g., `/api/v2/`)
 
@@ -58,6 +60,7 @@ We follow semantic versioning principles:
 ### Interactive Documentation
 
 Visit `/api/docs` for interactive Swagger UI documentation:
+
 - **Development**: http://localhost:3001/api/docs
 - **OpenAPI JSON**: http://localhost:3001/api/docs.json
 
@@ -72,6 +75,7 @@ GET /api/v1/verify/platform
 ```
 
 **Query Parameters:**
+
 - `url` (string, optional): Full platform URL (e.g., `https://youtube.com/watch?v=xyz`)
 - `platform` (string, optional): Platform name (`youtube`, `tiktok`, `instagram`, etc.)
 - `platformId` (string, optional): Platform-specific content ID
@@ -115,6 +119,7 @@ GET /api/v1/verify/hash/:hash
 ```
 
 **Path Parameters:**
+
 - `hash` (string, required): Content hash (32-byte hex string with 0x prefix)
 
 **Example Request:**
@@ -134,6 +139,7 @@ GET /api/v1/content
 ```
 
 **Query Parameters:**
+
 - `limit` (number, optional): Items per page (max 100, default 20)
 - `offset` (number, optional): Pagination offset (default 0)
 - `creator` (string, optional): Filter by creator address
@@ -317,15 +323,15 @@ npm install @internet-id/sdk
 ```
 
 ```typescript
-import { InternetIdClient } from '@internet-id/sdk';
+import { InternetIdClient } from "@internet-id/sdk";
 
 const client = new InternetIdClient({
-  apiKey: 'iid_your_api_key_here'
+  apiKey: "iid_your_api_key_here",
 });
 
 // Verify content
 const result = await client.verifyByPlatform({
-  url: 'https://youtube.com/watch?v=abc123'
+  url: "https://youtube.com/watch?v=abc123",
 });
 
 console.log(result.verified); // true or false
@@ -375,6 +381,7 @@ When we need to introduce breaking changes, we will:
 4. **Support** both old and new versions during the transition period
 
 Deprecated endpoints will include warnings in response headers:
+
 ```
 Deprecation: true
 Sunset: Sat, 31 Oct 2025 23:59:59 GMT
