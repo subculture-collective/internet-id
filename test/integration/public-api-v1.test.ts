@@ -162,7 +162,7 @@ describe("Integration: Public API v1", () => {
 
         // Cleanup
         await prisma.apiKey.deleteMany({
-          where: { key: { contains: res.body.data.key } },
+          where: { id: res.body.data.id },
         });
       });
 

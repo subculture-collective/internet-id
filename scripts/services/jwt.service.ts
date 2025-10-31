@@ -1,6 +1,15 @@
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "change-me-in-production";
+// Validate JWT_SECRET is set in production
+const isProduction = process.env.NODE_ENV === "production";
+if (!process.env.JWT_SECRET && isProduction) {
+  throw new Error(
+    "JWT_SECRET environment variable is required in production. " +
+    "Generate a strong secret with: openssl rand -base64 32"
+  );
+}
+
+const JWT_SECRET = process.env.JWT_SECRET || "development-only-secret-change-me";
 const JWT_EXPIRY = process.env.JWT_EXPIRY || "24h";
 
 export interface JwtPayload {

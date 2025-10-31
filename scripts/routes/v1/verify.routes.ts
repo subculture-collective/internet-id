@@ -5,6 +5,7 @@ import { resolveDefaultRegistry, resolveByPlatform } from "../../services/regist
 import { parsePlatformInput } from "../../services/platform.service";
 import { fetchManifest } from "../../services/manifest.service";
 import { cacheService, DEFAULT_TTL } from "../../services/cache.service";
+import { CONTENT_HASH_PATTERN } from "../../constants/validation";
 
 const router = Router();
 
@@ -153,7 +154,7 @@ router.get(
     try {
       const { hash } = req.params;
       
-      if (!hash || !/^0x[a-fA-F0-9]{64}$/.test(hash)) {
+      if (!hash || !CONTENT_HASH_PATTERN.test(hash)) {
         return res.status(400).json({
           error: "Invalid hash format",
           message: "Hash must be a 32-byte hex string with 0x prefix",

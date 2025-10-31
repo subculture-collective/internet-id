@@ -117,6 +117,8 @@ export class InternetIdClient {
   private client: AxiosInstance;
 
   constructor(config: InternetIdClientConfig = {}) {
+    // Note: Default production URL is a placeholder
+    // Update this to your actual API endpoint in production
     const baseURL = config.baseURL || "https://api.internet-id.io/api/v1";
     
     this.client = axios.create({
