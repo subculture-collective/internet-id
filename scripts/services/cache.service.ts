@@ -90,12 +90,15 @@ class CacheService {
       });
 
       // Add timeout wrapper for connect
+      let timeoutId: NodeJS.Timeout;
       await Promise.race([
         this.client.connect(),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Connection timeout')), 3000)
-        )
-      ]);
+        new Promise((_, reject) => {
+          timeoutId = setTimeout(() => reject(new Error('Connection timeout')), 3000);
+        })
+      ]).finally(() => {
+        if (timeoutId) clearTimeout(timeoutId);
+      });
 
       // Configure Redis for LRU eviction
       // maxmemory-policy: allkeys-lru evicts any key using LRU when max memory is reached

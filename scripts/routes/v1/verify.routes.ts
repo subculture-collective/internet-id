@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+import { Router, Response } from "express";
 import { ethers } from "ethers";
 import { optionalAuthentication, AuthenticatedRequest } from "../../middleware/api-auth.middleware";
 import { resolveDefaultRegistry, resolveByPlatform } from "../../services/registry.service";

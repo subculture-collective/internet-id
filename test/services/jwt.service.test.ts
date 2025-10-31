@@ -61,7 +61,7 @@ describe("JWT Service", () => {
       
       // Tamper with the token by replacing characters in the signature
       const parts = token.split(".");
-      parts[2] = parts[2].split("").map(() => "x").join("");
+      parts[2] = 'x'.repeat(parts[2].length);
       const tamperedToken = parts.join(".");
 
       const decoded = verifyJwtToken(tamperedToken);

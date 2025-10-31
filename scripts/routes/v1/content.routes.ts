@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+import { Router, Response } from "express";
 import { optionalAuthentication, AuthenticatedRequest } from "../../middleware/api-auth.middleware";
 import { prisma } from "../../db";
 import { cacheService, DEFAULT_TTL } from "../../services/cache.service";
