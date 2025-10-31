@@ -1,0 +1,193 @@
+global:
+  resolve_timeout: 5m
+  # PagerDuty API URL
+  pagerduty_url: 'https://events.pagerduty.com/v2/enqueue'
+  
+  # Slack webhook URL (set via environment variable)
+  # slack_api_url: '${SLACK_WEBHOOK_URL}'
+
+# Templates for alert formatting
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# Route configuration - determines how alerts are routed to receivers
+route:
+  # Default receiver for all alerts
+  receiver: 'default'
+  
+  # Group alerts by these labels to reduce notification spam
+  group_by: ['alertname', 'cluster', 'service']
+  
+  # Wait before sending notification about new group (allows batching)
+  group_wait: 10s
+  
+  # How long to wait before sending notification about new alerts in existing group
+  group_interval: 10s
+  
+  # How long to wait before re-sending a notification
+  repeat_interval: 3h
+
+  # Child routes for specific alert types
+  routes:
+    # Critical alerts go to PagerDuty immediately
+    - match:
+        severity: critical
+      receiver: 'pagerduty-critical'
+      group_wait: 10s
+      group_interval: 5m
+      repeat_interval: 30m
+      continue: true # Also send to other receivers
+
+    # Critical alerts also go to Slack
+    - match:
+        severity: critical
+      receiver: 'slack-critical'
+      group_wait: 10s
+      group_interval: 5m
+      repeat_interval: 1h
+
+    # Warning alerts go to Slack only
+    - match:
+        severity: warning
+      receiver: 'slack-warnings'
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+
+    # Info alerts go to email
+    - match:
+        severity: info
+      receiver: 'email-info'
+      group_wait: 5m
+      group_interval: 10m
+      repeat_interval: 12h
+
+    # Database alerts - high priority
+    - match:
+        service: database
+      receiver: 'pagerduty-database'
+      group_wait: 10s
+      repeat_interval: 15m
+
+    # IPFS alerts - medium priority
+    - match:
+        service: ipfs
+      receiver: 'slack-warnings'
+      group_wait: 1m
+      repeat_interval: 2h
+
+# Alert receivers - configure notification channels
+receivers:
+  # Default receiver (catch-all)
+  - name: 'default'
+    email_configs:
+      - to: '${ALERT_EMAIL:-ops@example.com}'
+        from: '${ALERT_FROM_EMAIL:-alerts@internet-id.com}'
+        smarthost: '${SMTP_HOST:-smtp.gmail.com}:${SMTP_PORT:-587}'
+        auth_username: '${SMTP_USERNAME}'
+        auth_password: '${SMTP_PASSWORD}'
+        headers:
+          Subject: '[Internet-ID] Alert: {{ .GroupLabels.alertname }}'
+        html: '{{ template "email.default.html" . }}'
+
+  # PagerDuty for critical alerts
+  - name: 'pagerduty-critical'
+    pagerduty_configs:
+      - service_key: '${PAGERDUTY_SERVICE_KEY}'
+        severity: 'critical'
+        description: '{{ .GroupLabels.alertname }}: {{ .CommonAnnotations.summary }}'
+        details:
+          firing: '{{ .Alerts.Firing | len }}'
+          resolved: '{{ .Alerts.Resolved | len }}'
+          summary: '{{ .CommonAnnotations.summary }}'
+          description: '{{ .CommonAnnotations.description }}'
+          runbook_url: '{{ .CommonAnnotations.runbook_url }}'
+        # PagerDuty routing key for on-call schedule
+        routing_key: '${PAGERDUTY_ROUTING_KEY}'
+
+  # PagerDuty for database alerts
+  - name: 'pagerduty-database'
+    pagerduty_configs:
+      - service_key: '${PAGERDUTY_DATABASE_KEY}'
+        severity: 'error'
+        description: '[Database] {{ .GroupLabels.alertname }}: {{ .CommonAnnotations.summary }}'
+        routing_key: '${PAGERDUTY_DBA_ROUTING_KEY}'
+
+  # Slack for critical alerts
+  - name: 'slack-critical'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '${SLACK_CRITICAL_CHANNEL:-#alerts-critical}'
+        username: 'Internet-ID Alerting'
+        icon_emoji: ':rotating_light:'
+        title: ':rotating_light: CRITICAL: {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          *Summary:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Severity:* {{ .Labels.severity }}
+          *Service:* {{ .Labels.service }}
+          *Runbook:* {{ .Annotations.runbook_url }}
+          {{ end }}
+        color: 'danger'
+        send_resolved: true
+
+  # Slack for warnings
+  - name: 'slack-warnings'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL}'
+        channel: '${SLACK_WARNINGS_CHANNEL:-#alerts-warnings}'
+        username: 'Internet-ID Alerting'
+        icon_emoji: ':warning:'
+        title: ':warning: WARNING: {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          *Summary:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Severity:* {{ .Labels.severity }}
+          *Service:* {{ .Labels.service }}
+          {{ end }}
+        color: 'warning'
+        send_resolved: true
+
+  # Email for informational alerts
+  - name: 'email-info'
+    email_configs:
+      - to: '${INFO_EMAIL:-team@example.com}'
+        from: '${ALERT_FROM_EMAIL:-alerts@internet-id.com}'
+        smarthost: '${SMTP_HOST:-smtp.gmail.com}:${SMTP_PORT:-587}'
+        auth_username: '${SMTP_USERNAME}'
+        auth_password: '${SMTP_PASSWORD}'
+        headers:
+          Subject: '[Internet-ID] Info: {{ .GroupLabels.alertname }}'
+        html: '{{ template "email.default.html" . }}'
+
+# Inhibition rules - suppress certain alerts when others are firing
+inhibit_rules:
+  # Suppress warning alerts when critical alerts are firing for same service
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['service', 'alertname']
+
+  # Suppress all alerts when entire service is down
+  - source_match:
+      alertname: 'ServiceDown'
+    target_match_re:
+      service: '.*'
+    equal: ['service']
+
+  # Suppress connection pool warnings when database is down
+  - source_match:
+      alertname: 'DatabaseDown'
+    target_match:
+      service: 'database'
+    equal: ['service']
+
+  # Suppress high error rate when service is down
+  - source_match:
+      alertname: 'ServiceDown'
+    target_match:
+      alertname: 'HighErrorRate'
+    equal: ['service']

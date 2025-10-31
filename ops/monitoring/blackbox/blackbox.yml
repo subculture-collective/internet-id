@@ -1,0 +1,56 @@
+modules:
+  # HTTP 2xx check - Standard HTTP endpoint monitoring
+  http_2xx:
+    prober: http
+    timeout: 5s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+      valid_status_codes: [200]
+      method: GET
+      follow_redirects: true
+      preferred_ip_protocol: "ip4"
+      fail_if_not_ssl: false
+
+  # HTTPS 2xx check with SSL validation
+  https_2xx:
+    prober: http
+    timeout: 5s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+      valid_status_codes: [200]
+      method: GET
+      follow_redirects: true
+      preferred_ip_protocol: "ip4"
+      fail_if_not_ssl: true
+      tls_config:
+        insecure_skip_verify: false
+
+  # HTTP POST check
+  http_post_2xx:
+    prober: http
+    timeout: 5s
+    http:
+      method: POST
+      headers:
+        Content-Type: application/json
+      body: '{}'
+
+  # TCP check for database connectivity
+  tcp_connect:
+    prober: tcp
+    timeout: 5s
+
+  # ICMP ping check
+  icmp:
+    prober: icmp
+    timeout: 5s
+    icmp:
+      preferred_ip_protocol: "ip4"
+
+  # DNS check
+  dns:
+    prober: dns
+    timeout: 5s
+    dns:
+      query_name: "internet-id.example.com"
+      query_type: "A"

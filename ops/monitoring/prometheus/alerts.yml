@@ -1,0 +1,296 @@
+groups:
+  - name: internet_id_alerts
+    interval: 1m
+    rules:
+      # Service Availability Alerts
+      - alert: ServiceDown
+        expr: up{job="internet-id-api"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: api
+        annotations:
+          summary: "Internet-ID API service is down"
+          description: "The API service {{ $labels.instance }} has been down for more than 2 minutes ({{ $value }} consecutive failures)."
+          runbook_url: "https://github.com/subculture-collective/internet-id/blob/main/docs/ops/ALERTING_RUNBOOK.md#service-down"
+
+      - alert: WebServiceDown
+        expr: up{job="internet-id-web"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: web
+        annotations:
+          summary: "Internet-ID Web service is down"
+          description: "The Web service {{ $labels.instance }} has been down for more than 2 minutes."
+          runbook_url: "https://github.com/subculture-collective/internet-id/blob/main/docs/ops/ALERTING_RUNBOOK.md#service-down"
+
+      # High Error Rate Alerts
+      - alert: HighErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{status_code=~"5.."}[5m])) by (service)
+            /
+            sum(rate(http_requests_total[5m])) by (service)
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          type: error_rate
+        annotations:
+          summary: "High error rate detected (>5%)"
+          description: "Service {{ $labels.service }} has an error rate of {{ $value | humanizePercentage }} over the last 5 minutes."
+          runbook_url: "https://github.com/subculture-collective/internet-id/blob/main/docs/ops/ALERTING_RUNBOOK.md#high-error-rate"
+
+      - alert: CriticalErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{status_code=~"5.."}[5m])) by (service)
+            /
+            sum(rate(http_requests_total[5m])) by (service)
+          ) > 0.10
+        for: 2m
+        labels:
+          severity: critical
+          type: error_rate
+        annotations:
+          summary: "Critical error rate detected (>10%)"
+          description: "Service {{ $labels.service }} has a critical error rate of {{ $value | humanizePercentage }} over the last 5 minutes."
+          runbook_url: "https://github.com/subculture-collective/internet-id/blob/main/docs/ops/ALERTING_RUNBOOK.md#high-error-rate"
+
+      # Queue Depth Alerts (for future queue implementation)
+      - alert: HighQueueDepth
+        expr: queue_depth > 100
+        for: 5m
+        labels:
+          severity: warning
+          type: queue
+        annotations:
+          summary: "High queue depth detected"
+          description: "Queue {{ $labels.queue_name }} has {{ $value }} pending jobs (threshold: 100)."
+          runbook_url: "https://github.com/subculture-collective/internet-id/blob/main/docs/ops/ALERTING_RUNBOOK.md#high-queue-depth"
+
+      - alert: CriticalQueueDepth
+        expr: queue_depth > 500
+        for: 2m
+        labels:
+          severity: critical
+          type: queue
+        annotations:
+          summary: "Critical queue depth detected"
+          description: "Queue {{ $labels.queue_name }} has {{ $value }} pending jobs (critical threshold: 500)."
+          runbook_url: "https://github.com/subculture-collective/internet-id/blob/main/docs/ops/ALERTING_RUNBOOK.md#high-queue-depth"
+
+      # Database Alerts
+      - alert: DatabaseDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: database
+        annotations:
+          summary: "PostgreSQL database is down"
+          description: "Cannot connect to PostgreSQL database {{ $labels.instance }}."
+          runbook_url: "https://github.com/subculture-collective/internet-id/blob/main/docs/ops/ALERTING_RUNBOOK.md#database-down"
+
+      - alert: DatabaseConnectionPoolExhaustion
+        expr: |
+          (
+            sum(pg_stat_activity_count) by (datname)
+            /
+            pg_settings_max_connections
+          ) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          service: database
+        annotations:
+          summary: "Database connection pool near exhaustion"
+          description: "Database {{ $labels.datname }} is using {{ $value | humanizePercentage }} of available connections."
+          runbook_url: "https://github.com/subculture-collective/internet-id/blob/main/docs/ops/ALERTING_RUNBOOK.md#connection-pool-exhaustion"
+
+      - alert: DatabaseConnectionPoolCritical
+        expr: |
+          (
+            sum(pg_stat_activity_count) by (datname)
+            /
+            pg_settings_max_connections
+          ) > 0.95
+        for: 2m
+        labels:
+          severity: critical
+          service: database
+        annotations:
+          summary: "Database connection pool critically exhausted"
+          description: "Database {{ $labels.datname }} is using {{ $value | humanizePercentage }} of available connections (critical)."
+          runbook_url: "https://github.com/subculture-collective/internet-id/blob/main/docs/ops/ALERTING_RUNBOOK.md#connection-pool-exhaustion"
+
+      - alert: HighDatabaseLatency
+        expr: histogram_quantile(0.95, rate(db_query_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          service: database
+        annotations:
+          summary: "High database query latency"
+          description: "P95 database query latency is {{ $value }}s (threshold: 1s)."
+          runbook_url: "https://github.com/subculture-collective/internet-id/blob/main/docs/ops/ALERTING_RUNBOOK.md#high-database-latency"
+
+      # IPFS Upload Failure Alerts
+      - alert: HighIpfsFailureRate
+        expr: |
+          (
+            sum(rate(ipfs_uploads_total{status="failure"}[5m])) by (provider)
+            /
+            sum(rate(ipfs_uploads_total[5m])) by (provider)
+          ) > 0.20
+        for: 5m
+        labels:
+          severity: warning
+          service: ipfs
+        annotations:
+          summary: "High IPFS upload failure rate (>20%)"
+          description: "IPFS provider {{ $labels.provider }} has a failure rate of {{ $value | humanizePercentage }}."
+          runbook_url: "https://github.com/subculture-collective/internet-id/blob/main/docs/ops/ALERTING_RUNBOOK.md#ipfs-upload-failures"
+
+      - alert: CriticalIpfsFailureRate
+        expr: |
+          (
+            sum(rate(ipfs_uploads_total{status="failure"}[5m])) by (provider)
+            /
+            sum(rate(ipfs_uploads_total[5m])) by (provider)
+          ) > 0.50
+        for: 2m
+        labels:
+          severity: critical
+          service: ipfs
+        annotations:
+          summary: "Critical IPFS upload failure rate (>50%)"
+          description: "IPFS provider {{ $labels.provider }} has a critical failure rate of {{ $value | humanizePercentage }}."
+          runbook_url: "https://github.com/subculture-collective/internet-id/blob/main/docs/ops/ALERTING_RUNBOOK.md#ipfs-upload-failures"
+
+      # Contract Transaction Failure Alerts
+      - alert: BlockchainTransactionFailures
+        expr: |
+          (
+            sum(rate(blockchain_transactions_total{status="failure"}[5m]))
+            /
+            sum(rate(blockchain_transactions_total[5m]))
+          ) > 0.10
+        for: 5m
+        labels:
+          severity: warning
+          service: blockchain
+        annotations:
+          summary: "High blockchain transaction failure rate"
+          description: "Blockchain transaction failure rate is {{ $value | humanizePercentage }} (threshold: 10%)."
+          runbook_url: "https://github.com/subculture-collective/internet-id/blob/main/docs/ops/ALERTING_RUNBOOK.md#contract-transaction-failures"
+
+      - alert: BlockchainRPCDown
+        expr: |
+          sum(rate(http_requests_total{route=~".*blockchain.*", status_code=~"5.."}[5m]))
+          /
+          sum(rate(http_requests_total{route=~".*blockchain.*"}[5m])) > 0.50
+        for: 2m
+        labels:
+          severity: critical
+          service: blockchain
+        annotations:
+          summary: "Blockchain RPC endpoint appears down"
+          description: "More than 50% of blockchain requests are failing."
+          runbook_url: "https://github.com/subculture-collective/internet-id/blob/main/docs/ops/ALERTING_RUNBOOK.md#blockchain-rpc-down"
+
+      # Performance Alerts
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 5
+        for: 5m
+        labels:
+          severity: warning
+          type: performance
+        annotations:
+          summary: "High API response time"
+          description: "P95 response time is {{ $value }}s (threshold: 5s)."
+          runbook_url: "https://github.com/subculture-collective/internet-id/blob/main/docs/ops/ALERTING_RUNBOOK.md#high-response-time"
+
+      # Memory and CPU Alerts
+      - alert: HighMemoryUsage
+        expr: |
+          (
+            process_resident_memory_bytes
+            /
+            container_spec_memory_limit_bytes
+          ) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          type: resource
+        annotations:
+          summary: "High memory usage detected"
+          description: "Service {{ $labels.container_label_com_docker_compose_service }} is using {{ $value | humanizePercentage }} of available memory."
+          runbook_url: "https://github.com/subculture-collective/internet-id/blob/main/docs/ops/ALERTING_RUNBOOK.md#high-memory-usage"
+
+      - alert: CriticalMemoryUsage
+        expr: |
+          (
+            process_resident_memory_bytes
+            /
+            container_spec_memory_limit_bytes
+          ) > 0.95
+        for: 2m
+        labels:
+          severity: critical
+          type: resource
+        annotations:
+          summary: "Critical memory usage detected"
+          description: "Service {{ $labels.container_label_com_docker_compose_service }} is using {{ $value | humanizePercentage }} of available memory (critical)."
+          runbook_url: "https://github.com/subculture-collective/internet-id/blob/main/docs/ops/ALERTING_RUNBOOK.md#high-memory-usage"
+
+      - alert: HighCPUUsage
+        expr: rate(process_cpu_seconds_total[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          type: resource
+        annotations:
+          summary: "High CPU usage detected"
+          description: "Service {{ $labels.job }} CPU usage is at {{ $value | humanizePercentage }}."
+          runbook_url: "https://github.com/subculture-collective/internet-id/blob/main/docs/ops/ALERTING_RUNBOOK.md#high-cpu-usage"
+
+      # Cache Alerts
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 2m
+        labels:
+          severity: warning
+          service: cache
+        annotations:
+          summary: "Redis cache is down"
+          description: "Cannot connect to Redis cache {{ $labels.instance }}."
+          runbook_url: "https://github.com/subculture-collective/internet-id/blob/main/docs/ops/ALERTING_RUNBOOK.md#redis-down"
+
+      - alert: LowCacheHitRate
+        expr: |
+          (
+            sum(rate(cache_hits_total[5m]))
+            /
+            (sum(rate(cache_hits_total[5m])) + sum(rate(cache_misses_total[5m])))
+          ) < 0.5
+        for: 10m
+        labels:
+          severity: info
+          service: cache
+        annotations:
+          summary: "Low cache hit rate"
+          description: "Cache hit rate is {{ $value | humanizePercentage }} (threshold: 50%)."
+          runbook_url: "https://github.com/subculture-collective/internet-id/blob/main/docs/ops/ALERTING_RUNBOOK.md#low-cache-hit-rate"
+
+      # Health Check Alerts
+      - alert: ServiceHealthDegraded
+        expr: health_check_status{status="degraded"} == 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Service health check reports degraded status"
+          description: "Service {{ $labels.service }} health check is reporting degraded status."
+          runbook_url: "https://github.com/subculture-collective/internet-id/blob/main/docs/ops/ALERTING_RUNBOOK.md#service-health-degraded"

@@ -1,0 +1,106 @@
+global:
+  scrape_interval: 15s # Scrape targets every 15 seconds
+  evaluation_interval: 15s # Evaluate rules every 15 seconds
+  external_labels:
+    cluster: 'internet-id-production'
+    monitor: 'internet-id-monitor'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - 'alertmanager:9093'
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'
+rule_files:
+  - '/etc/prometheus/alerts.yml'
+
+# Scrape configurations
+scrape_configs:
+  # Internet-ID API Service
+  - job_name: 'internet-id-api'
+    scrape_interval: 15s
+    metrics_path: '/api/metrics'
+    static_configs:
+      - targets: ['api:3001']
+        labels:
+          service: 'api'
+          environment: 'production'
+    # Health check for uptime monitoring
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'up'
+        action: keep
+
+  # Internet-ID Web Service
+  - job_name: 'internet-id-web'
+    scrape_interval: 15s
+    metrics_path: '/api/health' # Web service health endpoint
+    static_configs:
+      - targets: ['web:3000']
+        labels:
+          service: 'web'
+          environment: 'production'
+
+  # PostgreSQL Database Metrics (using postgres_exporter)
+  - job_name: 'postgres'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+        labels:
+          service: 'database'
+          environment: 'production'
+
+  # Redis Cache Metrics (using redis_exporter)
+  - job_name: 'redis'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['redis-exporter:9121']
+        labels:
+          service: 'cache'
+          environment: 'production'
+
+  # Node Exporter for system metrics
+  - job_name: 'node-exporter'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          service: 'system'
+          environment: 'production'
+
+  # cAdvisor for container metrics
+  - job_name: 'cadvisor'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['cadvisor:8080']
+        labels:
+          service: 'containers'
+          environment: 'production'
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+          environment: 'production'
+
+  # Blackbox exporter for external uptime checks (optional)
+  - job_name: 'blackbox'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]  # Check for HTTP 200 response
+    static_configs:
+      - targets:
+          - https://internet-id.example.com/api/health
+          - https://internet-id.example.com/
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115

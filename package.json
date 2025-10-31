@@ -120,6 +120,8 @@
   },
   "dependencies": {
     "@prisma/client": "^6.17.0",
+    "@sentry/node": "^7.119.0",
+    "@sentry/profiling-node": "^7.119.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/pino": "^7.0.4",
     "@types/swagger-jsdoc": "^6.0.4",
