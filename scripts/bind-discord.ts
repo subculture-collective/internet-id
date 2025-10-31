@@ -8,9 +8,7 @@ dotenv.config();
 async function main() {
   const [filePath, discordId, registryAddress] = process.argv.slice(2);
   if (!filePath || !discordId || !registryAddress) {
-    console.error(
-      "Usage: npm run bind:discord -- <masterFilePath> <discordId> <registryAddress>"
-    );
+    console.error("Usage: npm run bind:discord -- <masterFilePath> <discordId> <registryAddress>");
     process.exit(1);
   }
 

@@ -4,13 +4,13 @@ import { randomBytes } from "crypto";
 
 /**
  * Security Headers Middleware
- * 
+ *
  * Implements comprehensive security headers to protect against common web vulnerabilities:
  * - XSS (Cross-Site Scripting)
  * - Clickjacking
  * - MIME type sniffing
  * - Information leakage
- * 
+ *
  * CSP Configuration:
  * - Strict default-src policy
  * - Allows IPFS gateways for images
@@ -149,11 +149,7 @@ export const securityHeaders = helmet({
  * Permissions-Policy middleware
  * Restricts browser features to minimize attack surface
  */
-export function permissionsPolicyMiddleware(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export function permissionsPolicyMiddleware(req: Request, res: Response, next: NextFunction) {
   res.setHeader(
     "Permissions-Policy",
     [
@@ -174,11 +170,7 @@ export function permissionsPolicyMiddleware(
  * Middleware to generate and attach CSP nonce to response locals
  * This nonce can be used in inline scripts/styles
  */
-export function cspNonceMiddleware(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export function cspNonceMiddleware(req: Request, res: Response, next: NextFunction) {
   res.locals.cspNonce = generateNonce();
   next();
 }
@@ -187,11 +179,7 @@ export function cspNonceMiddleware(
  * Complete security headers middleware stack
  * Usage: app.use(applySecurityHeaders)
  */
-export function applySecurityHeaders(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export function applySecurityHeaders(req: Request, res: Response, next: NextFunction) {
   // Generate nonce first
   cspNonceMiddleware(req, res, () => {
     // Then apply helmet with nonce

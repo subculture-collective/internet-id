@@ -3,6 +3,7 @@
 ## Key UI Components Implemented
 
 ### 1. Loading Spinners
+
 **Component:** `LoadingSpinner.tsx`
 
 ```
@@ -19,6 +20,7 @@
 ```
 
 **Usage:** Appears on all buttons during async operations
+
 - Upload, Register, Verify, Proof buttons
 - One-shot form processing
 - Browse/Refresh operations
@@ -26,6 +28,7 @@
 ---
 
 ### 2. Error Messages
+
 **Component:** `ErrorMessage.tsx`
 
 ```
@@ -58,6 +61,7 @@
 ```
 
 **Features:**
+
 - Contextual error detection
 - Helpful suggestions
 - Retry capability
@@ -66,21 +70,22 @@
 ---
 
 ### 3. Toast Notifications
+
 **Component:** `Toast.tsx`
 
 ```
                                     ┌─────────────────────────┐
                                     │ File uploaded! ✓     × │ ← Success (green)
                                     └─────────────────────────┘
-                                    
+
                                     ┌─────────────────────────┐
                                     │ Upload failed ✗      × │ ← Error (red)
                                     └─────────────────────────┘
-                                    
+
                                     ┌─────────────────────────┐
                                     │ Verification OK ⚠    × │ ← Warning (yellow)
                                     └─────────────────────────┘
-                                    
+
                                     ┌─────────────────────────┐
                                     │ Copied to clipboard ℹ × │ ← Info (blue)
                                     └─────────────────────────┘
@@ -94,6 +99,7 @@
 ---
 
 ### 4. Skeleton Loaders
+
 **Component:** `SkeletonLoader.tsx`
 
 ```
@@ -113,6 +119,7 @@
 ---
 
 ### 5. Error Boundary
+
 **Component:** `ErrorBoundary.tsx`
 
 ```
@@ -139,6 +146,7 @@
 ### Upload Form
 
 **Before:**
+
 ```
 ┌─────────────────────────┐
 │ Upload to IPFS          │
@@ -151,6 +159,7 @@
 ```
 
 **After:**
+
 ```
 ┌─────────────────────────────────────┐
 │ Upload to IPFS                      │
@@ -174,6 +183,7 @@
 ### One-Shot Form
 
 **Before:**
+
 ```
 ┌────────────────────────────┐
 │ [ Run one-shot ]           │
@@ -183,6 +193,7 @@
 ```
 
 **After:**
+
 ```
 ┌────────────────────────────────────┐
 │ [ ⟳ Processing... ]               │ ← Clear loading state
@@ -194,6 +205,7 @@
 ### Browse Contents
 
 **Before:**
+
 ```
 ┌─────────────────────────────┐
 │ Browse Contents             │
@@ -204,6 +216,7 @@
 ```
 
 **After:**
+
 ```
 ┌─────────────────────────────────────┐
 │ Browse Contents                     │
@@ -275,16 +288,19 @@ Step 5: Success
 ## Accessibility Features
 
 ### ARIA Labels
+
 - Loading spinners: `role="status"` with text alternatives
 - Error messages: Proper heading hierarchy
 - Toast notifications: `role="alert"` for screen readers
 
 ### Keyboard Navigation
+
 - Error retry buttons: Focusable and keyboard accessible
 - Toast close buttons: Keyboard dismissible
 - All interactive elements maintain focus states
 
 ### Color Contrast
+
 - Error messages: Red (#dc2626) on light background (#fef2f2)
 - Success toasts: Green (#1a7f37) on light background (#e6ffed)
 - Loading spinners: Blue (#3b82f6) visible on all backgrounds
@@ -294,20 +310,23 @@ Step 5: Success
 ## Performance Metrics
 
 ### Bundle Size Impact
+
 - LoadingSpinner: ~1KB
 - ErrorMessage: ~2KB
 - Toast: ~2KB
 - SkeletonLoader: ~1KB
 - ErrorBoundary: ~1KB
 - useToast hook: ~1KB
-**Total:** ~8KB additional (minified)
+  **Total:** ~8KB additional (minified)
 
 ### Animation Performance
+
 - All animations use CSS transforms (GPU accelerated)
 - No layout thrashing
 - 60fps on all devices
 
 ### User Experience Improvements
+
 - ✅ **Reduced confusion**: Clear loading states
 - ✅ **Faster perceived performance**: Skeleton loaders
 - ✅ **Better error recovery**: Retry buttons

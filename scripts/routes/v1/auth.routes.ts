@@ -9,7 +9,7 @@ const router = Router();
  * POST /api/v1/auth/token
  * Generate a JWT token for user-scoped API access
  * Body: { address: string, signature: string, message: string }
- * 
+ *
  * This endpoint allows users to authenticate by signing a message with their wallet
  * and receive a JWT token for making authenticated API requests.
  */

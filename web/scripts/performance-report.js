@@ -5,19 +5,19 @@
  * Usage: node scripts/performance-report.js
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-const BUILD_DIR = path.join(__dirname, '..', '.next');
-const REPORT_FILE = path.join(__dirname, '..', 'performance-report.json');
+const BUILD_DIR = path.join(__dirname, "..", ".next");
+const REPORT_FILE = path.join(__dirname, "..", "performance-report.json");
 
 function formatBytes(bytes) {
-  if (bytes === 0) return '0 Bytes';
-  if (bytes < 0) return 'Invalid size';
+  if (bytes === 0) return "0 Bytes";
+  if (bytes < 0) return "Invalid size";
   const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const sizes = ["Bytes", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
 }
 
 function getDirectorySize(dir) {
@@ -67,7 +67,7 @@ function getJavaScriptSize(dir) {
       const stats = fs.statSync(filePath);
       if (stats.isDirectory()) {
         size += getJavaScriptSize(filePath);
-      } else if (file.endsWith('.js')) {
+      } else if (file.endsWith(".js")) {
         size += stats.size;
       }
     });
@@ -79,16 +79,16 @@ function getJavaScriptSize(dir) {
 
 function generateReport() {
   if (!fs.existsSync(BUILD_DIR)) {
-    console.error('Build directory not found. Run `npm run build` first.');
+    console.error("Build directory not found. Run `npm run build` first.");
     process.exit(1);
   }
 
   const totalSize = getDirectorySize(BUILD_DIR);
-  const jsCount = countFiles(BUILD_DIR, '.js');
-  const cssCount = countFiles(BUILD_DIR, '.css');
+  const jsCount = countFiles(BUILD_DIR, ".js");
+  const cssCount = countFiles(BUILD_DIR, ".css");
   const jsSize = getJavaScriptSize(BUILD_DIR);
-  
-  const staticDir = path.join(BUILD_DIR, 'static');
+
+  const staticDir = path.join(BUILD_DIR, "static");
   const staticSize = fs.existsSync(staticDir) ? getDirectorySize(staticDir) : 0;
 
   const report = {
@@ -110,12 +110,12 @@ function generateReport() {
       javascript: {
         limit: 3 * 1024 * 1024, // 3 MB (baseline 2.57 MB, target 1.5 MB)
         current: jsSize,
-        status: jsSize < 3 * 1024 * 1024 ? 'PASS' : 'FAIL',
+        status: jsSize < 3 * 1024 * 1024 ? "PASS" : "FAIL",
       },
       total: {
         limit: 12 * 1024 * 1024, // 12 MB (baseline 10.22 MB)
         current: totalSize,
-        status: totalSize < 12 * 1024 * 1024 ? 'PASS' : 'FAIL',
+        status: totalSize < 12 * 1024 * 1024 ? "PASS" : "FAIL",
       },
     },
   };
@@ -124,24 +124,28 @@ function generateReport() {
   fs.writeFileSync(REPORT_FILE, JSON.stringify(report, null, 2));
 
   // Print summary
-  console.log('\n📊 Performance Report\n');
-  console.log('Build Information:');
+  console.log("\n📊 Performance Report\n");
+  console.log("Build Information:");
   console.log(`  Total size: ${report.buildSize.totalFormatted}`);
   console.log(`  JavaScript size: ${report.buildSize.javascriptFormatted}`);
   console.log(`  Static size: ${report.buildSize.staticFormatted}`);
   console.log(`  JavaScript files: ${report.fileCount.javascript}`);
   console.log(`  CSS files: ${report.fileCount.css}`);
-  console.log('\nBudget Status:');
-  console.log(`  JavaScript: ${report.budgets.javascript.status} (${formatBytes(report.budgets.javascript.current)} / ${formatBytes(report.budgets.javascript.limit)})`);
-  console.log(`  Total: ${report.budgets.total.status} (${formatBytes(report.budgets.total.current)} / ${formatBytes(report.budgets.total.limit)})`);
+  console.log("\nBudget Status:");
+  console.log(
+    `  JavaScript: ${report.budgets.javascript.status} (${formatBytes(report.budgets.javascript.current)} / ${formatBytes(report.budgets.javascript.limit)})`
+  );
+  console.log(
+    `  Total: ${report.budgets.total.status} (${formatBytes(report.budgets.total.current)} / ${formatBytes(report.budgets.total.limit)})`
+  );
   console.log(`\nReport saved to: ${REPORT_FILE}\n`);
 
   // Exit with error if budgets failed
-  if (report.budgets.javascript.status === 'FAIL' || report.budgets.total.status === 'FAIL') {
-    console.error('❌ Performance budgets exceeded!');
+  if (report.budgets.javascript.status === "FAIL" || report.budgets.total.status === "FAIL") {
+    console.error("❌ Performance budgets exceeded!");
     process.exit(1);
   } else {
-    console.log('✅ All performance budgets passed!');
+    console.log("✅ All performance budgets passed!");
   }
 }
 

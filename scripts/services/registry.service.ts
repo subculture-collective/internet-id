@@ -37,7 +37,7 @@ export async function resolveDefaultRegistry(): Promise<RegistryInfo> {
   const chainId = Number(net.chainId);
   const override = process.env.REGISTRY_ADDRESS;
   if (override) return { registryAddress: override, chainId };
-  
+
   const deployedFileName = CHAIN_DEPLOYMENT_FILES[chainId];
   if (deployedFileName) {
     const deployedFile = path.join(process.cwd(), "deployed", deployedFileName);
@@ -55,7 +55,7 @@ export async function resolveDefaultRegistry(): Promise<RegistryInfo> {
 export async function getRegistryAddress(chainId: number): Promise<string | undefined> {
   const deployedFileName = CHAIN_DEPLOYMENT_FILES[chainId];
   if (!deployedFileName) return undefined;
-  
+
   const deployedFile = path.join(process.cwd(), "deployed", deployedFileName);
   try {
     const data = JSON.parse((await readFile(deployedFile)).toString("utf8"));
@@ -69,7 +69,7 @@ export async function getRegistryAddress(chainId: number): Promise<string | unde
 // Helper to get all deployed registry addresses
 export async function getAllRegistryAddresses(): Promise<Record<number, string>> {
   const addresses: Record<number, string> = {};
-  
+
   for (const [chainIdStr, fileName] of Object.entries(CHAIN_DEPLOYMENT_FILES)) {
     const chainId = parseInt(chainIdStr);
     const deployedFile = path.join(process.cwd(), "deployed", fileName);
@@ -85,12 +85,14 @@ export async function getAllRegistryAddresses(): Promise<Record<number, string>>
       }
     }
   }
-  
+
   return addresses;
 }
 
 export function getProvider(rpcUrl?: string): ethers.JsonRpcProvider {
-  return new ethers.JsonRpcProvider(rpcUrl || process.env.RPC_URL || SUPPORTED_CHAINS.baseSepolia.rpcUrl);
+  return new ethers.JsonRpcProvider(
+    rpcUrl || process.env.RPC_URL || SUPPORTED_CHAINS.baseSepolia.rpcUrl
+  );
 }
 
 // Helper to get provider for a specific chain
@@ -193,7 +195,9 @@ export async function resolveByPlatformCrossChain(
  * Get a content entry across all supported chains
  * Returns the first match found
  */
-export async function getEntryCrossChain(contentHash: string): Promise<CrossChainRegistryEntry | null> {
+export async function getEntryCrossChain(
+  contentHash: string
+): Promise<CrossChainRegistryEntry | null> {
   const addresses = await getAllRegistryAddresses();
   const chainIds = Object.keys(addresses).map((id) => parseInt(id));
 

@@ -118,9 +118,7 @@ describe("API Key Service", () => {
       });
 
       expect(after!.lastUsedAt).to.not.be.null;
-      expect(after!.lastUsedAt!.getTime()).to.be.greaterThan(
-        before?.lastUsedAt?.getTime() || 0
-      );
+      expect(after!.lastUsedAt!.getTime()).to.be.greaterThan(before?.lastUsedAt?.getTime() || 0);
     });
   });
 

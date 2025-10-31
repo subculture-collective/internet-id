@@ -160,6 +160,7 @@ Composite indexes optimize queries with multiple filters:
    - Uses: `Account.[userId, provider]` composite index
 
 6. **Lookup platform binding:**
+
    ```typescript
    prisma.platformBinding.upsert({
      where: { platform_platformId: { platform, platformId } },

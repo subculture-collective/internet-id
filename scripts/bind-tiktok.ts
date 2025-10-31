@@ -8,9 +8,7 @@ dotenv.config();
 async function main() {
   const [filePath, tiktokId, registryAddress] = process.argv.slice(2);
   if (!filePath || !tiktokId || !registryAddress) {
-    console.error(
-      "Usage: npm run bind:tiktok -- <masterFilePath> <tiktokId> <registryAddress>"
-    );
+    console.error("Usage: npm run bind:tiktok -- <masterFilePath> <tiktokId> <registryAddress>");
     process.exit(1);
   }
 

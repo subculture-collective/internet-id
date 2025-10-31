@@ -6,9 +6,9 @@
  * Web Vitals metric structure
  */
 export interface WebVitalsMetric {
-  name: 'CLS' | 'FCP' | 'FID' | 'INP' | 'LCP' | 'TTFB';
+  name: "CLS" | "FCP" | "FID" | "INP" | "LCP" | "TTFB";
   value: number;
-  rating: 'good' | 'needs-improvement' | 'poor';
+  rating: "good" | "needs-improvement" | "poor";
   delta: number;
   id: string;
   navigationType?: string;
@@ -20,19 +20,19 @@ export interface WebVitalsMetric {
  */
 export function reportWebVitals(metric: WebVitalsMetric) {
   // Log in development
-  if (process.env.NODE_ENV === 'development') {
-    console.log('[Performance]', {
+  if (process.env.NODE_ENV === "development") {
+    console.log("[Performance]", {
       name: metric.name,
       value: metric.value,
       rating: metric.rating,
       delta: metric.delta,
     });
   }
-  
+
   // Send to analytics in production
-  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
+  if (typeof window !== "undefined" && process.env.NODE_ENV === "production") {
     const body = JSON.stringify(metric);
-    const url = '/api/analytics';
+    const url = "/api/analytics";
 
     // Use sendBeacon if available (more reliable)
     if (navigator.sendBeacon) {
@@ -41,8 +41,8 @@ export function reportWebVitals(metric: WebVitalsMetric) {
       // Fallback to fetch with keepalive
       fetch(url, {
         body,
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         keepalive: true,
       }).catch(console.error);
     }
@@ -54,10 +54,7 @@ export function reportWebVitals(metric: WebVitalsMetric) {
  * Usage with next/dynamic:
  * const DynamicComponent = dynamic(() => import('./Component'), createDynamicOptions({ ssr: false }))
  */
-export function createDynamicOptions(options?: {
-  loading?: () => any;
-  ssr?: boolean;
-}) {
+export function createDynamicOptions(options?: { loading?: () => any; ssr?: boolean }) {
   return options || { ssr: true };
 }
 
@@ -66,11 +63,11 @@ export function createDynamicOptions(options?: {
  * Usage: deferScript(() => { your code here })
  */
 export function deferScript(callback: () => void) {
-  if (typeof window !== 'undefined') {
-    if (document.readyState === 'complete') {
+  if (typeof window !== "undefined") {
+    if (document.readyState === "complete") {
       callback();
     } else {
-      window.addEventListener('load', callback);
+      window.addEventListener("load", callback);
     }
   }
 }
@@ -80,9 +77,9 @@ export function deferScript(callback: () => void) {
  * Usage: prefetchRoute('/dashboard')
  */
 export function prefetchRoute(href: string) {
-  if (typeof window !== 'undefined') {
-    const link = document.createElement('link');
-    link.rel = 'prefetch';
+  if (typeof window !== "undefined") {
+    const link = document.createElement("link");
+    link.rel = "prefetch";
     link.href = href;
     document.head.appendChild(link);
   }
@@ -95,7 +92,7 @@ export function prefetchRoute(href: string) {
 let webpSupportPromise: Promise<boolean> | null = null;
 
 export function supportsWebP(): Promise<boolean> {
-  if (typeof window === 'undefined') return Promise.resolve(false);
+  if (typeof window === "undefined") return Promise.resolve(false);
   if (webpSupportPromise) return webpSupportPromise;
 
   webpSupportPromise = new Promise((resolve) => {
@@ -103,7 +100,8 @@ export function supportsWebP(): Promise<boolean> {
     webP.onload = webP.onerror = () => {
       resolve(webP.height === 2);
     };
-    webP.src = 'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
+    webP.src =
+      "data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA";
   });
   return webpSupportPromise;
 }
@@ -112,7 +110,7 @@ export function supportsWebP(): Promise<boolean> {
  * Optimize images by lazy loading them
  */
 export function observeImages() {
-  if (typeof window === 'undefined' || !('IntersectionObserver' in window)) {
+  if (typeof window === "undefined" || !("IntersectionObserver" in window)) {
     return;
   }
 
@@ -122,14 +120,14 @@ export function observeImages() {
         const img = entry.target as HTMLImageElement;
         if (img.dataset.src) {
           img.src = img.dataset.src;
-          img.removeAttribute('data-src');
+          img.removeAttribute("data-src");
           imageObserver.unobserve(img);
         }
       }
     });
   });
 
-  document.querySelectorAll('img[data-src]').forEach((img) => {
+  document.querySelectorAll("img[data-src]").forEach((img) => {
     imageObserver.observe(img);
   });
 }

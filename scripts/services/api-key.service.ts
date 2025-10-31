@@ -22,7 +22,7 @@ function generateApiKey(): string {
 
 /**
  * Hash an API key for storage
- * 
+ *
  * Note: SHA-256 is appropriate here because API keys are cryptographically random
  * 32-byte values, not user-chosen passwords. Unlike passwords, they don't need
  * slow key derivation functions like bcrypt/scrypt since they have sufficient entropy.
@@ -72,15 +72,12 @@ export async function createApiKey(
  */
 export async function verifyApiKey(plainKey: string) {
   const hashedKey = hashApiKey(plainKey);
-  
+
   const apiKey = await prisma.apiKey.findFirst({
     where: {
       key: hashedKey,
       isActive: true,
-      OR: [
-        { expiresAt: null },
-        { expiresAt: { gt: new Date() } }
-      ]
+      OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
     },
     include: {
       user: true,

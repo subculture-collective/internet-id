@@ -88,7 +88,9 @@ describe("Chain Configuration", function () {
     });
 
     it("should work for all supported chain IDs", function () {
-      const expectedChainIds = [1, 11155111, 137, 80002, 8453, 84532, 42161, 421614, 10, 11155420, 31337];
+      const expectedChainIds = [
+        1, 11155111, 137, 80002, 8453, 84532, 42161, 421614, 10, 11155420, 31337,
+      ];
       for (const chainId of expectedChainIds) {
         const chain = getChainById(chainId);
         expect(chain).to.exist;
@@ -210,17 +212,23 @@ describe("Chain Configuration", function () {
   describe("getExplorerAddressUrl", function () {
     it("should return correct URL for Ethereum mainnet", function () {
       const url = getExplorerAddressUrl(1, "0x1234567890123456789012345678901234567890");
-      expect(url).to.equal("https://etherscan.io/address/0x1234567890123456789012345678901234567890");
+      expect(url).to.equal(
+        "https://etherscan.io/address/0x1234567890123456789012345678901234567890"
+      );
     });
 
     it("should return correct URL for Base Sepolia", function () {
       const url = getExplorerAddressUrl(84532, "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd");
-      expect(url).to.equal("https://sepolia.basescan.org/address/0xabcdefabcdefabcdefabcdefabcdefabcdefabcd");
+      expect(url).to.equal(
+        "https://sepolia.basescan.org/address/0xabcdefabcdefabcdefabcdefabcdefabcdefabcd"
+      );
     });
 
     it("should return correct URL for Polygon", function () {
       const url = getExplorerAddressUrl(137, "0x1111111111111111111111111111111111111111");
-      expect(url).to.equal("https://polygonscan.com/address/0x1111111111111111111111111111111111111111");
+      expect(url).to.equal(
+        "https://polygonscan.com/address/0x1111111111111111111111111111111111111111"
+      );
     });
 
     it("should return undefined for invalid chain ID", function () {
