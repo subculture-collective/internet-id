@@ -481,6 +481,16 @@ To confirm a creator controls a given platform account, use OAuth sign-in and li
 
 Other endpoints like /api/verify and /api/proof are public by default.
 
+### Observability Endpoints
+
+The API includes built-in observability for production monitoring:
+
+- **Health Check**: `GET /api/health` - Service health status with database, cache, and blockchain checks
+- **Metrics**: `GET /api/metrics` - Prometheus-format metrics for monitoring
+- **Metrics (JSON)**: `GET /api/metrics/json` - Human-readable metrics
+
+All HTTP requests are automatically logged with correlation IDs for request tracing. See [Observability Guide](./docs/OBSERVABILITY.md) for complete details on structured logging, metrics, and monitoring setup.
+
 When calling from the Next.js UI or curl, include the header if enabled:
 
 ```
@@ -780,6 +790,8 @@ See the complete [E2E Testing Guide](./web/E2E_TESTING.md) for detailed document
 
 - **[Security Policy](./SECURITY_POLICY.md)** - Reporting vulnerabilities and security practices
 - **[Smart Contract Audit](./docs/SMART_CONTRACT_AUDIT.md)** - Security analysis and audit results
+- **[Observability & Monitoring](./docs/OBSERVABILITY.md)** - Structured logging, metrics, and monitoring setup
+- **[Observability Quick Start](./docs/ops/OBSERVABILITY_QUICKSTART.md)** - 5-minute guide to monitoring in production
 - **[Database Backup & Recovery](./docs/ops/DATABASE_BACKUP_RECOVERY.md)** - Backup and disaster recovery procedures
 - **[Secret Management](./docs/ops/SECRET_MANAGEMENT.md)** - Managing sensitive credentials in production
 
