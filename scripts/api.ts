@@ -19,12 +19,20 @@ import {
   relaxedRateLimit,
 } from "./middleware/rate-limit.middleware";
 import { cacheService } from "./services/cache.service";
+import {
+  applySecurityHeaders,
+  cspReportHandler,
+} from "./middleware/security-headers.middleware";
 
 async function startServer() {
   // Initialize cache service
   await cacheService.connect();
 
   const app = express();
+  
+  // Apply security headers first (before other middleware)
+  app.use(applySecurityHeaders);
+  
   app.use(cors());
   app.use(express.json({ limit: "50mb" }));
 
@@ -93,6 +101,9 @@ async function startServer() {
     await writeFile(tmpPath, buf);
     return tmpPath;
   }
+
+  // CSP violation reporting endpoint
+  app.post("/api/csp-report", express.json({ type: "application/csp-report" }), cspReportHandler);
 
   // Health and status endpoints - relaxed rate limiting
   app.get("/api/health", relaxed, (_req: Request, res: Response) => {
