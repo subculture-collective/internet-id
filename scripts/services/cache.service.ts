@@ -48,9 +48,7 @@ class CacheService {
 
     const redisUrl = process.env.REDIS_URL;
     if (!redisUrl) {
-      console.log(
-        "[Cache] REDIS_URL not configured, caching disabled (will use database fallback)"
-      );
+      console.log("[Cache] REDIS_URL not configured, caching disabled (will use database fallback)");
       return;
     }
 
@@ -110,8 +108,8 @@ class CacheService {
       } catch (err) {
         console.warn("[Cache] Could not configure Redis maxmemory settings:", err);
       }
-    } catch (error) {
-      console.warn("[Cache] Failed to connect to Redis:", error);
+    } catch (error: any) {
+      console.warn("[Cache] Failed to connect to Redis:", error?.message || error);
       this.client = null;
       this.isConnected = false;
     }
@@ -152,7 +150,7 @@ class CacheService {
 
       this.metrics.hits++;
       return JSON.parse(value) as T;
-    } catch (error) {
+    } catch (error: any) {
       // Sanitize key for logging to prevent potential format string issues
       const safeKey = String(key).replace(/[^\w:.-]/g, "_");
       console.error(`[Cache] Error getting key ${safeKey}:`, error);
@@ -177,7 +175,7 @@ class CacheService {
       await this.client!.setEx(fullKey, ttl, JSON.stringify(value));
       this.metrics.sets++;
       return true;
-    } catch (error) {
+    } catch (error: any) {
       // Sanitize key for logging to prevent potential format string issues
       const safeKey = String(key).replace(/[^\w:.-]/g, "_");
       console.error(`[Cache] Error setting key ${safeKey}:`, error);
@@ -197,7 +195,7 @@ class CacheService {
       await this.client!.del(key);
       this.metrics.deletes++;
       return true;
-    } catch (error) {
+    } catch (error: any) {
       // Sanitize key for logging to prevent potential format string issues
       const safeKey = String(key).replace(/[^\w:.-]/g, "_");
       console.error(`[Cache] Error deleting key ${safeKey}:`, error);
@@ -220,7 +218,7 @@ class CacheService {
       await this.client!.del(keys);
       this.metrics.deletes += keys.length;
       return keys.length;
-    } catch (error) {
+    } catch (error: any) {
       // Sanitize pattern for logging to prevent potential format string issues
       const safePattern = String(pattern).replace(/[^\w:.*-]/g, "_");
       console.error(`[Cache] Error deleting pattern ${safePattern}:`, error);

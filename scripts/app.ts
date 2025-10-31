@@ -29,11 +29,31 @@ import { cacheService } from "./services/cache.service";
 // Import swagger spec
 import { swaggerSpec } from "./services/swagger.service";
 
+// Import observability services
+import { logger, requestLoggerMiddleware } from "./services/logger.service";
+import { metricsService } from "./services/metrics.service";
+import { metricsMiddleware } from "./middleware/metrics.middleware";
+import metricsRoutes from "./routes/metrics.routes";
+
 export async function createApp() {
   // Initialize cache service
   await cacheService.connect();
 
   const app = express();
+  
+  // Request logging middleware (before other middleware)
+  app.use(requestLoggerMiddleware());
+  
+  // Metrics tracking middleware
+  app.use(metricsMiddleware());
+  
+  // Track active connections
+  app.use((req, res, next) => {
+    metricsService.incrementConnections();
+    res.on("finish", () => metricsService.decrementConnections());
+    next();
+  });
+  
   app.use(cors());
   app.use(express.json({ limit: "50mb" }));
 
@@ -41,6 +61,8 @@ export async function createApp() {
   const strict = await strictRateLimit;
   const moderate = await moderateRateLimit;
   const relaxed = await relaxedRateLimit;
+  
+  logger.info("Rate limiters initialized");
 
   // Swagger documentation
   app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -50,6 +72,9 @@ export async function createApp() {
 
   // Mount v1 API routes (versioned)
   app.use("/api/v1", moderate, v1Routes);
+
+  // Mount metrics endpoint (no rate limiting for monitoring)
+  app.use("/api", metricsRoutes);
 
   // Mount legacy routers with appropriate rate limits
   // Relaxed limits for health/status checks
@@ -66,6 +91,8 @@ export async function createApp() {
   app.use("/api", strict, registerRoutes);
   app.use("/api", strict, bindingRoutes);
   app.use("/api", strict, oneshotRoutes);
+
+  logger.info("Application routes configured");
 
   return app;
 }

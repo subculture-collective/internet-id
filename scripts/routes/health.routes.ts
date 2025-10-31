@@ -8,11 +8,68 @@ import { fetchManifest } from "../services/manifest.service";
 import { validateQuery } from "../validation/middleware";
 import { resolveQuerySchema, publicVerifyQuerySchema } from "../validation/schemas";
 import { cacheService, DEFAULT_TTL } from "../services/cache.service";
+import { prisma } from "../db";
 
 const router = Router();
 
-router.get("/health", (_req: Request, res: Response) => {
-  res.json({ ok: true });
+/**
+ * Enhanced health check with detailed service status
+ */
+router.get("/health", async (_req: Request, res: Response) => {
+  const checks: any = {
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    services: {},
+  };
+
+  try {
+    // Check database connectivity
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      checks.services.database = { status: "healthy" };
+    } catch (dbError: any) {
+      checks.services.database = { 
+        status: "unhealthy", 
+        error: dbError.message 
+      };
+      checks.status = "degraded";
+    }
+
+    // Check cache service
+    checks.services.cache = {
+      status: cacheService.isAvailable() ? "healthy" : "disabled",
+      enabled: cacheService.isAvailable(),
+    };
+
+    // Check blockchain RPC connectivity
+    try {
+      const provider = new ethers.JsonRpcProvider(
+        process.env.RPC_URL || "https://sepolia.base.org"
+      );
+      const blockNumber = await provider.getBlockNumber();
+      checks.services.blockchain = {
+        status: "healthy",
+        blockNumber,
+      };
+    } catch (rpcError: any) {
+      checks.services.blockchain = {
+        status: "unhealthy",
+        error: rpcError.message,
+      };
+      checks.status = "degraded";
+    }
+
+    const statusCode = checks.status === "ok" ? 200 : 503;
+    res.status(statusCode).json(checks);
+  } catch (error: any) {
+    console.error("[Health] Health check failed:", error);
+    res.status(503).json({
+      status: "unhealthy",
+      timestamp: new Date().toISOString(),
+      error: error.message,
+    });
+  }
 });
 
 // Cache metrics endpoint for observability
