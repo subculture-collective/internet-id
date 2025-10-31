@@ -1,0 +1,30 @@
+{
+  "name": "@internet-id/sdk",
+  "version": "1.0.0",
+  "description": "Official TypeScript/JavaScript SDK for Internet ID API",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "internet-id",
+    "content-provenance",
+    "verification",
+    "blockchain",
+    "sdk"
+  ],
+  "author": "Internet ID Team",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.7.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ]
+}
