@@ -1,10 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.22;
 
-/// @title ContentRegistry
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+
+/// @title ContentRegistryV1
 /// @author Subculture Collective
-/// @notice A simple on-chain registry for content provenance and platform bindings
+/// @notice A simple on-chain registry for content provenance and platform bindings (Upgradeable)
 /// @dev Stores content hashes with manifest URIs and enables binding to platform-specific IDs
+/// @dev Upgradeable using UUPS (Universal Upgradeable Proxy Standard) pattern
+/// @custom:security-contact security@subculture.io
 /// @custom:gas-optimization This contract has been optimized for gas efficiency:
 ///   - Struct packing: creator (20 bytes) + timestamp (8 bytes) in single slot saves ~2100 gas per read
 ///   - Removed redundant contentHash storage saves ~20000 gas on registration
@@ -17,7 +23,7 @@ pragma solidity ^0.8.22;
 ///   - bindPlatform: 78,228 - 95,640 gas
 ///   - updateManifest: ~33,245 gas
 ///   - revoke: ~26,407 gas
-contract ContentRegistry {
+contract ContentRegistryV1 is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     /// @notice Information about registered content
     /// @dev Timestamp is used as an existence flag: 0 = not registered, >0 = registered
     /// @dev Optimized: creator and timestamp packed in single slot; removed redundant contentHash field
@@ -37,6 +43,11 @@ contract ContentRegistry {
     /// @notice Mapping from content hash to array of platform keys bound to it
     /// @dev Used to track all platform bindings for a given content hash
     mapping(bytes32 => bytes32[]) public hashToPlatformKeys;
+
+    /// @notice Storage gap for future upgrades
+    /// @dev Reserves storage slots for future variables to maintain upgrade compatibility
+    /// @dev This prevents storage collisions when adding new state variables in upgrades
+    uint256[47] private __gap;
 
     /// @notice Emitted when new content is registered
     /// @param contentHash The hash of the registered content
@@ -62,6 +73,24 @@ contract ContentRegistry {
     /// @param platformId The platform-specific identifier
     event PlatformBound(bytes32 indexed contentHash, string indexed platform, string platformId);
 
+    /// @notice Emitted when the contract is upgraded
+    /// @param implementation The address of the new implementation
+    /// @param version The version identifier of the new implementation
+    event Upgraded(address indexed implementation, string version);
+
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
+    /// @notice Initialize the contract (replaces constructor for upgradeable contracts)
+    /// @param initialOwner The address that will own the contract and have upgrade rights
+    /// @dev This function can only be called once due to initializer modifier
+    function initialize(address initialOwner) public initializer {
+        __Ownable_init(initialOwner);
+        __UUPSUpgradeable_init();
+    }
+
     /// @notice Restricts function access to the content creator
     /// @param contentHash The content hash to check ownership for
     modifier onlyCreator(bytes32 contentHash) {
@@ -76,6 +105,14 @@ contract ContentRegistry {
     /// @custom:security Uses timestamp == 0 to check if content is already registered
     /// @custom:gas-cost 50,368 - 115,935 gas (varies with URI length)
     function register(bytes32 contentHash, string calldata manifestURI) external {
+        _register(contentHash, manifestURI);
+    }
+
+    /// @notice Internal function to register content
+    /// @dev Can be called by child contracts to avoid external call overhead
+    /// @param contentHash The hash of the content to register (e.g., SHA-256)
+    /// @param manifestURI The URI pointing to the content's manifest file
+    function _register(bytes32 contentHash, string memory manifestURI) internal {
         require(entries[contentHash].timestamp == 0, "Already registered");
         uint64 currentTime = uint64(block.timestamp);
         entries[contentHash] = Entry({
@@ -142,6 +179,12 @@ contract ContentRegistry {
         return (e.creator, contentHash, e.manifestURI, e.timestamp);
     }
 
+    /// @notice Get the version of the implementation
+    /// @return The version string
+    function version() public pure virtual returns (string memory) {
+        return "1.0.0";
+    }
+
     /// @notice Generate a unique key for a platform binding
     /// @dev Internal helper function for consistent key generation
     /// @dev Optimized: uses calldata instead of memory to avoid copying
@@ -150,5 +193,19 @@ contract ContentRegistry {
     /// @return The keccak256 hash of the concatenated platform and ID
     function _platformKey(string calldata platform, string calldata platformId) internal pure returns (bytes32) {
         return keccak256(abi.encodePacked(platform, ":", platformId));
+    }
+
+    /// @notice Authorize contract upgrades (UUPS requirement)
+    /// @dev Only the contract owner can authorize upgrades
+    /// @param newImplementation The address of the new implementation contract
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {
+        // Additional upgrade validation can be added here
+        string memory versionString;
+        try ContentRegistryV1(newImplementation).version() returns (string memory v) {
+            versionString = v;
+        } catch {
+            versionString = "unknown";
+        }
+        emit Upgraded(newImplementation, versionString);
     }
 }
