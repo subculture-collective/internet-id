@@ -16,6 +16,7 @@ Internet-ID implements a comprehensive observability baseline to support inciden
 ### Local Development
 
 1. **Start the API server:**
+
    ```bash
    npm run start:api
    ```
@@ -199,11 +200,13 @@ Node.js process metrics are automatically collected:
 ### Accessing Metrics
 
 **Prometheus format (for scraping):**
+
 ```bash
 curl http://localhost:3001/api/metrics
 ```
 
 **JSON format (for debugging):**
+
 ```bash
 curl http://localhost:3001/api/metrics/json
 ```
@@ -214,18 +217,18 @@ To scrape metrics with Prometheus, add this job to your `prometheus.yml`:
 
 ```yaml
 scrape_configs:
-  - job_name: 'internet-id-api'
+  - job_name: "internet-id-api"
     scrape_interval: 15s
     static_configs:
-      - targets: ['localhost:3001']
-    metrics_path: '/api/metrics'
+      - targets: ["localhost:3001"]
+    metrics_path: "/api/metrics"
 ```
 
 For production deployments with multiple instances, use service discovery:
 
 ```yaml
 scrape_configs:
-  - job_name: 'internet-id-api'
+  - job_name: "internet-id-api"
     scrape_interval: 15s
     kubernetes_sd_configs:
       - role: pod
@@ -279,6 +282,7 @@ Returns detailed health status of all service components:
 ### Using Health Checks
 
 **Kubernetes liveness probe:**
+
 ```yaml
 livenessProbe:
   httpGet:
@@ -289,6 +293,7 @@ livenessProbe:
 ```
 
 **Docker healthcheck:**
+
 ```dockerfile
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s \
   CMD curl -f http://localhost:3001/api/health || exit 1
@@ -357,6 +362,7 @@ Or use OS-level log rotation with rsyslog/logrotate.
 When running in containers, simply log to stdout (default). Container orchestration platforms automatically collect logs:
 
 **Docker Compose:**
+
 ```yaml
 services:
   api:
@@ -384,6 +390,7 @@ Logs are automatically collected by the cluster logging system (Fluentd, Fluent 
 Create a dashboard with these panels:
 
 **Request Rate & Latency:**
+
 ```promql
 # Request rate
 rate(http_requests_total[5m])
@@ -396,6 +403,7 @@ rate(http_requests_total{status_code=~"5.."}[5m])
 ```
 
 **Application Metrics:**
+
 ```promql
 # Cache hit rate
 rate(cache_hits_total[5m]) / (rate(cache_hits_total[5m]) + rate(cache_misses_total[5m]))
@@ -408,6 +416,7 @@ active_connections
 ```
 
 **System Metrics:**
+
 ```promql
 # CPU usage
 rate(process_cpu_user_seconds_total[5m])
@@ -485,10 +494,11 @@ groups:
 ### Logging Best Practices
 
 1. **Use structured logging**: Always log with context objects, not string concatenation
+
    ```typescript
    // Good
    logger.info("User registered", { userId, email });
-   
+
    // Bad
    logger.info(`User ${userId} registered with email ${email}`);
    ```
@@ -533,16 +543,19 @@ groups:
 ### Logs not appearing
 
 **Check log level:**
+
 ```bash
 echo $LOG_LEVEL  # Should be info or lower
 ```
 
 **Check NODE_ENV:**
+
 ```bash
 echo $NODE_ENV  # Pretty logs only in development
 ```
 
 **Enable debug logging temporarily:**
+
 ```bash
 LOG_LEVEL=debug npm run start:api
 ```
@@ -550,6 +563,7 @@ LOG_LEVEL=debug npm run start:api
 ### Metrics not available
 
 **Verify endpoint responds:**
+
 ```bash
 curl http://localhost:3001/api/metrics
 ```
@@ -558,6 +572,7 @@ curl http://localhost:3001/api/metrics
 Visit http://localhost:9090/targets in Prometheus UI
 
 **View metrics in JSON for debugging:**
+
 ```bash
 curl http://localhost:3001/api/metrics/json | jq
 ```
@@ -576,10 +591,12 @@ If this number is very high (>10,000), you may have too many label combinations.
 ### Performance impact
 
 **Logging**: Pino is extremely fast (minimal overhead)
+
 - Use async logging in production for even better performance
 - Avoid logging in tight loops
 
 **Metrics**: Minimal overhead for most metrics
+
 - Histograms are more expensive than counters/gauges
 - Keep label cardinality low
 

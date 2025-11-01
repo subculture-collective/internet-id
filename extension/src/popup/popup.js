@@ -10,27 +10,27 @@ let currentVerification = null;
 
 // DOM elements
 const states = {
-  loading: document.getElementById('loading-state'),
-  verified: document.getElementById('verified-state'),
-  notVerified: document.getElementById('not-verified-state'),
-  unsupported: document.getElementById('unsupported-state'),
-  error: document.getElementById('error-state')
+  loading: document.getElementById("loading-state"),
+  verified: document.getElementById("verified-state"),
+  notVerified: document.getElementById("not-verified-state"),
+  unsupported: document.getElementById("unsupported-state"),
+  error: document.getElementById("error-state"),
 };
 
 // Initialize popup
-document.addEventListener('DOMContentLoaded', async () => {
-  console.log('Popup loaded');
-  
+document.addEventListener("DOMContentLoaded", async () => {
+  console.log("Popup loaded");
+
   // Get current tab
   const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
   currentTab = tabs[0];
-  
+
   // Check API health
   checkApiHealth();
-  
+
   // Verify current page
   await verifyCurrentPage();
-  
+
   // Setup event listeners
   setupEventListeners();
 });
@@ -39,11 +39,11 @@ document.addEventListener('DOMContentLoaded', async () => {
  * Setup event listeners
  */
 function setupEventListeners() {
-  document.getElementById('verify-now-btn')?.addEventListener('click', handleVerifyNow);
-  document.getElementById('retry-btn')?.addEventListener('click', verifyCurrentPage);
-  document.getElementById('refresh-btn')?.addEventListener('click', handleRefresh);
-  document.getElementById('dashboard-btn')?.addEventListener('click', handleOpenDashboard);
-  document.getElementById('settings-btn')?.addEventListener('click', handleOpenSettings);
+  document.getElementById("verify-now-btn")?.addEventListener("click", handleVerifyNow);
+  document.getElementById("retry-btn")?.addEventListener("click", verifyCurrentPage);
+  document.getElementById("refresh-btn")?.addEventListener("click", handleRefresh);
+  document.getElementById("dashboard-btn")?.addEventListener("click", handleOpenDashboard);
+  document.getElementById("settings-btn")?.addEventListener("click", handleOpenSettings);
 }
 
 /**
@@ -51,13 +51,13 @@ function setupEventListeners() {
  */
 function showState(stateName) {
   // Hide all states
-  Object.values(states).forEach(state => {
-    if (state) state.style.display = 'none';
+  Object.values(states).forEach((state) => {
+    if (state) state.style.display = "none";
   });
-  
+
   // Show requested state
   if (states[stateName]) {
-    states[stateName].style.display = 'block';
+    states[stateName].style.display = "block";
   }
 }
 
@@ -65,49 +65,49 @@ function showState(stateName) {
  * Verify current page
  */
 async function verifyCurrentPage() {
-  showState('loading');
-  
+  showState("loading");
+
   try {
     if (!currentTab || !currentTab.url) {
-      showState('unsupported');
+      showState("unsupported");
       return;
     }
-    
+
     // Detect platform
     const platformInfo = detectPlatform(currentTab.url);
     currentPlatformInfo = platformInfo;
-    
-    if (platformInfo.platform === 'unknown' || !platformInfo.platformId) {
-      showState('unsupported');
+
+    if (platformInfo.platform === "unknown" || !platformInfo.platformId) {
+      showState("unsupported");
       return;
     }
-    
+
     // Request verification from background
     const response = await chrome.runtime.sendMessage({
-      action: 'verify',
+      action: "verify",
       data: {
         url: currentTab.url,
         platform: platformInfo.platform,
-        platformId: platformInfo.platformId
-      }
+        platformId: platformInfo.platformId,
+      },
     });
-    
+
     if (response.success && response.data) {
       currentVerification = response.data;
-      
+
       if (response.data.contentHash) {
         // Content is verified
         displayVerifiedState(response.data);
       } else {
         // Not verified
-        showState('notVerified');
+        showState("notVerified");
       }
     } else {
       // Error or not found
-      showState('notVerified');
+      showState("notVerified");
     }
   } catch (error) {
-    console.error('Verification error:', error);
+    console.error("Verification error:", error);
     showErrorState(error.message);
   }
 }
@@ -116,23 +116,23 @@ async function verifyCurrentPage() {
  * Display verified state with data
  */
 function displayVerifiedState(data) {
-  showState('verified');
-  
+  showState("verified");
+
   // Update platform name
-  const platformName = document.getElementById('platform-name');
+  const platformName = document.getElementById("platform-name");
   if (platformName && currentPlatformInfo) {
     platformName.textContent = capitalize(currentPlatformInfo.platform);
   }
-  
+
   // Update creator address
-  const creatorAddress = document.getElementById('creator-address');
+  const creatorAddress = document.getElementById("creator-address");
   if (creatorAddress && data.creator) {
     creatorAddress.textContent = truncateAddress(data.creator);
     creatorAddress.title = data.creator;
   }
-  
+
   // Update verified date
-  const verifiedDate = document.getElementById('verified-date');
+  const verifiedDate = document.getElementById("verified-date");
   if (verifiedDate && data.registeredAt) {
     verifiedDate.textContent = formatDate(data.registeredAt);
   }
@@ -142,10 +142,10 @@ function displayVerifiedState(data) {
  * Show error state with message
  */
 function showErrorState(message) {
-  showState('error');
-  const errorMessage = document.getElementById('error-message');
+  showState("error");
+  const errorMessage = document.getElementById("error-message");
   if (errorMessage) {
-    errorMessage.textContent = message || 'An unexpected error occurred.';
+    errorMessage.textContent = message || "An unexpected error occurred.";
   }
 }
 
@@ -153,12 +153,12 @@ function showErrorState(message) {
  * Check API health
  */
 async function checkApiHealth() {
-  const statusElement = document.getElementById('api-status');
+  const statusElement = document.getElementById("api-status");
   if (!statusElement) return;
-  
+
   try {
-    const response = await chrome.runtime.sendMessage({ action: 'checkHealth' });
-    
+    const response = await chrome.runtime.sendMessage({ action: "checkHealth" });
+
     if (response.success && response.data.healthy) {
       statusElement.innerHTML = '<span class="status-dot healthy"></span> Connected';
     } else {
@@ -174,9 +174,9 @@ async function checkApiHealth() {
  */
 async function handleVerifyNow() {
   // Get settings to determine dashboard URL
-  const settings = await chrome.storage.sync.get(['apiBase']);
-  const dashboardBase = settings.apiBase?.replace('3001', '3000') || 'http://localhost:3000';
-  
+  const settings = await chrome.storage.sync.get(["apiBase"]);
+  const dashboardBase = settings.apiBase?.replace("3001", "3000") || "http://localhost:3000";
+
   // Open dashboard in verify mode
   chrome.tabs.create({ url: `${dashboardBase}/dashboard` });
 }
@@ -190,10 +190,10 @@ async function handleRefresh() {
     const cacheKey = `cache_${currentTab.url}`;
     await chrome.storage.local.remove([cacheKey]);
   }
-  
+
   // Re-verify
   await verifyCurrentPage();
-  
+
   // Re-check health
   await checkApiHealth();
 }
@@ -202,8 +202,8 @@ async function handleRefresh() {
  * Handle open dashboard
  */
 async function handleOpenDashboard() {
-  const settings = await chrome.storage.sync.get(['apiBase']);
-  const dashboardBase = settings.apiBase?.replace('3001', '3000') || 'http://localhost:3000';
+  const settings = await chrome.storage.sync.get(["apiBase"]);
+  const dashboardBase = settings.apiBase?.replace("3001", "3000") || "http://localhost:3000";
   chrome.tabs.create({ url: `${dashboardBase}/dashboard` });
 }
 
@@ -221,27 +221,27 @@ function detectPlatform(url) {
   try {
     const urlObj = new URL(url);
     const hostname = urlObj.hostname.toLowerCase();
-    
+
     const platformMap = {
-      'youtube.com': 'youtube',
-      'twitter.com': 'twitter',
-      'x.com': 'twitter',
-      'instagram.com': 'instagram',
-      'github.com': 'github',
-      'tiktok.com': 'tiktok',
-      'linkedin.com': 'linkedin'
+      "youtube.com": "youtube",
+      "twitter.com": "twitter",
+      "x.com": "twitter",
+      "instagram.com": "instagram",
+      "github.com": "github",
+      "tiktok.com": "tiktok",
+      "linkedin.com": "linkedin",
     };
-    
+
     for (const [domain, platform] of Object.entries(platformMap)) {
       if (hostname.includes(domain)) {
         const platformId = extractPlatformId(url, platform);
         return { platform, platformId, url };
       }
     }
-    
-    return { platform: 'unknown', platformId: null, url };
+
+    return { platform: "unknown", platformId: null, url };
   } catch (error) {
-    return { platform: 'unknown', platformId: null, url };
+    return { platform: "unknown", platformId: null, url };
   }
 }
 
@@ -255,20 +255,20 @@ function extractPlatformId(url, platform) {
     instagram: /instagram\.com\/(?:p|reel|tv)\/([A-Za-z0-9_-]+)/,
     github: /github\.com\/([^\/]+)\/([^\/]+)/,
     tiktok: /tiktok\.com\/@[^\/]+\/video\/(\d+)/,
-    linkedin: /linkedin\.com\/posts\/[^\/]+\/([^\/\?]+)/
+    linkedin: /linkedin\.com\/posts\/[^\/]+\/([^\/\?]+)/,
   };
-  
+
   const pattern = patterns[platform];
   if (!pattern) return null;
-  
+
   const match = url.match(pattern);
   if (!match) return null;
-  
+
   // Return appropriate match group based on platform
   switch (platform) {
-    case 'twitter':
+    case "twitter":
       return match[2];
-    case 'github':
+    case "github":
       return `${match[1]}/${match[2]}`;
     default:
       return match[1];
@@ -296,12 +296,12 @@ function truncateAddress(address) {
 function formatDate(dateString) {
   try {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   } catch (error) {
-    return 'Unknown';
+    return "Unknown";
   }
 }

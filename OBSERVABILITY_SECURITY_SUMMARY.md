@@ -28,6 +28,7 @@ Analysis Result: No security vulnerabilities detected
 
 **Tool:** GitHub Advisory Database  
 **Dependencies Scanned:**
+
 - pino@10.1.0
 - pino-pretty@13.1.2
 - prom-client@15.1.3
@@ -42,6 +43,7 @@ All new dependencies are free from known security issues.
 **Result:** ✅ **Passed with improvements**
 
 **Issues Identified and Fixed:**
+
 1. ✅ Middleware recursion prevention (fixed)
 2. ✅ Response handler context preservation (fixed)
 3. ✅ Memory leak prevention (fixed)
@@ -53,6 +55,7 @@ All new dependencies are free from known security issues.
 **Implementation:** Automatic field redaction in logs
 
 **Protected Fields:**
+
 ```typescript
 redact: {
   paths: [
@@ -71,6 +74,7 @@ redact: {
 **Benefit:** Prevents accidental logging of sensitive data
 
 **Example:**
+
 ```javascript
 // Input
 logger.info("User data", {
@@ -90,6 +94,7 @@ logger.info("User data", {
 **Implementation:** No PII in metrics labels
 
 **Guidelines Followed:**
+
 - ✅ No user IDs in labels
 - ✅ No email addresses in labels
 - ✅ No IP addresses in labels
@@ -97,6 +102,7 @@ logger.info("User data", {
 - ✅ Only bounded values used as labels
 
 **Example - Correct:**
+
 ```typescript
 metricsService.recordHttpRequest(
   method: "POST",
@@ -108,6 +114,7 @@ metricsService.recordHttpRequest(
 ```
 
 **Example - Incorrect (NOT done):**
+
 ```typescript
 // BAD: Don't do this
 metricsService.recordHttpRequest(
@@ -122,6 +129,7 @@ metricsService.recordHttpRequest(
 **Implementation:** Public-safe health checks
 
 **Exposed Information:**
+
 - ✅ Service status (ok/degraded/unhealthy)
 - ✅ Component health (database, cache, blockchain)
 - ✅ Uptime in seconds
@@ -130,6 +138,7 @@ metricsService.recordHttpRequest(
 - ❌ NO credentials or tokens
 
 **Example Response:**
+
 ```json
 {
   "status": "ok",
@@ -146,12 +155,14 @@ metricsService.recordHttpRequest(
 **Implementation:** UUID v4 for correlation IDs
 
 **Security Properties:**
+
 - ✅ Cryptographically random
 - ✅ Not guessable
 - ✅ No sequential patterns
 - ✅ Collision-resistant
 
 **Code:**
+
 ```typescript
 import { randomUUID } from "crypto";
 
@@ -163,18 +174,21 @@ generateCorrelationId(): string {
 ### 5. Input Validation
 
 **Metrics Endpoint:**
+
 - ✅ No user input processed
 - ✅ Read-only operation
 - ✅ No SQL queries
 - ✅ No file system access
 
 **Health Endpoint:**
+
 - ✅ No user input processed
 - ✅ Read-only checks
 - ✅ Timeout protection
 - ✅ Error handling
 
 **Logger Service:**
+
 - ✅ Context sanitization
 - ✅ Redaction rules applied
 - ✅ No code injection risk
@@ -186,6 +200,7 @@ generateCorrelationId(): string {
 **Risk:** Malicious input in logs could break log parsers
 
 **Mitigation:**
+
 - ✅ Structured JSON logging (no string interpolation)
 - ✅ Pino automatically escapes special characters
 - ✅ Redaction removes sensitive fields
@@ -195,6 +210,7 @@ generateCorrelationId(): string {
 **Risk:** Unbounded labels could cause memory exhaustion
 
 **Mitigation:**
+
 - ✅ Only bounded values used as labels
 - ✅ No user IDs or arbitrary strings in labels
 - ✅ Documentation warns against high cardinality
@@ -204,6 +220,7 @@ generateCorrelationId(): string {
 **Risk:** Logs or metrics could leak sensitive data
 
 **Mitigation:**
+
 - ✅ Automatic redaction of sensitive fields
 - ✅ No PII in metrics
 - ✅ Health endpoint reveals no secrets
@@ -213,6 +230,7 @@ generateCorrelationId(): string {
 **Risk:** Log flooding or metrics scraping could exhaust resources
 
 **Mitigation:**
+
 - ✅ Pino is high-performance (minimal overhead)
 - ✅ Metrics endpoint is read-only and fast
 - ✅ Rate limiting exists on API (from previous implementation)
@@ -222,6 +240,7 @@ generateCorrelationId(): string {
 **Risk:** User input could be executed as code
 
 **Mitigation:**
+
 - ✅ No eval() or similar constructs
 - ✅ No user input in log messages
 - ✅ All context is data, not code
@@ -233,15 +252,18 @@ generateCorrelationId(): string {
 **Recommendations:**
 
 **Metrics Endpoint:**
+
 - Should be accessible only to monitoring systems
 - Use firewall rules or network policies
 - Or require authentication in reverse proxy
 
 **Health Endpoint:**
+
 - Can be public (contains no sensitive info)
 - Used by load balancers and orchestrators
 
 **Logs:**
+
 - Ship to secured logging service
 - Implement access controls on log storage
 - Use encryption in transit (TLS)
@@ -249,6 +271,7 @@ generateCorrelationId(): string {
 ### 2. Network Security
 
 **Docker Deployment:**
+
 ```yaml
 services:
   api:
@@ -264,6 +287,7 @@ services:
 ```
 
 **Kubernetes Deployment:**
+
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -274,13 +298,13 @@ spec:
     matchLabels:
       app: internet-id-api
   ingress:
-  - from:
-    - podSelector:
-        matchLabels:
-          app: prometheus
-    ports:
-    - protocol: TCP
-      port: 3001
+    - from:
+        - podSelector:
+            matchLabels:
+              app: prometheus
+      ports:
+        - protocol: TCP
+          port: 3001
 ```
 
 ### 3. Log Retention
@@ -288,12 +312,14 @@ spec:
 **Recommendation:** Implement log retention policies
 
 **Considerations:**
+
 - GDPR: Logs may contain PII (even if redacted, IPs remain)
 - Retention: 30-90 days typical
 - Deletion: Automated via logging service
 - Backup: Encrypted and access-controlled
 
 **Example:**
+
 ```yaml
 # Logtail configuration
 retention_days: 30
@@ -304,6 +330,7 @@ access_control: role-based
 ### 4. Secrets Management
 
 **Log Destination Tokens:**
+
 ```bash
 # DO NOT commit to git
 LOGTAIL_SOURCE_TOKEN=xxx
@@ -316,13 +343,14 @@ kubectl create secret generic observability-secrets \
 ```
 
 **Kubernetes:**
+
 ```yaml
 env:
-- name: LOGTAIL_SOURCE_TOKEN
-  valueFrom:
-    secretKeyRef:
-      name: observability-secrets
-      key: logtail-token
+  - name: LOGTAIL_SOURCE_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: observability-secrets
+        key: logtail-token
 ```
 
 ## Compliance Considerations
@@ -330,6 +358,7 @@ env:
 ### GDPR
 
 **Log Data:**
+
 - ✅ IP addresses are logged (consider as PII)
 - ✅ User IDs are logged (with explicit consent)
 - ✅ Sensitive fields redacted
@@ -337,6 +366,7 @@ env:
 - ⚠️ Provide data deletion mechanism
 
 **Recommendation:**
+
 - Document what PII is logged
 - Implement log anonymization if needed
 - Provide user data export/deletion
@@ -344,6 +374,7 @@ env:
 ### SOC 2
 
 **Audit Logging:**
+
 - ✅ All requests logged with correlation IDs
 - ✅ Structured format for audit trail
 - ✅ Immutable log shipping to external service
@@ -352,6 +383,7 @@ env:
 ### ISO 27001
 
 **Information Security:**
+
 - ✅ Sensitive data protection (redaction)
 - ✅ Access controls (recommended)
 - ✅ Audit trails (structured logs)

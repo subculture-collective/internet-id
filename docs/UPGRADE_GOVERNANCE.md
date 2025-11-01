@@ -11,16 +11,19 @@ This document outlines the governance procedures for upgrading the ContentRegist
 **Status**: ⚠️ Development/Testing Only
 
 **Configuration**:
+
 - Single EOA (Externally Owned Account) owns the proxy
 - Owner can upgrade immediately without additional approval
 - Suitable for rapid iteration during development
 
 **Risks**:
+
 - Single point of failure
 - No review period
 - Immediate execution
 
 **When to Use**:
+
 - Local testing
 - Testnet deployments
 - Early development phase
@@ -30,11 +33,13 @@ This document outlines the governance procedures for upgrading the ContentRegist
 **Status**: ✅ Recommended for Production
 
 **Configuration**:
+
 - Gnosis Safe multisig wallet owns the proxy
 - Requires M-of-N signatures (e.g., 3-of-5)
 - Distributed control among trusted parties
 
 **Setup**:
+
 ```
 1. Deploy Gnosis Safe with 5 signers
 2. Set threshold to 3 signatures
@@ -43,6 +48,7 @@ This document outlines the governance procedures for upgrading the ContentRegist
 ```
 
 **Signers Should Be**:
+
 - Core team members (2-3)
 - Security auditors (1)
 - Community representatives (1-2)
@@ -50,18 +56,21 @@ This document outlines the governance procedures for upgrading the ContentRegist
 - Available 24/7 for emergencies
 
 **Upgrade Process**:
+
 1. Proposer creates upgrade transaction in Safe
 2. Signers review implementation code
 3. Minimum 3 signatures collected
 4. Transaction executed on-chain
 
 **Advantages**:
+
 - Distributed trust
 - No single point of failure
 - Transparent on-chain record
 - Protection against compromised keys
 
 **Tools**:
+
 - [Gnosis Safe](https://safe.global/)
 - [Safe Transaction Service API](https://docs.safe.global/learn/safe-core/safe-core-api)
 
@@ -70,6 +79,7 @@ This document outlines the governance procedures for upgrading the ContentRegist
 **Status**: 🔮 Future Enhancement
 
 **Configuration**:
+
 ```
 Community Members
     ↓
@@ -99,6 +109,7 @@ Proxy Upgrade
    - Or: 1 address = 1 vote
 
 **Upgrade Process**:
+
 1. Anyone proposes upgrade (with deposit)
 2. Community votes (7-day period)
 3. If approved, queued in timelock
@@ -106,37 +117,41 @@ Proxy Upgrade
 5. Anyone can execute after delay
 
 **Advantages**:
+
 - Maximum decentralization
 - Community involvement
 - Transparent review period
 - Cancel mechanism for issues
 
 **Disadvantages**:
+
 - Slower process
 - Higher gas costs
 - Complexity
 - Requires active community
 
 **When to Use**:
+
 - Mature project with active community
 - When decentralization is priority
 - After initial stability period
 
 ## Upgrade Authorization Matrix
 
-| Environment | Owner | Approval | Timelock | Purpose |
-|-------------|-------|----------|----------|---------|
-| Localhost | Dev EOA | None | No | Testing |
-| Testnet | Dev EOA | Team Review | No | Integration Testing |
-| Staging | Multisig 2-of-3 | Code Review | No | Pre-production |
-| Production | Multisig 3-of-5 | Audit + Review | Optional | Live System |
-| Long-term | DAO + Timelock | Community Vote | Yes (48h) | Decentralized |
+| Environment | Owner           | Approval       | Timelock  | Purpose             |
+| ----------- | --------------- | -------------- | --------- | ------------------- |
+| Localhost   | Dev EOA         | None           | No        | Testing             |
+| Testnet     | Dev EOA         | Team Review    | No        | Integration Testing |
+| Staging     | Multisig 2-of-3 | Code Review    | No        | Pre-production      |
+| Production  | Multisig 3-of-5 | Audit + Review | Optional  | Live System         |
+| Long-term   | DAO + Timelock  | Community Vote | Yes (48h) | Decentralized       |
 
 ## Upgrade Approval Process
 
 ### 1. Proposal Phase
 
 **Requirements**:
+
 - Detailed technical specification
 - Code implementation
 - Test results
@@ -145,35 +160,43 @@ Proxy Upgrade
 - Rollback plan
 
 **Documentation**:
+
 ```markdown
 ## Upgrade Proposal: [Title]
 
 ### Summary
+
 Brief description of changes
 
 ### Motivation
+
 Why this upgrade is needed
 
 ### Changes
+
 - Detailed list of modifications
 - New features
 - Bug fixes
 - Breaking changes
 
 ### Storage Layout
+
 - Document any storage changes
 - Show storage gap adjustment
 
 ### Testing
+
 - Test coverage report
 - Simulation results
 - Testnet deployment results
 
 ### Risks
+
 - Identified risks
 - Mitigation strategies
 
 ### Timeline
+
 - Proposal date
 - Review period
 - Deployment date
@@ -182,6 +205,7 @@ Why this upgrade is needed
 ### 2. Review Phase
 
 **Technical Review**:
+
 - [ ] Code review by 2+ developers
 - [ ] Storage layout verification
 - [ ] Gas optimization check
@@ -190,12 +214,14 @@ Why this upgrade is needed
 - [ ] Documentation updated
 
 **Security Review** (Major upgrades):
+
 - [ ] External audit completed
 - [ ] Audit findings addressed
 - [ ] Security checklist completed
 - [ ] No critical vulnerabilities
 
 **Governance Review**:
+
 - [ ] Proposal approved by required signers
 - [ ] Community feedback considered
 - [ ] Stakeholder concerns addressed
@@ -203,6 +229,7 @@ Why this upgrade is needed
 ### 3. Testing Phase
 
 **Required Tests**:
+
 - [ ] Unit tests pass (100% coverage for new code)
 - [ ] Integration tests pass
 - [ ] Simulation successful
@@ -211,12 +238,14 @@ Why this upgrade is needed
 - [ ] No breaking changes (unless documented)
 
 **Testing Period**:
+
 - Testnet: Minimum 7 days
 - Production: After testnet validation
 
 ### 4. Approval Phase
 
 **Multisig Process**:
+
 1. Create transaction in Gnosis Safe
 2. Add detailed description and links
 3. Request signatures from required parties
@@ -229,6 +258,7 @@ Why this upgrade is needed
 6. Transaction ready for execution
 
 **Voting Period (DAO model)**:
+
 - Proposal submission
 - Discussion period: 3 days
 - Voting period: 7 days
@@ -239,6 +269,7 @@ Why this upgrade is needed
 ### 5. Execution Phase
 
 **Pre-Execution**:
+
 - [ ] Final verification checklist
 - [ ] Backup current state
 - [ ] Notification sent to users
@@ -246,6 +277,7 @@ Why this upgrade is needed
 - [ ] Team available for support
 
 **Execution**:
+
 ```bash
 # Verify everything is ready
 npm run build
@@ -261,6 +293,7 @@ npx hardhat run scripts/upgrade-to-v2.ts --network <network>
 ```
 
 **Post-Execution**:
+
 - [ ] Verify upgrade successful
 - [ ] Test all critical functions
 - [ ] Monitor for 24 hours
@@ -279,6 +312,7 @@ npx hardhat run scripts/upgrade-to-v2.ts --network <network>
 ### Emergency Multisig Process
 
 **Fast Track Requirements**:
+
 1. Document the emergency clearly
 2. Notify all signers immediately
 3. Expedite review (4-hour window)
@@ -287,6 +321,7 @@ npx hardhat run scripts/upgrade-to-v2.ts --network <network>
 6. Post-incident report
 
 **Communication**:
+
 ```
 Emergency Alert Template:
 
@@ -303,6 +338,7 @@ Details: [Link to full report]
 ### Emergency DAO Process
 
 **Fast Track (if implemented)**:
+
 1. Emergency proposal flagged
 2. Shortened voting period (24 hours)
 3. Lower quorum (5% instead of 10%)
@@ -314,6 +350,7 @@ Details: [Link to full report]
 ### Owner Key Management
 
 **Best Practices**:
+
 - Use hardware wallets (Ledger, Trezor)
 - Store keys in multiple secure locations
 - Use key management systems (e.g., Fireblocks)
@@ -321,6 +358,7 @@ Details: [Link to full report]
 - Document key holders
 
 **For Multisig**:
+
 - Each signer uses separate hardware wallet
 - Geographic distribution
 - Different physical locations
@@ -329,6 +367,7 @@ Details: [Link to full report]
 ### Monitoring and Alerts
 
 **What to Monitor**:
+
 - Upgrade transactions
 - Owner changes
 - Failed transactions
@@ -336,12 +375,14 @@ Details: [Link to full report]
 - Implementation address changes
 
 **Alert Channels**:
+
 - Discord notifications
 - Email alerts
 - SMS for critical events
 - Status page updates
 
 **Tools**:
+
 - OpenZeppelin Defender
 - Tenderly Alerts
 - Custom monitoring scripts
@@ -349,30 +390,38 @@ Details: [Link to full report]
 ## Governance Evolution Path
 
 ### Phase 1: Development (Current)
+
 ```
 Single EOA → Fast iteration
 ```
+
 **Duration**: During development
 **Goal**: Rapid testing and iteration
 
 ### Phase 2: Initial Launch
+
 ```
 Multisig 3-of-5 → Distributed control
 ```
+
 **Duration**: First 6 months after launch
 **Goal**: Stable, secure upgrades
 
 ### Phase 3: Community Growth
+
 ```
 Multisig + Community Feedback → Hybrid governance
 ```
+
 **Duration**: 6-12 months post-launch
 **Goal**: Incorporate community input
 
 ### Phase 4: Decentralization
+
 ```
 DAO + Timelock → Full decentralization
 ```
+
 **Duration**: 12+ months post-launch
 **Goal**: Community-driven governance
 
@@ -381,11 +430,13 @@ DAO + Timelock → Full decentralization
 ### Upgrade Frequency
 
 **Recommended Limits**:
+
 - Maximum: 1 upgrade per 30 days
 - Minimum delay between upgrades: 14 days
 - Exception: Emergency security fixes
 
 **Reasoning**:
+
 - Allows community to adapt
 - Reduces upgrade fatigue
 - Maintains stability
@@ -393,22 +444,24 @@ DAO + Timelock → Full decentralization
 
 ### Review Periods
 
-| Upgrade Type | Review Period | Approval |
-|-------------|---------------|----------|
-| Minor (bug fixes) | 3 days | 2-of-3 signers |
-| Standard (new features) | 7 days | 3-of-5 signers |
-| Major (breaking changes) | 14 days | 4-of-5 signers + audit |
-| Emergency | 4 hours | 3-of-5 signers |
+| Upgrade Type             | Review Period | Approval               |
+| ------------------------ | ------------- | ---------------------- |
+| Minor (bug fixes)        | 3 days        | 2-of-3 signers         |
+| Standard (new features)  | 7 days        | 3-of-5 signers         |
+| Major (breaking changes) | 14 days       | 4-of-5 signers + audit |
+| Emergency                | 4 hours       | 3-of-5 signers         |
 
 ### Freeze Period (Recommended)
 
 **Pre-v1.0 Launch**:
+
 - 30-day freeze period before v1.0
 - No upgrades during freeze
 - Allows stability verification
 - Builds confidence
 
 **Post-v1.0**:
+
 - 7-day freeze before major milestones
 - Optional for minor updates
 
@@ -417,6 +470,7 @@ DAO + Timelock → Full decentralization
 ### Before Upgrade
 
 **Channels**:
+
 - Discord announcement
 - Twitter post
 - Email notification (if available)
@@ -424,6 +478,7 @@ DAO + Timelock → Full decentralization
 - GitHub release notes
 
 **Content**:
+
 - What's changing
 - Why it's needed
 - When it will happen
@@ -433,6 +488,7 @@ DAO + Timelock → Full decentralization
 ### During Upgrade
 
 **Status Updates**:
+
 - "Upgrade in progress"
 - "Upgrade completed"
 - Any issues encountered
@@ -441,6 +497,7 @@ DAO + Timelock → Full decentralization
 ### After Upgrade
 
 **Communication**:
+
 - Success announcement
 - Summary of changes
 - How to verify
@@ -494,6 +551,7 @@ DAO + Timelock → Full decentralization
 ## Contact
 
 For governance questions:
+
 - Discord: #governance channel
 - Email: governance@subculture.io
 - Forum: [community-forum-link]

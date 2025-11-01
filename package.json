@@ -85,7 +85,9 @@
     "docker:up:production": "docker compose -f docker-compose.production.yml up -d",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f",
-    "smoke-test": "bash scripts/smoke-test.sh"
+    "smoke-test": "bash scripts/smoke-test.sh",
+    "extension:package": "cd extension && npm run package",
+    "extension:package:chrome": "cd extension && npm run package:chrome"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.1.0",

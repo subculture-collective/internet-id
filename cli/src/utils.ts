@@ -81,7 +81,7 @@ async function uploadViaWeb3Storage(filePath: string, token: string): Promise<st
   // Use streaming for memory efficiency with large files
   const form = new FormData();
   form.append("file", createReadStream(filePath));
-  
+
   const response = await axios.post("https://api.web3.storage/upload", form, {
     headers: {
       Authorization: `Bearer ${token}`,

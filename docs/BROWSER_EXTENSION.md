@@ -88,6 +88,7 @@ The extension uses Chrome's Manifest V3 specification for modern browser compati
 **File**: `extension/src/background/service-worker.js`
 
 **Responsibilities**:
+
 - Handle extension installation and updates
 - Route messages between content scripts and popup
 - Manage API communication
@@ -96,19 +97,22 @@ The extension uses Chrome's Manifest V3 specification for modern browser compati
 - Monitor tab updates
 
 **Key Functions**:
+
 ```javascript
 // Handle messages from content scripts/popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   switch (request.action) {
-    case 'verify': handleVerification(request.data);
-    case 'checkHealth': checkApiHealth();
+    case "verify":
+      handleVerification(request.data);
+    case "checkHealth":
+      checkApiHealth();
     // ...
   }
 });
 
 // Auto-verify on tab load
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status === 'complete') {
+  if (changeInfo.status === "complete") {
     // Trigger verification check
   }
 });
@@ -119,6 +123,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 **Files**: `extension/src/content/*.js`
 
 **Platform-Specific Implementations**:
+
 - `youtube.js` - YouTube video pages
 - `twitter.js` - Twitter/X posts
 - `instagram.js` - Instagram posts
@@ -127,6 +132,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 - `linkedin.js` - LinkedIn posts
 
 **Responsibilities**:
+
 - Detect current platform and extract content ID
 - Send verification requests to background worker
 - Inject verification badges into page DOM
@@ -134,14 +140,15 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 - Handle platform-specific UI injection
 
 **Example Flow** (YouTube):
+
 ```javascript
 // 1. Extract video ID from URL
 const videoId = extractVideoId(window.location.href);
 
 // 2. Request verification
 const response = await chrome.runtime.sendMessage({
-  action: 'verify',
-  data: { platform: 'youtube', platformId: videoId }
+  action: "verify",
+  data: { platform: "youtube", platformId: videoId },
 });
 
 // 3. Inject badge if verified
@@ -158,6 +165,7 @@ watchForUrlChanges();
 **Files**: `extension/src/popup/*`
 
 **Features**:
+
 - Display current page verification status
 - Show verification details (creator, date)
 - Quick actions (Verify Now, Open Dashboard)
@@ -165,6 +173,7 @@ watchForUrlChanges();
 - Settings access
 
 **States**:
+
 - Loading - Checking verification
 - Verified - Content is verified (show details)
 - Not Verified - No verification found
@@ -176,6 +185,7 @@ watchForUrlChanges();
 **Files**: `extension/src/options/*`
 
 **Settings**:
+
 - **API Configuration**: Base URL, API key, connection test
 - **Verification**: Auto-verify, show badges, notifications
 - **Appearance**: Theme selection
@@ -185,6 +195,7 @@ watchForUrlChanges();
 ### 5. Utility Modules
 
 **Platform Detector** (`utils/platform-detector.js`):
+
 ```javascript
 // Detect platform from URL
 detectPlatform(url) → 'youtube' | 'twitter' | ...
@@ -194,6 +205,7 @@ extractPlatformId(url) → { platform, platformId, additionalInfo }
 ```
 
 **API Client** (`utils/api-client.js`):
+
 ```javascript
 // Verify content by URL
 verifyByPlatform(url) → Promise<VerificationResult>
@@ -206,6 +218,7 @@ checkHealth() → Promise<boolean>
 ```
 
 **Storage** (`utils/storage.js`):
+
 ```javascript
 // Settings management
 getSettings() → Promise<Settings>
@@ -224,27 +237,27 @@ getWallet() → Promise<WalletInfo|null>
 
 ### Supported Platforms
 
-| Platform | URL Pattern | ID Extraction |
-|----------|-------------|---------------|
-| YouTube | `youtube.com/watch?v=*` | Video ID from query param |
-| Twitter/X | `twitter.com/*/status/*` | Tweet ID from path |
-| Instagram | `instagram.com/p/*` | Post ID from path |
-| GitHub | `github.com/*/*` | owner/repo from path |
-| TikTok | `tiktok.com/@*/video/*` | Video ID from path |
-| LinkedIn | `linkedin.com/posts/*/*` | Post ID from path |
+| Platform  | URL Pattern              | ID Extraction             |
+| --------- | ------------------------ | ------------------------- |
+| YouTube   | `youtube.com/watch?v=*`  | Video ID from query param |
+| Twitter/X | `twitter.com/*/status/*` | Tweet ID from path        |
+| Instagram | `instagram.com/p/*`      | Post ID from path         |
+| GitHub    | `github.com/*/*`         | owner/repo from path      |
+| TikTok    | `tiktok.com/@*/video/*`  | Video ID from path        |
+| LinkedIn  | `linkedin.com/posts/*/*` | Post ID from path         |
 
 ### Detection Algorithm
 
 ```javascript
 function detectPlatform(url) {
   const hostname = new URL(url).hostname;
-  
+
   // Match hostname to platform
-  if (hostname.includes('youtube.com')) return 'youtube';
-  if (hostname.includes('twitter.com') || hostname.includes('x.com')) return 'twitter';
+  if (hostname.includes("youtube.com")) return "youtube";
+  if (hostname.includes("twitter.com") || hostname.includes("x.com")) return "twitter";
   // ...
-  
-  return 'unknown';
+
+  return "unknown";
 }
 ```
 
@@ -292,12 +305,14 @@ function detectPlatform(url) {
 ### Injection Strategy
 
 **YouTube**: Insert after video title
+
 ```javascript
-const titleContainer = document.querySelector('#above-the-fold #title h1');
+const titleContainer = document.querySelector("#above-the-fold #title h1");
 titleContainer.parentElement.insertBefore(badge, titleContainer.nextSibling);
 ```
 
 **Twitter/X**: Insert after tweet text
+
 ```javascript
 const tweetText = tweetElement.querySelector('[data-testid="tweetText"]');
 tweetText.parentElement.insertBefore(badge, tweetText.nextSibling);
@@ -337,8 +352,8 @@ await chrome.storage.local.set({
   [`cache_${url}`]: {
     result: verificationData,
     timestamp: Date.now(),
-    ttl: 5 * 60 * 1000
-  }
+    ttl: 5 * 60 * 1000,
+  },
 });
 
 // Check age before returning
@@ -355,22 +370,22 @@ if (age < cacheData.ttl) {
 ```javascript
 async function connectWallet() {
   // Check for provider
-  if (typeof window.ethereum === 'undefined') {
-    alert('Please install MetaMask');
+  if (typeof window.ethereum === "undefined") {
+    alert("Please install MetaMask");
     return;
   }
-  
+
   // Request accounts
   const accounts = await window.ethereum.request({
-    method: 'eth_requestAccounts'
+    method: "eth_requestAccounts",
   });
-  
+
   // Store wallet info
   await chrome.storage.local.set({
     wallet: {
       address: accounts[0],
-      connected: true
-    }
+      connected: true,
+    },
   });
 }
 ```
@@ -414,7 +429,7 @@ try {
   const result = await apiRequest(endpoint);
   return result;
 } catch (error) {
-  console.error('API error:', error);
+  console.error("API error:", error);
   // Show error state in UI
   showErrorState(error.message);
 }
@@ -447,6 +462,7 @@ try {
 ### Bundle Size
 
 Current unminified: ~50KB total
+
 - Background: ~6KB
 - Content scripts: ~3-5KB each
 - Popup: ~15KB
@@ -491,23 +507,27 @@ Future: Add unit tests for utilities and integration tests for components.
 ## Roadmap
 
 ### Phase 1 (Current)
+
 - ✅ Chrome/Chromium support
 - ✅ YouTube and Twitter verification
 - ✅ Basic popup and settings
 
 ### Phase 2
+
 - Complete all platform implementations
 - Enhanced badge designs
 - Usage analytics
 - Error reporting
 
 ### Phase 3
+
 - Firefox and Safari ports
 - Store publications
 - Internationalization
 - Wallet signing features
 
 ### Phase 4
+
 - Advanced features
 - Multi-wallet support
 - Batch verification

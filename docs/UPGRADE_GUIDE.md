@@ -68,13 +68,13 @@ We chose UUPS over other patterns for these reasons:
 
 ### UUPS vs. Alternatives
 
-| Feature | UUPS | Transparent Proxy | Diamond |
-|---------|------|-------------------|---------|
-| Gas Cost (users) | Low | High | Medium |
-| Complexity | Low | Medium | High |
-| Upgrade Logic | Implementation | Proxy | Proxy |
-| Multi-facet | No | No | Yes |
-| Best For | Single contract | Legacy | Complex systems |
+| Feature          | UUPS            | Transparent Proxy | Diamond         |
+| ---------------- | --------------- | ----------------- | --------------- |
+| Gas Cost (users) | Low             | High              | Medium          |
+| Complexity       | Low             | Medium            | High            |
+| Upgrade Logic    | Implementation  | Proxy             | Proxy           |
+| Multi-facet      | No              | No                | Yes             |
+| Best For         | Single contract | Legacy            | Complex systems |
 
 ### How UUPS Works
 
@@ -99,16 +99,19 @@ Result returned to user
 ### Recommended Governance Models
 
 #### Development/Staging
+
 ```
 Single EOA → Fast iteration
 ```
 
 #### Production (Recommended)
+
 ```
 Gnosis Safe Multisig (3-of-5) → Distributed control
 ```
 
 #### Long-term (Optional)
+
 ```
 Governor DAO Contract → Community governance
   ↓
@@ -166,11 +169,13 @@ npx hardhat run scripts/deploy-upgradeable.ts --network ethereum
 3. **Save Deployment Info**
 
 The script automatically saves deployment information to:
+
 ```
 deployed/{network}-upgradeable.json
 ```
 
 Example content:
+
 ```json
 {
   "proxy": "0x...",
@@ -289,41 +294,44 @@ npm test
 ### Critical Test Cases
 
 ✅ **Storage Preservation**
+
 ```javascript
 // Verify data survives upgrade
-entry_before = proxy_v1.entries(hash)
-upgrade_to_v2()
-entry_after = proxy_v2.entries(hash)
-assert(entry_before == entry_after)
+entry_before = proxy_v1.entries(hash);
+upgrade_to_v2();
+entry_after = proxy_v2.entries(hash);
+assert(entry_before == entry_after);
 ```
 
 ✅ **Function Compatibility**
+
 ```javascript
 // Verify old functions still work
-upgrade_to_v2()
-proxy_v2.register(new_hash, uri) // V1 function
-assert(works)
+upgrade_to_v2();
+proxy_v2.register(new_hash, uri); // V1 function
+assert(works);
 ```
 
 ✅ **Authorization**
+
 ```javascript
 // Verify only owner can upgrade
-upgrade_as_non_owner() // Should fail
-upgrade_as_owner() // Should succeed
+upgrade_as_non_owner(); // Should fail
+upgrade_as_owner(); // Should succeed
 ```
 
 ## Risks and Mitigation
 
 ### Risk Matrix
 
-| Risk | Severity | Probability | Mitigation |
-|------|----------|-------------|------------|
-| Storage collision | Critical | Low | Storage gap, tests |
-| Unauthorized upgrade | Critical | Low | Owner-only access |
-| Function selector clash | High | Low | Comprehensive tests |
-| Implementation bug | High | Medium | Audits, tests |
-| Gas cost increase | Medium | Medium | Optimization, benchmarks |
-| State loss | Critical | Very Low | Proxy pattern prevents this |
+| Risk                    | Severity | Probability | Mitigation                  |
+| ----------------------- | -------- | ----------- | --------------------------- |
+| Storage collision       | Critical | Low         | Storage gap, tests          |
+| Unauthorized upgrade    | Critical | Low         | Owner-only access           |
+| Function selector clash | High     | Low         | Comprehensive tests         |
+| Implementation bug      | High     | Medium      | Audits, tests               |
+| Gas cost increase       | Medium   | Medium      | Optimization, benchmarks    |
+| State loss              | Critical | Very Low    | Proxy pattern prevents this |
 
 ### Mitigation Strategies
 
@@ -359,10 +367,11 @@ upgrade_as_owner() // Should succeed
 If a critical bug is discovered post-upgrade:
 
 1. **Immediate Actions**
+
    ```bash
    # Pause contract (if pausable functionality added)
    # Transfer ownership to timelock if needed
-   
+
    # Redeploy previous implementation
    # Execute upgrade back to previous version
    npx hardhat run scripts/rollback-upgrade.ts --network ethereum
@@ -443,10 +452,10 @@ Twitter: @subculture_dev
 
 ## Version History
 
-| Version | Date | Description |
-|---------|------|-------------|
-| 1.0.0 | Initial | First upgradeable implementation |
-| 2.0.0 | Example | Adds registration counter (demo) |
+| Version | Date    | Description                      |
+| ------- | ------- | -------------------------------- |
+| 1.0.0   | Initial | First upgradeable implementation |
+| 2.0.0   | Example | Adds registration counter (demo) |
 
 ## Additional Resources
 
@@ -458,6 +467,7 @@ Twitter: @subculture_dev
 ## Support
 
 For questions or issues related to upgrades:
+
 - GitHub Issues: [repository-link]
 - Discord: [discord-link]
 - Email: security@subculture.io

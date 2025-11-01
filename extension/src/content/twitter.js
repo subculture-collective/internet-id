@@ -3,19 +3,19 @@
  * Adds verification badges to Twitter/X posts
  */
 
-console.log('Internet ID: Twitter/X content script loaded');
+console.log("Internet ID: Twitter/X content script loaded");
 
 /**
  * Initialize content script
  */
 async function init() {
-  const settings = await chrome.storage.sync.get(['autoVerify', 'showBadges']);
-  
+  const settings = await chrome.storage.sync.get(["autoVerify", "showBadges"]);
+
   if (!settings.autoVerify || !settings.showBadges) {
-    console.log('Auto-verify or badges disabled');
+    console.log("Auto-verify or badges disabled");
     return;
   }
-  
+
   // Observe DOM for tweet elements
   observeTweets();
 }
@@ -29,12 +29,12 @@ function observeTweets() {
     const tweets = document.querySelectorAll('article[data-testid="tweet"]');
     tweets.forEach(checkTweet);
   });
-  
+
   observer.observe(document.body, {
     childList: true,
-    subtree: true
+    subtree: true,
   });
-  
+
   // Check existing tweets
   const existingTweets = document.querySelectorAll('article[data-testid="tweet"]');
   existingTweets.forEach(checkTweet);
@@ -48,30 +48,30 @@ async function checkTweet(tweetElement) {
   if (tweetElement.dataset.internetIdChecked) {
     return;
   }
-  tweetElement.dataset.internetIdChecked = 'true';
-  
+  tweetElement.dataset.internetIdChecked = "true";
+
   // Try to extract tweet ID from the element
   const tweetId = extractTweetId(tweetElement);
-  
+
   if (!tweetId) {
     return;
   }
-  
+
   try {
     const response = await chrome.runtime.sendMessage({
-      action: 'verify',
+      action: "verify",
       data: {
         url: `https://twitter.com/status/${tweetId}`,
-        platform: 'twitter',
-        platformId: tweetId
-      }
+        platform: "twitter",
+        platformId: tweetId,
+      },
     });
-    
+
     if (response.success && response.data && response.data.contentHash) {
       addBadgeToTweet(tweetElement, response.data);
     }
   } catch (error) {
-    console.error('Tweet verification failed:', error);
+    console.error("Tweet verification failed:", error);
   }
 }
 
@@ -81,14 +81,14 @@ async function checkTweet(tweetElement) {
 function extractTweetId(tweetElement) {
   // Try to find a link with status in it
   const links = tweetElement.querySelectorAll('a[href*="/status/"]');
-  
+
   for (const link of links) {
     const match = link.href.match(/\/status\/(\d+)/);
     if (match && match[1]) {
       return match[1];
     }
   }
-  
+
   return null;
 }
 
@@ -98,13 +98,13 @@ function extractTweetId(tweetElement) {
 function addBadgeToTweet(tweetElement, verificationData) {
   // Find a good place to insert the badge (after tweet text)
   const tweetText = tweetElement.querySelector('[data-testid="tweetText"]');
-  
-  if (!tweetText || tweetElement.querySelector('.internet-id-verified-badge')) {
+
+  if (!tweetText || tweetElement.querySelector(".internet-id-verified-badge")) {
     return;
   }
-  
-  const badge = document.createElement('div');
-  badge.className = 'internet-id-verified-badge';
+
+  const badge = document.createElement("div");
+  badge.className = "internet-id-verified-badge";
   badge.innerHTML = `
     <div class="badge-content">
       <span class="badge-icon">✓</span>
@@ -116,7 +116,7 @@ function addBadgeToTweet(tweetElement, verificationData) {
       <p class="badge-creator">Creator: ${truncateAddress(verificationData.creator)}</p>
     </div>
   `;
-  
+
   // Insert after tweet text
   tweetText.parentElement.insertBefore(badge, tweetText.nextSibling);
 }
@@ -125,13 +125,13 @@ function addBadgeToTweet(tweetElement, verificationData) {
  * Truncate Ethereum address
  */
 function truncateAddress(address) {
-  if (!address || address.length < 10) return address || 'Unknown';
+  if (!address || address.length < 10) return address || "Unknown";
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
 
 // Initialize
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", init);
 } else {
   init();
 }

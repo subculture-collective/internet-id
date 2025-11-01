@@ -64,7 +64,7 @@ Look for the `correlationId` in the log output - all logs for this request will 
 Create `docker-compose.monitoring.yml`:
 
 ```yaml
-version: '3.8'
+version: "3.8"
 
 services:
   prometheus:
@@ -75,8 +75,8 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
 
   grafana:
     image: grafana/grafana:latest
@@ -104,11 +104,11 @@ global:
   evaluation_interval: 15s
 
 scrape_configs:
-  - job_name: 'internet-id-api'
+  - job_name: "internet-id-api"
     scrape_interval: 10s
     static_configs:
-      - targets: ['host.docker.internal:3001']  # Use actual IP in production
-    metrics_path: '/api/metrics'
+      - targets: ["host.docker.internal:3001"] # Use actual IP in production
+    metrics_path: "/api/metrics"
 ```
 
 #### 3. Start Monitoring Stack
@@ -174,11 +174,11 @@ const transport = isDevelopment
       options: { colorize: true, translateTime: "HH:MM:ss Z" },
     }
   : logtailToken
-  ? {
-      target: "@logtail/pino",
-      options: { sourceToken: logtailToken },
-    }
-  : undefined;
+    ? {
+        target: "@logtail/pino",
+        options: { sourceToken: logtailToken },
+      }
+    : undefined;
 ```
 
 #### 6. Restart and Verify
@@ -253,31 +253,31 @@ spec:
   template:
     spec:
       containers:
-      - name: api
-        image: internet-id-api:latest
-        ports:
-        - containerPort: 3001
-        env:
-        - name: LOG_LEVEL
-          value: "info"
-        - name: NODE_ENV
-          value: "production"
-        livenessProbe:
-          httpGet:
-            path: /api/health
-            port: 3001
-          initialDelaySeconds: 30
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
-        readinessProbe:
-          httpGet:
-            path: /api/health
-            port: 3001
-          initialDelaySeconds: 10
-          periodSeconds: 5
-          timeoutSeconds: 3
-          failureThreshold: 3
+        - name: api
+          image: internet-id-api:latest
+          ports:
+            - containerPort: 3001
+          env:
+            - name: LOG_LEVEL
+              value: "info"
+            - name: NODE_ENV
+              value: "production"
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3001
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3001
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
 ```
 
 ### 2. Expose Metrics
@@ -296,9 +296,9 @@ spec:
     matchLabels:
       app: internet-id-api
   endpoints:
-  - port: http
-    path: /api/metrics
-    interval: 30s
+    - port: http
+      path: /api/metrics
+      interval: 30s
 ```
 
 ### 3. Configure Logging
@@ -375,32 +375,32 @@ global:
   resolve_timeout: 5m
 
 route:
-  group_by: ['alertname']
+  group_by: ["alertname"]
   group_wait: 10s
   group_interval: 10s
   repeat_interval: 12h
-  receiver: 'email'
+  receiver: "email"
 
 receivers:
-  - name: 'email'
+  - name: "email"
     email_configs:
-      - to: 'ops@example.com'
-        from: 'alerts@example.com'
-        smarthost: 'smtp.gmail.com:587'
-        auth_username: 'alerts@example.com'
-        auth_password: 'your-app-password'
+      - to: "ops@example.com"
+        from: "alerts@example.com"
+        smarthost: "smtp.gmail.com:587"
+        auth_username: "alerts@example.com"
+        auth_password: "your-app-password"
 ```
 
 For Slack notifications:
 
 ```yaml
 receivers:
-  - name: 'slack'
+  - name: "slack"
     slack_configs:
-      - api_url: 'https://hooks.slack.com/services/YOUR/WEBHOOK/URL'
-        channel: '#alerts'
-        title: '{{ .GroupLabels.alertname }}'
-        text: '{{ .CommonAnnotations.description }}'
+      - api_url: "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+        channel: "#alerts"
+        title: "{{ .GroupLabels.alertname }}"
+        text: "{{ .CommonAnnotations.description }}"
 ```
 
 ## Verification
@@ -412,6 +412,7 @@ curl http://your-api-host:3001/api/health
 ```
 
 Expected response:
+
 ```json
 {
   "status": "ok",

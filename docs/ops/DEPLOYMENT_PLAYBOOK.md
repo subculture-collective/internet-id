@@ -430,13 +430,13 @@ docker compose -f docker-compose.production.yml up -d
 
 ### Rollback Decision Matrix
 
-| Scenario | Action | Database Restore |
-|----------|--------|------------------|
-| Service not starting | Quick rollback | No |
-| API errors without DB changes | Quick rollback | No |
-| Failed migration | Full rollback | Yes |
-| Data corruption | Full rollback + PITR | Yes |
-| Performance issues | Investigate first | Maybe |
+| Scenario                      | Action               | Database Restore |
+| ----------------------------- | -------------------- | ---------------- |
+| Service not starting          | Quick rollback       | No               |
+| API errors without DB changes | Quick rollback       | No               |
+| Failed migration              | Full rollback        | Yes              |
+| Data corruption               | Full rollback + PITR | Yes              |
+| Performance issues            | Investigate first    | Maybe            |
 
 ## Monitoring and Validation
 

@@ -7,13 +7,13 @@
  * Supported platforms
  */
 const PLATFORMS = {
-  YOUTUBE: 'youtube',
-  TWITTER: 'twitter',
-  INSTAGRAM: 'instagram',
-  GITHUB: 'github',
-  TIKTOK: 'tiktok',
-  LINKEDIN: 'linkedin',
-  UNKNOWN: 'unknown'
+  YOUTUBE: "youtube",
+  TWITTER: "twitter",
+  INSTAGRAM: "instagram",
+  GITHUB: "github",
+  TIKTOK: "tiktok",
+  LINKEDIN: "linkedin",
+  UNKNOWN: "unknown",
 };
 
 /**
@@ -23,21 +23,21 @@ const PLATFORMS = {
  */
 function detectPlatform(url) {
   const hostname = new URL(url).hostname.toLowerCase();
-  
-  if (hostname.includes('youtube.com')) {
+
+  if (hostname.includes("youtube.com")) {
     return PLATFORMS.YOUTUBE;
-  } else if (hostname.includes('twitter.com') || hostname.includes('x.com')) {
+  } else if (hostname.includes("twitter.com") || hostname.includes("x.com")) {
     return PLATFORMS.TWITTER;
-  } else if (hostname.includes('instagram.com')) {
+  } else if (hostname.includes("instagram.com")) {
     return PLATFORMS.INSTAGRAM;
-  } else if (hostname.includes('github.com')) {
+  } else if (hostname.includes("github.com")) {
     return PLATFORMS.GITHUB;
-  } else if (hostname.includes('tiktok.com')) {
+  } else if (hostname.includes("tiktok.com")) {
     return PLATFORMS.TIKTOK;
-  } else if (hostname.includes('linkedin.com')) {
+  } else if (hostname.includes("linkedin.com")) {
     return PLATFORMS.LINKEDIN;
   }
-  
+
   return PLATFORMS.UNKNOWN;
 }
 
@@ -50,16 +50,16 @@ function extractYouTubeId(url) {
   const patterns = [
     /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/,
     /youtube\.com\/embed\/([^&\n?#]+)/,
-    /youtube\.com\/v\/([^&\n?#]+)/
+    /youtube\.com\/v\/([^&\n?#]+)/,
   ];
-  
+
   for (const pattern of patterns) {
     const match = url.match(pattern);
     if (match && match[1]) {
       return match[1];
     }
   }
-  
+
   return null;
 }
 
@@ -83,16 +83,16 @@ function extractInstagramId(url) {
   const patterns = [
     /instagram\.com\/p\/([A-Za-z0-9_-]+)/,
     /instagram\.com\/reel\/([A-Za-z0-9_-]+)/,
-    /instagram\.com\/tv\/([A-Za-z0-9_-]+)/
+    /instagram\.com\/tv\/([A-Za-z0-9_-]+)/,
   ];
-  
+
   for (const pattern of patterns) {
     const match = url.match(pattern);
     if (match && match[1]) {
       return match[1];
     }
   }
-  
+
   return null;
 }
 
@@ -104,15 +104,15 @@ function extractInstagramId(url) {
 function extractGitHubId(url) {
   const pattern = /github\.com\/([^\/]+)\/([^\/]+)(?:\/(.*))?/;
   const match = url.match(pattern);
-  
+
   if (match) {
     return {
       owner: match[1],
       repo: match[2],
-      path: match[3] || ''
+      path: match[3] || "",
     };
   }
-  
+
   return null;
 }
 
@@ -147,7 +147,7 @@ function extractPlatformId(url) {
   const platform = detectPlatform(url);
   let platformId = null;
   let additionalInfo = null;
-  
+
   switch (platform) {
     case PLATFORMS.YOUTUBE:
       platformId = extractYouTubeId(url);
@@ -169,17 +169,17 @@ function extractPlatformId(url) {
       platformId = extractLinkedInId(url);
       break;
   }
-  
+
   return {
     platform,
     platformId,
     additionalInfo,
-    url
+    url,
   };
 }
 
 // Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
+if (typeof module !== "undefined" && module.exports) {
   module.exports = {
     PLATFORMS,
     detectPlatform,
@@ -189,6 +189,6 @@ if (typeof module !== 'undefined' && module.exports) {
     extractInstagramId,
     extractGitHubId,
     extractTikTokId,
-    extractLinkedInId
+    extractLinkedInId,
   };
 }

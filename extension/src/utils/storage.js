@@ -7,13 +7,13 @@
  * Default settings
  */
 const DEFAULT_SETTINGS = {
-  apiBase: 'http://localhost:3001',
-  apiKey: '',
+  apiBase: "http://localhost:3001",
+  apiKey: "",
   autoVerify: true,
   showBadges: true,
   notificationsEnabled: true,
   walletAddress: null,
-  theme: 'auto' // 'light', 'dark', 'auto'
+  theme: "auto", // 'light', 'dark', 'auto'
 };
 
 /**
@@ -21,7 +21,7 @@ const DEFAULT_SETTINGS = {
  * @returns {Promise<object>} Settings object
  */
 async function getSettings() {
-  if (typeof chrome !== 'undefined' && chrome.storage) {
+  if (typeof chrome !== "undefined" && chrome.storage) {
     const result = await chrome.storage.sync.get(DEFAULT_SETTINGS);
     return result;
   }
@@ -34,7 +34,7 @@ async function getSettings() {
  * @returns {Promise<void>}
  */
 async function saveSettings(settings) {
-  if (typeof chrome !== 'undefined' && chrome.storage) {
+  if (typeof chrome !== "undefined" && chrome.storage) {
     await chrome.storage.sync.set(settings);
   }
 }
@@ -56,7 +56,7 @@ async function getSetting(key) {
  * @returns {Promise<void>}
  */
 async function saveSetting(key, value) {
-  if (typeof chrome !== 'undefined' && chrome.storage) {
+  if (typeof chrome !== "undefined" && chrome.storage) {
     await chrome.storage.sync.set({ [key]: value });
   }
 }
@@ -69,12 +69,12 @@ async function saveSetting(key, value) {
  * @returns {Promise<void>}
  */
 async function cacheVerification(url, result, ttl = 5 * 60 * 1000) {
-  if (typeof chrome !== 'undefined' && chrome.storage) {
+  if (typeof chrome !== "undefined" && chrome.storage) {
     const cacheKey = `cache_${url}`;
     const cacheData = {
       result,
       timestamp: Date.now(),
-      ttl
+      ttl,
     };
     await chrome.storage.local.set({ [cacheKey]: cacheData });
   }
@@ -86,11 +86,11 @@ async function cacheVerification(url, result, ttl = 5 * 60 * 1000) {
  * @returns {Promise<object|null>} Cached result or null if expired/not found
  */
 async function getCachedVerification(url) {
-  if (typeof chrome !== 'undefined' && chrome.storage) {
+  if (typeof chrome !== "undefined" && chrome.storage) {
     const cacheKey = `cache_${url}`;
     const result = await chrome.storage.local.get([cacheKey]);
     const cacheData = result[cacheKey];
-    
+
     if (cacheData) {
       const age = Date.now() - cacheData.timestamp;
       if (age < cacheData.ttl) {
@@ -108,9 +108,9 @@ async function getCachedVerification(url) {
  * @returns {Promise<void>}
  */
 async function clearCache() {
-  if (typeof chrome !== 'undefined' && chrome.storage) {
+  if (typeof chrome !== "undefined" && chrome.storage) {
     const items = await chrome.storage.local.get(null);
-    const cacheKeys = Object.keys(items).filter(key => key.startsWith('cache_'));
+    const cacheKeys = Object.keys(items).filter((key) => key.startsWith("cache_"));
     if (cacheKeys.length > 0) {
       await chrome.storage.local.remove(cacheKeys);
     }
@@ -123,10 +123,10 @@ async function clearCache() {
  * @returns {Promise<void>}
  */
 async function saveWallet(walletInfo) {
-  if (typeof chrome !== 'undefined' && chrome.storage) {
+  if (typeof chrome !== "undefined" && chrome.storage) {
     await chrome.storage.local.set({
       wallet: walletInfo,
-      walletTimestamp: Date.now()
+      walletTimestamp: Date.now(),
     });
   }
 }
@@ -136,8 +136,8 @@ async function saveWallet(walletInfo) {
  * @returns {Promise<object|null>} Wallet info or null
  */
 async function getWallet() {
-  if (typeof chrome !== 'undefined' && chrome.storage) {
-    const result = await chrome.storage.local.get(['wallet', 'walletTimestamp']);
+  if (typeof chrome !== "undefined" && chrome.storage) {
+    const result = await chrome.storage.local.get(["wallet", "walletTimestamp"]);
     if (result.wallet) {
       return result.wallet;
     }
@@ -150,8 +150,8 @@ async function getWallet() {
  * @returns {Promise<void>}
  */
 async function clearWallet() {
-  if (typeof chrome !== 'undefined' && chrome.storage) {
-    await chrome.storage.local.remove(['wallet', 'walletTimestamp']);
+  if (typeof chrome !== "undefined" && chrome.storage) {
+    await chrome.storage.local.remove(["wallet", "walletTimestamp"]);
   }
 }
 
@@ -160,7 +160,7 @@ async function clearWallet() {
  * @returns {Promise<void>}
  */
 async function resetSettings() {
-  if (typeof chrome !== 'undefined' && chrome.storage) {
+  if (typeof chrome !== "undefined" && chrome.storage) {
     await chrome.storage.sync.clear();
     await chrome.storage.local.clear();
     await saveSettings(DEFAULT_SETTINGS);
@@ -168,7 +168,7 @@ async function resetSettings() {
 }
 
 // Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
+if (typeof module !== "undefined" && module.exports) {
   module.exports = {
     DEFAULT_SETTINGS,
     getSettings,
@@ -181,6 +181,6 @@ if (typeof module !== 'undefined' && module.exports) {
     saveWallet,
     getWallet,
     clearWallet,
-    resetSettings
+    resetSettings,
   };
 }

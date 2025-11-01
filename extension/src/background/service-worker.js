@@ -5,19 +5,19 @@
 
 // Listen for extension installation
 chrome.runtime.onInstalled.addListener(async (details) => {
-  console.log('Internet ID Verifier installed:', details.reason);
-  
-  if (details.reason === 'install') {
+  console.log("Internet ID Verifier installed:", details.reason);
+
+  if (details.reason === "install") {
     // First time installation
     await initializeExtension();
-    
+
     // Open welcome/onboarding page
     chrome.tabs.create({
-      url: chrome.runtime.getURL('src/options/options.html?welcome=true')
+      url: chrome.runtime.getURL("src/options/options.html?welcome=true"),
     });
-  } else if (details.reason === 'update') {
+  } else if (details.reason === "update") {
     // Extension updated
-    console.log('Extension updated to version:', chrome.runtime.getManifest().version);
+    console.log("Extension updated to version:", chrome.runtime.getManifest().version);
   }
 });
 
@@ -26,63 +26,65 @@ chrome.runtime.onInstalled.addListener(async (details) => {
  */
 async function initializeExtension() {
   const defaultSettings = {
-    apiBase: 'http://localhost:3001',
-    apiKey: '',
+    apiBase: "http://localhost:3001",
+    apiKey: "",
     autoVerify: true,
     showBadges: true,
     notificationsEnabled: true,
-    theme: 'auto'
+    theme: "auto",
   };
-  
+
   await chrome.storage.sync.set(defaultSettings);
-  console.log('Extension initialized with default settings');
+  console.log("Extension initialized with default settings");
 }
 
 /**
  * Handle messages from content scripts and popup
  */
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log('Background received message:', request.action);
-  
+  console.log("Background received message:", request.action);
+
   switch (request.action) {
-    case 'verify':
+    case "verify":
       handleVerification(request.data)
-        .then(result => sendResponse({ success: true, data: result }))
-        .catch(error => sendResponse({ success: false, error: error.message }));
+        .then((result) => sendResponse({ success: true, data: result }))
+        .catch((error) => sendResponse({ success: false, error: error.message }));
       return true; // Will respond asynchronously
-      
-    case 'checkHealth':
+
+    case "checkHealth":
       checkApiHealth()
-        .then(result => sendResponse({ success: true, data: result }))
-        .catch(error => sendResponse({ success: false, error: error.message }));
+        .then((result) => sendResponse({ success: true, data: result }))
+        .catch((error) => sendResponse({ success: false, error: error.message }));
       return true;
-      
-    case 'getSettings':
-      chrome.storage.sync.get(null)
-        .then(settings => sendResponse({ success: true, data: settings }))
-        .catch(error => sendResponse({ success: false, error: error.message }));
+
+    case "getSettings":
+      chrome.storage.sync
+        .get(null)
+        .then((settings) => sendResponse({ success: true, data: settings }))
+        .catch((error) => sendResponse({ success: false, error: error.message }));
       return true;
-      
-    case 'saveSettings':
-      chrome.storage.sync.set(request.data)
+
+    case "saveSettings":
+      chrome.storage.sync
+        .set(request.data)
         .then(() => sendResponse({ success: true }))
-        .catch(error => sendResponse({ success: false, error: error.message }));
+        .catch((error) => sendResponse({ success: false, error: error.message }));
       return true;
-      
-    case 'openDashboard':
+
+    case "openDashboard":
       handleOpenDashboard(request.data);
       sendResponse({ success: true });
       break;
-      
-    case 'badge':
+
+    case "badge":
       updateBadge(request.data);
       sendResponse({ success: true });
       break;
-      
+
     default:
-      sendResponse({ success: false, error: 'Unknown action' });
+      sendResponse({ success: false, error: "Unknown action" });
   }
-  
+
   return false;
 });
 
@@ -91,58 +93,61 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
  */
 async function handleVerification(data) {
   const { url, platform, platformId } = data;
-  
+
   // Get API settings
-  const settings = await chrome.storage.sync.get(['apiBase', 'apiKey']);
-  const apiBase = settings.apiBase || 'http://localhost:3001';
+  const settings = await chrome.storage.sync.get(["apiBase", "apiKey"]);
+  const apiBase = settings.apiBase || "http://localhost:3001";
   const apiKey = settings.apiKey;
-  
+
   // Check cache first
   const cacheKey = `cache_${url}`;
   const cached = await chrome.storage.local.get([cacheKey]);
-  
+
   if (cached[cacheKey]) {
     const cacheData = cached[cacheKey];
     const age = Date.now() - cacheData.timestamp;
-    
+
     // Return cached result if less than 5 minutes old
     if (age < 5 * 60 * 1000) {
-      console.log('Returning cached verification result');
+      console.log("Returning cached verification result");
       return cacheData.result;
     }
   }
-  
+
   // Make API request
   try {
     const headers = {
-      'Content-Type': 'application/json'
+      "Content-Type": "application/json",
     };
-    
+
     if (apiKey) {
-      headers['x-api-key'] = apiKey;
+      headers["x-api-key"] = apiKey;
     }
-    
-    const response = await fetch(`${apiBase}/api/resolve?platform=${platform}&platformId=${platformId}`, {
-      headers
-    });
-    
+
+    const response = await fetch(
+      `${apiBase}/api/resolve?platform=${platform}&platformId=${platformId}`,
+      {
+        headers,
+      }
+    );
+
     if (!response.ok) {
       throw new Error(`API request failed: ${response.status}`);
     }
-    
+
     const result = await response.json();
-    
+
     // Cache the result
     await chrome.storage.local.set({
       [cacheKey]: {
         result,
-        timestamp: Date.now()
-      }
+        timestamp: Date.now(),
+      },
     });
-    
+
     return result;
   } catch (error) {
-    console.error('Verification failed:', error);
+    console.error("Verification failed:", error);
     throw error;
   }
 }
@@ -151,20 +156,20 @@ async function handleVerification(data) {
  * Check API health
  */
 async function checkApiHealth() {
-  const settings = await chrome.storage.sync.get(['apiBase']);
-  const apiBase = settings.apiBase || 'http://localhost:3001';
-  
+  const settings = await chrome.storage.sync.get(["apiBase"]);
+  const apiBase = settings.apiBase || "http://localhost:3001";
+
   try {
     const response = await fetch(`${apiBase}/api/health`);
     const data = await response.json();
     return {
       healthy: response.ok,
-      status: data.status || 'unknown'
+      status: data.status || "unknown",
     };
   } catch (error) {
     return {
       healthy: false,
-      error: error.message
+      error: error.message,
     };
   }
 }
@@ -173,7 +178,7 @@ async function checkApiHealth() {
  * Open Internet ID dashboard
  */
 function handleOpenDashboard(data) {
-  const dashboardUrl = data?.url || 'http://localhost:3000/dashboard';
+  const dashboardUrl = data?.url || "http://localhost:3000/dashboard";
   chrome.tabs.create({ url: dashboardUrl });
 }
 
@@ -182,18 +187,18 @@ function handleOpenDashboard(data) {
  */
 function updateBadge(data) {
   const { text, color, tabId } = data;
-  
+
   if (text !== undefined) {
     chrome.action.setBadgeText({
       text: String(text),
-      tabId
+      tabId,
     });
   }
-  
+
   if (color) {
     chrome.action.setBadgeBackgroundColor({
       color,
-      tabId
+      tabId,
     });
   }
 }
@@ -203,33 +208,33 @@ function updateBadge(data) {
  */
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   // Only process when page is fully loaded
-  if (changeInfo.status === 'complete' && tab.url) {
-    const settings = await chrome.storage.sync.get(['autoVerify', 'showBadges']);
-    
+  if (changeInfo.status === "complete" && tab.url) {
+    const settings = await chrome.storage.sync.get(["autoVerify", "showBadges"]);
+
     if (settings.autoVerify) {
       // Check if this is a supported platform
       const supportedDomains = [
-        'youtube.com',
-        'twitter.com',
-        'x.com',
-        'instagram.com',
-        'github.com',
-        'tiktok.com',
-        'linkedin.com'
+        "youtube.com",
+        "twitter.com",
+        "x.com",
+        "instagram.com",
+        "github.com",
+        "tiktok.com",
+        "linkedin.com",
       ];
-      
+
       const url = new URL(tab.url);
-      const isSupported = supportedDomains.some(domain => url.hostname.includes(domain));
-      
+      const isSupported = supportedDomains.some((domain) => url.hostname.includes(domain));
+
       if (isSupported && settings.showBadges) {
         // Set a pending badge
         chrome.action.setBadgeText({
-          text: '...',
-          tabId
+          text: "...",
+          tabId,
         });
         chrome.action.setBadgeBackgroundColor({
-          color: '#808080',
-          tabId
+          color: "#808080",
+          tabId,
         });
       }
     }
@@ -240,7 +245,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
  * Handle action click (when popup is disabled)
  */
 chrome.action.onClicked.addListener((tab) => {
-  console.log('Extension icon clicked for tab:', tab.id);
+  console.log("Extension icon clicked for tab:", tab.id);
 });
 
-console.log('Internet ID Verifier service worker loaded');
+console.log("Internet ID Verifier service worker loaded");

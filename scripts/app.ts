@@ -44,26 +44,26 @@ export async function createApp() {
   await cacheService.connect();
 
   const app = express();
-  
+
   // Sentry request handler (must be first middleware)
   app.use(sentryService.getRequestHandler());
-  
+
   // Sentry tracing handler (for performance monitoring)
   app.use(sentryService.getTracingHandler());
-  
+
   // Request logging middleware (before other middleware)
   app.use(requestLoggerMiddleware());
-  
+
   // Metrics tracking middleware
   app.use(metricsMiddleware());
-  
+
   // Track active connections
   app.use((req, res, next) => {
     metricsService.incrementConnections();
     res.on("finish", () => metricsService.decrementConnections());
     next();
   });
-  
+
   app.use(cors());
   app.use(express.json({ limit: "50mb" }));
 
@@ -71,7 +71,7 @@ export async function createApp() {
   const strict = await strictRateLimit;
   const moderate = await moderateRateLimit;
   const relaxed = await relaxedRateLimit;
-  
+
   logger.info("Rate limiters initialized");
 
   // Swagger documentation
@@ -108,20 +108,25 @@ export async function createApp() {
   app.use(sentryService.getErrorHandler());
 
   // Global error handler
-  app.use((err: Error & { status?: number }, req: express.Request & { correlationId?: string }, res: express.Response, _next: express.NextFunction) => {
-    logger.error("Unhandled error", err, {
-      method: req.method,
-      path: req.path,
-      correlationId: req.correlationId,
-    });
+  app.use(
+    (
+      err: Error & { status?: number },
+      req: express.Request & { correlationId?: string },
+      res: express.Response,
+      _next: express.NextFunction
+    ) => {
+      logger.error("Unhandled error", err, {
+        method: req.method,
+        path: req.path,
+        correlationId: req.correlationId,
+      });
 
-    res.status(err.status || 500).json({
-      error: process.env.NODE_ENV === "production" 
-        ? "Internal server error" 
-        : err.message,
-      correlationId: req.correlationId,
-    });
-  });
+      res.status(err.status || 500).json({
+        error: process.env.NODE_ENV === "production" ? "Internal server error" : err.message,
+        correlationId: req.correlationId,
+      });
+    }
+  );
 
   return app;
 }

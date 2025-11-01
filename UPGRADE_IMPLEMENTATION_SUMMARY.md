@@ -9,6 +9,7 @@ Successfully implemented an upgradeable contract pattern for ContentRegistry usi
 ### Pattern Selected: UUPS
 
 **Rationale**:
+
 - ✅ **Gas Efficient**: Lower gas costs for users compared to Transparent Proxy
 - ✅ **Simpler**: Upgrade logic in implementation, smaller proxy contract
 - ✅ **Secure**: Smaller proxy reduces attack surface
@@ -16,12 +17,14 @@ Successfully implemented an upgradeable contract pattern for ContentRegistry usi
 - ✅ **Flexible**: Supports complex upgrade logic if needed
 
 **Alternatives Considered**:
+
 - **Transparent Proxy**: Rejected due to higher gas overhead
 - **Diamond Pattern**: Rejected due to unnecessary complexity for single-contract use case
 
 ### Files Created
 
 #### Contracts (3 files)
+
 1. **ContentRegistryV1.sol** - Upgradeable version of ContentRegistry
    - Inherits from Initializable, UUPSUpgradeable, OwnableUpgradeable
    - Constructor disabled, uses initializer pattern
@@ -41,6 +44,7 @@ Successfully implemented an upgradeable contract pattern for ContentRegistry usi
    - All tests still pass
 
 #### Scripts (3 files)
+
 1. **deploy-upgradeable.ts** - Deploy proxy and V1 implementation
    - Deploys using OpenZeppelin upgrades plugin
    - Initializes with owner address
@@ -64,7 +68,9 @@ Successfully implemented an upgradeable contract pattern for ContentRegistry usi
    - Validates authorization controls
 
 #### Tests (1 file)
+
 **ContentRegistryUpgradeable.test.ts** - Comprehensive test suite
+
 - 17 test cases covering:
   - Deployment and initialization
   - V1 functionality (register, update, bind, revoke)
@@ -76,6 +82,7 @@ Successfully implemented an upgradeable contract pattern for ContentRegistry usi
 - ✅ All tests passing
 
 #### Documentation (3 files)
+
 1. **UPGRADE_GUIDE.md** (11KB)
    - Complete technical guide
    - Architecture explanation
@@ -106,10 +113,12 @@ Successfully implemented an upgradeable contract pattern for ContentRegistry usi
 ### Configuration Changes
 
 #### hardhat.config.ts
+
 - Updated Solidity version: 0.8.20 → 0.8.22 (required by OpenZeppelin v5)
 - Added `@openzeppelin/hardhat-upgrades` import
 
 #### package.json
+
 - Added scripts for upgradeable deployment and upgrades:
   - `deploy:upgradeable:local`
   - `deploy:upgradeable:sepolia`
@@ -157,12 +166,12 @@ Successfully implemented an upgradeable contract pattern for ContentRegistry usi
 
 ### Storage Slots
 
-| Slot Range | Purpose | Owner |
-|------------|---------|-------|
-| 0-2 | Contract state (entries, mappings) | ContentRegistry |
-| 3-49 | Storage gap (reserved) | Future upgrades |
-| 0x360... | Owner address | OwnableUpgradeable |
-| 0x...033 | Implementation address | ERC1967 |
+| Slot Range | Purpose                            | Owner              |
+| ---------- | ---------------------------------- | ------------------ |
+| 0-2        | Contract state (entries, mappings) | ContentRegistry    |
+| 3-49       | Storage gap (reserved)             | Future upgrades    |
+| 0x360...   | Owner address                      | OwnableUpgradeable |
+| 0x...033   | Implementation address             | ERC1967            |
 
 ### Upgrade Process
 
@@ -177,6 +186,7 @@ Successfully implemented an upgradeable contract pattern for ContentRegistry usi
 ## Test Results
 
 ### Upgradeable Tests
+
 ```
 ✓ 17 tests passing
   - Deployment and Initialization (4 tests)
@@ -188,6 +198,7 @@ Successfully implemented an upgradeable contract pattern for ContentRegistry usi
 ```
 
 ### Original Contract Tests
+
 ```
 ✓ 12 tests passing
   - All original functionality preserved
@@ -195,6 +206,7 @@ Successfully implemented an upgradeable contract pattern for ContentRegistry usi
 ```
 
 ### Simulation Results
+
 ```
 ✓ Full upgrade simulation successful
   - V1 deployment
@@ -219,6 +231,7 @@ Successfully implemented an upgradeable contract pattern for ContentRegistry usi
 ✅ **Dependency Vulnerabilities**: None found in OpenZeppelin packages
 
 ### CodeQL Scan Results
+
 ```
 ✓ No security alerts found
 ✓ JavaScript/TypeScript: Clean
@@ -227,29 +240,32 @@ Successfully implemented an upgradeable contract pattern for ContentRegistry usi
 
 ### Access Control
 
-| Function | Access | Protection |
-|----------|--------|------------|
-| initialize() | Anyone (once) | Initializer modifier |
-| register() | Anyone | Public function |
-| updateManifest() | Creator only | onlyCreator modifier |
-| bindPlatform() | Creator only | onlyCreator modifier |
-| upgradeTo() | Owner only | onlyOwner + _authorizeUpgrade |
+| Function         | Access        | Protection                     |
+| ---------------- | ------------- | ------------------------------ |
+| initialize()     | Anyone (once) | Initializer modifier           |
+| register()       | Anyone        | Public function                |
+| updateManifest() | Creator only  | onlyCreator modifier           |
+| bindPlatform()   | Creator only  | onlyCreator modifier           |
+| upgradeTo()      | Owner only    | onlyOwner + \_authorizeUpgrade |
 
 ## Governance Implementation
 
 ### Current: Single Owner (Development)
+
 - **Owner**: EOA (Externally Owned Account)
 - **Suitable for**: Testing, development, testnets
 - **Risk**: Single point of failure
 - **Recommendation**: ⚠️ Not for production
 
 ### Recommended: Multisig (Production)
+
 - **Owner**: Gnosis Safe (3-of-5 or 5-of-9)
 - **Suitable for**: Production deployments
 - **Risk**: Low (distributed control)
 - **Recommendation**: ✅ Use for mainnet
 
 ### Future: DAO + Timelock (Long-term)
+
 - **Owner**: Governor contract with timelock
 - **Suitable for**: Mature, decentralized projects
 - **Risk**: Very low (community-driven)
@@ -259,19 +275,19 @@ Successfully implemented an upgradeable contract pattern for ContentRegistry usi
 
 ### Deployment Costs
 
-| Item | Gas | Notes |
-|------|-----|-------|
-| Original ContentRegistry | ~825,317 | Non-upgradeable |
-| Proxy + Implementation V1 | ~1,100,000 | Upgradeable (first deploy) |
-| Implementation V2 (upgrade) | ~900,000 | Upgrade only |
+| Item                        | Gas        | Notes                      |
+| --------------------------- | ---------- | -------------------------- |
+| Original ContentRegistry    | ~825,317   | Non-upgradeable            |
+| Proxy + Implementation V1   | ~1,100,000 | Upgradeable (first deploy) |
+| Implementation V2 (upgrade) | ~900,000   | Upgrade only               |
 
 ### Transaction Costs (per operation)
 
-| Operation | Original | Upgradeable | Overhead |
-|-----------|----------|-------------|----------|
-| register() | 50,368-115,935 | 52,368-117,935 | +2,000 |
-| updateManifest() | 33,245 | 35,245 | +2,000 |
-| bindPlatform() | 78,228-95,640 | 80,228-97,640 | +2,000 |
+| Operation        | Original       | Upgradeable    | Overhead |
+| ---------------- | -------------- | -------------- | -------- |
+| register()       | 50,368-115,935 | 52,368-117,935 | +2,000   |
+| updateManifest() | 33,245         | 35,245         | +2,000   |
+| bindPlatform()   | 78,228-95,640  | 80,228-97,640  | +2,000   |
 
 **Overhead**: ~2,000 gas per transaction (0.4-4% increase depending on operation)
 
@@ -310,10 +326,7 @@ npm run upgrade:ethereum
 
 ```javascript
 // Get contract instance
-const proxy = await ethers.getContractAt(
-  "ContentRegistryV1", 
-  "PROXY_ADDRESS"
-);
+const proxy = await ethers.getContractAt("ContentRegistryV1", "PROXY_ADDRESS");
 
 // Check version
 await proxy.version(); // "1.0.0"
@@ -329,16 +342,19 @@ await proxy.getTotalRegistrations(); // New V2 feature
 ## Migration Path
 
 ### Phase 1: Keep Original (Current)
+
 - Original ContentRegistry remains deployed
 - New deployments can use upgradeable version
 - No migration needed for existing contracts
 
 ### Phase 2: Parallel Operation (Optional)
+
 - Deploy upgradeable version alongside original
 - Users can choose which to use
 - Test upgradeable version in production
 
 ### Phase 3: Full Migration (Future)
+
 - If needed, deploy data migration contract
 - Users migrate their data to upgradeable version
 - Deprecate original contract
@@ -352,6 +368,7 @@ await proxy.getTotalRegistrations(); // New V2 feature
 **Probability**: Low  
 **Impact**: Critical  
 **Mitigation**:
+
 - Storage gap reserved (47 slots)
 - OpenZeppelin validation tools
 - Comprehensive tests
@@ -362,6 +379,7 @@ await proxy.getTotalRegistrations(); // New V2 feature
 **Probability**: Very Low  
 **Impact**: Critical  
 **Mitigation**:
+
 - Owner-only access control
 - Multisig recommended for production
 - Event logging for transparency
@@ -372,6 +390,7 @@ await proxy.getTotalRegistrations(); // New V2 feature
 **Probability**: Medium  
 **Impact**: High  
 **Mitigation**:
+
 - Extensive test coverage (17 tests)
 - Simulation before deployment
 - Testnet testing (7+ days)
@@ -383,6 +402,7 @@ await proxy.getTotalRegistrations(); // New V2 feature
 **Probability**: Low  
 **Impact**: Medium  
 **Mitigation**:
+
 - Comprehensive documentation
 - Clear upgrade procedures
 - Simulation scripts
@@ -391,18 +411,21 @@ await proxy.getTotalRegistrations(); // New V2 feature
 ## Future Enhancements
 
 ### Short-term (Next 3 months)
+
 - [ ] Add pause functionality (emergency stop)
 - [ ] Implement role-based access control
 - [ ] Add upgrade proposal system
 - [ ] Create monitoring dashboard
 
 ### Medium-term (3-12 months)
+
 - [ ] Migrate to multisig governance
 - [ ] Implement timelock for upgrades
 - [ ] Add automated upgrade testing
 - [ ] Create upgrade freeze mechanism
 
 ### Long-term (12+ months)
+
 - [ ] Implement DAO governance
 - [ ] Add community voting
 - [ ] Create upgrade bounty program
@@ -425,14 +448,14 @@ await proxy.getTotalRegistrations(); // New V2 feature
 
 ### 📊 Metrics
 
-| Metric | Target | Achieved |
-|--------|--------|----------|
-| Test coverage | >90% | 100% |
-| Documentation | Complete | ✅ |
-| Security issues | 0 | ✅ 0 |
-| Gas overhead | <10% | ✅ 4% |
-| Upgrade simulation | Success | ✅ |
-| Backward compatibility | 100% | ✅ |
+| Metric                 | Target   | Achieved |
+| ---------------------- | -------- | -------- |
+| Test coverage          | >90%     | 100%     |
+| Documentation          | Complete | ✅       |
+| Security issues        | 0        | ✅ 0     |
+| Gas overhead           | <10%     | ✅ 4%    |
+| Upgrade simulation     | Success  | ✅       |
+| Backward compatibility | 100%     | ✅       |
 
 ## Recommendations
 

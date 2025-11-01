@@ -17,6 +17,7 @@ A browser extension for seamless verification of human-created content across mu
 ### Development Installation (Chrome/Edge/Brave)
 
 1. Clone the repository and navigate to the extension directory:
+
    ```bash
    cd /path/to/internet-id/extension
    ```
@@ -53,23 +54,28 @@ Once published to the Chrome Web Store:
 ### Settings Overview
 
 #### API Configuration
+
 - **API Base URL**: The URL of your Internet ID API server
 - **API Key**: Optional authentication key for protected API endpoints
 - **Test Connection**: Verify your API configuration is working
 
 #### Verification Settings
+
 - **Auto-verify content**: Automatically check verification status on supported platforms
 - **Show verification badges**: Display badges directly on platform pages
 - **Enable notifications**: Show desktop notifications for verification status
 
 #### Appearance
+
 - **Theme**: Choose between Light, Dark, or Auto (system preference)
 
 #### Wallet Connection
+
 - **Connect Wallet**: Link your MetaMask or other Web3 wallet for signing operations
 - Enables one-click content registration and verification
 
 #### Privacy & Data
+
 - **Clear Cache**: Remove cached verification results (5-minute cache)
 - **Reset Settings**: Restore all settings to default values
 
@@ -78,11 +84,13 @@ Once published to the Chrome Web Store:
 ### Checking Verification Status
 
 #### Method 1: Automatic (Recommended)
+
 1. Enable "Auto-verify content" in settings
 2. Visit a supported platform (YouTube, Twitter, etc.)
 3. Look for the verification badge on verified content
 
 #### Method 2: Manual Check
+
 1. Visit any page on a supported platform
 2. Click the extension icon
 3. View verification status in the popup
@@ -96,14 +104,14 @@ Once published to the Chrome Web Store:
 
 ### Supported Platforms
 
-| Platform | Detection | Badge Display | Status |
-|----------|-----------|---------------|--------|
-| YouTube | ✅ | ✅ | Implemented |
-| Twitter/X | ✅ | ✅ | Implemented |
-| Instagram | ✅ | 🚧 | Placeholder |
-| GitHub | ✅ | 🚧 | Placeholder |
-| TikTok | ✅ | 🚧 | Placeholder |
-| LinkedIn | ✅ | 🚧 | Placeholder |
+| Platform  | Detection | Badge Display | Status      |
+| --------- | --------- | ------------- | ----------- |
+| YouTube   | ✅        | ✅            | Implemented |
+| Twitter/X | ✅        | ✅            | Implemented |
+| Instagram | ✅        | 🚧            | Placeholder |
+| GitHub    | ✅        | 🚧            | Placeholder |
+| TikTok    | ✅        | 🚧            | Placeholder |
+| LinkedIn  | ✅        | 🚧            | Placeholder |
 
 ## Architecture
 
@@ -181,12 +189,14 @@ extension/
 #### Platform-Specific Testing
 
 **YouTube:**
+
 - Navigate to a verified video
 - Check for verification badge below title
 - Hover over badge to see tooltip
 - Verify extension badge shows checkmark
 
 **Twitter/X:**
+
 - Navigate to a verified tweet
 - Check for verification badge on tweet
 - Test with both old and new URLs (twitter.com vs x.com)
@@ -234,6 +244,7 @@ Safari requires:
 ### Host Permissions
 
 Access to supported platforms for content script injection:
+
 - `https://youtube.com/*`
 - `https://www.youtube.com/*`
 - `https://twitter.com/*`
@@ -248,6 +259,7 @@ Access to supported platforms for content script injection:
 ### Data Collection
 
 The extension:
+
 - ✅ Does NOT collect personal information
 - ✅ Does NOT track browsing history
 - ✅ Only sends verification requests to configured API

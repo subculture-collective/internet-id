@@ -13,7 +13,7 @@ async function main() {
   // Load existing deployment info
   const deployedPath = path.join(process.cwd(), "deployed", `${network.name}-upgradeable.json`);
   let deploymentInfo: any;
-  
+
   try {
     const data = readFileSync(deployedPath, "utf-8");
     deploymentInfo = JSON.parse(data);
@@ -32,7 +32,7 @@ async function main() {
   // Get the V1 contract to check current state
   const ContentRegistryV1 = await ethers.getContractFactory("ContentRegistryV1");
   const proxyV1 = ContentRegistryV1.attach(proxyAddress);
-  
+
   console.log("\nChecking current state before upgrade...");
   const versionBefore = await proxyV1.version();
   const ownerBefore = await proxyV1.owner();
@@ -42,11 +42,11 @@ async function main() {
   // Prepare and upgrade to V2
   console.log("\nPreparing upgrade to ContentRegistryV2...");
   const ContentRegistryV2 = await ethers.getContractFactory("ContentRegistryV2");
-  
+
   console.log("Upgrading implementation...");
   const proxyV2 = await upgrades.upgradeProxy(proxyAddress, ContentRegistryV2);
   await proxyV2.waitForDeployment();
-  
+
   const newImplementationAddress = await upgrades.erc1967.getImplementationAddress(proxyAddress);
   console.log("New implementation deployed to:", newImplementationAddress);
 
@@ -55,17 +55,17 @@ async function main() {
   const versionAfter = await proxyV2.version();
   const ownerAfter = await proxyV2.owner();
   const totalRegistrations = await proxyV2.getTotalRegistrations();
-  
+
   console.log("Version after:", versionAfter);
   console.log("Owner after:", ownerAfter);
   console.log("Total registrations:", totalRegistrations.toString());
-  
+
   // Ensure proxy address didn't change
   const finalProxyAddress = await proxyV2.getAddress();
   if (finalProxyAddress !== proxyAddress) {
     throw new Error("Proxy address changed during upgrade! This should never happen.");
   }
-  
+
   // Ensure owner didn't change
   if (ownerAfter !== ownerBefore) {
     throw new Error("Owner changed during upgrade! This should never happen.");
@@ -78,14 +78,14 @@ async function main() {
   // Update deployment info
   const oldImplementation = deploymentInfo.implementation;
   const oldVersion = deploymentInfo.version;
-  
+
   deploymentInfo.previousImplementations = deploymentInfo.previousImplementations || [];
   deploymentInfo.previousImplementations.push({
     address: oldImplementation,
     version: oldVersion,
     deployedAt: deploymentInfo.deployedAt || deploymentInfo.upgradedAt,
   });
-  
+
   deploymentInfo.implementation = newImplementationAddress;
   deploymentInfo.version = "2.0.0";
   deploymentInfo.upgradedAt = new Date().toISOString();
@@ -100,7 +100,11 @@ async function main() {
   console.log("\nUpgrade successful!");
   console.log("\nSummary:");
   console.log("- Proxy Address (unchanged):", proxyAddress);
-  console.log("- Old Implementation:", deploymentInfo.previousImplementations[deploymentInfo.previousImplementations.length - 1].address);
+  console.log(
+    "- Old Implementation:",
+    deploymentInfo.previousImplementations[deploymentInfo.previousImplementations.length - 1]
+      .address
+  );
   console.log("- New Implementation:", newImplementationAddress);
   console.log("- Version: 1.0.0 -> 2.0.0");
 }

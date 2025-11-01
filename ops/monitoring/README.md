@@ -55,6 +55,7 @@ SMTP_PASSWORD=your_password
 ### Prometheus (prometheus/prometheus.yml)
 
 Defines:
+
 - Scrape targets and intervals
 - Alert rule files
 - Alertmanager integration
@@ -63,6 +64,7 @@ Defines:
 ### Alert Rules (prometheus/alerts.yml)
 
 Defines alert conditions for:
+
 - Service availability (>2 consecutive failures)
 - High error rates (>5% of requests)
 - Queue depth (>100 pending jobs)
@@ -75,6 +77,7 @@ Defines alert conditions for:
 ### Alertmanager (alertmanager/alertmanager.yml)
 
 Configures:
+
 - Alert routing rules
 - Notification channels (PagerDuty, Slack, Email)
 - Alert grouping and inhibition
@@ -83,6 +86,7 @@ Configures:
 ### Blackbox Exporter (blackbox/blackbox.yml)
 
 Configures external monitoring:
+
 - HTTP/HTTPS endpoint checks
 - TCP connectivity checks
 - DNS checks
@@ -91,10 +95,10 @@ Configures external monitoring:
 ## Alert Severity Levels
 
 | Severity | Response Time | Notification Channel |
-|----------|--------------|---------------------|
-| Critical | Immediate | PagerDuty + Slack |
-| Warning | 15 minutes | Slack |
-| Info | 1 hour | Email |
+| -------- | ------------- | -------------------- |
+| Critical | Immediate     | PagerDuty + Slack    |
+| Warning  | 15 minutes    | Slack                |
+| Info     | 1 hour        | Email                |
 
 ## Metrics Collected
 
@@ -210,10 +214,10 @@ Edit `alertmanager/alertmanager.yml`:
 ```yaml
 # Add a new receiver
 receivers:
-  - name: 'custom-receiver'
+  - name: "custom-receiver"
     slack_configs:
-      - api_url: '${CUSTOM_SLACK_WEBHOOK}'
-        channel: '#custom-channel'
+      - api_url: "${CUSTOM_SLACK_WEBHOOK}"
+        channel: "#custom-channel"
 ```
 
 ## Testing

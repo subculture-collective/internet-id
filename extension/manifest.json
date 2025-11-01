@@ -8,11 +8,7 @@
     "48": "public/icons/icon48.png",
     "128": "public/icons/icon128.png"
   },
-  "permissions": [
-    "storage",
-    "activeTab",
-    "scripting"
-  ],
+  "permissions": ["storage", "activeTab", "scripting"],
   "host_permissions": [
     "https://youtube.com/*",
     "https://www.youtube.com/*",
@@ -30,53 +26,37 @@
   },
   "content_scripts": [
     {
-      "matches": [
-        "https://youtube.com/*",
-        "https://www.youtube.com/*"
-      ],
+      "matches": ["https://youtube.com/*", "https://www.youtube.com/*"],
       "js": ["src/content/youtube.js"],
       "css": ["src/content/styles.css"],
       "run_at": "document_end"
     },
     {
-      "matches": [
-        "https://twitter.com/*",
-        "https://x.com/*"
-      ],
+      "matches": ["https://twitter.com/*", "https://x.com/*"],
       "js": ["src/content/twitter.js"],
       "css": ["src/content/styles.css"],
       "run_at": "document_end"
     },
     {
-      "matches": [
-        "https://instagram.com/*",
-        "https://www.instagram.com/*"
-      ],
+      "matches": ["https://instagram.com/*", "https://www.instagram.com/*"],
       "js": ["src/content/instagram.js"],
       "css": ["src/content/styles.css"],
       "run_at": "document_end"
     },
     {
-      "matches": [
-        "https://github.com/*"
-      ],
+      "matches": ["https://github.com/*"],
       "js": ["src/content/github.js"],
       "css": ["src/content/styles.css"],
       "run_at": "document_end"
     },
     {
-      "matches": [
-        "https://www.tiktok.com/*"
-      ],
+      "matches": ["https://www.tiktok.com/*"],
       "js": ["src/content/tiktok.js"],
       "css": ["src/content/styles.css"],
       "run_at": "document_end"
     },
     {
-      "matches": [
-        "https://linkedin.com/*",
-        "https://www.linkedin.com/*"
-      ],
+      "matches": ["https://linkedin.com/*", "https://www.linkedin.com/*"],
       "js": ["src/content/linkedin.js"],
       "css": ["src/content/styles.css"],
       "run_at": "document_end"
@@ -94,10 +74,7 @@
   "options_page": "src/options/options.html",
   "web_accessible_resources": [
     {
-      "resources": [
-        "public/icons/*",
-        "public/images/*"
-      ],
+      "resources": ["public/icons/*", "public/images/*"],
       "matches": ["<all_urls>"]
     }
   ]
