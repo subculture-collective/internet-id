@@ -23,23 +23,24 @@ Before contributing, please:
    - [Debugging Guide](./docs/DEBUGGING.md) - How to debug backend, frontend, and contracts
 
 2. **Set up your development environment**:
+
    ```bash
    # Clone and install
    git clone https://github.com/subculture-collective/internet-id.git
    cd internet-id
    npm install --legacy-peer-deps
-   
+
    # Configure environment
    cp .env.example .env
    # Edit .env and set required variables
-   
+
    # Set up database
    npm run db:generate
    npm run db:migrate
-   
+
    # Compile contracts
    npm run build
-   
+
    # Run tests to verify setup
    npm test
    ```
@@ -78,14 +79,14 @@ Configuration is in `.prettierrc.json`:
 
 ```json
 {
-  "semi": true,              // Always use semicolons
-  "trailingComma": "es5",    // Trailing commas in ES5-compatible places
-  "singleQuote": false,      // Use double quotes
-  "printWidth": 100,         // Line length limit
-  "tabWidth": 2,             // 2 spaces for indentation
-  "useTabs": false,          // Spaces, not tabs
-  "arrowParens": "always",   // Always parentheses around arrow function params
-  "endOfLine": "lf"          // Unix-style line endings
+  "semi": true, // Always use semicolons
+  "trailingComma": "es5", // Trailing commas in ES5-compatible places
+  "singleQuote": false, // Use double quotes
+  "printWidth": 100, // Line length limit
+  "tabWidth": 2, // 2 spaces for indentation
+  "useTabs": false, // Spaces, not tabs
+  "arrowParens": "always", // Always parentheses around arrow function params
+  "endOfLine": "lf" // Unix-style line endings
 }
 ```
 
@@ -114,6 +115,7 @@ npm run format:check
 - **Use const assertions**: For literal types and readonly tuples
 
 Example:
+
 ```typescript
 // Good
 interface UserData {
@@ -159,6 +161,7 @@ Smart contract development follows industry best practices:
 - **Use NatSpec comments**: Document all public/external functions
 
 Example:
+
 ```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.22;
@@ -176,7 +179,7 @@ contract ContentRegistry {
         string manifestUri,
         uint256 timestamp
     );
-    
+
     /**
      * @notice Register new content on-chain
      * @param contentHash SHA-256 hash of the content
@@ -209,6 +212,7 @@ contract ContentRegistry {
 - **Use Server Components**: When possible (Next.js App Router)
 
 Example:
+
 ```typescript
 // app/components/ContentCard.tsx
 interface ContentCardProps {
@@ -258,6 +262,7 @@ export default function ContentCard({
 - **TODO comments**: Use for temporary workarounds (include issue number)
 
 Example:
+
 ```typescript
 /**
  * Verifies content against its manifest and on-chain entry
@@ -272,10 +277,10 @@ async function verifyContent(
 ): Promise<VerificationResult> {
   // Fetch manifest from IPFS
   const manifest = await fetchManifest(manifestUri);
-  
+
   // TODO(#123): Add support for multiple signature algorithms
   const isValid = await verifySignature(manifest);
-  
+
   return { isValid, manifest };
 }
 ```
@@ -384,6 +389,7 @@ BREAKING CHANGE: The /api/verify endpoint now returns
 - **Explain "why" in body**: What problem does this solve?
 
 Example:
+
 ```
 feat(web): add one-shot upload flow with privacy option
 
@@ -427,6 +433,7 @@ git push --force-with-lease origin feature/your-feature-name
 ### Submitting a PR
 
 1. **Push your branch to your fork**:
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -439,33 +446,39 @@ git push --force-with-lease origin feature/your-feature-name
 
 3. **PR Title Format**:
    Follow commit message format: `<type>(<scope>): <description>`
-   
+
    Examples:
    - `feat(api): add batch platform binding endpoint`
    - `fix(web): resolve authentication redirect loop`
    - `docs: add debugging guide for smart contracts`
 
 4. **PR Description Template**:
+
    ```markdown
    ## Description
+
    Brief description of changes (what and why)
-   
+
    ## Type of Change
+
    - [ ] Bug fix (non-breaking change that fixes an issue)
    - [ ] New feature (non-breaking change that adds functionality)
    - [ ] Breaking change (fix or feature that changes existing functionality)
    - [ ] Documentation update
-   
+
    ## Related Issues
+
    Closes #<issue-number>
    Related to #<issue-number>
-   
+
    ## Testing
+
    - [ ] Unit tests added/updated
    - [ ] Integration tests added/updated
    - [ ] Manual testing completed
-   
+
    ## Checklist
+
    - [ ] Code follows style guide
    - [ ] Self-review completed
    - [ ] Comments added for complex code
@@ -473,11 +486,13 @@ git push --force-with-lease origin feature/your-feature-name
    - [ ] No new warnings generated
    - [ ] Tests pass locally
    - [ ] Dependent changes merged
-   
+
    ## Screenshots (if applicable)
+
    Add screenshots for UI changes
-   
+
    ## Additional Notes
+
    Any additional context or notes for reviewers
    ```
 
@@ -504,6 +519,7 @@ Review checklist:
 - [ ] **Breaking changes**: Clearly documented and justified
 
 **Review comments should be**:
+
 - Constructive and respectful
 - Specific and actionable
 - Explain the reasoning
@@ -512,12 +528,14 @@ Review checklist:
 **Examples**:
 
 Good:
+
 ```
-Consider using a more descriptive variable name here. 
+Consider using a more descriptive variable name here.
 `userAddress` instead of `addr` would make this clearer.
 ```
 
 Better to avoid:
+
 ```
 This code is bad.
 ```
@@ -591,19 +609,19 @@ describe("ContentRegistry", function () {
     const [creator] = await ethers.getSigners();
     const ContentRegistry = await ethers.getContractFactory("ContentRegistry");
     const registry = await ContentRegistry.deploy();
-    
+
     const contentHash = ethers.keccak256(ethers.toUtf8Bytes("test content"));
     const manifestUri = "ipfs://QmTest123";
-    
+
     await expect(registry.register(contentHash, manifestUri))
       .to.emit(registry, "ContentRegistered")
       .withArgs(contentHash, creator.address, manifestUri, expect.any(Number));
-    
+
     const entry = await registry.entries(contentHash);
     expect(entry.creator).to.equal(creator.address);
     expect(entry.manifestUri).to.equal(manifestUri);
   });
-  
+
   it("should revert when registering duplicate content", async function () {
     // Test implementation...
   });
@@ -625,11 +643,11 @@ describe("POST /api/verify", function () {
       .attach("file", "test/fixtures/sample.txt")
       .field("manifestUri", "ipfs://QmTest123")
       .expect(200);
-    
+
     expect(response.body).to.have.property("verified", true);
     expect(response.body).to.have.property("details");
   });
-  
+
   it("should return false for invalid content", async function () {
     // Test implementation...
   });
@@ -653,7 +671,7 @@ describe("ContentCard", () => {
         timestamp={1234567890}
       />
     );
-    
+
     expect(screen.getByText(/0xabc123/)).toBeInTheDocument();
     expect(screen.getByText(/Creator:/)).toBeInTheDocument();
   });
@@ -684,7 +702,7 @@ npm run test:coverage
 
 ### What to Document
 
-1. **Code**: 
+1. **Code**:
    - Public APIs and exported functions
    - Complex algorithms or logic
    - Non-obvious decisions
@@ -728,22 +746,28 @@ npm run test:coverage
 # Feature Name
 
 ## Overview
+
 Brief description of what this does and why it exists.
 
 ## Prerequisites
+
 - Required tools or setup
 - Dependencies
 
 ## Usage
+
 Step-by-step instructions with examples.
 
 ## Configuration
+
 List of options with descriptions.
 
 ## Troubleshooting
+
 Common issues and solutions.
 
 ## Related Documentation
+
 Links to related docs.
 ```
 
@@ -804,6 +828,7 @@ Clear description of the issue
 
 **To Reproduce**
 Steps to reproduce:
+
 1. Run command X
 2. Do action Y
 3. See error
@@ -815,6 +840,7 @@ What should happen
 What actually happens
 
 **Environment**
+
 - OS: [e.g., macOS 13.0]
 - Node version: [e.g., 20.12.0]
 - Package version: [e.g., 0.1.0]

@@ -23,6 +23,7 @@ Complete guide for setting up a local development environment for Internet-ID, i
 **Recommended**: Node.js 20.12.0+, npm 10.0.0+
 
 **Check installed versions**:
+
 ```bash
 node --version  # Should be v18+ or v20+
 npm --version   # Should be 9+ or 10+
@@ -31,21 +32,25 @@ npm --version   # Should be 9+ or 10+
 **Installation**:
 
 **macOS** (using Homebrew):
+
 ```bash
 brew install node@20
 ```
 
 **Ubuntu/Debian**:
+
 ```bash
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt-get install -y nodejs
 ```
 
 **Windows**:
+
 - Download from [nodejs.org](https://nodejs.org/)
 - Use [nvm-windows](https://github.com/coreybutler/nvm-windows) for version management
 
 **Using nvm** (recommended for version management):
+
 ```bash
 # Install nvm (macOS/Linux)
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
@@ -62,6 +67,7 @@ nvm alias default 20
 **Recommended**: Latest stable version
 
 **Check version**:
+
 ```bash
 git --version
 ```
@@ -69,20 +75,24 @@ git --version
 **Installation**:
 
 **macOS**:
+
 ```bash
 brew install git
 ```
 
 **Ubuntu/Debian**:
+
 ```bash
 sudo apt-get update
 sudo apt-get install git
 ```
 
 **Windows**:
+
 - Download from [git-scm.com](https://git-scm.com/)
 
 **Configuration**:
+
 ```bash
 git config --global user.name "Your Name"
 git config --global user.email "your.email@example.com"
@@ -98,6 +108,7 @@ git config --global init.defaultBranch main
 For running PostgreSQL, Redis, and other services in containers.
 
 **Check versions**:
+
 ```bash
 docker --version          # Docker 20.10+
 docker compose version    # Docker Compose 2.0+
@@ -110,6 +121,7 @@ docker compose version    # Docker Compose 2.0+
 **Linux**: [Docker Engine](https://docs.docker.com/engine/install/)
 
 **Post-installation** (Linux):
+
 ```bash
 # Add your user to docker group
 sudo usermod -aG docker $USER
@@ -118,6 +130,7 @@ sudo usermod -aG docker $USER
 ```
 
 **Verify Docker**:
+
 ```bash
 docker run hello-world
 ```
@@ -127,6 +140,7 @@ docker run hello-world
 **Recommended**: [Visual Studio Code](https://code.visualstudio.com/)
 
 **VS Code Extensions** (recommended):
+
 - ESLint
 - Prettier - Code formatter
 - Solidity (by Juan Blanco)
@@ -136,6 +150,7 @@ docker run hello-world
 - Docker
 
 Install extensions:
+
 ```bash
 code --install-extension dbaeumer.vscode-eslint
 code --install-extension esbenp.prettier-vscode
@@ -149,6 +164,7 @@ code --install-extension ms-azuretools.vscode-docker
 #### Other Useful Tools
 
 **HTTPie** (better curl):
+
 ```bash
 # macOS
 brew install httpie
@@ -161,6 +177,7 @@ http localhost:3001/api/health
 ```
 
 **jq** (JSON processor):
+
 ```bash
 # macOS
 brew install jq
@@ -177,18 +194,21 @@ curl localhost:3001/api/contents | jq '.'
 ### 1. Clone the Repository
 
 **Option A: HTTPS** (easier):
+
 ```bash
 git clone https://github.com/subculture-collective/internet-id.git
 cd internet-id
 ```
 
 **Option B: SSH** (requires SSH key setup):
+
 ```bash
 git clone git@github.com:subculture-collective/internet-id.git
 cd internet-id
 ```
 
 **For contributors** (fork first):
+
 ```bash
 # Fork on GitHub, then:
 git clone https://github.com/YOUR_USERNAME/internet-id.git
@@ -212,6 +232,7 @@ npm install --legacy-peer-deps
 ```
 
 **If you get errors**:
+
 ```bash
 # Clear npm cache
 npm cache clean --force
@@ -235,6 +256,7 @@ cp .env.example .env
 **Edit `.env`** with your values:
 
 **Minimal required configuration**:
+
 ```bash
 # Blockchain - REQUIRED
 PRIVATE_KEY=0x1234567890abcdef...  # Your wallet private key (DO NOT COMMIT!)
@@ -253,6 +275,7 @@ IPFS_PROJECT_SECRET=...
 ```
 
 **Optional configuration**:
+
 ```bash
 # API Protection
 API_KEY=supersecret                 # Require API key for protected endpoints
@@ -268,16 +291,19 @@ SENTRY_DSN=https://...@sentry.io/...
 ```
 
 **Generate a private key** (for testing only):
+
 ```bash
 node -e "console.log('0x' + require('crypto').randomBytes(32).toString('hex'))"
 ```
 
 **Get testnet ETH**:
+
 - Base Sepolia: https://www.coinbase.com/faucets/base-ethereum-goerli-faucet
 - Ethereum Sepolia: https://sepoliafaucet.com/
 - Polygon Amoy: https://faucet.polygon.technology/
 
 **Get IPFS provider tokens**:
+
 - Web3.Storage: https://web3.storage/ (free, recommended)
 - Pinata: https://pinata.cloud/ (free tier available)
 - Infura: https://infura.io/ (requires project setup)
@@ -292,6 +318,7 @@ cp .env.example .env.local
 **Edit `web/.env.local`**:
 
 **Minimal configuration**:
+
 ```bash
 # API Configuration
 NEXT_PUBLIC_API_BASE=http://localhost:3001
@@ -306,11 +333,13 @@ DATABASE_URL="file:../dev.db"
 ```
 
 **Generate NEXTAUTH_SECRET**:
+
 ```bash
 openssl rand -base64 32
 ```
 
 **Optional OAuth configuration**:
+
 ```bash
 # GitHub OAuth
 GITHUB_ID=your_github_client_id
@@ -326,6 +355,7 @@ TWITTER_CLIENT_SECRET=your_twitter_client_secret
 ```
 
 **Getting OAuth credentials**:
+
 - **GitHub**: [github.com/settings/developers](https://github.com/settings/developers) → New OAuth App
   - Homepage URL: `http://localhost:3000`
   - Callback URL: `http://localhost:3000/api/auth/callback/github`
@@ -334,6 +364,7 @@ TWITTER_CLIENT_SECRET=your_twitter_client_secret
 - **Twitter**: [developer.twitter.com](https://developer.twitter.com/) → Apps → Create app
 
 Return to root directory:
+
 ```bash
 cd ..
 ```
@@ -366,6 +397,7 @@ npm run db:studio
 More features, better for testing production scenarios.
 
 **Start PostgreSQL with Docker**:
+
 ```bash
 # Start services (Postgres + Redis)
 docker compose up -d
@@ -375,11 +407,13 @@ docker compose ps
 ```
 
 **Update `.env`**:
+
 ```bash
 DATABASE_URL="postgresql://internetid:internetid@localhost:5432/internetid?schema=public"
 ```
 
 **Run migrations**:
+
 ```bash
 npm run db:generate
 npm run db:migrate
@@ -387,6 +421,7 @@ npm run db:seed
 ```
 
 **Access PostgreSQL**:
+
 ```bash
 # Using psql
 psql postgresql://internetid:internetid@localhost:5432/internetid
@@ -408,6 +443,7 @@ npm run build
 ```
 
 Verify compilation:
+
 ```bash
 ls artifacts/contracts/ContentRegistry.sol/
 # Should see: ContentRegistry.json, ContentRegistry.dbg.json
@@ -433,6 +469,7 @@ open coverage/index.html
 ```
 
 Expected output:
+
 ```
 ContentRegistry
   ✓ should deploy successfully (150ms)
@@ -455,6 +492,7 @@ npm run start:api
 ```
 
 **Verify it's running**:
+
 ```bash
 curl http://localhost:3001/api/health
 
@@ -463,6 +501,7 @@ curl http://localhost:3001/api/health
 ```
 
 **API endpoints**:
+
 - Health: `GET http://localhost:3001/api/health`
 - Network: `GET http://localhost:3001/api/network`
 - Contents: `GET http://localhost:3001/api/contents`
@@ -483,10 +522,12 @@ npm run dev
 ```
 
 **Verify it's running**:
+
 - Open browser to http://localhost:3000
 - Should see Internet-ID homepage
 
 **Development features**:
+
 - Hot reload on file changes
 - React Fast Refresh
 - Error overlay
@@ -510,6 +551,7 @@ npm run deploy:local
 ```
 
 **Use local node in `.env`**:
+
 ```bash
 RPC_URL=http://127.0.0.1:8545
 ```
@@ -519,6 +561,7 @@ RPC_URL=http://127.0.0.1:8545
 ### Redis (Caching and Rate Limiting)
 
 **Start with Docker**:
+
 ```bash
 docker compose up -d redis
 ```
@@ -526,18 +569,21 @@ docker compose up -d redis
 **Or install locally**:
 
 **macOS**:
+
 ```bash
 brew install redis
 brew services start redis
 ```
 
 **Ubuntu/Debian**:
+
 ```bash
 sudo apt-get install redis-server
 sudo systemctl start redis-server
 ```
 
 **Verify Redis**:
+
 ```bash
 redis-cli ping
 # Expected: PONG
@@ -547,6 +593,7 @@ REDIS_URL=redis://localhost:6379
 ```
 
 **Check cache metrics**:
+
 ```bash
 curl http://localhost:3001/api/cache/metrics
 ```
@@ -643,6 +690,7 @@ echo "  - Read docs: docs/CONTRIBUTOR_ONBOARDING.md"
 ```
 
 Make executable and run:
+
 ```bash
 chmod +x scripts/verify-setup.sh
 ./scripts/verify-setup.sh
@@ -653,11 +701,13 @@ chmod +x scripts/verify-setup.sh
 ### Issue: "Cannot find module" errors
 
 **Symptoms**:
+
 ```
 Error: Cannot find module '@openzeppelin/contracts'
 ```
 
 **Solutions**:
+
 ```bash
 # Clear and reinstall
 rm -rf node_modules package-lock.json
@@ -670,11 +720,13 @@ npm install --legacy-peer-deps @openzeppelin/contracts
 ### Issue: "PRIVATE_KEY is required" error
 
 **Symptoms**:
+
 ```
 Error: PRIVATE_KEY environment variable is required
 ```
 
 **Solutions**:
+
 ```bash
 # Check if .env exists
 cat .env | grep PRIVATE_KEY
@@ -689,11 +741,13 @@ echo "PRIVATE_KEY=0x<your-key>" >> .env
 ### Issue: "Insufficient funds" error
 
 **Symptoms**:
+
 ```
 Error: insufficient funds for gas * price + value
 ```
 
 **Solutions**:
+
 - Get testnet ETH from faucets (see Prerequisites)
 - Verify you're using correct network
 - Check wallet balance:
@@ -704,11 +758,13 @@ Error: insufficient funds for gas * price + value
 ### Issue: Port already in use
 
 **Symptoms**:
+
 ```
 Error: listen EADDRINUSE: address already in use :::3001
 ```
 
 **Solutions**:
+
 ```bash
 # Find process using port
 lsof -i :3001
@@ -723,6 +779,7 @@ PORT=3002 npm run start:api
 ### Issue: Database connection errors
 
 **Symptoms**:
+
 ```
 Error: Can't reach database server at `localhost:5432`
 ```
@@ -730,6 +787,7 @@ Error: Can't reach database server at `localhost:5432`
 **Solutions**:
 
 **For SQLite**:
+
 ```bash
 # Verify DATABASE_URL in .env
 DATABASE_URL="file:./dev.db"
@@ -740,6 +798,7 @@ npm run db:migrate
 ```
 
 **For PostgreSQL**:
+
 ```bash
 # Check Docker is running
 docker compose ps
@@ -754,11 +813,13 @@ psql postgresql://internetid:internetid@localhost:5432/internetid
 ### Issue: IPFS upload failures
 
 **Symptoms**:
+
 ```
 Error: IPFS upload failed: 401 Unauthorized
 ```
 
 **Solutions**:
+
 ```bash
 # Verify token in .env
 cat .env | grep -E "WEB3_STORAGE_TOKEN|PINATA_JWT|IPFS_PROJECT"
@@ -775,11 +836,13 @@ IPFS_PROVIDER=pinata  # or web3storage, infura
 ### Issue: TypeScript errors
 
 **Symptoms**:
+
 ```
 error TS2307: Cannot find module '@/lib/utils' or its corresponding type declarations
 ```
 
 **Solutions**:
+
 ```bash
 # Check tsconfig.json paths configuration
 cat tsconfig.json | grep paths
@@ -796,11 +859,13 @@ npm run db:generate  # For Prisma
 ### Issue: Web app build errors
 
 **Symptoms**:
+
 ```
 Error: Module not found: Can't resolve '@/components/Header'
 ```
 
 **Solutions**:
+
 ```bash
 cd web
 
@@ -821,11 +886,13 @@ npm run build
 ### Issue: Hardhat network errors
 
 **Symptoms**:
+
 ```
 Error: could not detect network (event="noNetwork", code=NETWORK_ERROR)
 ```
 
 **Solutions**:
+
 ```bash
 # Check RPC_URL in .env
 echo $RPC_URL
@@ -845,11 +912,13 @@ npm run deploy:local  # Terminal 2
 ### Issue: ESLint/Prettier conflicts
 
 **Symptoms**:
+
 ```
 Delete `␍` prettier/prettier
 ```
 
 **Solutions**:
+
 ```bash
 # Fix line endings
 npm run lint:fix
@@ -874,6 +943,7 @@ If you're still stuck:
 4. **Join Discord**: (if available)
 
 When reporting issues, include:
+
 - Operating system and version
 - Node.js version (`node --version`)
 - npm version (`npm --version`)

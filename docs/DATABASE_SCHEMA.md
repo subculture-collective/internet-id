@@ -96,7 +96,7 @@ model Content {
   user            User?              @relation(fields: [userId], references: [id])
   bindings        PlatformBinding[]
   verifications   Verification[]
-  
+
   @@index([creatorAddress])
   @@index([userId])
   @@index([createdAt])
@@ -115,12 +115,14 @@ model Content {
 - `createdAt`: Timestamp when record was created
 
 **Indexes**:
+
 - `contentHash`: Unique index for fast lookup
 - `creatorAddress`: Non-unique index for filtering by creator
 - `userId`: Foreign key index for user's content
 - `createdAt`: Temporal queries (recent content)
 
 **Use Cases**:
+
 - Look up content by hash
 - Find all content by a creator
 - List user's registered content
@@ -142,7 +144,7 @@ model PlatformBinding {
   createdAt   DateTime @default(now())
   content     Content  @relation(fields: [contentId], references: [id], onDelete: Cascade)
   user        User?    @relation(fields: [userId], references: [id])
-  
+
   @@unique([platform, platformId])
   @@index([contentId])
   @@index([userId])
@@ -159,11 +161,13 @@ model PlatformBinding {
 - `createdAt`: Binding creation timestamp
 
 **Indexes**:
+
 - `(platform, platformId)`: Unique composite index for fast platform binding lookup
 - `contentId`: Foreign key index for content's bindings
 - `userId`: Foreign key index for user's bindings
 
 **Use Cases**:
+
 - Resolve YouTube URL to original content: `SELECT * WHERE platform='youtube' AND platformId='dQw4w9WgXcQ'`
 - List all bindings for a content: `SELECT * WHERE contentId=123`
 - Find user's platform bindings
@@ -182,7 +186,7 @@ model Verification {
   verified   Boolean
   ipAddress  String?
   content    Content  @relation(fields: [contentId], references: [id], onDelete: Cascade)
-  
+
   @@index([contentId])
   @@index([verifiedAt])
 }
@@ -197,10 +201,12 @@ model Verification {
 - `ipAddress`: IP address of verifier (for analytics, optional)
 
 **Indexes**:
+
 - `contentId`: Foreign key index for content's verification history
 - `verifiedAt`: Temporal queries (recent verifications)
 
 **Use Cases**:
+
 - Verification history for content
 - Analytics: verification success rate
 - Time-series verification data
@@ -227,7 +233,7 @@ model User {
   sessions         Session[]
   contents         Content[]
   platformBindings PlatformBinding[]
-  
+
   @@index([walletAddress])
 }
 ```
@@ -244,10 +250,12 @@ model User {
 - `updatedAt`: Last update timestamp
 
 **Indexes**:
+
 - `email`: Unique index for email-based lookup
 - `walletAddress`: Unique index for wallet-based lookup
 
 **Relationships**:
+
 - One user has many accounts (OAuth providers)
 - One user has many sessions
 - One user has many registered contents
@@ -274,7 +282,7 @@ model Account {
   id_token          String? @db.Text
   session_state     String?
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@unique([provider, providerAccountId])
   @@index([userId])
 }
@@ -292,10 +300,12 @@ model Account {
 - `id_token`, `session_state`: OpenID Connect data
 
 **Indexes**:
+
 - `(provider, providerAccountId)`: Unique composite for provider account lookup
 - `userId`: Foreign key index
 
 **Use Cases**:
+
 - Link multiple OAuth accounts to one user
 - Verify user owns a specific platform account
 - Refresh expired OAuth tokens
@@ -313,7 +323,7 @@ model Session {
   userId       Int
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@index([userId])
 }
 ```
@@ -325,6 +335,7 @@ model Session {
 - `expires`: Session expiration timestamp
 
 **Use Cases**:
+
 - Maintain authenticated sessions
 - Validate session tokens
 - Expire old sessions
@@ -340,7 +351,7 @@ model VerificationToken {
   identifier String
   token      String   @unique
   expires    DateTime
-  
+
   @@unique([identifier, token])
 }
 ```
@@ -352,6 +363,7 @@ model VerificationToken {
 - `expires`: Token expiration timestamp
 
 **Use Cases**:
+
 - Email verification on signup
 - Password reset flows
 - Magic link authentication
@@ -573,11 +585,13 @@ psql $DATABASE_URL -c "\di"
 ### Common Queries
 
 **Find content by hash**:
+
 ```sql
 SELECT * FROM "Content" WHERE "contentHash" = '0xabc123...';
 ```
 
 **Resolve YouTube video to content**:
+
 ```sql
 SELECT c.*
 FROM "Content" c
@@ -586,6 +600,7 @@ WHERE pb.platform = 'youtube' AND pb."platformId" = 'dQw4w9WgXcQ';
 ```
 
 **List user's registered content**:
+
 ```sql
 SELECT * FROM "Content"
 WHERE "userId" = 123
@@ -593,6 +608,7 @@ ORDER BY "createdAt" DESC;
 ```
 
 **Find content by creator address**:
+
 ```sql
 SELECT * FROM "Content"
 WHERE "creatorAddress" = '0x1234567890123456789012345678901234567890'
@@ -600,6 +616,7 @@ ORDER BY "createdAt" DESC;
 ```
 
 **Verification statistics**:
+
 ```sql
 SELECT
   c."contentHash",
@@ -612,6 +629,7 @@ GROUP BY c.id, c."contentHash";
 ```
 
 **Recent verifications**:
+
 ```sql
 SELECT c."contentHash", v.verified, v."verifiedAt", v."ipAddress"
 FROM "Verification" v
@@ -621,6 +639,7 @@ ORDER BY v."verifiedAt" DESC;
 ```
 
 **User's OAuth providers**:
+
 ```sql
 SELECT u.email, a.provider, a."providerAccountId"
 FROM "User" u
@@ -640,6 +659,7 @@ WHERE u.id = 123;
 ### Connection Pooling
 
 Configure in `DATABASE_URL`:
+
 ```
 postgresql://user:pass@host:5432/db?connection_limit=10
 ```
@@ -647,6 +667,7 @@ postgresql://user:pass@host:5432/db?connection_limit=10
 ### Caching Layer
 
 Use Redis to cache frequent queries:
+
 - Content metadata (10min TTL)
 - Platform bindings (3min TTL)
 - User profiles (5min TTL)
@@ -658,6 +679,7 @@ See: [Caching Architecture](./CACHING_ARCHITECTURE.md)
 ### Backup Strategies
 
 **SQLite**:
+
 ```bash
 # Simple file copy
 cp dev.db dev.db.backup
@@ -667,6 +689,7 @@ sqlite3 dev.db ".backup backup.db"
 ```
 
 **PostgreSQL**:
+
 ```bash
 # Full backup
 pg_dump $DATABASE_URL > backup.sql
@@ -686,14 +709,14 @@ See: [Database Backup & Recovery Guide](./ops/DATABASE_BACKUP_RECOVERY.md)
 
 ```typescript
 // Check database connection
-import prisma from './prisma/client';
+import prisma from "./prisma/client";
 
 async function checkDatabase() {
   try {
     await prisma.$queryRaw`SELECT 1`;
-    return { status: 'connected' };
+    return { status: "connected" };
   } catch (error) {
-    return { status: 'error', error };
+    return { status: "error", error };
   }
 }
 ```
@@ -701,23 +724,25 @@ async function checkDatabase() {
 ### Slow Query Logging
 
 **PostgreSQL**:
+
 ```sql
 -- Enable slow query log (>1 second)
 ALTER DATABASE internetid SET log_min_duration_statement = 1000;
 ```
 
 **Prisma**:
+
 ```typescript
 const prisma = new PrismaClient({
   log: [
-    { emit: 'event', level: 'query' },
-    { emit: 'event', level: 'error' },
+    { emit: "event", level: "query" },
+    { emit: "event", level: "error" },
   ],
 });
 
-prisma.$on('query', (e) => {
+prisma.$on("query", (e) => {
   if (e.duration > 1000) {
-    console.warn('Slow query:', e.query, `(${e.duration}ms)`);
+    console.warn("Slow query:", e.query, `(${e.duration}ms)`);
   }
 });
 ```

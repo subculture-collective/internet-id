@@ -156,7 +156,7 @@ import logger from "./logger";
 
 async function uploadToIPFS(file: Buffer): Promise<string> {
   logger.debug({ fileSize: file.length }, "Starting IPFS upload");
-  
+
   try {
     const cid = await ipfsClient.add(file);
     logger.info({ cid: cid.toString() }, "IPFS upload successful");
@@ -169,6 +169,7 @@ async function uploadToIPFS(file: Buffer): Promise<string> {
 ```
 
 **Common IPFS issues**:
+
 - Check provider credentials in `.env`
 - Verify network connectivity
 - Check file size limits
@@ -183,22 +184,28 @@ import { ethers } from "ethers";
 const provider = new ethers.JsonRpcProvider(rpcUrl);
 
 // Log transaction details before sending
-logger.debug({
-  to: contractAddress,
-  data: encodedData,
-  gasLimit: estimatedGas,
-}, "Sending transaction");
+logger.debug(
+  {
+    to: contractAddress,
+    data: encodedData,
+    gasLimit: estimatedGas,
+  },
+  "Sending transaction"
+);
 
 try {
   const tx = await contract.register(contentHash, manifestUri);
   logger.info({ txHash: tx.hash }, "Transaction sent");
-  
+
   const receipt = await tx.wait();
-  logger.info({ 
-    txHash: receipt.hash,
-    blockNumber: receipt.blockNumber,
-    gasUsed: receipt.gasUsed.toString()
-  }, "Transaction confirmed");
+  logger.info(
+    {
+      txHash: receipt.hash,
+      blockNumber: receipt.blockNumber,
+      gasUsed: receipt.gasUsed.toString(),
+    },
+    "Transaction confirmed"
+  );
 } catch (error) {
   if (error.code === "CALL_EXCEPTION") {
     logger.error({ error, reason: error.reason }, "Contract call reverted");
@@ -211,6 +218,7 @@ try {
 ```
 
 **Common blockchain issues**:
+
 - Insufficient gas: Increase gas limit or get testnet ETH
 - RPC errors: Check RPC_URL connectivity
 - Contract not found: Verify deployment and address
@@ -259,6 +267,7 @@ curl -v http://localhost:3001/api/contents > response.json
 ```
 
 Use Postman or Insomnia:
+
 - Import OpenAPI spec from `/api/docs`
 - Set up environment variables
 - Create request collections
@@ -322,28 +331,28 @@ import { useState, useEffect } from "react";
 
 export default function UploadForm() {
   const [file, setFile] = useState<File | null>(null);
-  
+
   // Debug state changes
   useEffect(() => {
     console.log("File changed:", file);
   }, [file]);
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Form submitted with file:", file);
-    
+
     try {
       const response = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       });
-      
+
       console.log("Upload response:", await response.json());
     } catch (error) {
       console.error("Upload failed:", error);
     }
   };
-  
+
   return <form onSubmit={handleSubmit}>...</form>;
 }
 ```
@@ -357,11 +366,11 @@ import { getContents } from "@/lib/db";
 export default async function ContentsPage() {
   // Server-side logging
   console.log("Fetching contents for page render");
-  
+
   const contents = await getContents();
-  
+
   console.log(`Fetched ${contents.length} contents`);
-  
+
   return <div>...</div>;
 }
 ```
@@ -375,19 +384,16 @@ import logger from "@/lib/logger";
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  
+
   logger.debug({ body }, "Verify API called");
-  
+
   try {
     const result = await verifyContent(body);
     logger.info({ result }, "Verification completed");
     return NextResponse.json(result);
   } catch (error) {
     logger.error({ error }, "Verification failed");
-    return NextResponse.json(
-      { error: "Verification failed" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Verification failed" }, { status: 500 });
   }
 }
 ```
@@ -446,7 +452,7 @@ contract ContentRegistry {
         console.logBytes32(contentHash);
         console.log("Manifest URI:", manifestUri);
         console.log("Creator:", msg.sender);
-        
+
         // Contract logic...
     }
 }
@@ -468,32 +474,32 @@ import { ethers } from "hardhat";
 describe("ContentRegistry", function () {
   it("should register content", async function () {
     const [creator] = await ethers.getSigners();
-    
+
     // Log test context
     console.log("Creator address:", creator.address);
     console.log("Creator balance:", await ethers.provider.getBalance(creator.address));
-    
+
     const ContentRegistry = await ethers.getContractFactory("ContentRegistry");
     const registry = await ContentRegistry.deploy();
     await registry.waitForDeployment();
-    
+
     const address = await registry.getAddress();
     console.log("Registry deployed at:", address);
-    
+
     const contentHash = ethers.keccak256(ethers.toUtf8Bytes("test"));
     console.log("Content hash:", contentHash);
-    
+
     // Send transaction
     const tx = await registry.register(contentHash, "ipfs://test");
     console.log("Transaction hash:", tx.hash);
-    
+
     const receipt = await tx.wait();
     console.log("Gas used:", receipt?.gasUsed.toString());
-    
+
     // Verify state
     const entry = await registry.entries(contentHash);
     console.log("Stored entry:", entry);
-    
+
     expect(entry.creator).to.equal(creator.address);
   });
 });
@@ -521,15 +527,11 @@ REPORT_GAS=true npx hardhat test
 ```typescript
 // Test for revert reasons
 it("should revert with reason", async function () {
-  await expect(
-    registry.register("0x00", "")
-  ).to.be.revertedWith("Invalid content hash");
+  await expect(registry.register("0x00", "")).to.be.revertedWith("Invalid content hash");
 });
 
 // Or for custom errors
-await expect(
-  registry.register("0x00", "")
-).to.be.revertedWithCustomError(registry, "InvalidHash");
+await expect(registry.register("0x00", "")).to.be.revertedWithCustomError(registry, "InvalidHash");
 ```
 
 ### Debugging with Hardhat Network
@@ -550,7 +552,7 @@ import { time } from "@nomicfoundation/hardhat-network-helpers";
 it("should expire after time limit", async function () {
   // Fast forward 1 day
   await time.increase(86400);
-  
+
   // Check expired state
   const isExpired = await contract.isExpired(contentHash);
   expect(isExpired).to.be.true;
@@ -583,6 +585,7 @@ await tx.wait();
 **Cause**: Missing dependency or incorrect import path
 
 **Solution**:
+
 ```bash
 # Install missing dependency
 npm install <package-name>
@@ -599,6 +602,7 @@ npm install --legacy-peer-deps <package-name>
 **Cause**: Service not running or wrong port
 
 **Solution**:
+
 ```bash
 # Check what's running on port
 lsof -i :3001  # API port
@@ -616,6 +620,7 @@ docker compose up -d
 **Cause**: Environment variable not set
 
 **Solution**:
+
 ```bash
 # Check .env file exists and has value
 cat .env | grep PRIVATE_KEY
@@ -632,6 +637,7 @@ PRIVATE_KEY=0x<your-generated-key>
 **Cause**: Wallet doesn't have enough tokens for gas
 
 **Solution**:
+
 ```bash
 # Get testnet ETH from faucet
 # Base Sepolia: https://www.coinbase.com/faucets/base-ethereum-goerli-faucet
@@ -646,6 +652,7 @@ npx hardhat run scripts/check-balance.ts --network sepolia
 **Cause**: Contract logic rejection
 
 **Debug steps**:
+
 1. Check revert reason in error message
 2. Review contract requirements
 3. Verify input parameters
@@ -657,6 +664,7 @@ npx hardhat run scripts/check-balance.ts --network sepolia
 **Cause**: Provider credentials or connectivity issues
 
 **Solution**:
+
 ```bash
 # Test each provider
 curl -X POST https://api.web3.storage/upload \
@@ -674,6 +682,7 @@ curl -X POST https://api.web3.storage/upload \
 **Cause**: Schema conflicts or migration history issues
 
 **Solution**:
+
 ```bash
 # Reset database (WARNING: deletes all data)
 npm run db:reset
@@ -691,14 +700,17 @@ npm run db:generate
 **Cause**: API not allowing frontend origin
 
 **Solution**:
+
 ```typescript
 // scripts/api.ts
 import cors from "cors";
 
-app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || 'http://localhost:3000',
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: process.env.ALLOWED_ORIGINS?.split(",") || "http://localhost:3000",
+    credentials: true,
+  })
+);
 ```
 
 ### 9. Next.js Hydration Errors
@@ -706,6 +718,7 @@ app.use(cors({
 **Cause**: Mismatch between server and client render
 
 **Solution**:
+
 ```typescript
 // Use dynamic import with ssr: false
 import dynamic from 'next/dynamic';
@@ -724,6 +737,7 @@ const WalletConnect = dynamic(
 **Cause**: Type mismatch or missing types
 
 **Solution**:
+
 ```bash
 # Install type definitions
 npm install --save-dev @types/<package-name>
@@ -741,21 +755,24 @@ npx tsc --noEmit  # Type-check without compile
 // Add timing middleware
 app.use((req, res, next) => {
   const start = Date.now();
-  
-  res.on('finish', () => {
+
+  res.on("finish", () => {
     const duration = Date.now() - start;
-    logger.info({
-      method: req.method,
-      path: req.path,
-      status: res.statusCode,
-      duration,
-    }, 'Request completed');
-    
+    logger.info(
+      {
+        method: req.method,
+        path: req.path,
+        status: res.statusCode,
+        duration,
+      },
+      "Request completed"
+    );
+
     if (duration > 1000) {
-      logger.warn({ method: req.method, path: req.path, duration }, 'Slow request');
+      logger.warn({ method: req.method, path: req.path, duration }, "Slow request");
     }
   });
-  
+
   next();
 });
 ```
@@ -854,6 +871,7 @@ If you're stuck:
 5. **Create minimal reproduction**: Isolate the problem
 
 When asking for help, include:
+
 - Error messages (full stack trace)
 - Steps to reproduce
 - Environment details (OS, Node version, etc.)

@@ -16,6 +16,7 @@ Complete reference for all environment variables used in Internet-ID, including 
 ### Essential Variables (Minimum to Run)
 
 **Backend (`.env`)**:
+
 ```bash
 PRIVATE_KEY=0x...              # Deployer wallet private key
 RPC_URL=https://...            # Blockchain RPC endpoint
@@ -24,6 +25,7 @@ WEB3_STORAGE_TOKEN=eyJ...      # IPFS provider token
 ```
 
 **Web (`web/.env.local`)**:
+
 ```bash
 NEXT_PUBLIC_API_BASE=http://localhost:3001
 NEXTAUTH_URL=http://localhost:3000
@@ -62,6 +64,7 @@ Private key of the wallet used for deploying contracts and signing transactions.
 **Security**: 🔴 NEVER commit this to git! Keep it secret!
 
 **How to get**:
+
 ```bash
 # Generate new key (testing only)
 node -e "console.log('0x' + require('crypto').randomBytes(32).toString('hex'))"
@@ -83,12 +86,14 @@ node -e "console.log('0x' + require('crypto').randomBytes(32).toString('hex'))"
 Default blockchain RPC endpoint for transactions.
 
 **Recommended networks**:
+
 - **Base Sepolia** (testnet): `https://sepolia.base.org` - Free, fast
 - **Ethereum Sepolia** (testnet): `https://ethereum-sepolia-rpc.publicnode.com`
 - **Polygon Amoy** (testnet): `https://rpc-amoy.polygon.technology`
 - **Base Mainnet** (production): `https://mainnet.base.org`
 
 **Custom RPC providers**:
+
 - Alchemy: `https://base-sepolia.g.alchemy.com/v2/YOUR-API-KEY`
 - Infura: `https://sepolia.infura.io/v3/YOUR-PROJECT-ID`
 - QuickNode: `https://your-endpoint.quicknode.pro/...`
@@ -102,43 +107,53 @@ Default blockchain RPC endpoint for transactions.
 Override default RPC URLs for specific chains (optional).
 
 #### ETHEREUM_RPC_URL
+
 **Type**: String (URL)  
 **Default**: `https://eth.llamarpc.com`  
 **Example**: `https://eth-mainnet.g.alchemy.com/v2/YOUR-API-KEY`
 
 #### SEPOLIA_RPC_URL
+
 **Type**: String (URL)  
 **Default**: `https://ethereum-sepolia-rpc.publicnode.com`
 
 #### POLYGON_RPC_URL
+
 **Type**: String (URL)  
 **Default**: `https://polygon-rpc.com`
 
 #### POLYGON_AMOY_RPC_URL
+
 **Type**: String (URL)  
 **Default**: `https://rpc-amoy.polygon.technology`
 
 #### BASE_RPC_URL
+
 **Type**: String (URL)  
 **Default**: `https://mainnet.base.org`
 
 #### BASE_SEPOLIA_RPC_URL
+
 **Type**: String (URL)  
 **Default**: `https://sepolia.base.org`
 
 #### ARBITRUM_RPC_URL
+
 **Type**: String (URL)  
 **Default**: `https://arb1.arbitrum.io/rpc`
 
 #### ARBITRUM_SEPOLIA_RPC_URL
+
 **Type**: String (URL)  
 **Default**: `https://sepolia-rollup.arbitrum.io/rpc`
 
 #### OPTIMISM_RPC_URL
+
 **Type**: String (URL)  
 **Default**: `https://mainnet.optimism.io`
 
 #### OPTIMISM_SEPOLIA_RPC_URL
+
 **Type**: String (URL)  
 **Default**: `https://sepolia.optimism.io`
 
@@ -154,11 +169,13 @@ Override default RPC URLs for specific chains (optional).
 Database connection string for Prisma.
 
 **SQLite** (development):
+
 ```bash
 DATABASE_URL="file:./dev.db"
 ```
 
 **PostgreSQL** (production):
+
 ```bash
 DATABASE_URL="postgresql://user:password@localhost:5432/dbname?schema=public"
 
@@ -170,6 +187,7 @@ DATABASE_URL="postgresql://user:password@host:5432/dbname?sslmode=require"
 ```
 
 **Components**:
+
 - Protocol: `file:` (SQLite) or `postgresql:`
 - User: Database username
 - Password: Database password
@@ -192,7 +210,8 @@ DATABASE_URL="postgresql://user:password@host:5432/dbname?sslmode=require"
 
 API token for Web3.Storage IPFS provider.
 
-**How to get**: 
+**How to get**:
+
 1. Sign up at https://web3.storage
 2. Create API token in dashboard
 3. Copy token
@@ -209,6 +228,7 @@ API token for Web3.Storage IPFS provider.
 JWT token for Pinata IPFS provider.
 
 **How to get**:
+
 1. Sign up at https://pinata.cloud
 2. Go to API Keys
 3. Create new key with pinning permissions
@@ -248,7 +268,8 @@ Infura IPFS project secret.
 
 IPFS API endpoint.
 
-**Usage**: 
+**Usage**:
+
 - Infura IPFS API endpoint
 - Local IPFS node API endpoint
 
@@ -265,6 +286,7 @@ Force a specific IPFS provider (disables automatic fallback).
 **Usage**: Useful for testing or debugging specific provider
 
 **Default behavior** (when not set):
+
 1. Try Web3.Storage
 2. Fallback to Pinata on 5xx errors
 3. Fallback to Infura on 5xx errors
@@ -281,6 +303,7 @@ Force a specific IPFS provider (disables automatic fallback).
 API key required for protected endpoints.
 
 **Protected endpoints** (when set):
+
 - `POST /api/upload`
 - `POST /api/manifest`
 - `POST /api/register`
@@ -288,6 +311,7 @@ API key required for protected endpoints.
 - `POST /api/bind-many`
 
 **Public endpoints** (always):
+
 - `GET /api/health`
 - `POST /api/verify`
 - `GET /api/contents`
@@ -296,6 +320,7 @@ API key required for protected endpoints.
 **Usage**: Include in request header: `x-api-key: YOUR_API_KEY`
 
 **Example**:
+
 ```bash
 curl -H "x-api-key: supersecret123" \
      -F file=@video.mp4 \
@@ -326,6 +351,7 @@ Port for API server to listen on.
 Redis connection URL for caching and rate limiting.
 
 **Formats**:
+
 ```bash
 # Local Redis
 REDIS_URL=redis://localhost:6379
@@ -347,6 +373,7 @@ REDIS_URL=rediss://master.xxx.cache.amazonaws.com:6379
 ```
 
 **Features enabled**:
+
 - Content metadata caching (10min TTL)
 - Manifest caching (15min TTL)
 - Platform binding caching (3min TTL)
@@ -367,6 +394,7 @@ REDIS_URL=rediss://master.xxx.cache.amazonaws.com:6379
 Logging verbosity level.
 
 **Levels**:
+
 - `trace`: Everything (very verbose)
 - `debug`: Debugging information
 - `info`: General information
@@ -375,6 +403,7 @@ Logging verbosity level.
 - `fatal`: Fatal errors only
 
 **Example**:
+
 ```bash
 # Development
 LOG_LEVEL=debug
@@ -396,6 +425,7 @@ LOG_LEVEL=trace
 BetterStack Logtail source token for log aggregation.
 
 **How to get**:
+
 1. Sign up at https://betterstack.com/logtail
 2. Create source
 3. Copy source token
@@ -478,6 +508,7 @@ Elasticsearch index name for logs.
 Sentry Data Source Name for error tracking.
 
 **How to get**:
+
 1. Sign up at https://sentry.io
 2. Create project
 3. Copy DSN from project settings
@@ -515,6 +546,7 @@ Sender email address for notifications.
 SendGrid API key for email delivery.
 
 **How to get**:
+
 1. Sign up at https://sendgrid.com
 2. Create API key with Mail Send permissions
 3. Copy key
@@ -647,6 +679,7 @@ Backend API base URL.
 **Note**: `NEXT_PUBLIC_` prefix makes this available in browser.
 
 **Environments**:
+
 ```bash
 # Development
 NEXT_PUBLIC_API_BASE=http://localhost:3001
@@ -694,6 +727,7 @@ Public site URL for badges, share links, and QR codes.
 Canonical URL of your site (used for callbacks).
 
 **Environments**:
+
 ```bash
 # Development
 NEXTAUTH_URL=http://localhost:3000
@@ -713,6 +747,7 @@ NEXTAUTH_URL=https://internet-id.io
 Secret for encrypting session tokens.
 
 **Generate**:
+
 ```bash
 openssl rand -base64 32
 ```
@@ -731,6 +766,7 @@ openssl rand -base64 32
 GitHub OAuth App client ID.
 
 **How to get**:
+
 1. Go to https://github.com/settings/developers
 2. New OAuth App
 3. Set callback: `http://localhost:3000/api/auth/callback/github`
@@ -755,6 +791,7 @@ GitHub OAuth App client secret.
 Google OAuth client ID.
 
 **How to get**:
+
 1. Go to https://console.cloud.google.com
 2. APIs & Services → Credentials
 3. Create OAuth 2.0 Client ID (Web application)
@@ -808,11 +845,13 @@ TikTok OAuth app key.
 **Must match root `.env` DATABASE_URL**.
 
 **For SQLite**:
+
 ```bash
 DATABASE_URL="file:../dev.db"
 ```
 
 **For PostgreSQL**:
+
 ```bash
 DATABASE_URL="postgresql://user:password@localhost:5432/dbname?schema=public"
 ```
@@ -863,6 +902,7 @@ Variables for Docker, CI/CD, and production deployments.
 Node.js environment mode.
 
 **Effects**:
+
 - `production`: Optimizations enabled, verbose logging disabled
 - `development`: Debug mode, hot reload
 - `staging`: Production-like with extra logging
@@ -921,6 +961,7 @@ S3 secret access key.
 Encryption key for backup files.
 
 **Generate**:
+
 ```bash
 openssl rand -hex 32
 ```
@@ -970,6 +1011,7 @@ SSH username for deployment.
 ### Never Commit Secrets
 
 **Always exclude from git**:
+
 - `PRIVATE_KEY`
 - `API_KEY`
 - `NEXTAUTH_SECRET`
@@ -978,6 +1020,7 @@ SSH username for deployment.
 - API tokens
 
 **Check `.gitignore`**:
+
 ```bash
 .env
 .env.*
@@ -1005,6 +1048,7 @@ PRIVATE_KEY=0x3333...
 ### Rotate Secrets Regularly
 
 **Schedule**:
+
 - API keys: Every 90 days
 - OAuth secrets: Every 180 days
 - Database passwords: Every 90 days
@@ -1015,12 +1059,14 @@ PRIVATE_KEY=0x3333...
 ### Use Secret Management
 
 **For production**, use:
+
 - AWS Secrets Manager
 - HashiCorp Vault
 - Azure Key Vault
 - Google Secret Manager
 
 **Example** (AWS):
+
 ```bash
 # Store secret
 aws secretsmanager create-secret --name internet-id-private-key --secret-string "0x..."
@@ -1053,6 +1099,7 @@ console.log("✅ All required environment variables are set");
 ```
 
 Run before deployment:
+
 ```bash
 npm run validate-env
 ```
@@ -1062,6 +1109,7 @@ npm run validate-env
 ### Use .env.example Template
 
 Keep `.env.example` updated with:
+
 - All variable names
 - Example values (safe/dummy)
 - Comments explaining usage
@@ -1147,6 +1195,7 @@ console.log(process.env.PRIVATE_KEY);
 ### Next.js Public Variables Not Working
 
 **Must start with `NEXT_PUBLIC_`**:
+
 ```bash
 # ❌ Not available in browser
 API_BASE=http://localhost:3001
