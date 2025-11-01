@@ -1,0 +1,104 @@
+{
+  "manifest_version": 3,
+  "name": "Internet ID Verifier",
+  "version": "1.0.0",
+  "description": "Seamless verification of human-created content across platforms. One-click verification for YouTube, Twitter, Instagram, GitHub, and more.",
+  "icons": {
+    "16": "public/icons/icon16.png",
+    "48": "public/icons/icon48.png",
+    "128": "public/icons/icon128.png"
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://youtube.com/*",
+    "https://www.youtube.com/*",
+    "https://twitter.com/*",
+    "https://x.com/*",
+    "https://instagram.com/*",
+    "https://www.instagram.com/*",
+    "https://github.com/*",
+    "https://www.tiktok.com/*",
+    "https://linkedin.com/*",
+    "https://www.linkedin.com/*"
+  ],
+  "background": {
+    "service_worker": "src/background/service-worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://youtube.com/*",
+        "https://www.youtube.com/*"
+      ],
+      "js": ["src/content/youtube.js"],
+      "css": ["src/content/styles.css"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "https://twitter.com/*",
+        "https://x.com/*"
+      ],
+      "js": ["src/content/twitter.js"],
+      "css": ["src/content/styles.css"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "https://instagram.com/*",
+        "https://www.instagram.com/*"
+      ],
+      "js": ["src/content/instagram.js"],
+      "css": ["src/content/styles.css"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "https://github.com/*"
+      ],
+      "js": ["src/content/github.js"],
+      "css": ["src/content/styles.css"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "https://www.tiktok.com/*"
+      ],
+      "js": ["src/content/tiktok.js"],
+      "css": ["src/content/styles.css"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "https://linkedin.com/*",
+        "https://www.linkedin.com/*"
+      ],
+      "js": ["src/content/linkedin.js"],
+      "css": ["src/content/styles.css"],
+      "run_at": "document_end"
+    }
+  ],
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16": "public/icons/icon16.png",
+      "48": "public/icons/icon48.png",
+      "128": "public/icons/icon128.png"
+    },
+    "default_title": "Internet ID Verifier"
+  },
+  "options_page": "src/options/options.html",
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "public/icons/*",
+        "public/images/*"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

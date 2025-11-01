@@ -1,0 +1,27 @@
+{
+  "name": "@internet-id/browser-extension",
+  "version": "1.0.0",
+  "description": "Browser extension for seamless verification of human-created content",
+  "private": true,
+  "scripts": {
+    "build": "echo 'Extension built. Ready to load in browser.'",
+    "package": "npm run package:chrome",
+    "package:chrome": "cd .. && zip -r extension/dist/internet-id-extension-chrome-v${npm_package_version}.zip extension -x '*/node_modules/*' -x '*/dist/*' -x '*/.git/*' -x '*.DS_Store'",
+    "lint": "echo 'Linting extension files...'",
+    "test": "echo 'Extension tests not yet implemented'"
+  },
+  "keywords": [
+    "browser-extension",
+    "verification",
+    "blockchain",
+    "content-authenticity",
+    "web3"
+  ],
+  "author": "Internet ID",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/subculture-collective/internet-id.git",
+    "directory": "extension"
+  }
+}

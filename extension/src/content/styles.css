@@ -1,0 +1,110 @@
+/**
+ * Content Script Styles
+ * Styles for verification badges on platform pages
+ */
+
+.internet-id-verified-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+  z-index: 1000;
+}
+
+.internet-id-verified-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.badge-content {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge-icon {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.badge-text {
+  font-size: 13px;
+}
+
+.badge-tooltip {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 8px;
+  padding: 12px;
+  background: white;
+  color: #333;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 250px;
+  z-index: 10000;
+}
+
+.internet-id-verified-badge:hover .badge-tooltip {
+  display: block;
+}
+
+.badge-tooltip strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #667eea;
+}
+
+.badge-tooltip p {
+  margin: 4px 0;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.badge-creator {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: #666;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #e9ecef;
+}
+
+/* Twitter/X specific styles */
+.twitter-timeline .internet-id-verified-badge,
+.tweet .internet-id-verified-badge {
+  margin: 8px 0;
+}
+
+/* Instagram specific styles */
+.instagram-post .internet-id-verified-badge {
+  margin: 12px 0;
+}
+
+/* GitHub specific styles */
+.repository-content .internet-id-verified-badge {
+  margin: 16px 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .internet-id-verified-badge {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+  
+  .badge-tooltip {
+    min-width: 200px;
+    font-size: 11px;
+  }
+}

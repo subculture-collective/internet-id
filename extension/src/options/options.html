@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Internet ID Verifier - Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="header-content">
+        <div class="logo">
+          <img src="../public/icons/icon48.png" alt="Internet ID" onerror="this.style.display='none'">
+          <h1>Internet ID Verifier</h1>
+        </div>
+        <div class="version">v1.0.0</div>
+      </div>
+    </header>
+
+    <main>
+      <!-- Welcome Message -->
+      <div id="welcome-banner" class="welcome-banner" style="display: none;">
+        <h2>🎉 Welcome to Internet ID Verifier!</h2>
+        <p>Thank you for installing the extension. Configure your settings below to get started.</p>
+        <button id="dismiss-welcome" class="btn btn-small">Got it</button>
+      </div>
+
+      <!-- API Configuration -->
+      <section class="settings-section">
+        <h2>API Configuration</h2>
+        <div class="form-group">
+          <label for="api-base">API Base URL</label>
+          <input type="url" id="api-base" placeholder="http://localhost:3001" />
+          <small>The URL of your Internet ID API server</small>
+        </div>
+        <div class="form-group">
+          <label for="api-key">API Key (Optional)</label>
+          <input type="password" id="api-key" placeholder="Enter your API key" />
+          <small>Required if your API server has authentication enabled</small>
+        </div>
+        <button id="test-connection" class="btn btn-secondary">Test Connection</button>
+        <div id="connection-status" class="status-message" style="display: none;"></div>
+      </section>
+
+      <!-- Verification Settings -->
+      <section class="settings-section">
+        <h2>Verification Settings</h2>
+        <div class="form-group checkbox-group">
+          <label>
+            <input type="checkbox" id="auto-verify" />
+            <span>Auto-verify content on supported platforms</span>
+          </label>
+          <small>Automatically check verification status when you visit supported platforms</small>
+        </div>
+        <div class="form-group checkbox-group">
+          <label>
+            <input type="checkbox" id="show-badges" />
+            <span>Show verification badges on pages</span>
+          </label>
+          <small>Display verification status badges directly on platform pages</small>
+        </div>
+        <div class="form-group checkbox-group">
+          <label>
+            <input type="checkbox" id="notifications-enabled" />
+            <span>Enable notifications</span>
+          </label>
+          <small>Show desktop notifications for verification status</small>
+        </div>
+      </section>
+
+      <!-- Appearance -->
+      <section class="settings-section">
+        <h2>Appearance</h2>
+        <div class="form-group">
+          <label for="theme">Theme</label>
+          <select id="theme">
+            <option value="auto">Auto (System)</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Wallet Connection -->
+      <section class="settings-section">
+        <h2>Wallet Connection</h2>
+        <div id="wallet-disconnected" style="display: block;">
+          <p>Connect your wallet to enable one-click verification and content registration.</p>
+          <button id="connect-wallet" class="btn btn-primary">Connect Wallet</button>
+        </div>
+        <div id="wallet-connected" style="display: none;">
+          <p>Wallet connected:</p>
+          <div class="wallet-info">
+            <code id="wallet-address">0x0000...0000</code>
+          </div>
+          <button id="disconnect-wallet" class="btn btn-secondary">Disconnect</button>
+        </div>
+      </section>
+
+      <!-- Privacy & Data -->
+      <section class="settings-section">
+        <h2>Privacy & Data</h2>
+        <div class="form-group">
+          <button id="clear-cache" class="btn btn-secondary">Clear Cache</button>
+          <small>Clear cached verification results (5 minute cache)</small>
+        </div>
+        <div class="form-group">
+          <button id="reset-settings" class="btn btn-danger">Reset All Settings</button>
+          <small>Reset all settings to defaults</small>
+        </div>
+      </section>
+
+      <!-- About -->
+      <section class="settings-section">
+        <h2>About</h2>
+        <p>Internet ID Verifier helps you verify human-created content across multiple platforms using blockchain technology.</p>
+        <div class="links">
+          <a href="https://github.com/subculture-collective/internet-id" target="_blank" class="btn btn-outline">
+            GitHub Repository
+          </a>
+          <a href="https://github.com/subculture-collective/internet-id/blob/main/README.md" target="_blank" class="btn btn-outline">
+            Documentation
+          </a>
+        </div>
+      </section>
+
+      <!-- Save Button -->
+      <div class="save-section">
+        <button id="save-settings" class="btn btn-primary btn-large">Save Settings</button>
+        <div id="save-status" class="status-message" style="display: none;"></div>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 Internet ID. Open source under MIT License.</p>
+    </footer>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

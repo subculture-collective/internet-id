@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Internet ID Verifier</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <img src="../public/icons/icon48.png" alt="Internet ID" onerror="this.style.display='none'">
+        <h1>Internet ID</h1>
+      </div>
+    </header>
+
+    <main>
+      <!-- Status Section -->
+      <section class="status-section">
+        <div id="loading-state" class="state">
+          <div class="spinner"></div>
+          <p>Checking verification status...</p>
+        </div>
+
+        <div id="verified-state" class="state" style="display: none;">
+          <div class="icon success">✓</div>
+          <h2>Verified Content</h2>
+          <p class="verified-message">This content has been verified on the blockchain.</p>
+          <div class="details">
+            <div class="detail-row">
+              <span class="label">Platform:</span>
+              <span class="value" id="platform-name">-</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Creator:</span>
+              <span class="value creator-address" id="creator-address">-</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Verified:</span>
+              <span class="value" id="verified-date">-</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="not-verified-state" class="state" style="display: none;">
+          <div class="icon warning">⚠</div>
+          <h2>Not Verified</h2>
+          <p>No verification found for this content.</p>
+          <button id="verify-now-btn" class="btn btn-primary">Verify Now</button>
+        </div>
+
+        <div id="unsupported-state" class="state" style="display: none;">
+          <div class="icon info">ℹ</div>
+          <h2>Unsupported Platform</h2>
+          <p>This platform is not yet supported for verification.</p>
+          <p class="small">Supported: YouTube, Twitter/X, Instagram, GitHub, TikTok, LinkedIn</p>
+        </div>
+
+        <div id="error-state" class="state" style="display: none;">
+          <div class="icon error">✕</div>
+          <h2>Error</h2>
+          <p id="error-message">Unable to check verification status.</p>
+          <button id="retry-btn" class="btn btn-secondary">Retry</button>
+        </div>
+      </section>
+
+      <!-- Actions -->
+      <section class="actions">
+        <button id="dashboard-btn" class="btn btn-outline">
+          <span>Open Dashboard</span>
+        </button>
+        <button id="refresh-btn" class="btn btn-outline">
+          <span>Refresh</span>
+        </button>
+      </section>
+
+      <!-- Quick Info -->
+      <section class="info-section">
+        <div class="info-item">
+          <span class="info-label">API Status:</span>
+          <span class="info-value" id="api-status">
+            <span class="status-dot checking"></span> Checking...
+          </span>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <button id="settings-btn" class="link-btn">Settings</button>
+      <span class="divider">•</span>
+      <a href="https://github.com/subculture-collective/internet-id" target="_blank" class="link-btn">About</a>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
