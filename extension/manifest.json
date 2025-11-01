@@ -75,7 +75,18 @@
   "web_accessible_resources": [
     {
       "resources": ["public/icons/*", "public/images/*"],
-      "matches": ["<all_urls>"]
+      "matches": [
+        "https://youtube.com/*",
+        "https://www.youtube.com/*",
+        "https://twitter.com/*",
+        "https://x.com/*",
+        "https://instagram.com/*",
+        "https://www.instagram.com/*",
+        "https://github.com/*",
+        "https://www.tiktok.com/*",
+        "https://linkedin.com/*",
+        "https://www.linkedin.com/*"
+      ]
     }
   ]
 }

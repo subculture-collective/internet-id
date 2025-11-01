@@ -5,6 +5,7 @@
 Before testing the extension, ensure you have:
 
 1. **Internet ID API Server Running**
+
    ```bash
    cd /path/to/internet-id
    npm run start:api
@@ -64,11 +65,13 @@ Before testing the extension, ensure you have:
 ### TC-1: Extension Installation
 
 **Steps:**
+
 1. Follow installation steps above
 2. Extension icon should appear in toolbar
 3. Click icon to open popup
 
 **Expected:**
+
 - Popup opens with Internet ID branding
 - Shows current page status
 - Settings and dashboard buttons visible
@@ -80,11 +83,13 @@ Before testing the extension, ensure you have:
 ### TC-2: API Connection Test
 
 **Steps:**
+
 1. Open extension settings (click icon → Settings)
 2. Enter API Base URL: `http://localhost:3001`
 3. Click "Test Connection"
 
 **Expected:**
+
 - Green "✓ Connection successful!" message appears
 - API status shows "Connected" with green dot
 
@@ -97,12 +102,14 @@ Before testing the extension, ensure you have:
 **Prerequisites:** Have a YouTube video URL registered in the system
 
 **Steps:**
+
 1. Ensure settings enabled: Auto-verify ✅, Show badges ✅
 2. Navigate to a verified YouTube video
 3. Wait for page to fully load
 4. Look below the video title
 
 **Expected:**
+
 - Purple gradient badge appears with "✓ Verified by Internet ID"
 - Hovering shows tooltip with creator address
 - Extension icon shows checkmark badge
@@ -116,11 +123,13 @@ Before testing the extension, ensure you have:
 **Prerequisites:** Have a Twitter/X post registered in the system
 
 **Steps:**
+
 1. Navigate to a verified Twitter/X post
 2. Wait for page to load
 3. Look below the tweet text
 
 **Expected:**
+
 - Verification badge appears on the post
 - Tooltip shows on hover
 - Badge stays visible on scroll
@@ -132,6 +141,7 @@ Before testing the extension, ensure you have:
 ### TC-5: Popup Verification Check
 
 **Steps:**
+
 1. Navigate to any YouTube video or Twitter post
 2. Click extension icon
 3. Wait for verification check
@@ -139,17 +149,20 @@ Before testing the extension, ensure you have:
 **Expected States:**
 
 **For Verified Content:**
+
 - Shows "Verified Content" with ✓ icon
 - Displays platform name
 - Shows creator address (truncated)
 - Shows verification date
 
 **For Unverified Content:**
+
 - Shows "Not Verified" with ⚠ icon
 - Displays "Verify Now" button
 - Button opens dashboard on click
 
 **For Unsupported Platform:**
+
 - Shows "Unsupported Platform" with ℹ icon
 - Lists supported platforms
 
@@ -160,6 +173,7 @@ Before testing the extension, ensure you have:
 ### TC-6: Settings Persistence
 
 **Steps:**
+
 1. Open settings
 2. Change theme to "Dark"
 3. Disable "Show verification badges"
@@ -167,6 +181,7 @@ Before testing the extension, ensure you have:
 5. Close and reopen settings
 
 **Expected:**
+
 - Dark theme is selected
 - "Show badges" is unchecked
 - All settings persist after browser restart
@@ -178,12 +193,14 @@ Before testing the extension, ensure you have:
 ### TC-7: Cache Functionality
 
 **Steps:**
+
 1. Navigate to a verified video
 2. Note the verification check time
 3. Refresh the page immediately
 4. Check verification status again
 
 **Expected:**
+
 - Second check is instant (from cache)
 - Badge appears immediately
 - No duplicate API calls (check Network tab)
@@ -195,6 +212,7 @@ Before testing the extension, ensure you have:
 ### TC-8: Clear Cache
 
 **Steps:**
+
 1. Navigate to verified content (badge shows)
 2. Open settings
 3. Click "Clear Cache"
@@ -202,6 +220,7 @@ Before testing the extension, ensure you have:
 5. Refresh
 
 **Expected:**
+
 - Success message: "Cache cleared (X items removed)"
 - Badge takes longer to appear (API call)
 - Verification re-fetched from server
@@ -213,10 +232,12 @@ Before testing the extension, ensure you have:
 ### TC-9: Dashboard Link
 
 **Steps:**
+
 1. Click extension icon
 2. Click "Open Dashboard" button
 
 **Expected:**
+
 - New tab opens to `http://localhost:3000/dashboard`
 - Dashboard loads correctly
 
@@ -227,11 +248,13 @@ Before testing the extension, ensure you have:
 ### TC-10: Error Handling (API Down)
 
 **Steps:**
+
 1. Stop the API server (`Ctrl+C` in terminal)
 2. Navigate to a YouTube video
 3. Click extension icon
 
 **Expected:**
+
 - Shows "Error" state with ✕ icon
 - Error message: "API request failed" or similar
 - "Retry" button available
@@ -244,12 +267,14 @@ Before testing the extension, ensure you have:
 ### TC-11: SPA Navigation (YouTube)
 
 **Steps:**
+
 1. Open any YouTube video
 2. Wait for badge to appear (if verified)
 3. Click on a recommended video (sidebar)
 4. Wait for new video to load
 
 **Expected:**
+
 - Extension detects URL change
 - Badge updates for new video
 - No page refresh needed
@@ -262,12 +287,14 @@ Before testing the extension, ensure you have:
 ### TC-12: Multiple Tabs
 
 **Steps:**
+
 1. Open verified YouTube video in Tab 1
 2. Open verified Twitter post in Tab 2
 3. Switch between tabs
 4. Click extension icon in each tab
 
 **Expected:**
+
 - Each tab shows correct platform
 - Verification status specific to that tab
 - Badges display independently
@@ -282,12 +309,14 @@ Before testing the extension, ensure you have:
 **Prerequisites:** MetaMask or similar wallet installed
 
 **Steps:**
+
 1. Open extension settings
 2. Scroll to "Wallet Connection"
 3. Click "Connect Wallet"
 4. Approve in wallet popup
 
 **Expected:**
+
 - Wallet connection prompt appears
 - After approval, shows "Wallet connected"
 - Displays connected address
@@ -300,12 +329,14 @@ Before testing the extension, ensure you have:
 ### TC-14: Reset Settings
 
 **Steps:**
+
 1. Modify several settings
 2. Connect wallet (if available)
 3. Click "Reset All Settings"
 4. Confirm in dialog
 
 **Expected:**
+
 - Confirmation dialog appears
 - All settings reset to defaults
 - Wallet disconnected
@@ -321,53 +352,59 @@ Before testing the extension, ensure you have:
 Test the extension in multiple Chromium-based browsers:
 
 ### Chrome
-- Version: _______
-- OS: _______
+
+- Version: **\_\_\_**
+- OS: **\_\_\_**
 - Status: ⬜ Pass ⬜ Fail
-- Notes: _______________
+- Notes: ******\_\_\_******
 
 ### Edge
-- Version: _______
-- OS: _______
+
+- Version: **\_\_\_**
+- OS: **\_\_\_**
 - Status: ⬜ Pass ⬜ Fail
-- Notes: _______________
+- Notes: ******\_\_\_******
 
 ### Brave
-- Version: _______
-- OS: _______
+
+- Version: **\_\_\_**
+- OS: **\_\_\_**
 - Status: ⬜ Pass ⬜ Fail
-- Notes: _______________
+- Notes: ******\_\_\_******
 
 ## Performance Testing
 
 ### Load Time
-- Extension loads in: ______ ms
-- Popup opens in: ______ ms
-- Badge injection time: ______ ms
+
+- Extension loads in: **\_\_** ms
+- Popup opens in: **\_\_** ms
+- Badge injection time: **\_\_** ms
 
 ### Memory Usage
-- Extension memory: ______ MB
+
+- Extension memory: **\_\_** MB
 - Acceptable: < 50 MB
 
 ### Network Requests
-- API calls per page: ______
+
+- API calls per page: **\_\_**
 - Acceptable: ≤ 1 per page load (with cache)
 
 ## Known Issues
 
 Document any issues found during testing:
 
-1. **Issue**: _______________
+1. **Issue**: ******\_\_\_******
    - **Severity**: Critical / High / Medium / Low
-   - **Steps to Reproduce**: _______________
-   - **Expected**: _______________
-   - **Actual**: _______________
+   - **Steps to Reproduce**: ******\_\_\_******
+   - **Expected**: ******\_\_\_******
+   - **Actual**: ******\_\_\_******
 
-2. **Issue**: _______________
+2. **Issue**: ******\_\_\_******
    - **Severity**: Critical / High / Medium / Low
-   - **Steps to Reproduce**: _______________
-   - **Expected**: _______________
-   - **Actual**: _______________
+   - **Steps to Reproduce**: ******\_\_\_******
+   - **Expected**: ******\_\_\_******
+   - **Actual**: ******\_\_\_******
 
 ## Troubleshooting
 
@@ -376,6 +413,7 @@ Document any issues found during testing:
 **Problem:** Extension doesn't appear after loading unpacked
 
 **Solutions:**
+
 1. Check browser console for errors (`F12`)
 2. Verify manifest.json is valid
 3. Try removing and re-adding extension
@@ -386,6 +424,7 @@ Document any issues found during testing:
 **Problem:** Verification badge doesn't show on verified content
 
 **Solutions:**
+
 1. Check "Show badges" is enabled in settings
 2. Verify API is running and accessible
 3. Check browser console for errors
@@ -397,6 +436,7 @@ Document any issues found during testing:
 **Problem:** Extension popup shows error state
 
 **Solutions:**
+
 1. Test API connection in settings
 2. Check API server is running
 3. Verify API URL is correct
@@ -408,6 +448,7 @@ Document any issues found during testing:
 **Problem:** Badge appears in wrong location or overlaps content
 
 **Solutions:**
+
 1. Platform UI may have changed
 2. Check browser console for injection errors
 3. Report issue with platform and browser version
@@ -431,20 +472,24 @@ Report to: https://github.com/subculture-collective/internet-id/issues
 
 ## Test Summary
 
-**Tester**: _______________
-**Date**: _______________
-**Browser**: _______________
-**OS**: _______________
+**Tester**: ******\_\_\_******
+**Date**: ******\_\_\_******
+**Browser**: ******\_\_\_******
+**OS**: ******\_\_\_******
 
 **Results:**
+
 - Total Tests: 14
-- Passed: ______
-- Failed: ______
-- Blocked: ______
+- Passed: **\_\_**
+- Failed: **\_\_**
+- Blocked: **\_\_**
 
 **Overall Status:** ⬜ Pass ⬜ Fail ⬜ Needs Improvement
 
 **Notes:**
-_______________________________________________
-_______________________________________________
-_______________________________________________
+
+---
+
+---
+
+---

@@ -103,19 +103,45 @@ function addBadgeToTweet(tweetElement, verificationData) {
     return;
   }
 
+  // Create badge element safely (no innerHTML to prevent XSS)
   const badge = document.createElement("div");
   badge.className = "internet-id-verified-badge";
-  badge.innerHTML = `
-    <div class="badge-content">
-      <span class="badge-icon">✓</span>
-      <span class="badge-text">Verified</span>
-    </div>
-    <div class="badge-tooltip">
-      <strong>Content Verified</strong>
-      <p>This content has been registered on the blockchain.</p>
-      <p class="badge-creator">Creator: ${truncateAddress(verificationData.creator)}</p>
-    </div>
-  `;
+
+  // Create badge content
+  const badgeContent = document.createElement("div");
+  badgeContent.className = "badge-content";
+
+  const badgeIcon = document.createElement("span");
+  badgeIcon.className = "badge-icon";
+  badgeIcon.textContent = "✓";
+
+  const badgeText = document.createElement("span");
+  badgeText.className = "badge-text";
+  badgeText.textContent = "Verified";
+
+  badgeContent.appendChild(badgeIcon);
+  badgeContent.appendChild(badgeText);
+
+  // Create tooltip
+  const tooltip = document.createElement("div");
+  tooltip.className = "badge-tooltip";
+
+  const tooltipTitle = document.createElement("strong");
+  tooltipTitle.textContent = "Content Verified";
+
+  const tooltipDesc = document.createElement("p");
+  tooltipDesc.textContent = "This content has been registered on the blockchain.";
+
+  const tooltipCreator = document.createElement("p");
+  tooltipCreator.className = "badge-creator";
+  tooltipCreator.textContent = `Creator: ${truncateAddress(verificationData.creator)}`;
+
+  tooltip.appendChild(tooltipTitle);
+  tooltip.appendChild(tooltipDesc);
+  tooltip.appendChild(tooltipCreator);
+
+  badge.appendChild(badgeContent);
+  badge.appendChild(tooltip);
 
   // Insert after tweet text
   tweetText.parentElement.insertBefore(badge, tweetText.nextSibling);

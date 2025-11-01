@@ -124,12 +124,15 @@ async function handleVerification(data) {
       headers["x-api-key"] = apiKey;
     }
 
-    const response = await fetch(
-      `${apiBase}/api/resolve?platform=${platform}&platformId=${platformId}`,
-      {
-        headers,
-      }
-    );
+    // Use URLSearchParams for proper URL encoding
+    const params = new URLSearchParams({
+      platform: platform,
+      platformId: platformId,
+    });
+
+    const response = await fetch(`${apiBase}/api/resolve?${params}`, {
+      headers,
+    });
 
     if (!response.ok) {
       throw new Error(`API request failed: ${response.status}`);
