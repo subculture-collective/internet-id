@@ -14,6 +14,7 @@ This document summarizes the implementation of structured logging and observabil
 **Requirement:** Adopt a structured logger (pino/winston) across Express, workers, and scripts with correlation IDs.
 
 **Implementation:**
+
 - **Logger:** Pino (high-performance JSON logger)
 - **Location:** `scripts/services/logger.service.ts`
 - **Features:**
@@ -25,16 +26,17 @@ This document summarizes the implementation of structured logging and observabil
   - Configurable log levels (trace, debug, info, warn, error, fatal)
 
 **Usage Example:**
+
 ```typescript
-import { logger } from './services/logger.service';
+import { logger } from "./services/logger.service";
 
 // Simple log
-logger.info('User registered successfully');
+logger.info("User registered successfully");
 
 // Log with context
-logger.info('File uploaded', {
-  userId: '123',
-  filename: 'video.mp4',
+logger.info("File uploaded", {
+  userId: "123",
+  filename: "video.mp4",
   size: 1024000,
 });
 
@@ -47,6 +49,7 @@ logger.info('File uploaded', {
 **Requirement:** Ship logs to a central destination (e.g., Logtail, Datadog, or self-hosted ELK) with retention and filtering.
 
 **Implementation:**
+
 - **Configuration:** Environment variables in `.env`
 - **Destinations Documented:**
   - Logtail (BetterStack) - Cloud-based log management
@@ -57,6 +60,7 @@ logger.info('File uploaded', {
 - **Location:** Configuration examples in `docs/OBSERVABILITY.md`
 
 **Configuration Example:**
+
 ```bash
 # .env
 LOG_LEVEL=info
@@ -68,6 +72,7 @@ LOGTAIL_SOURCE_TOKEN=your_token_here
 **Requirement:** Expose basic service health metrics (request latency, queue depth, verification outcomes) via Prometheus/OpenTelemetry export.
 
 **Implementation:**
+
 - **Metrics Service:** `scripts/services/metrics.service.ts`
 - **Endpoints:**
   - `GET /api/metrics` - Prometheus scrape format
@@ -75,6 +80,7 @@ LOGTAIL_SOURCE_TOKEN=your_token_here
   - `GET /api/health` - Enhanced health check
 
 **Metrics Tracked:**
+
 - HTTP request duration (histogram with P50/P95/P99)
 - HTTP request count (by method, route, status)
 - Active connections (gauge)
@@ -85,13 +91,14 @@ LOGTAIL_SOURCE_TOKEN=your_token_here
 - Node.js process metrics (CPU, memory, GC, event loop)
 
 **Prometheus Configuration:**
+
 ```yaml
 scrape_configs:
-  - job_name: 'internet-id-api'
+  - job_name: "internet-id-api"
     scrape_interval: 15s
     static_configs:
-      - targets: ['localhost:3001']
-    metrics_path: '/api/metrics'
+      - targets: ["localhost:3001"]
+    metrics_path: "/api/metrics"
 ```
 
 ### ✅ 4. Documentation
@@ -99,11 +106,13 @@ scrape_configs:
 **Requirement:** Document how to access logs/metrics, and link back to roadmap issue #10 Ops bucket.
 
 **Implementation:**
+
 - **Main Guide:** `docs/OBSERVABILITY.md` (14KB comprehensive reference)
 - **Quick Start:** `docs/ops/OBSERVABILITY_QUICKSTART.md` (11KB setup guide)
 - **README Updates:** Added observability section with links
 
 **Documentation Covers:**
+
 - Structured logging with Pino
 - Metrics collection with Prometheus
 - Health check configuration
@@ -188,11 +197,11 @@ package.json                        # New dependencies
 
 ## Dependencies Added
 
-| Package | Version | Purpose |
-|---------|---------|---------|
-| pino | 10.1.0 | High-performance JSON logger |
-| pino-pretty | 13.1.2 | Pretty-print logs in development |
-| prom-client | 15.1.3 | Prometheus metrics client |
+| Package     | Version | Purpose                          |
+| ----------- | ------- | -------------------------------- |
+| pino        | 10.1.0  | High-performance JSON logger     |
+| pino-pretty | 13.1.2  | Pretty-print logs in development |
+| prom-client | 15.1.3  | Prometheus metrics client        |
 
 **Security:** ✅ No vulnerabilities found in new dependencies
 
@@ -203,6 +212,7 @@ package.json                        # New dependencies
 Enhanced health check with service status.
 
 **Response (200 OK):**
+
 ```json
 {
   "status": "ok",
@@ -217,6 +227,7 @@ Enhanced health check with service status.
 ```
 
 **Response (503 Service Unavailable):**
+
 ```json
 {
   "status": "degraded",
@@ -235,6 +246,7 @@ Enhanced health check with service status.
 Prometheus-format metrics for scraping.
 
 **Response (200 OK - text/plain):**
+
 ```
 # HELP http_request_duration_seconds Duration of HTTP requests in seconds
 # TYPE http_request_duration_seconds histogram
@@ -248,6 +260,7 @@ http_request_duration_seconds_bucket{le="0.01",method="GET",route="/api/health",
 Human-readable metrics in JSON format.
 
 **Response (200 OK):**
+
 ```json
 [
   {
@@ -256,7 +269,7 @@ Human-readable metrics in JSON format.
     "help": "Total number of HTTP requests",
     "values": [
       {
-        "labels": {"method": "GET", "route": "/api/health", "status_code": "200"},
+        "labels": { "method": "GET", "route": "/api/health", "status_code": "200" },
         "value": 1234
       }
     ]
@@ -288,6 +301,7 @@ ELASTICSEARCH_PASSWORD=             # ELK authentication
 ### Manual Testing Performed
 
 ✅ **Logger Service:**
+
 - Structured logs generated correctly
 - Correlation IDs unique per request
 - Context propagates through child loggers
@@ -296,6 +310,7 @@ ELASTICSEARCH_PASSWORD=             # ELK authentication
 - Log levels respect configuration
 
 ✅ **Metrics Service:**
+
 - Metrics recorded accurately
 - Prometheus format valid
 - JSON format correct
@@ -304,6 +319,7 @@ ELASTICSEARCH_PASSWORD=             # ELK authentication
 - Gauges track current values
 
 ✅ **Health Endpoint:**
+
 - Database check works
 - Cache check works
 - Blockchain check works
@@ -311,6 +327,7 @@ ELASTICSEARCH_PASSWORD=             # ELK authentication
 - Response format valid
 
 ✅ **Middleware:**
+
 - Request logging captures all requests
 - Correlation IDs generated
 - Metrics tracked automatically
@@ -321,6 +338,7 @@ ELASTICSEARCH_PASSWORD=             # ELK authentication
 ### Integration Testing
 
 ✅ **End-to-End:**
+
 - API starts successfully
 - Logs appear in stdout
 - Metrics endpoint accessible
@@ -331,16 +349,19 @@ ELASTICSEARCH_PASSWORD=             # ELK authentication
 ## Performance Impact
 
 **Logging:**
+
 - Pino is extremely fast (minimal overhead)
 - Async logging available for even better performance
 - No noticeable impact on response times
 
 **Metrics:**
+
 - Minimal overhead for counters and gauges
 - Histograms slightly more expensive but negligible
 - No impact on normal operation
 
 **Memory:**
+
 - Pino: ~5MB additional memory
 - prom-client: ~2MB additional memory
 - Total impact: <10MB
@@ -348,6 +369,7 @@ ELASTICSEARCH_PASSWORD=             # ELK authentication
 ## Security Considerations
 
 ✅ **Sensitive Data Protection:**
+
 - Passwords automatically redacted from logs
 - Tokens automatically redacted from logs
 - API keys automatically redacted from logs
@@ -355,11 +377,13 @@ ELASTICSEARCH_PASSWORD=             # ELK authentication
 - Custom redaction rules configurable
 
 ✅ **Metrics Security:**
+
 - No PII exposed in metrics
 - No sensitive business data in labels
 - Metrics endpoint should be firewall-protected in production
 
 ✅ **Health Check:**
+
 - No sensitive information disclosed
 - Safe to expose publicly
 - Returns only service status
@@ -393,19 +417,19 @@ spec:
   template:
     spec:
       containers:
-      - name: api
-        env:
-        - name: LOG_LEVEL
-          value: "info"
-        livenessProbe:
-          httpGet:
-            path: /api/health
-            port: 3001
-          initialDelaySeconds: 30
-        readinessProbe:
-          httpGet:
-            path: /api/health
-            port: 3001
+        - name: api
+          env:
+            - name: LOG_LEVEL
+              value: "info"
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3001
+            initialDelaySeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3001
 ```
 
 ### Monitoring Stack
@@ -517,9 +541,10 @@ This implementation provides a production-ready observability foundation for Int
 ✅ Comprehensive documentation
 
 The system is now ready for:
+
 - Production deployment
 - Incident response
-- Performance monitoring  
+- Performance monitoring
 - Capacity planning
 - Automated alerting
 

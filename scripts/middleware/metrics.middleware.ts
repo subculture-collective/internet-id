@@ -13,17 +13,12 @@ export function metricsMiddleware() {
     res.send = function (data: any) {
       // Restore original send first to prevent recursion
       res.send = originalSend;
-      
+
       const durationSeconds = (Date.now() - startTime) / 1000;
       const route = req.route?.path || req.path || "unknown";
-      
+
       // Record HTTP request metrics
-      metricsService.recordHttpRequest(
-        req.method,
-        route,
-        res.statusCode,
-        durationSeconds
-      );
+      metricsService.recordHttpRequest(req.method, route, res.statusCode, durationSeconds);
 
       return originalSend.call(this, data);
     };

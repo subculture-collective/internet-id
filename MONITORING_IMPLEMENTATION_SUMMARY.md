@@ -35,6 +35,7 @@ This document summarizes the implementation of production monitoring and alertin
   - Enables alerting on service health status
 
 **Files:**
+
 - `scripts/routes/health.routes.ts` - Enhanced health check endpoint
 - `ops/monitoring/prometheus/prometheus.yml` - Prometheus scrape configuration
 - `ops/monitoring/blackbox/blackbox.yml` - External endpoint monitoring
@@ -71,6 +72,7 @@ This document summarizes the implementation of production monitoring and alertin
   - Inhibition rules to suppress duplicate alerts
 
 **Files:**
+
 - `ops/monitoring/alertmanager/alertmanager.yml` - Alert routing configuration
 - `.env.example` - Alerting channel configuration variables
 
@@ -83,42 +85,51 @@ This document summarizes the implementation of production monitoring and alertin
 **Implementation:** 20+ comprehensive alert rules covering all required scenarios:
 
 #### Service Availability
+
 - **ServiceDown**: Service unreachable for >2 minutes (2 consecutive failures) ✅
 - **WebServiceDown**: Web service unreachable for >2 minutes ✅
 - **DatabaseDown**: Database unreachable for >1 minute ✅
 
 #### High Error Rates
+
 - **HighErrorRate**: >5% of requests failing in 5-minute window ✅
 - **CriticalErrorRate**: >10% of requests failing in 2-minute window ✅
 
 #### Queue Depth (ready for future implementation)
+
 - **HighQueueDepth**: >100 pending jobs for >5 minutes ✅
 - **CriticalQueueDepth**: >500 pending jobs for >2 minutes ✅
 
 #### Database Connection Pool
+
 - **DatabaseConnectionPoolExhaustion**: >80% connections used ✅
 - **DatabaseConnectionPoolCritical**: >95% connections used (critical) ✅
 - **HighDatabaseLatency**: P95 query latency >1 second ✅
 
 #### IPFS Upload Failures
+
 - **HighIpfsFailureRate**: >20% upload failure rate ✅
 - **CriticalIpfsFailureRate**: >50% upload failure rate (critical) ✅
 
 #### Contract Transaction Failures
+
 - **BlockchainTransactionFailures**: >10% transaction failure rate ✅
 - **BlockchainRPCDown**: >50% of blockchain requests failing ✅
 
 #### Performance & Resources
+
 - **HighResponseTime**: P95 response time >5 seconds ✅
 - **HighMemoryUsage**: >85% memory used (warning) ✅
 - **CriticalMemoryUsage**: >95% memory used (critical) ✅
 - **HighCPUUsage**: CPU >80% for >5 minutes ✅
 
 #### Cache
+
 - **RedisDown**: Redis unreachable for >2 minutes ✅
 - **LowCacheHitRate**: Cache hit rate <50% for >10 minutes ✅
 
 **Files:**
+
 - `ops/monitoring/prometheus/alerts.yml` - Alert rule definitions
 
 ---
@@ -138,6 +149,7 @@ This document summarizes the implementation of production monitoring and alertin
   - Response time and uptime metrics
 
 - **Health Check Response Format**:
+
   ```json
   {
     "status": "ok",
@@ -155,6 +167,7 @@ This document summarizes the implementation of production monitoring and alertin
   - `health_check_status{service, status}` gauge
 
 **Files:**
+
 - `scripts/routes/health.routes.ts` - Health check implementation
 - `scripts/services/metrics.service.ts` - Health check metrics
 
@@ -188,6 +201,7 @@ This document summarizes the implementation of production monitoring and alertin
   - Automatic correlation with logs
 
 **Files:**
+
 - `scripts/services/sentry.service.ts` - Sentry service implementation
 - `scripts/app.ts` - Sentry middleware integration
 - `package.json` - Sentry dependencies (@sentry/node, @sentry/profiling-node)
@@ -227,6 +241,7 @@ This document summarizes the implementation of production monitoring and alertin
   - Post-mortem process
 
 **Files:**
+
 - `docs/ops/ALERTING_RUNBOOK.md` - Comprehensive incident response guide
 
 ---
@@ -278,22 +293,22 @@ This document summarizes the implementation of production monitoring and alertin
 
 #### Application Metrics (from API)
 
-| Metric | Type | Labels | Description |
-|--------|------|--------|-------------|
-| `http_request_duration_seconds` | Histogram | method, route, status_code | Request latency (P50/P95/P99) |
-| `http_requests_total` | Counter | method, route, status_code | Total HTTP requests |
-| `verification_total` | Counter | outcome, platform | Verification outcomes |
-| `verification_duration_seconds` | Histogram | outcome, platform | Verification duration |
-| `ipfs_uploads_total` | Counter | provider, status | IPFS upload outcomes |
-| `ipfs_upload_duration_seconds` | Histogram | provider | IPFS upload duration |
-| `blockchain_transactions_total` | Counter | operation, status, chain_id | Blockchain transactions |
-| `blockchain_transaction_duration_seconds` | Histogram | operation, chain_id | Transaction duration |
-| `cache_hits_total` | Counter | cache_type | Cache hits |
-| `cache_misses_total` | Counter | cache_type | Cache misses |
-| `db_query_duration_seconds` | Histogram | operation, table | Database query duration |
-| `health_check_status` | Gauge | service, status | Service health status |
-| `queue_depth` | Gauge | queue_name | Queue depth (future) |
-| `active_connections` | Gauge | - | Active connections |
+| Metric                                    | Type      | Labels                      | Description                   |
+| ----------------------------------------- | --------- | --------------------------- | ----------------------------- |
+| `http_request_duration_seconds`           | Histogram | method, route, status_code  | Request latency (P50/P95/P99) |
+| `http_requests_total`                     | Counter   | method, route, status_code  | Total HTTP requests           |
+| `verification_total`                      | Counter   | outcome, platform           | Verification outcomes         |
+| `verification_duration_seconds`           | Histogram | outcome, platform           | Verification duration         |
+| `ipfs_uploads_total`                      | Counter   | provider, status            | IPFS upload outcomes          |
+| `ipfs_upload_duration_seconds`            | Histogram | provider                    | IPFS upload duration          |
+| `blockchain_transactions_total`           | Counter   | operation, status, chain_id | Blockchain transactions       |
+| `blockchain_transaction_duration_seconds` | Histogram | operation, chain_id         | Transaction duration          |
+| `cache_hits_total`                        | Counter   | cache_type                  | Cache hits                    |
+| `cache_misses_total`                      | Counter   | cache_type                  | Cache misses                  |
+| `db_query_duration_seconds`               | Histogram | operation, table            | Database query duration       |
+| `health_check_status`                     | Gauge     | service, status             | Service health status         |
+| `queue_depth`                             | Gauge     | queue_name                  | Queue depth (future)          |
+| `active_connections`                      | Gauge     | -                           | Active connections            |
 
 #### Infrastructure Metrics
 
@@ -341,10 +356,10 @@ internet-id/
 
 ## Dependencies Added
 
-| Package | Version | Purpose |
-|---------|---------|---------|
-| @sentry/node | ^7.119.0 | Backend error tracking |
-| @sentry/profiling-node | ^7.119.0 | Performance profiling |
+| Package                | Version  | Purpose                |
+| ---------------------- | -------- | ---------------------- |
+| @sentry/node           | ^7.119.0 | Backend error tracking |
+| @sentry/profiling-node | ^7.119.0 | Performance profiling  |
 
 All other monitoring tools run as Docker containers (no additional Node dependencies).
 
@@ -389,17 +404,20 @@ GRAFANA_ADMIN_PASSWORD=changeme_strong_password
 ### Quick Start
 
 1. **Configure environment variables**:
+
    ```bash
    cp .env.example .env.monitoring
    # Edit .env.monitoring with your credentials
    ```
 
 2. **Start monitoring stack**:
+
    ```bash
    docker compose -f docker-compose.monitoring.yml up -d
    ```
 
 3. **Verify services**:
+
    ```bash
    docker compose -f docker-compose.monitoring.yml ps
    ```
@@ -428,17 +446,20 @@ docker compose -f docker-compose.monitoring.yml up -d
 ### Manual Testing Performed
 
 ✅ **Code Compilation:**
+
 - All TypeScript compiles successfully
 - No type errors
 - Linting issues resolved
 
 ✅ **Service Integration:**
+
 - Sentry service initializes correctly
 - Metrics service enhanced with new metrics
 - Health check endpoint exports metrics
 - Express middleware integration complete
 
 ✅ **Configuration Files:**
+
 - Prometheus configuration validated
 - Alert rules syntax correct
 - Alertmanager routing validated
@@ -449,21 +470,25 @@ docker compose -f docker-compose.monitoring.yml up -d
 Test checklist for deployment:
 
 1. **Health Checks:**
+
    ```bash
    curl http://localhost:3001/api/health
    ```
 
 2. **Metrics Endpoint:**
+
    ```bash
    curl http://localhost:3001/api/metrics
    ```
 
 3. **Prometheus Targets:**
+
    ```bash
    curl http://localhost:9090/api/v1/targets
    ```
 
 4. **Alert Rules:**
+
    ```bash
    curl http://localhost:9090/api/v1/rules
    ```
@@ -509,6 +534,7 @@ Test checklist for deployment:
 ## Security Considerations
 
 ✅ **Sensitive Data Protection:**
+
 - Sentry automatically redacts authorization headers
 - API keys filtered from error reports
 - Passwords and tokens never logged
@@ -516,12 +542,14 @@ Test checklist for deployment:
 - PagerDuty/Slack keys not committed to repository
 
 ✅ **Metrics Security:**
+
 - No PII in metric labels
 - No sensitive business data exposed
 - Metrics endpoint should be firewall-protected in production
 - Internal network only for monitoring services
 
 ✅ **Alert Security:**
+
 - Alert messages don't include sensitive data
 - Runbook links to internal documentation
 - PagerDuty/Slack use secure webhooks
@@ -613,6 +641,7 @@ This implementation provides a production-ready monitoring and alerting infrastr
 ✅ Alerting runbook with triage and escalation procedures
 
 The system is now ready for:
+
 - Production deployment
 - Incident response
 - Proactive issue detection

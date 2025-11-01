@@ -31,9 +31,9 @@ router.get("/health", async (_req: Request, res: Response) => {
       checks.services.database = { status: "healthy" };
       metricsService.updateHealthCheckStatus("database", "healthy", true);
     } catch (dbError: any) {
-      checks.services.database = { 
-        status: "unhealthy", 
-        error: dbError.message 
+      checks.services.database = {
+        status: "unhealthy",
+        error: dbError.message,
       };
       checks.status = "degraded";
       metricsService.updateHealthCheckStatus("database", "unhealthy", false);
@@ -45,7 +45,11 @@ router.get("/health", async (_req: Request, res: Response) => {
       status: cacheAvailable ? "healthy" : "disabled",
       enabled: cacheAvailable,
     };
-    metricsService.updateHealthCheckStatus("cache", cacheAvailable ? "healthy" : "degraded", cacheAvailable);
+    metricsService.updateHealthCheckStatus(
+      "cache",
+      cacheAvailable ? "healthy" : "degraded",
+      cacheAvailable
+    );
 
     // Check blockchain RPC connectivity
     try {

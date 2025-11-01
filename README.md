@@ -17,6 +17,7 @@ This repo scaffolds a minimal on-chain content provenance flow:
 - **Architecture Overview:** See [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) for system design and component interactions
 - **Plain-English Pitch:** [PITCH.md](./PITCH.md) explains the problem and solution
 - **Accessibility:** See [web/ACCESSIBILITY.md](./web/ACCESSIBILITY.md) for WCAG 2.1 AA conformance and [web/ACCESSIBILITY_TESTING.md](./web/ACCESSIBILITY_TESTING.md) for testing guide
+- **Browser Extension:** See [extension/README.md](./extension/README.md) for the browser extension that provides seamless verification on YouTube, Twitter, and other platforms
 
 ## Stack
 
@@ -30,6 +31,7 @@ This repo scaffolds a minimal on-chain content provenance flow:
 - **Redis caching layer** for improved performance (optional, see [docs/CACHING_ARCHITECTURE.md](./docs/CACHING_ARCHITECTURE.md))
 - Next.js App Router web UI (optional)
 - NextAuth for sign-in (GitHub/Google to start), Prisma adapter
+- **Browser Extension** for one-click verification on supported platforms (Chrome, Firefox, Safari - see [extension/README.md](./extension/README.md))
 
 ## Security
 
@@ -322,7 +324,7 @@ npm run deploy:ethereum  # Ethereum mainnet (high cost, high security)
 
 2. Upload your content and manifest
 
-```
+````
 
 ## Docker Deployment
 
@@ -339,7 +341,7 @@ docker compose -f docker-compose.staging.yml up -d
 
 # Production environment
 docker compose -f docker-compose.production.yml up -d
-```
+````
 
 ### Container Images
 
@@ -371,13 +373,13 @@ Set one of the following in `.env` before uploading. By default, the uploader tr
 - Infura IPFS: `IPFS_API_URL`, `IPFS_PROJECT_ID`, `IPFS_PROJECT_SECRET`
 - Web3.Storage: `WEB3_STORAGE_TOKEN`
 - Pinata: `PINATA_JWT`
- - Local IPFS node: `IPFS_PROVIDER=local` and (optionally) `IPFS_API_URL=http://127.0.0.1:5001`
-  - Note: If both Web3.Storage and Pinata are set, Web3.Storage is attempted first. 5xx errors automatically trigger fallback.
+- Local IPFS node: `IPFS_PROVIDER=local` and (optionally) `IPFS_API_URL=http://127.0.0.1:5001`
+- Note: If both Web3.Storage and Pinata are set, Web3.Storage is attempted first. 5xx errors automatically trigger fallback.
 
 Force a specific provider (optional)
 
 - Set `IPFS_PROVIDER=web3storage|pinata|infura` in `.env` to force the uploader to use one provider only (no fallback). Helpful while debugging credentials.
- - For local node usage, set `IPFS_PROVIDER=local`.
+- For local node usage, set `IPFS_PROVIDER=local`.
 
 Troubleshooting
 
@@ -539,7 +541,7 @@ curl -H "x-api-key: $API_KEY" -F file=@./video.mp4 \
  -F registryAddress=0x... -F manifestURI=ipfs://... \
  http://localhost:3001/api/register
 
-````
+```
 
 ## Performance & Caching
 
@@ -563,7 +565,7 @@ The API includes an optional Redis-based caching layer to improve performance an
 
 ```bash
 docker compose up -d redis
-````
+```
 
 2. Set Redis URL in `.env`:
 
@@ -914,6 +916,39 @@ console.log(result.creator); // Creator's Ethereum address
 - ✅ Automatic rate limiting and error handling
 
 **Documentation:** [SDK README](./sdk/typescript/README.md)
+
+### Browser Extension
+
+Seamless verification workflow without leaving the platform. One-click verification improves UX and conversion significantly.
+
+**Installation:**
+
+- **Chrome/Edge/Brave**: Load unpacked from `extension/` directory (developer mode)
+- **Coming Soon**: Chrome Web Store, Firefox Add-ons, Safari Extensions
+
+**Features:**
+
+- ✅ Platform detection (YouTube, Twitter/X, Instagram, GitHub, TikTok, LinkedIn)
+- ✅ One-click verification from extension popup
+- ✅ Verification badges displayed directly on platform pages
+- ✅ Quick access to Internet ID dashboard
+- ✅ Wallet connection for signing and registration
+- ✅ Privacy-conscious with 5-minute cache and local storage only
+- ✅ Configurable auto-verify and badge display settings
+
+**How It Works:**
+
+1. Install extension in your browser
+2. Configure API endpoint in settings
+3. Visit supported platform (e.g., YouTube video)
+4. Extension automatically checks verification status
+5. Verified content displays a badge
+6. Click extension icon for details or to verify new content
+
+**Documentation:**
+
+- [Browser Extension README](./extension/README.md) - Installation and usage
+- [Extension Architecture](./docs/BROWSER_EXTENSION.md) - Technical design and development
 
 ### Public API
 

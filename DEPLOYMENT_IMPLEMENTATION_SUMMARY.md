@@ -9,6 +9,7 @@ October 31, 2025
 ## Overview
 
 Implemented a complete staging and production deployment pipeline with:
+
 - Containerized services using Docker
 - Automated CI/CD workflows with GitHub Actions
 - Comprehensive documentation and operational guides
@@ -20,6 +21,7 @@ Implemented a complete staging and production deployment pipeline with:
 ### ✅ 1. Containerize backend and web services with twelve-factor configuration
 
 **Completed:**
+
 - Created multi-stage Dockerfile for Next.js web application (`web/Dockerfile`)
 - Enhanced API Dockerfile with multi-stage builds (`Dockerfile.api`)
 - Added `.dockerignore` files for optimized builds
@@ -28,6 +30,7 @@ Implemented a complete staging and production deployment pipeline with:
 - No hardcoded secrets or configuration values
 
 **Files Created:**
+
 - `web/Dockerfile` - Next.js application container
 - `Dockerfile.api` - Express API container (enhanced)
 - `.dockerignore` - Root exclusions
@@ -35,6 +38,7 @@ Implemented a complete staging and production deployment pipeline with:
 - `web/next.config.mjs` - Updated with standalone output
 
 **Key Features:**
+
 - Multi-stage builds reduce image size by 60%+
 - Non-root user for security
 - Health checks for all services
@@ -43,18 +47,21 @@ Implemented a complete staging and production deployment pipeline with:
 ### ✅ 2. Create staging environment pipeline
 
 **Completed:**
+
 - GitHub Actions workflow for automatic staging deployment
 - Database migrations run automatically on deployment
 - Optional fixture seeding for staging data
 - Comprehensive smoke tests validate deployment
 
 **Files Created:**
+
 - `.github/workflows/deploy-staging.yml` - Staging CI/CD pipeline
 - `docker-compose.staging.yml` - Staging environment configuration
 - `scripts/smoke-test.sh` - Automated validation script
 - `ops/nginx/conf.d/staging.conf.template` - Nginx configuration
 
 **Workflow Features:**
+
 - Automatic deployment on merge to `main` branch
 - Pre-deployment: Linting, testing, and building
 - Deployment: Database migrations, seeding, container orchestration
@@ -62,6 +69,7 @@ Implemented a complete staging and production deployment pipeline with:
 - Rollback on failure
 
 **Deployment Process:**
+
 1. Code merged to `main` branch
 2. CI runs tests and builds
 3. Docker images pushed to registry
@@ -74,6 +82,7 @@ Implemented a complete staging and production deployment pipeline with:
 ### ✅ 3. Implement production deployment workflow
 
 **Completed:**
+
 - GitHub Actions workflow with manual approval gates
 - Pre-deployment validation
 - Blue-green deployment for zero downtime
@@ -81,11 +90,13 @@ Implemented a complete staging and production deployment pipeline with:
 - Comprehensive rollback guidance
 
 **Files Created:**
+
 - `.github/workflows/deploy-production.yml` - Production CI/CD pipeline
 - `docker-compose.production.yml` - Production environment configuration
 - `ops/nginx/conf.d/production.conf.template` - Nginx configuration
 
 **Workflow Features:**
+
 - Manual trigger only (no auto-deploy)
 - Version tagging for deployments
 - Pre-deployment validation checks
@@ -96,6 +107,7 @@ Implemented a complete staging and production deployment pipeline with:
 - Automatic rollback on failure
 
 **Deployment Process:**
+
 1. Initiate deployment via GitHub Actions UI
 2. Specify version tag (e.g., v1.0.0)
 3. Pre-deployment validation
@@ -110,6 +122,7 @@ Implemented a complete staging and production deployment pipeline with:
 12. Rollback if any step fails
 
 **Rollback Options:**
+
 - **Automatic**: Triggered on deployment failure
 - **Quick Rollback**: Code-only, no database changes
 - **Full Rollback**: Code + database restore
@@ -118,6 +131,7 @@ Implemented a complete staging and production deployment pipeline with:
 ### ✅ 4. Capture deployment playbook and environment variable contract
 
 **Completed:**
+
 - Comprehensive deployment playbook with step-by-step procedures
 - Complete environment variables reference with descriptions
 - Quick start guide for common deployment tasks
@@ -125,12 +139,14 @@ Implemented a complete staging and production deployment pipeline with:
 - Referenced roadmap issue #10
 
 **Files Created:**
+
 - `docs/ops/DEPLOYMENT_PLAYBOOK.md` - Complete deployment guide (13.5KB)
 - `docs/ops/ENVIRONMENT_VARIABLES.md` - Environment variable reference (12KB)
 - `docs/ops/DEPLOYMENT_QUICKSTART.md` - Quick reference guide (6.5KB)
 - `README.md` - Updated with Docker deployment section
 
 **Documentation Coverage:**
+
 - Infrastructure requirements
 - Server preparation and setup
 - Environment configuration (staging/production)
@@ -145,7 +161,9 @@ Implemented a complete staging and production deployment pipeline with:
 ## Additional Enhancements
 
 ### Docker Scripts
+
 Added npm scripts for easier Docker operations:
+
 ```bash
 npm run docker:build:api      # Build API image
 npm run docker:build:web      # Build web image
@@ -159,7 +177,9 @@ npm run smoke-test           # Run smoke tests
 ```
 
 ### Smoke Test Script
+
 Automated validation script that tests:
+
 - API health endpoint
 - API network connectivity
 - API registry endpoint
@@ -171,6 +191,7 @@ Automated validation script that tests:
 ### Environment Configurations
 
 **Staging Configuration:**
+
 - 1 replica per service
 - 7-day backup retention
 - Debug logging enabled
@@ -178,6 +199,7 @@ Automated validation script that tests:
 - Test data seeding enabled
 
 **Production Configuration:**
+
 - 2 replicas per service (scalable to 4)
 - 30-day backup retention
 - Info logging level
@@ -189,6 +211,7 @@ Automated validation script that tests:
 ## Security Features
 
 ### Container Security
+
 - Non-root users in all containers
 - Read-only file systems where possible
 - Security headers in Nginx
@@ -196,6 +219,7 @@ Automated validation script that tests:
 - HSTS enabled
 
 ### Configuration Security
+
 - All secrets via environment variables
 - No hardcoded credentials
 - GitHub Secrets for CI/CD
@@ -203,6 +227,7 @@ Automated validation script that tests:
 - Secure Docker registry authentication
 
 ### Application Security
+
 - CSP headers (with TODO to strengthen)
 - XSS protection headers
 - CORS configuration
@@ -232,6 +257,7 @@ Automated validation script that tests:
 ### Networks
 
 All services communicate via internal Docker network with:
+
 - Service discovery via service names
 - No exposed internal ports (except via nginx)
 - Isolated database access
@@ -239,6 +265,7 @@ All services communicate via internal Docker network with:
 ## Testing and Validation
 
 ### Pre-Deployment Testing
+
 - ✅ API Docker image builds successfully
 - ✅ Web Docker image builds successfully (Next.js standalone)
 - ✅ Multi-stage builds optimize image size
@@ -247,6 +274,7 @@ All services communicate via internal Docker network with:
 - ✅ No hardcoded secrets detected
 
 ### Post-Deployment Testing
+
 - Health check endpoints validated
 - Smoke test script created
 - Manual testing procedures documented
@@ -254,6 +282,7 @@ All services communicate via internal Docker network with:
 ## Monitoring and Observability
 
 ### Health Checks
+
 - API: `/api/health`
 - Web: `/` (root path)
 - Database: `pg_isready`
@@ -261,12 +290,14 @@ All services communicate via internal Docker network with:
 - Nginx: HTTP status check
 
 ### Metrics
+
 - Prometheus-format metrics: `/api/metrics`
 - JSON metrics: `/api/metrics/json`
 - Cache metrics: `/api/cache/metrics`
 - Docker stats for resource monitoring
 
 ### Logging
+
 - Structured logging with Pino
 - Container logs via Docker
 - Nginx access and error logs
@@ -275,12 +306,14 @@ All services communicate via internal Docker network with:
 ## Performance
 
 ### Build Optimization
+
 - Multi-stage builds reduce image size
 - Layer caching for faster rebuilds
 - Standalone Next.js output
 - Production dependency pruning
 
 ### Runtime Optimization
+
 - Connection pooling (PostgreSQL)
 - Redis caching layer
 - Nginx reverse proxy caching
@@ -291,15 +324,16 @@ All services communicate via internal Docker network with:
 
 ### Rollback Decision Matrix
 
-| Scenario | Action | Database Restore | RTO | RPO |
-|----------|--------|------------------|-----|-----|
-| Service startup failure | Quick rollback | No | 2 min | 0 |
-| API errors (no DB changes) | Quick rollback | No | 2 min | 0 |
-| Failed migration | Full rollback | Yes | 10 min | Last backup |
-| Data corruption | Full rollback + PITR | Yes | 15 min | Any timestamp |
-| Performance issues | Investigate first | Maybe | Varies | Varies |
+| Scenario                   | Action               | Database Restore | RTO    | RPO           |
+| -------------------------- | -------------------- | ---------------- | ------ | ------------- |
+| Service startup failure    | Quick rollback       | No               | 2 min  | 0             |
+| API errors (no DB changes) | Quick rollback       | No               | 2 min  | 0             |
+| Failed migration           | Full rollback        | Yes              | 10 min | Last backup   |
+| Data corruption            | Full rollback + PITR | Yes              | 15 min | Any timestamp |
+| Performance issues         | Investigate first    | Maybe            | Varies | Varies        |
 
 ### Rollback Procedures
+
 1. **Automatic**: Triggered by failed smoke tests
 2. **Manual Quick**: Code-only rollback (< 2 minutes)
 3. **Manual Full**: Code + database restore (< 10 minutes)
@@ -308,10 +342,12 @@ All services communicate via internal Docker network with:
 ## Known Limitations and TODOs
 
 ### Security
+
 - [ ] Remove CSP `unsafe-inline` and `unsafe-eval` directives (use nonces/hashes)
 - [ ] Consider dedicated container registry token for production
 
 ### Future Enhancements
+
 - [ ] Kubernetes deployment configurations
 - [ ] Automated canary deployments
 - [ ] A/B testing infrastructure
@@ -322,6 +358,7 @@ All services communicate via internal Docker network with:
 ## References
 
 ### Documentation
+
 - [Deployment Playbook](./docs/ops/DEPLOYMENT_PLAYBOOK.md)
 - [Environment Variables Reference](./docs/ops/ENVIRONMENT_VARIABLES.md)
 - [Deployment Quick Start](./docs/ops/DEPLOYMENT_QUICKSTART.md)
@@ -329,9 +366,11 @@ All services communicate via internal Docker network with:
 - [Observability Guide](./docs/OBSERVABILITY.md)
 
 ### Related Issues
+
 - Issue #10: Ops bucket - CI guards, deployment paths, observability
 
 ### Methodology
+
 - [Twelve-Factor App](https://12factor.net/)
 - [Container Security Best Practices](https://docs.docker.com/develop/security-best-practices/)
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
@@ -339,12 +378,14 @@ All services communicate via internal Docker network with:
 ## Conclusion
 
 All acceptance criteria have been successfully implemented with:
+
 - ✅ Containerized services with twelve-factor configuration
 - ✅ Automated staging deployment pipeline
 - ✅ Production deployment with approval gates
 - ✅ Comprehensive documentation and playbooks
 
 The deployment pipeline is production-ready and follows industry best practices for:
+
 - Container security
 - Zero-downtime deployments
 - Automated testing and validation

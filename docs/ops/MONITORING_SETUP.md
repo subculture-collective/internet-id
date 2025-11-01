@@ -102,6 +102,7 @@ docker compose -f docker-compose.monitoring.yml ps
 ```
 
 Expected output:
+
 ```
 NAME                IMAGE                                    STATUS
 prometheus          prom/prometheus:v2.48.0                  Up (healthy)
@@ -183,15 +184,16 @@ Configuration file: `/ops/monitoring/alertmanager/alertmanager.yml`
 
 ### Alert Routing
 
-| Severity | Channels | Response Time |
-|----------|----------|---------------|
-| Critical | PagerDuty + Slack | Immediate |
-| Warning | Slack | 15 minutes |
-| Info | Email | 1 hour |
+| Severity | Channels          | Response Time |
+| -------- | ----------------- | ------------- |
+| Critical | PagerDuty + Slack | Immediate     |
+| Warning  | Slack             | 15 minutes    |
+| Info     | Email             | 1 hour        |
 
 ### Alert Grouping
 
 Alerts are grouped by:
+
 - `alertname` - Same type of alert
 - `cluster` - Same cluster
 - `service` - Same service
@@ -201,6 +203,7 @@ This prevents notification spam when multiple instances fail.
 ### Inhibition Rules
 
 Certain alerts suppress others:
+
 - Critical alerts suppress warnings for same service
 - Service down alerts suppress related alerts
 - Database down suppresses connection pool alerts
@@ -241,10 +244,8 @@ Import recommended dashboards:
 
 1. **Node Exporter Full** (ID: 1860)
    - System metrics overview
-   
 2. **PostgreSQL Database** (ID: 9628)
    - Database performance metrics
-   
 3. **Redis Dashboard** (ID: 11835)
    - Cache performance metrics
 
@@ -518,9 +519,9 @@ try {
   await ipfsService.ping();
   checks.services.ipfs = { status: "healthy" };
 } catch (error) {
-  checks.services.ipfs = { 
-    status: "unhealthy", 
-    error: error.message 
+  checks.services.ipfs = {
+    status: "unhealthy",
+    error: error.message,
   };
   checks.status = "degraded";
 }
@@ -535,6 +536,7 @@ Consider using external uptime monitors:
 - **StatusCake** (https://www.statuscake.com) - Multi-region monitoring
 
 Configure them to:
+
 - Monitor `https://your-domain.com/api/health`
 - Check interval: 1 minute
 - Alert on 2 consecutive failures
@@ -614,17 +616,20 @@ echo "Alert tests complete. Check Alertmanager and notification channels."
 ### Prometheus Not Scraping Metrics
 
 **Symptoms:**
+
 - Targets showing as "down" in Prometheus UI
 - No metrics available in Grafana
 
 **Solutions:**
 
 1. Check target status:
+
    ```bash
    curl http://localhost:9090/api/v1/targets
    ```
 
 2. Verify network connectivity:
+
    ```bash
    docker compose exec prometheus wget -O- http://api:3001/api/metrics
    ```
@@ -637,17 +642,20 @@ echo "Alert tests complete. Check Alertmanager and notification channels."
 ### Alerts Not Firing
 
 **Symptoms:**
+
 - Conditions met but no alerts in Alertmanager
 - Alerts not reaching notification channels
 
 **Solutions:**
 
 1. Check alert rules are loaded:
+
    ```bash
    curl http://localhost:9090/api/v1/rules
    ```
 
 2. Verify Alertmanager configuration:
+
    ```bash
    curl http://localhost:9093/api/v1/status
    ```
@@ -663,6 +671,7 @@ echo "Alert tests complete. Check Alertmanager and notification channels."
 ### Grafana Dashboard Empty
 
 **Symptoms:**
+
 - Grafana shows no data
 - "No data" message in panels
 
@@ -673,6 +682,7 @@ echo "Alert tests complete. Check Alertmanager and notification channels."
    - Test connection
 
 2. Check Prometheus has data:
+
    ```bash
    curl 'http://localhost:9090/api/v1/query?query=up'
    ```
@@ -682,17 +692,20 @@ echo "Alert tests complete. Check Alertmanager and notification channels."
 ### Sentry Not Capturing Errors
 
 **Symptoms:**
+
 - No errors appearing in Sentry
 - Test errors not showing up
 
 **Solutions:**
 
 1. Verify DSN is configured:
+
    ```bash
    docker compose exec api printenv | grep SENTRY
    ```
 
 2. Check API logs:
+
    ```bash
    docker compose logs api | grep -i sentry
    ```
@@ -707,17 +720,20 @@ echo "Alert tests complete. Check Alertmanager and notification channels."
 ### PagerDuty Not Receiving Alerts
 
 **Symptoms:**
+
 - Alerts firing but no PagerDuty notifications
 - PagerDuty shows no incidents
 
 **Solutions:**
 
 1. Verify integration key:
+
    ```bash
    docker compose exec alertmanager cat /etc/alertmanager/alertmanager.yml
    ```
 
 2. Test PagerDuty API:
+
    ```bash
    curl -X POST https://events.pagerduty.com/v2/enqueue \
      -H 'Content-Type: application/json' \
@@ -736,6 +752,7 @@ echo "Alert tests complete. Check Alertmanager and notification channels."
 Before going live, verify:
 
 ### Configuration
+
 - [ ] All environment variables configured
 - [ ] Sentry DSN set and tested
 - [ ] PagerDuty integration keys configured
@@ -743,29 +760,34 @@ Before going live, verify:
 - [ ] Email SMTP credentials configured
 
 ### Services
+
 - [ ] All monitoring containers running
 - [ ] Prometheus scraping all targets
 - [ ] Alertmanager connected to Prometheus
 - [ ] Grafana showing metrics
 
 ### Alerts
+
 - [ ] Alert rules loaded in Prometheus
 - [ ] Test alerts reaching all channels
 - [ ] On-call schedule configured
 - [ ] Escalation policies set
 
 ### Health Checks
+
 - [ ] API health endpoint responding
 - [ ] Database health check working
 - [ ] Cache health check working
 - [ ] Blockchain health check working
 
 ### Dashboards
+
 - [ ] Grafana dashboards imported
 - [ ] Custom Internet-ID dashboard created
 - [ ] Dashboard panels showing data
 
 ### Documentation
+
 - [ ] Runbook reviewed by team
 - [ ] On-call procedures documented
 - [ ] Escalation contacts updated

@@ -29,6 +29,7 @@ Complete reference for all environment variables used in Internet-ID deployments
 **Default**: `development`
 
 **Example**:
+
 ```bash
 NODE_ENV=production
 ```
@@ -44,6 +45,7 @@ NODE_ENV=production
 **Required**: Yes (for production/staging)
 
 **Example**:
+
 ```bash
 DOMAIN=internet-id.example.com
 ```
@@ -61,6 +63,7 @@ DOMAIN=internet-id.example.com
 **Default**: `3001`
 
 **Example**:
+
 ```bash
 PORT=3001
 ```
@@ -74,6 +77,7 @@ PORT=3001
 **Required**: Yes (for web app)
 
 **Example**:
+
 ```bash
 NEXT_PUBLIC_API_BASE=https://internet-id.example.com/api
 ```
@@ -89,6 +93,7 @@ NEXT_PUBLIC_API_BASE=https://internet-id.example.com/api
 **Required**: Yes (for web app)
 
 **Example**:
+
 ```bash
 NEXT_PUBLIC_SITE_BASE=https://internet-id.example.com
 ```
@@ -108,13 +113,15 @@ NEXT_PUBLIC_SITE_BASE=https://internet-id.example.com
 **Format**: `postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=SCHEMA`
 
 **Example**:
+
 ```bash
 DATABASE_URL=postgresql://internetid:securepass@db:5432/internetid?schema=public
 ```
 
 **Security**: **NEVER** commit this to version control. Use secrets management.
 
-**Notes**: 
+**Notes**:
+
 - For SQLite (dev only): `file:./dev.db`
 - Include `?schema=public` for PostgreSQL
 - Use connection pooling in production (e.g., PgBouncer)
@@ -128,6 +135,7 @@ DATABASE_URL=postgresql://internetid:securepass@db:5432/internetid?schema=public
 **Required**: Yes (for Docker Compose)
 
 **Example**:
+
 ```bash
 POSTGRES_USER=internetid
 ```
@@ -143,11 +151,13 @@ POSTGRES_USER=internetid
 **Security**: Use strong passwords (32+ characters, alphanumeric + special chars)
 
 **Example**:
+
 ```bash
 POSTGRES_PASSWORD=YOUR_SECURE_PASSWORD_HERE
 ```
 
 **Generation**:
+
 ```bash
 openssl rand -base64 32
 ```
@@ -161,11 +171,13 @@ openssl rand -base64 32
 **Required**: Yes (for Docker Compose)
 
 **Example**:
+
 ```bash
 POSTGRES_DB=internetid
 ```
 
 **Recommendations**:
+
 - Staging: `internetid_staging`
 - Production: `internetid`
 
@@ -184,11 +196,13 @@ POSTGRES_DB=internetid
 **Security**: **CRITICAL** - Never expose this value
 
 **Example**:
+
 ```bash
 PRIVATE_KEY=0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
 ```
 
 **Generation**:
+
 ```bash
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
@@ -204,6 +218,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 **Required**: Yes
 
 **Example**:
+
 ```bash
 # Staging (testnets)
 RPC_URL=https://sepolia.base.org
@@ -213,6 +228,7 @@ RPC_URL=https://mainnet.base.org
 ```
 
 **Recommended Providers**:
+
 - **Alchemy**: https://alchemy.com
 - **Infura**: https://infura.io
 - **QuickNode**: https://quicknode.com
@@ -263,6 +279,7 @@ OPTIMISM_SEPOLIA_RPC_URL=https://sepolia.optimism.io
 **Default**: Auto-detect based on available credentials
 
 **Example**:
+
 ```bash
 IPFS_PROVIDER=web3storage
 ```
@@ -276,6 +293,7 @@ IPFS_PROVIDER=web3storage
 **Required**: If using Web3.Storage
 
 **Example**:
+
 ```bash
 WEB3_STORAGE_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
@@ -291,6 +309,7 @@ WEB3_STORAGE_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Required**: If using Pinata
 
 **Example**:
+
 ```bash
 PINATA_JWT=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
@@ -306,6 +325,7 @@ PINATA_JWT=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Required**: If using Infura or local IPFS
 
 **Example**:
+
 ```bash
 # Infura
 IPFS_API_URL=https://ipfs.infura.io:5001
@@ -323,6 +343,7 @@ IPFS_API_URL=http://127.0.0.1:5001
 **Required**: If using Infura IPFS
 
 **Example**:
+
 ```bash
 IPFS_PROJECT_ID=your_project_id
 ```
@@ -338,6 +359,7 @@ IPFS_PROJECT_ID=your_project_id
 **Security**: Keep confidential
 
 **Example**:
+
 ```bash
 IPFS_PROJECT_SECRET=your_project_secret
 ```
@@ -355,22 +377,26 @@ IPFS_PROJECT_SECRET=your_project_secret
 **Security**: Use strong, random keys
 
 **Example**:
+
 ```bash
 API_KEY=iid_prod_a1b2c3d4e5f6g7h8i9j0
 ```
 
 **Generation**:
+
 ```bash
 openssl rand -base64 32 | tr -d "=+/" | cut -c1-32
 ```
 
 **Protected Endpoints**:
+
 - `POST /api/upload`
 - `POST /api/manifest`
 - `POST /api/register`
 - `POST /api/bind`
 
 **Usage**:
+
 ```bash
 curl -H "x-api-key: $API_KEY" https://api.example.com/api/upload
 ```
@@ -388,11 +414,13 @@ curl -H "x-api-key: $API_KEY" https://api.example.com/api/upload
 **Security**: **CRITICAL** - Must be kept secret
 
 **Example**:
+
 ```bash
 NEXTAUTH_SECRET=your_secret_here
 ```
 
 **Generation**:
+
 ```bash
 openssl rand -base64 32
 ```
@@ -406,6 +434,7 @@ openssl rand -base64 32
 **Required**: Yes (for web app)
 
 **Example**:
+
 ```bash
 NEXTAUTH_URL=https://internet-id.example.com
 ```
@@ -454,16 +483,19 @@ TWITTER_SECRET=your_twitter_client_secret
 **Required**: Recommended for production
 
 **Example**:
+
 ```bash
 REDIS_URL=redis://redis:6379
 ```
 
 **With Authentication**:
+
 ```bash
 REDIS_URL=redis://:password@redis:6379
 ```
 
-**Notes**: 
+**Notes**:
+
 - Cache is optional but recommended for performance
 - Gracefully degrades if Redis is unavailable
 
@@ -482,11 +514,13 @@ REDIS_URL=redis://:password@redis:6379
 **Default**: `info`
 
 **Recommendations**:
+
 - Development: `debug`
 - Staging: `debug`
 - Production: `info`
 
 **Example**:
+
 ```bash
 LOG_LEVEL=info
 ```
@@ -500,6 +534,7 @@ LOG_LEVEL=info
 **Required**: No (recommended for production)
 
 **Example**:
+
 ```bash
 LOGTAIL_SOURCE_TOKEN=your_logtail_token
 ```
@@ -513,6 +548,7 @@ LOGTAIL_SOURCE_TOKEN=your_logtail_token
 **Required**: No
 
 **Example**:
+
 ```bash
 DATADOG_API_KEY=your_datadog_api_key
 DATADOG_APP_KEY=your_datadog_app_key
@@ -528,6 +564,7 @@ DATADOG_SITE=datadoghq.com
 **Required**: No
 
 **Example**:
+
 ```bash
 ELASTICSEARCH_URL=https://elasticsearch.example.com:9200
 ELASTICSEARCH_USERNAME=elastic
@@ -546,6 +583,7 @@ ELASTICSEARCH_INDEX=internet-id-logs
 **Required**: Yes (for production/staging)
 
 **Example**:
+
 ```bash
 SSL_EMAIL=ops@example.com
 ```
@@ -559,6 +597,7 @@ SSL_EMAIL=ops@example.com
 **Required**: No
 
 **Example**:
+
 ```bash
 SSL_ALERT_EMAIL=ops@example.com
 ```
@@ -576,6 +615,7 @@ SSL_ALERT_EMAIL=ops@example.com
 **Default**: `0`
 
 **Example**:
+
 ```bash
 CERTBOT_STAGING=1
 ```
@@ -595,6 +635,7 @@ CERTBOT_STAGING=1
 **Default**: `/var/lib/postgresql/backups`
 
 **Example**:
+
 ```bash
 BACKUP_DIR=/var/lib/postgresql/backups
 ```
@@ -607,11 +648,13 @@ BACKUP_DIR=/var/lib/postgresql/backups
 
 **Required**: No
 
-**Default**: 
+**Default**:
+
 - Staging: `7`
 - Production: `30`
 
 **Example**:
+
 ```bash
 RETENTION_DAYS=30
 ```
@@ -625,6 +668,7 @@ RETENTION_DAYS=30
 **Required**: Recommended for production
 
 **Example**:
+
 ```bash
 S3_BUCKET=internet-id-backups
 S3_REGION=us-east-1
@@ -641,6 +685,7 @@ S3_REGION=us-east-1
 **Security**: Use IAM roles instead when possible
 
 **Example**:
+
 ```bash
 AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
 AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
@@ -659,6 +704,7 @@ AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
 **Values**: `docker-compose.yml` | `docker-compose.staging.yml` | `docker-compose.production.yml`
 
 **Example**:
+
 ```bash
 COMPOSE_FILE=docker-compose.production.yml
 ```

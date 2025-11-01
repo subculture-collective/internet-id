@@ -50,34 +50,34 @@ The ContentRegistry has been refactored to support upgrades using the **UUPS (Un
 
 ### Contracts
 
-| File | Purpose |
-|------|---------|
-| `contracts/ContentRegistry.sol` | Original non-upgradeable contract |
-| `contracts/ContentRegistryV1.sol` | Upgradeable V1 implementation |
+| File                              | Purpose                           |
+| --------------------------------- | --------------------------------- |
+| `contracts/ContentRegistry.sol`   | Original non-upgradeable contract |
+| `contracts/ContentRegistryV1.sol` | Upgradeable V1 implementation     |
 | `contracts/ContentRegistryV2.sol` | Example V2 (demonstrates upgrade) |
 
 ### Scripts
 
-| File | Purpose |
-|------|---------|
+| File                            | Purpose                                     |
+| ------------------------------- | ------------------------------------------- |
 | `scripts/deploy-upgradeable.ts` | Deploy upgradeable proxy and implementation |
-| `scripts/upgrade-to-v2.ts` | Upgrade from V1 to V2 |
-| `scripts/simulate-upgrade.ts` | Test upgrade process locally |
+| `scripts/upgrade-to-v2.ts`      | Upgrade from V1 to V2                       |
+| `scripts/simulate-upgrade.ts`   | Test upgrade process locally                |
 
 ### Tests
 
-| File | Coverage |
-|------|----------|
-| `test/ContentRegistry.ts` | Original contract tests |
+| File                                      | Coverage                  |
+| ----------------------------------------- | ------------------------- |
+| `test/ContentRegistry.ts`                 | Original contract tests   |
 | `test/ContentRegistryUpgradeable.test.ts` | Upgradeable pattern tests |
 
 ### Documentation
 
-| File | Content |
-|------|---------|
-| `docs/UPGRADE_GUIDE.md` | Complete upgrade guide |
-| `docs/UPGRADE_GOVERNANCE.md` | Governance procedures |
-| `docs/UPGRADE_README.md` | This file |
+| File                         | Content                |
+| ---------------------------- | ---------------------- |
+| `docs/UPGRADE_GUIDE.md`      | Complete upgrade guide |
+| `docs/UPGRADE_GOVERNANCE.md` | Governance procedures  |
+| `docs/UPGRADE_README.md`     | This file              |
 
 ## Deployment
 
@@ -122,6 +122,7 @@ npm run upgrade:simulate
 ```
 
 Expected output:
+
 ```
 === Upgrade Simulation ===
 ✓ Proxy deployed
@@ -155,16 +156,18 @@ npm run upgrade:ethereum
 After upgrading:
 
 1. Check the version:
+
    ```solidity
    proxy.version() // Should return "2.0.0"
    ```
 
 2. Test core functions:
+
    ```solidity
    // Test V1 functions still work
    proxy.register(hash, uri)
    proxy.updateManifest(hash, newUri)
-   
+
    // Test new V2 features
    proxy.registerV2(hash, uri)
    proxy.getTotalRegistrations()
@@ -182,6 +185,7 @@ After upgrading:
 ### ✅ Storage Preservation
 
 All data is preserved during upgrades:
+
 - Content entries (creator, timestamp, manifestURI)
 - Platform bindings
 - Owner information
@@ -190,11 +194,12 @@ All data is preserved during upgrades:
 ### ✅ Access Control
 
 Only the contract owner can upgrade:
+
 ```solidity
-function _authorizeUpgrade(address newImplementation) 
-    internal 
-    override 
-    onlyOwner 
+function _authorizeUpgrade(address newImplementation)
+    internal
+    override
+    onlyOwner
 {
     // Only owner can call this
 }
@@ -203,6 +208,7 @@ function _authorizeUpgrade(address newImplementation)
 ### ✅ Version Tracking
 
 Each implementation reports its version:
+
 ```solidity
 function version() public pure returns (string memory) {
     return "1.0.0"; // or "2.0.0"
@@ -212,6 +218,7 @@ function version() public pure returns (string memory) {
 ### ✅ Storage Gap
 
 Reserves space for future variables:
+
 ```solidity
 uint256[47] private __gap;
 ```
@@ -228,6 +235,7 @@ npm test -- test/ContentRegistryUpgradeable.test.ts
 ```
 
 Test coverage:
+
 - ✅ Deployment and initialization
 - ✅ V1 functionality (register, update, revoke, bind)
 - ✅ Storage layout preservation
@@ -244,6 +252,7 @@ npm run upgrade:simulate
 ```
 
 Tests full upgrade lifecycle:
+
 1. Deploy V1
 2. Register content
 3. Upgrade to V2
@@ -305,6 +314,7 @@ npx hardhat console --network <network>
 ```
 
 For production, transfer ownership to a multisig:
+
 ```bash
 > await proxy.transferOwnership("GNOSIS_SAFE_ADDRESS")
 ```
@@ -321,7 +331,8 @@ For production, transfer ownership to a multisig:
 
 **Cause**: Trying to upgrade from an account that doesn't own the proxy.
 
-**Solution**: 
+**Solution**:
+
 - Check current owner: `await proxy.owner()`
 - Use the owner account for upgrades
 - Or transfer ownership first
@@ -331,6 +342,7 @@ For production, transfer ownership to a multisig:
 **Cause**: New implementation has incompatible storage layout.
 
 **Solution**:
+
 - Don't reorder existing variables
 - Only add new variables at the end
 - Reduce storage gap appropriately
@@ -341,6 +353,7 @@ For production, transfer ownership to a multisig:
 **Cause**: Trying to call `initialize()` again.
 
 **Solution**:
+
 - `initialize()` can only be called once
 - This is expected and prevents re-initialization attacks
 - Don't try to re-initialize after upgrades
@@ -480,10 +493,10 @@ A: UUPS adds minimal overhead (~2000 gas per transaction). Much cheaper than red
 
 ## Version History
 
-| Version | Date | Description |
-|---------|------|-------------|
-| 1.0.0 | 2024-01 | Initial upgradeable implementation |
-| 2.0.0 | Example | Adds registration counter (demo only) |
+| Version | Date    | Description                           |
+| ------- | ------- | ------------------------------------- |
+| 1.0.0   | 2024-01 | Initial upgradeable implementation    |
+| 2.0.0   | Example | Adds registration counter (demo only) |
 
 ---
 

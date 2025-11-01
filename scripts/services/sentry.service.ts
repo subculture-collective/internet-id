@@ -15,7 +15,7 @@ class SentryService {
    */
   initialize(): void {
     const dsn = process.env.SENTRY_DSN;
-    
+
     // Don't initialize if DSN is not configured
     if (!dsn) {
       logger.info("Sentry DSN not configured, error tracking disabled");
@@ -26,22 +26,20 @@ class SentryService {
       Sentry.init({
         dsn,
         environment: process.env.NODE_ENV || "development",
-        
+
         // Performance monitoring
         tracesSampleRate: parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE || "0.1"),
-        
+
         // Profiling (optional)
         profilesSampleRate: parseFloat(process.env.SENTRY_PROFILES_SAMPLE_RATE || "0.1"),
-        integrations: [
-          new ProfilingIntegration(),
-        ],
-        
+        integrations: [new ProfilingIntegration()],
+
         // Release tracking
         release: process.env.SENTRY_RELEASE || process.env.npm_package_version,
-        
+
         // Additional configuration
         serverName: process.env.HOSTNAME || "internet-id-api",
-        
+
         // Filter out sensitive data
         beforeSend(event) {
           // Remove sensitive headers
@@ -50,25 +48,25 @@ class SentryService {
             delete event.request.headers["x-api-key"];
             delete event.request.headers["cookie"];
           }
-          
+
           // Remove sensitive query parameters
           if (event.request?.query_string) {
             const sensitiveParams = ["token", "key", "secret", "password", "apikey", "api_key"];
             let queryString = event.request.query_string;
-            
+
             // Parse and filter query string
-            sensitiveParams.forEach(param => {
+            sensitiveParams.forEach((param) => {
               // Match param=value or param=value& patterns (case insensitive)
               const regex = new RegExp(`(${param}=[^&]*)`, "gi");
               queryString = queryString.replace(regex, `${param}=[FILTERED]`);
             });
-            
+
             event.request.query_string = queryString;
           }
-          
+
           return event;
         },
-        
+
         // Ignore certain errors
         ignoreErrors: [
           // Browser errors
@@ -262,7 +260,9 @@ class SentryService {
    */
   getErrorHandler(): ReturnType<typeof Sentry.Handlers.errorHandler> {
     if (!this.initialized) {
-      return ((_err, _req, _res, next) => next(_err)) as ReturnType<typeof Sentry.Handlers.errorHandler>;
+      return ((_err, _req, _res, next) => next(_err)) as ReturnType<
+        typeof Sentry.Handlers.errorHandler
+      >;
     }
     return Sentry.Handlers.errorHandler({
       shouldHandleError() {

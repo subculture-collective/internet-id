@@ -158,12 +158,8 @@ class MetricsService {
     statusCode: number,
     durationSeconds: number
   ): void {
-    this.httpRequestDuration
-      .labels(method, route, statusCode.toString())
-      .observe(durationSeconds);
-    this.httpRequestTotal
-      .labels(method, route, statusCode.toString())
-      .inc();
+    this.httpRequestDuration.labels(method, route, statusCode.toString()).observe(durationSeconds);
+    this.httpRequestTotal.labels(method, route, statusCode.toString()).inc();
   }
 
   /**
@@ -181,11 +177,7 @@ class MetricsService {
   /**
    * Record IPFS upload
    */
-  recordIpfsUpload(
-    provider: string,
-    status: "success" | "failure",
-    durationSeconds: number
-  ): void {
+  recordIpfsUpload(provider: string, status: "success" | "failure", durationSeconds: number): void {
     this.ipfsUploadTotal.labels(provider, status).inc();
     this.ipfsUploadDuration.labels(provider).observe(durationSeconds);
   }
@@ -207,11 +199,7 @@ class MetricsService {
   /**
    * Record database query duration
    */
-  recordDbQuery(
-    operation: string,
-    table: string,
-    durationSeconds: number
-  ): void {
+  recordDbQuery(operation: string, table: string, durationSeconds: number): void {
     this.dbQueryDuration.labels(operation, table).observe(durationSeconds);
   }
 

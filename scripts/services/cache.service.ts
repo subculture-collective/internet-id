@@ -48,7 +48,9 @@ class CacheService {
 
     const redisUrl = process.env.REDIS_URL;
     if (!redisUrl) {
-      console.log("[Cache] REDIS_URL not configured, caching disabled (will use database fallback)");
+      console.log(
+        "[Cache] REDIS_URL not configured, caching disabled (will use database fallback)"
+      );
       return;
     }
 

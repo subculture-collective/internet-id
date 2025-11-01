@@ -342,6 +342,7 @@ test("example", async ({ page }) => {
    ```
 
 5. **Group related tests**:
+
    ```typescript
    test.describe("Authentication", () => {
      test.describe("Sign In", () => {
