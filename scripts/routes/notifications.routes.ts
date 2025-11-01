@@ -58,8 +58,9 @@ router.put("/preferences", async (req: Request, res: Response) => {
 
     res.json({ success: true, message: "Preferences updated successfully" });
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to update preferences";
     console.error("[Notifications] Error updating preferences:", error);
-    res.status(500).json({ error: error?.message || "Failed to update preferences" });
+    res.status(500).json({ error: errorMessage });
   }
 });
 
@@ -69,20 +70,22 @@ router.put("/preferences", async (req: Request, res: Response) => {
  */
 router.post("/unsubscribe", async (req: Request, res: Response) => {
   try {
-    const { userId, token } = req.body;
+    const { userId } = req.body;
 
     if (!userId) {
       return res.status(400).json({ error: "userId is required" });
     }
 
-    // In production, verify the token to prevent unauthorized unsubscribes
-    // For now, we'll allow it for simplicity
+    // TODO: SECURITY - Implement token verification before production deployment
+    // to prevent unauthorized unsubscribes. This endpoint currently allows any
+    // user to unsubscribe other users by providing their userId.
     await notificationService.unsubscribe(userId);
 
     res.json({ success: true, message: "Successfully unsubscribed from all emails" });
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to unsubscribe";
     console.error("[Notifications] Error unsubscribing:", error);
-    res.status(500).json({ error: error?.message || "Failed to unsubscribe" });
+    res.status(500).json({ error: errorMessage });
   }
 });
 
@@ -102,8 +105,9 @@ router.post("/resubscribe", async (req: Request, res: Response) => {
 
     res.json({ success: true, message: "Successfully resubscribed to emails" });
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to resubscribe";
     console.error("[Notifications] Error resubscribing:", error);
-    res.status(500).json({ error: error?.message || "Failed to resubscribe" });
+    res.status(500).json({ error: errorMessage });
   }
 });
 
@@ -122,8 +126,9 @@ router.get("/stats", async (req: Request, res: Response) => {
     const stats = await notificationService.getEmailStats(userId);
     res.json(stats);
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to fetch stats";
     console.error("[Notifications] Error fetching stats:", error);
-    res.status(500).json({ error: error?.message || "Failed to fetch stats" });
+    res.status(500).json({ error: errorMessage });
   }
 });
 
@@ -133,12 +138,15 @@ router.get("/stats", async (req: Request, res: Response) => {
  */
 router.get("/queue/stats", async (_req: Request, res: Response) => {
   try {
-    // In production, add admin authentication check here
+    // TODO: SECURITY - Add admin authorization middleware before production deployment
+    // This endpoint exposes sensitive operational data and should be restricted
+    // to authenticated administrators only.
     const stats = await emailQueueService.getStats();
     res.json(stats);
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to fetch queue stats";
     console.error("[Notifications] Error fetching queue stats:", error);
-    res.status(500).json({ error: error?.message || "Failed to fetch queue stats" });
+    res.status(500).json({ error: errorMessage });
   }
 });
 
@@ -175,8 +183,9 @@ router.get("/logs", async (req: Request, res: Response) => {
 
     res.json({ logs });
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to fetch logs";
     console.error("[Notifications] Error fetching logs:", error);
-    res.status(500).json({ error: error?.message || "Failed to fetch logs" });
+    res.status(500).json({ error: errorMessage });
   }
 });
 

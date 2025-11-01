@@ -195,12 +195,12 @@ class EmailQueueService {
       }
 
       // Check user preferences before sending
-      if (userId && templateType) {
-        const shouldSend = await this.checkUserPreferences(userId, templateType);
+      if (userId) {
+        const shouldSend = await this.checkUserPreferences(userId, templateType || "direct");
         if (!shouldSend) {
           logger.info("Email not sent due to user preferences", {
             userId,
-            templateType,
+            templateType: templateType || "direct",
           });
 
           await prisma.emailLog.update({

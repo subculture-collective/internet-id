@@ -176,14 +176,13 @@ class NotificationService {
     templateData: TemplateData;
   }): Promise<void> {
     try {
-      // Check if user has email preferences
-      let prefs = await prisma.emailPreferences.findUnique({
+      // Check if user has email preferences and create default if none exist
+      const prefs = await prisma.emailPreferences.findUnique({
         where: { userId: data.userId },
       });
 
-      // Create default preferences if none exist
       if (!prefs) {
-        prefs = await prisma.emailPreferences.create({
+        await prisma.emailPreferences.create({
           data: {
             userId: data.userId,
           },
