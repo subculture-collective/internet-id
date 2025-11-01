@@ -12,6 +12,7 @@ import bindingRoutes from "./routes/binding.routes";
 import contentRoutes from "./routes/content.routes";
 import oneshotRoutes from "./routes/oneshot.routes";
 import badgeRoutes from "./routes/badge.routes";
+import notificationsRoutes from "./routes/notifications.routes";
 
 // Import v1 API routes
 import v1Routes from "./routes/v1/index";
@@ -42,6 +43,12 @@ export async function createApp() {
 
   // Initialize cache service
   await cacheService.connect();
+
+  // Initialize email services
+  const { emailService } = await import("./services/email.service");
+  const { emailQueueService } = await import("./services/email-queue.service");
+  await emailService.initialize();
+  await emailQueueService.initialize();
 
   const app = express();
 
@@ -94,6 +101,7 @@ export async function createApp() {
   app.use("/api", moderate, contentRoutes);
   app.use("/api", moderate, verifyRoutes);
   app.use("/api", moderate, badgeRoutes);
+  app.use("/api/notifications", moderate, notificationsRoutes);
 
   // Strict limits for expensive operations
   app.use("/api", strict, uploadRoutes);

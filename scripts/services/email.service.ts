@@ -142,7 +142,7 @@ class EmailService {
     }
 
     // Use nodemailer with SES transport
-    // @ts-ignore - nodemailer-ses-transport types may not be available
+    // @ts-expect-error - nodemailer-ses-transport types may not be available
     const aws = await import("@aws-sdk/client-ses");
     const sesClient = new aws.SES({
       region,
