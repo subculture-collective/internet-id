@@ -1,6 +1,5 @@
 import { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
-import { ContentRegistryV1, ContentRegistryV2 } from "../typechain-types";
 
 describe("ContentRegistry - Upgradeable Pattern", function () {
   describe("Deployment and Initialization", function () {

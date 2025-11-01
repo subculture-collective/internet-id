@@ -51,7 +51,7 @@ async function main() {
   await proxyV1.connect(user1).bindPlatform(hash1, "youtube", "video123");
   console.log("✓ User1 bound content 1 to YouTube");
   
-  const [resolvedCreator, resolvedHash] = await proxyV1.resolveByPlatform("youtube", "video123");
+  const [resolvedCreator] = await proxyV1.resolveByPlatform("youtube", "video123");
   console.log("✓ Platform resolution works - Creator:", resolvedCreator);
   
   // Upgrade to V2

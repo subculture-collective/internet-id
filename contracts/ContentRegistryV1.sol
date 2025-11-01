@@ -105,6 +105,14 @@ contract ContentRegistryV1 is Initializable, UUPSUpgradeable, OwnableUpgradeable
     /// @custom:security Uses timestamp == 0 to check if content is already registered
     /// @custom:gas-cost 50,368 - 115,935 gas (varies with URI length)
     function register(bytes32 contentHash, string calldata manifestURI) external {
+        _register(contentHash, manifestURI);
+    }
+
+    /// @notice Internal function to register content
+    /// @dev Can be called by child contracts to avoid external call overhead
+    /// @param contentHash The hash of the content to register (e.g., SHA-256)
+    /// @param manifestURI The URI pointing to the content's manifest file
+    function _register(bytes32 contentHash, string memory manifestURI) internal {
         require(entries[contentHash].timestamp == 0, "Already registered");
         uint64 currentTime = uint64(block.timestamp);
         entries[contentHash] = Entry({
@@ -192,6 +200,12 @@ contract ContentRegistryV1 is Initializable, UUPSUpgradeable, OwnableUpgradeable
     /// @param newImplementation The address of the new implementation contract
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {
         // Additional upgrade validation can be added here
-        emit Upgraded(newImplementation, ContentRegistryV1(newImplementation).version());
+        string memory versionString;
+        try ContentRegistryV1(newImplementation).version() returns (string memory v) {
+            versionString = v;
+        } catch {
+            versionString = "unknown";
+        }
+        emit Upgraded(newImplementation, versionString);
     }
 }

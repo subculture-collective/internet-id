@@ -12,10 +12,6 @@ contract ContentRegistryV2 is ContentRegistryV1 {
     /// @notice Counter for total registrations (new feature in V2)
     uint256 public totalRegistrations;
 
-    /// @notice Storage gap for future upgrades (reduced by 1 for totalRegistrations)
-    /// @dev Original __gap was 47 slots, reduced to 46 for the new totalRegistrations variable
-    uint256[46] private __gap;
-
     /// @notice Emitted when content is registered (V2 enhanced event)
     event ContentRegisteredV2(bytes32 indexed contentHash, address indexed creator, string manifestURI, uint64 timestamp, uint256 registrationNumber);
 
@@ -31,8 +27,8 @@ contract ContentRegistryV2 is ContentRegistryV1 {
     /// @param contentHash The hash of the content to register (e.g., SHA-256)
     /// @param manifestURI The URI pointing to the content's manifest file
     function registerV2(bytes32 contentHash, string calldata manifestURI) external {
-        // Use parent register function for core logic
-        this.register(contentHash, manifestURI);
+        // Use internal register function for core logic to avoid external call overhead
+        _register(contentHash, manifestURI);
         
         // Add V2-specific functionality
         totalRegistrations++;

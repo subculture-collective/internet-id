@@ -100,7 +100,7 @@ async function main() {
   console.log("\nUpgrade successful!");
   console.log("\nSummary:");
   console.log("- Proxy Address (unchanged):", proxyAddress);
-  console.log("- Old Implementation:", deploymentInfo.previousImplementations[0].address);
+  console.log("- Old Implementation:", deploymentInfo.previousImplementations[deploymentInfo.previousImplementations.length - 1].address);
   console.log("- New Implementation:", newImplementationAddress);
   console.log("- Version: 1.0.0 -> 2.0.0");
 }
