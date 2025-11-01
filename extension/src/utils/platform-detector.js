@@ -24,17 +24,23 @@ const PLATFORMS = {
 function detectPlatform(url) {
   const hostname = new URL(url).hostname.toLowerCase();
 
-  if (hostname.includes("youtube.com")) {
+  // Use exact hostname matching or subdomain matching to prevent incomplete sanitization
+  if (hostname === "youtube.com" || hostname.endsWith(".youtube.com")) {
     return PLATFORMS.YOUTUBE;
-  } else if (hostname.includes("twitter.com") || hostname.includes("x.com")) {
+  } else if (
+    hostname === "twitter.com" ||
+    hostname.endsWith(".twitter.com") ||
+    hostname === "x.com" ||
+    hostname.endsWith(".x.com")
+  ) {
     return PLATFORMS.TWITTER;
-  } else if (hostname.includes("instagram.com")) {
+  } else if (hostname === "instagram.com" || hostname.endsWith(".instagram.com")) {
     return PLATFORMS.INSTAGRAM;
-  } else if (hostname.includes("github.com")) {
+  } else if (hostname === "github.com" || hostname.endsWith(".github.com")) {
     return PLATFORMS.GITHUB;
-  } else if (hostname.includes("tiktok.com")) {
+  } else if (hostname === "tiktok.com" || hostname.endsWith(".tiktok.com")) {
     return PLATFORMS.TIKTOK;
-  } else if (hostname.includes("linkedin.com")) {
+  } else if (hostname === "linkedin.com" || hostname.endsWith(".linkedin.com")) {
     return PLATFORMS.LINKEDIN;
   }
 

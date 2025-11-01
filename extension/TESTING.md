@@ -356,21 +356,21 @@ Test the extension in multiple Chromium-based browsers:
 - Version: **\_\_\_**
 - OS: **\_\_\_**
 - Status: ⬜ Pass ⬜ Fail
-- Notes: ******\_\_\_******
+- Notes: **\*\***\_\_\_**\*\***
 
 ### Edge
 
 - Version: **\_\_\_**
 - OS: **\_\_\_**
 - Status: ⬜ Pass ⬜ Fail
-- Notes: ******\_\_\_******
+- Notes: **\*\***\_\_\_**\*\***
 
 ### Brave
 
 - Version: **\_\_\_**
 - OS: **\_\_\_**
 - Status: ⬜ Pass ⬜ Fail
-- Notes: ******\_\_\_******
+- Notes: **\*\***\_\_\_**\*\***
 
 ## Performance Testing
 
@@ -394,17 +394,17 @@ Test the extension in multiple Chromium-based browsers:
 
 Document any issues found during testing:
 
-1. **Issue**: ******\_\_\_******
+1. **Issue**: **\*\***\_\_\_**\*\***
    - **Severity**: Critical / High / Medium / Low
-   - **Steps to Reproduce**: ******\_\_\_******
-   - **Expected**: ******\_\_\_******
-   - **Actual**: ******\_\_\_******
+   - **Steps to Reproduce**: **\*\***\_\_\_**\*\***
+   - **Expected**: **\*\***\_\_\_**\*\***
+   - **Actual**: **\*\***\_\_\_**\*\***
 
-2. **Issue**: ******\_\_\_******
+2. **Issue**: **\*\***\_\_\_**\*\***
    - **Severity**: Critical / High / Medium / Low
-   - **Steps to Reproduce**: ******\_\_\_******
-   - **Expected**: ******\_\_\_******
-   - **Actual**: ******\_\_\_******
+   - **Steps to Reproduce**: **\*\***\_\_\_**\*\***
+   - **Expected**: **\*\***\_\_\_**\*\***
+   - **Actual**: **\*\***\_\_\_**\*\***
 
 ## Troubleshooting
 
@@ -472,10 +472,10 @@ Report to: https://github.com/subculture-collective/internet-id/issues
 
 ## Test Summary
 
-**Tester**: ******\_\_\_******
-**Date**: ******\_\_\_******
-**Browser**: ******\_\_\_******
-**OS**: ******\_\_\_******
+**Tester**: **\*\***\_\_\_**\*\***
+**Date**: **\*\***\_\_\_**\*\***
+**Browser**: **\*\***\_\_\_**\*\***
+**OS**: **\*\***\_\_\_**\*\***
 
 **Results:**
 
