@@ -290,11 +290,19 @@ LOG_LEVEL=debug                     # debug, info, warn, error
 SENTRY_DSN=https://...@sentry.io/...
 ```
 
-**Generate a private key** (for testing only):
+**Generate a private key** (for testing/development ONLY):
 
 ```bash
 node -e "console.log('0x' + require('crypto').randomBytes(32).toString('hex'))"
 ```
+
+⚠️ **CRITICAL SECURITY WARNING**:
+
+- **NEVER** use this method for production or mainnet deployments
+- **NEVER** commit generated keys to version control
+- **NEVER** share generated keys with anyone
+- For production: Use hardware wallets (Ledger, Trezor) or established key management services (AWS KMS, HashiCorp Vault)
+- For testnet: This method is acceptable but keep keys secure
 
 **Get testnet ETH**:
 

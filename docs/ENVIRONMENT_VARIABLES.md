@@ -98,6 +98,14 @@ Default blockchain RPC endpoint for transactions.
 - Infura: `https://sepolia.infura.io/v3/YOUR-PROJECT-ID`
 - QuickNode: `https://your-endpoint.quicknode.pro/...`
 
+**Security Notes**:
+
+- ⚠️ Always verify RPC endpoint authenticity before use
+- Use trusted providers (Alchemy, Infura, QuickNode) or official chain RPCs
+- Be aware of rate limits on free tier RPC endpoints
+- Never use unknown or untrusted RPC endpoints (risk of data manipulation)
+- For production, use dedicated RPC endpoints with authentication
+
 **Usage**: All blockchain interactions, contract calls, transaction broadcasting
 
 ---
