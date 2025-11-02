@@ -5,6 +5,11 @@ import { WebVitals } from "./web-vitals";
 import Footer from "./components/Footer";
 import CookieConsent from "./components/CookieConsent";
 import GoogleAnalytics from "./components/GoogleAnalytics";
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
+import LanguageSwitcher from "./components/LanguageSwitcher";
+import { locales } from '../i18n';
+import { getLocaleFromHeaders } from '../lib/locale';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_BASE || "https://internet-id.io";
 
@@ -128,13 +133,16 @@ export const viewport: Viewport = {
   themeColor: "#000000",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const locale = await getLocaleFromHeaders();
+  const messages = await getMessages();
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         {/* Preconnect to external domains for faster resource loading */}
         <link rel="preconnect" href="https://ipfs.io" />
@@ -153,23 +161,42 @@ export default function RootLayout({
             __html: JSON.stringify(websiteSchema),
           }}
         />
+        
+        {/* Add hreflang tags for SEO */}
+        {locales.map((loc) => (
+          <link
+            key={loc}
+            rel="alternate"
+            hrefLang={loc}
+            href={siteUrl}
+          />
+        ))}
+        <link rel="alternate" hrefLang="x-default" href={siteUrl} />
       </head>
       <body suppressHydrationWarning>
-        {/* Skip to main content link for keyboard navigation */}
-        <a 
-          href="#main-content" 
-          className="skip-to-content"
-          aria-label="Skip to main content"
-        >
-          Skip to main content
-        </a>
-        <WebVitals />
-        <GoogleAnalytics />
-        <ErrorBoundary>
-          {children}
-          <Footer />
-        </ErrorBoundary>
-        <CookieConsent />
+        <NextIntlClientProvider messages={messages}>
+          {/* Skip to main content link for keyboard navigation */}
+          <a 
+            href="#main-content" 
+            className="skip-to-content"
+            aria-label="Skip to main content"
+          >
+            Skip to main content
+          </a>
+          
+          {/* Language Switcher */}
+          <div className="language-switcher-wrapper">
+            <LanguageSwitcher />
+          </div>
+          
+          <WebVitals />
+          <GoogleAnalytics />
+          <ErrorBoundary>
+            {children}
+            <Footer />
+          </ErrorBoundary>
+          <CookieConsent />
+        </NextIntlClientProvider>
       </body>
     </html>
   );
