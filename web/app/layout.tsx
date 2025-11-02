@@ -168,7 +168,7 @@ export default async function RootLayout({
             key={loc}
             rel="alternate"
             hrefLang={loc}
-            href={`${siteUrl}${loc === 'en' ? '' : `/${loc}`}`}
+            href={siteUrl}
           />
         ))}
         <link rel="alternate" hrefLang="x-default" href={siteUrl} />
@@ -185,7 +185,7 @@ export default async function RootLayout({
           </a>
           
           {/* Language Switcher */}
-          <div style={{ position: 'absolute', top: '20px', right: '20px', zIndex: 1000 }}>
+          <div className="language-switcher-wrapper">
             <LanguageSwitcher />
           </div>
           

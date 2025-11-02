@@ -21,8 +21,13 @@ export default getRequestConfig(async ({ requestLocale }) => {
   // Use the locale from the request (set by middleware) or default
   let locale = await requestLocale;
 
-  // Ensure we have a valid locale
+  // Ensure we have a valid locale (validate inside getRequestConfig)
   if (!locale || !locales.includes(locale as Locale)) {
+    locale = defaultLocale;
+  }
+
+  // Validate again immediately before dynamic import to prevent path traversal
+  if (!locales.includes(locale as Locale)) {
     locale = defaultLocale;
   }
 

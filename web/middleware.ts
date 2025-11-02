@@ -11,8 +11,13 @@ export default withAuth(
     
     let locale: Locale = defaultLocale;
     
-    if (cookieLocale && locales.includes(cookieLocale as any)) {
-      locale = cookieLocale as Locale;
+    // Type-safe locale validation
+    const isValidLocale = (value: string): value is Locale => {
+      return locales.includes(value as Locale);
+    };
+    
+    if (cookieLocale && isValidLocale(cookieLocale)) {
+      locale = cookieLocale;
     } else if (acceptLanguage) {
       // Parse Accept-Language header to find best match
       const languages = acceptLanguage
@@ -22,9 +27,9 @@ export default withAuth(
           return code.split('-')[0]; // Get language code without region
         });
       
-      const matchedLocale = languages.find((lang) => locales.includes(lang as any));
+      const matchedLocale = languages.find((lang) => isValidLocale(lang));
       if (matchedLocale) {
-        locale = matchedLocale as Locale;
+        locale = matchedLocale;
       }
     }
     
@@ -45,6 +50,7 @@ export default withAuth(
         path: '/',
         maxAge: 31536000, // 1 year
         sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
       });
     }
     
