@@ -55,6 +55,7 @@ services:
       - "3001"
     depends_on:
       - db
+      - redis
     restart: unless-stopped
 
   # Next.js web application
@@ -98,6 +99,21 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+  # Redis for queue and caching
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
   
   # Backup service for automated database backups
   backup:
@@ -126,6 +142,7 @@ services:
 volumes:
   db_data:
   backup_data:
+  redis_data:
   certbot_www:
   certbot_conf:
   certbot_logs:

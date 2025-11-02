@@ -8,6 +8,7 @@ import uploadRoutes from "./routes/upload.routes";
 import manifestRoutes from "./routes/manifest.routes";
 import registerRoutes from "./routes/register.routes";
 import verifyRoutes from "./routes/verify.routes";
+import verificationJobsRoutes from "./routes/verification-jobs.routes";
 import bindingRoutes from "./routes/binding.routes";
 import contentRoutes from "./routes/content.routes";
 import oneshotRoutes from "./routes/oneshot.routes";
@@ -49,6 +50,10 @@ export async function createApp() {
   const { emailQueueService } = await import("./services/email-queue.service");
   await emailService.initialize();
   await emailQueueService.initialize();
+
+  // Initialize verification queue service
+  const { verificationQueueService } = await import("./services/verification-queue.service");
+  await verificationQueueService.initialize();
 
   const app = express();
 
@@ -100,6 +105,7 @@ export async function createApp() {
   // Moderate limits for read endpoints
   app.use("/api", moderate, contentRoutes);
   app.use("/api", moderate, verifyRoutes);
+  app.use("/api/verification-jobs", moderate, verificationJobsRoutes);
   app.use("/api", moderate, badgeRoutes);
   app.use("/api/notifications", moderate, notificationsRoutes);
 
