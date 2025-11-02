@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { WebVitals } from "./web-vitals";
+import Footer from "./components/Footer";
+import CookieConsent from "./components/CookieConsent";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_BASE || "https://internet-id.io";
 
@@ -161,7 +163,11 @@ export default function RootLayout({
           Skip to main content
         </a>
         <WebVitals />
-        <ErrorBoundary>{children}</ErrorBoundary>
+        <ErrorBoundary>
+          {children}
+          <Footer />
+        </ErrorBoundary>
+        <CookieConsent />
       </body>
     </html>
   );
