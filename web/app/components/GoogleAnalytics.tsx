@@ -1,9 +1,10 @@
 "use client";
 
 import Script from "next/script";
+import { useEffect, useState } from "react";
 
 /**
- * Google Analytics 4 (GA4) component
+ * Google Analytics 4 (GA4) component with consent mode support
  * 
  * To enable:
  * 1. Add NEXT_PUBLIC_GA_MEASUREMENT_ID to your .env.local file
@@ -13,9 +14,37 @@ import Script from "next/script";
  * NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
  * 
  * See docs/SEO_ANALYTICS_SETUP.md for full setup instructions.
+ * 
+ * This component integrates with the CookieConsent component to respect
+ * user consent preferences. Analytics will only track when consent is granted.
  */
 export default function GoogleAnalytics() {
   const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+  const [consentGranted, setConsentGranted] = useState(false);
+
+  useEffect(() => {
+    // Check initial consent from localStorage
+    const savedConsent = localStorage.getItem("cookie_consent");
+    if (savedConsent) {
+      try {
+        const parsed = JSON.parse(savedConsent);
+        setConsentGranted(parsed.analytics === true);
+      } catch (e) {
+        console.error("Failed to parse consent:", e);
+      }
+    }
+
+    // Listen for consent changes
+    const handleConsentChange = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      setConsentGranted(detail.analytics === true);
+    };
+
+    window.addEventListener("cookieConsentChanged", handleConsentChange as EventListener);
+    return () => {
+      window.removeEventListener("cookieConsentChanged", handleConsentChange as EventListener);
+    };
+  }, []);
 
   if (!measurementId) {
     // Analytics not configured - this is fine for development
@@ -32,6 +61,12 @@ export default function GoogleAnalytics() {
         {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
+          
+          // Set default consent state (denied by default, waiting for user choice)
+          gtag('consent', 'default', {
+            'analytics_storage': 'denied'
+          });
+          
           gtag('js', new Date());
           
           gtag('config', ${JSON.stringify(measurementId)}, {
@@ -39,6 +74,17 @@ export default function GoogleAnalytics() {
           });
         `}
       </Script>
+      {consentGranted && (
+        <Script id="google-analytics-consent-granted" strategy="afterInteractive">
+          {`
+            if (window.gtag) {
+              gtag('consent', 'update', {
+                'analytics_storage': 'granted'
+              });
+            }
+          `}
+        </Script>
+      )}
     </>
   );
 }

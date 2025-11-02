@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 type ConsentState = {
   essential: boolean;
@@ -16,13 +16,24 @@ export default function CookieConsent() {
     analytics: false,
     functional: true,
   });
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     // Check if user has already made a choice
     const savedConsent = localStorage.getItem("cookie_consent");
     if (!savedConsent) {
-      // Show banner after a short delay
-      setTimeout(() => setIsVisible(true), 1000);
+      // Check for Do Not Track - only if no saved consent
+      const dnt = navigator.doNotTrack || (window as any).doNotTrack || (navigator as any).msDoNotTrack;
+      if (dnt === "1" || dnt === "yes") {
+        // Respect DNT - disable analytics
+        const dntConsent = { essential: true, analytics: false, functional: true };
+        saveConsent(dntConsent);
+        applyConsent(dntConsent);
+      } else {
+        // Show banner after a short delay
+        setTimeout(() => setIsVisible(true), 1000);
+      }
     } else {
       // Load saved preferences
       try {
@@ -40,15 +51,6 @@ export default function CookieConsent() {
       setIsVisible(true);
     };
     window.addEventListener("openCookieSettings", handleOpenSettings);
-
-    // Check for Do Not Track
-    const dnt = navigator.doNotTrack || (window as any).doNotTrack || (navigator as any).msDoNotTrack;
-    if (dnt === "1" || dnt === "yes") {
-      // Respect DNT - disable analytics
-      const dntConsent = { essential: true, analytics: false, functional: true };
-      saveConsent(dntConsent);
-      applyConsent(dntConsent);
-    }
 
     return () => {
       window.removeEventListener("openCookieSettings", handleOpenSettings);
@@ -81,6 +83,8 @@ export default function CookieConsent() {
     applyConsent(fullConsent);
     setIsVisible(false);
     setShowSettings(false);
+    // Restore focus to previously focused element
+    previousFocusRef.current?.focus();
   };
 
   const handleEssentialOnly = () => {
@@ -90,6 +94,8 @@ export default function CookieConsent() {
     applyConsent(minimalConsent);
     setIsVisible(false);
     setShowSettings(false);
+    // Restore focus to previously focused element
+    previousFocusRef.current?.focus();
   };
 
   const handleSavePreferences = () => {
@@ -97,13 +103,55 @@ export default function CookieConsent() {
     applyConsent(consent);
     setIsVisible(false);
     setShowSettings(false);
+    // Restore focus to previously focused element
+    previousFocusRef.current?.focus();
   };
+
+  // Focus management and keyboard trap
+  useEffect(() => {
+    if (isVisible && dialogRef.current) {
+      // Save previously focused element
+      previousFocusRef.current = document.activeElement as HTMLElement;
+      
+      // Focus first interactive element in dialog
+      const firstButton = dialogRef.current.querySelector("button");
+      firstButton?.focus();
+
+      // Trap focus within dialog
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Tab" && dialogRef.current) {
+          const focusableElements = dialogRef.current.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          );
+          const firstElement = focusableElements[0] as HTMLElement;
+          const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+          if (e.shiftKey && document.activeElement === firstElement) {
+            // Shift+Tab on first element: focus last element
+            e.preventDefault();
+            lastElement?.focus();
+          } else if (!e.shiftKey && document.activeElement === lastElement) {
+            // Tab on last element: focus first element
+            e.preventDefault();
+            firstElement?.focus();
+          }
+        }
+      };
+
+      document.addEventListener("keydown", handleKeyDown);
+      return () => {
+        document.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+  }, [isVisible, showSettings]);
 
   if (!isVisible) return null;
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
+      aria-modal="true"
       aria-labelledby="cookie-consent-title"
       aria-describedby="cookie-consent-description"
       style={{
