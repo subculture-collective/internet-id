@@ -1,6 +1,6 @@
 import { withAuth } from "next-auth/middleware";
 import { NextRequest, NextResponse } from 'next/server';
-import { defaultLocale, locales } from './i18n';
+import { defaultLocale, locales, type Locale } from './i18n';
 
 // Simple middleware that handles both auth and locale detection
 export default withAuth(
@@ -9,10 +9,10 @@ export default withAuth(
     const cookieLocale = req.cookies.get('NEXT_LOCALE')?.value;
     const acceptLanguage = req.headers.get('accept-language');
     
-    let locale = defaultLocale;
+    let locale: Locale = defaultLocale;
     
     if (cookieLocale && locales.includes(cookieLocale as any)) {
-      locale = cookieLocale;
+      locale = cookieLocale as Locale;
     } else if (acceptLanguage) {
       // Parse Accept-Language header to find best match
       const languages = acceptLanguage
@@ -24,12 +24,22 @@ export default withAuth(
       
       const matchedLocale = languages.find((lang) => locales.includes(lang as any));
       if (matchedLocale) {
-        locale = matchedLocale;
+        locale = matchedLocale as Locale;
       }
     }
     
+    // Set locale in request headers for next-intl
+    const requestHeaders = new Headers(req.headers);
+    requestHeaders.set('x-next-intl-locale', locale);
+    
+    // Create response with updated headers
+    const response = NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
+    
     // Set locale cookie if not already set
-    const response = NextResponse.next();
     if (!cookieLocale || cookieLocale !== locale) {
       response.cookies.set('NEXT_LOCALE', locale, {
         path: '/',

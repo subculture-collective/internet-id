@@ -6,9 +6,10 @@ import Footer from "./components/Footer";
 import CookieConsent from "./components/CookieConsent";
 import GoogleAnalytics from "./components/GoogleAnalytics";
 import { NextIntlClientProvider } from 'next-intl';
-import { getLocale, getMessages } from 'next-intl/server';
+import { getMessages } from 'next-intl/server';
 import LanguageSwitcher from "./components/LanguageSwitcher";
 import { locales } from '../i18n';
+import { getLocaleFromHeaders } from '../lib/locale';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_BASE || "https://internet-id.io";
 
@@ -137,7 +138,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const locale = await getLocale();
+  const locale = await getLocaleFromHeaders();
   const messages = await getMessages();
 
   return (
