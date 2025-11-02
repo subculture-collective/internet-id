@@ -1,7 +1,9 @@
 import Link from "next/link";
 import CookieSettingsButton from "./CookieSettingsButton";
+import { useTranslations } from 'next-intl';
 
 export default function Footer() {
+  const t = useTranslations('footer');
   const currentYear = new Date().getFullYear();
 
   return (
@@ -27,7 +29,7 @@ export default function Footer() {
         {/* About Section */}
         <div>
           <h3 style={{ fontSize: "1rem", marginBottom: "0.75rem", fontWeight: 600 }}>
-            About Internet-ID
+            {t('about')}
           </h3>
           <p style={{ fontSize: "0.875rem", color: "#666", lineHeight: 1.6 }}>
             Blockchain-based content verification and authentication platform.
@@ -38,7 +40,7 @@ export default function Footer() {
         {/* Resources */}
         <div>
           <h3 style={{ fontSize: "1rem", marginBottom: "0.75rem", fontWeight: 600 }}>
-            Resources
+            {t('documentation')}
           </h3>
           <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
             <li style={{ marginBottom: "0.5rem" }}>
@@ -66,7 +68,7 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 style={{ fontSize: "0.875rem", color: "#0070f3", textDecoration: "none" }}
               >
-                Documentation
+                {t('documentation')}
               </a>
             </li>
           </ul>
@@ -83,7 +85,7 @@ export default function Footer() {
                 href="/privacy"
                 style={{ fontSize: "0.875rem", color: "#0070f3", textDecoration: "none" }}
               >
-                Privacy Policy
+                {t('privacy')}
               </Link>
             </li>
             <li style={{ marginBottom: "0.5rem" }}>
@@ -91,7 +93,7 @@ export default function Footer() {
                 href="/terms"
                 style={{ fontSize: "0.875rem", color: "#0070f3", textDecoration: "none" }}
               >
-                Terms of Service
+                {t('terms')}
               </Link>
             </li>
             <li style={{ marginBottom: "0.5rem" }}>
@@ -99,7 +101,7 @@ export default function Footer() {
                 href="/cookies"
                 style={{ fontSize: "0.875rem", color: "#0070f3", textDecoration: "none" }}
               >
-                Cookie Policy
+                {t('cookies')}
               </Link>
             </li>
             <li style={{ marginBottom: "0.5rem" }}>
@@ -111,7 +113,7 @@ export default function Footer() {
         {/* Contact */}
         <div>
           <h3 style={{ fontSize: "1rem", marginBottom: "0.75rem", fontWeight: 600 }}>
-            Contact
+            {t('contact')}
           </h3>
           <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
             <li style={{ marginBottom: "0.5rem" }}>
@@ -119,7 +121,7 @@ export default function Footer() {
                 href="mailto:support@subculture.io"
                 style={{ fontSize: "0.875rem", color: "#0070f3", textDecoration: "none" }}
               >
-                support@subculture.io
+                {t('support')}
               </a>
             </li>
             <li style={{ marginBottom: "0.5rem" }}>
@@ -157,7 +159,7 @@ export default function Footer() {
         }}
       >
         <p style={{ margin: 0 }}>
-          © {currentYear} Subculture Collective. All rights reserved.
+          © {currentYear} Subculture Collective. {t('allRightsReserved')}
         </p>
         <p style={{ margin: "0.5rem 0 0", fontSize: "0.75rem" }}>
           Built with ❤️ for human-created content verification
