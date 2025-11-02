@@ -203,3 +203,28 @@ model EmailLog {
   @@index([templateType, createdAt])
   @@index([recipient])
 }
+
+// Verification job tracking for async verification queue
+model VerificationJob {
+  id              String    @id @default(cuid())
+  jobId           String    @unique // BullMQ job ID
+  type            String    // "verify" or "proof"
+  contentHash     String?
+  manifestUri     String
+  registryAddress String
+  rpcUrl          String?
+  status          String    // "queued", "processing", "completed", "failed"
+  result          String?   // JSON string of verification result
+  error           String?
+  retryCount      Int       @default(0)
+  progress        Int       @default(0) // 0-100 percentage
+  startedAt       DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([jobId])
+  @@index([status, createdAt])
+  @@index([contentHash])
+  @@index([createdAt])
+}

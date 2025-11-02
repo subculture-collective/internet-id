@@ -39,6 +39,7 @@ This repo scaffolds a minimal on-chain content provenance flow:
 - **Comprehensive input validation** using Zod (see [docs/VALIDATION.md](./docs/VALIDATION.md))
 - Prisma ORM (SQLite by default; Postgres optional)
 - **Redis caching layer** for improved performance (optional, see [docs/CACHING_ARCHITECTURE.md](./docs/CACHING_ARCHITECTURE.md))
+- **Asynchronous verification queue** using BullMQ for background processing (optional, see [docs/VERIFICATION_QUEUE.md](./docs/VERIFICATION_QUEUE.md))
 - Next.js App Router web UI (optional)
 - NextAuth for sign-in (GitHub/Google to start), Prisma adapter
 - **Browser Extension** for one-click verification on supported platforms (Chrome, Firefox, Safari - see [extension/README.md](./extension/README.md))
