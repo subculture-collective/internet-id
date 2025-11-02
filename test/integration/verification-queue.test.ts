@@ -8,9 +8,7 @@ import request from "supertest";
 import { ethers } from "ethers";
 import { IntegrationTestEnvironment } from "../fixtures/helpers";
 import { createTestFile } from "../fixtures/factories";
-import { writeFile, unlink } from "fs/promises";
-import * as path from "path";
-import * as os from "os";
+import { unlink } from "fs/promises";
 
 describe("Integration: Verification Queue", function () {
   this.timeout(60000); // Increase timeout for queue processing
@@ -47,8 +45,7 @@ describe("Integration: Verification Queue", function () {
   describe("Async Verification Endpoints", function () {
     it("POST /api/verification-jobs/verify should enqueue or process synchronously", async function () {
       // Create test file and manifest
-      const { filePath, hash } = await createTestFile();
-      const manifestUri = `ipfs://test-manifest-${Date.now()}`;
+      const { filePath } = await createTestFile();
 
       try {
         // Upload and register content first

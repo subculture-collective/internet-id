@@ -270,26 +270,6 @@ router.post(
 );
 
 /**
- * Get job status
- * GET /api/verification-jobs/:jobId
- */
-router.get("/:jobId", async (req: Request, res: Response) => {
-  try {
-    const { jobId } = req.params;
-
-    const job = await verificationQueueService.getJobStatus(jobId);
-
-    if (!job) {
-      return res.status(404).json({ error: "Job not found" });
-    }
-
-    res.json(job);
-  } catch (e: any) {
-    res.status(500).json({ error: e?.message || String(e) });
-  }
-});
-
-/**
  * List verification jobs
  * GET /api/verification-jobs
  */
@@ -321,6 +301,26 @@ router.get("/stats", async (_req: Request, res: Response) => {
   try {
     const stats = await verificationQueueService.getStats();
     res.json(stats);
+  } catch (e: any) {
+    res.status(500).json({ error: e?.message || String(e) });
+  }
+});
+
+/**
+ * Get job status
+ * GET /api/verification-jobs/:jobId
+ */
+router.get("/:jobId", async (req: Request, res: Response) => {
+  try {
+    const { jobId } = req.params;
+
+    const job = await verificationQueueService.getJobStatus(jobId);
+
+    if (!job) {
+      return res.status(404).json({ error: "Job not found" });
+    }
+
+    res.json(job);
   } catch (e: any) {
     res.status(500).json({ error: e?.message || String(e) });
   }
