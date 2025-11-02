@@ -13,6 +13,16 @@ This repo scaffolds a minimal on-chain content provenance flow:
 
 **📚 Documentation:**
 
+### For End Users (Content Creators & Viewers)
+
+- **🚀 [User Guide](./docs/user-guide/INDEX.md)** - Complete documentation for creators and viewers
+- **⚡ [Quick Start](./docs/user-guide/quick-start.md)** - Register your first content in 5 minutes
+- **❓ [FAQ](./docs/user-guide/faq.md)** - Frequently asked questions
+- **🔍 [What is Internet ID?](./docs/user-guide/what-is-internet-id.md)** - Learn the basics
+- **🛠️ [Troubleshooting](./docs/user-guide/troubleshooting.md)** - Common issues and solutions
+
+### For Developers & Contributors
+
 - **New here?** Start with the [Contributor Onboarding Guide](./docs/CONTRIBUTOR_ONBOARDING.md)
 - **Architecture Overview:** See [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) for system design and component interactions
 - **Plain-English Pitch:** [PITCH.md](./PITCH.md) explains the problem and solution
