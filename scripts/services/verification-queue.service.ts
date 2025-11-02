@@ -254,7 +254,9 @@ class VerificationQueueService {
             topics: [topic0, fileHash],
           });
           if (logs.length) txHash = logs[logs.length - 1].transactionHash;
-        } catch {}
+        } catch {
+          // Silently ignore log fetch failures
+        }
 
         result = {
           version: "1.0",

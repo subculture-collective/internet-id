@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 import * as os from "os";
 import * as path from "path";
 import { unlink } from "fs/promises";
-import { sha256Hex, sha256HexFromFile } from "../services/hash.service";
+import { sha256HexFromFile } from "../services/hash.service";
 import { fetchManifest } from "../services/manifest.service";
 import { getProvider, getEntry } from "../services/registry.service";
 import { prisma } from "../db";
@@ -101,6 +101,7 @@ router.post(
           });
           await cacheService.delete(`verifications:${fileHash}`);
         } catch (e) {
+          // Silently log DB insert failures
           console.warn("DB insert verification failed:", e);
         }
 
@@ -108,7 +109,7 @@ router.post(
       }
 
       // Queue the verification job
-      const { jobId, queued } = await verificationQueueService.queueVerification({
+      const { jobId } = await verificationQueueService.queueVerification({
         type: "verify",
         filePath: req.file.path,
         manifestUri: manifestURI,
@@ -187,7 +188,9 @@ router.post(
             topics: [topic0, fileHash],
           });
           if (logs.length) txHash = logs[logs.length - 1].transactionHash;
-        } catch {}
+        } catch {
+          // Silently ignore log fetch failures
+        }
 
         const proof = {
           version: "1.0",
@@ -232,6 +235,7 @@ router.post(
           });
           await cacheService.delete(`verifications:${fileHash}`);
         } catch (e) {
+          // Silently log DB insert failures
           console.warn("DB insert verification (proof) failed:", e);
         }
 
