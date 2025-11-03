@@ -13,12 +13,14 @@ Think of it as a digital notary service that timestamps and authenticates your c
 ### Why should I use Internet ID?
 
 **For Creators:**
+
 - Prove you created content before anyone else
 - Combat impersonation and content theft
 - Build trust with your audience
 - Platform-independent proof (works across YouTube, TikTok, Twitter, etc.)
 
 **For Audiences:**
+
 - Verify content is from the real creator
 - Distinguish authentic content from deepfakes
 - Trust what you're watching/reading
@@ -27,13 +29,13 @@ Think of it as a digital notary service that timestamps and authenticates your c
 
 Internet ID doesn't replace copyright—it complements it:
 
-| Aspect | Copyright | Internet ID |
-|--------|-----------|-------------|
-| **Legal Protection** | Yes, full legal rights | No, just proof of creation |
-| **Registration** | Optional (automatic in most countries) | Voluntary opt-in |
-| **Cost** | Often expensive to enforce | ~$0.01 per registration |
-| **Speed** | Can take months/years to enforce | Instant verification |
-| **Proof** | Must go through courts | Public blockchain proof |
+| Aspect               | Copyright                              | Internet ID                |
+| -------------------- | -------------------------------------- | -------------------------- |
+| **Legal Protection** | Yes, full legal rights                 | No, just proof of creation |
+| **Registration**     | Optional (automatic in most countries) | Voluntary opt-in           |
+| **Cost**             | Often expensive to enforce             | ~$0.01 per registration    |
+| **Speed**            | Can take months/years to enforce       | Instant verification       |
+| **Proof**            | Must go through courts                 | Public blockchain proof    |
 
 Use Internet ID for **instant, public proof**. Use copyright for **legal protection and enforcement**.
 
@@ -45,6 +47,7 @@ Use Internet ID for **instant, public proof**. Use copyright for **legal protect
 **Verifying Content**: Free
 
 **Registration Costs**: Small blockchain gas fees
+
 - Base: ~$0.01 per registration
 - Polygon: ~$0.01 per registration
 - Ethereum: ~$0.50+ per registration (not recommended)
@@ -54,6 +57,7 @@ See [Gas Fees Guide](./gas-fees.md) for ways to minimize costs.
 ### Do I need to know about cryptocurrency or blockchain?
 
 No! While Internet ID uses blockchain technology, you don't need to understand how it works. Our guides walk you through:
+
 - Setting up a wallet (5 minutes)
 - Getting a small amount of crypto (~$5 worth)
 - Registering content (click a button)
@@ -67,12 +71,14 @@ If you can use Twitter, you can use Internet ID.
 **By default, YES!** You have two options:
 
 **Privacy Mode (Default)**:
+
 - Only the file's hash (fingerprint) is stored
 - Your original file stays on your device
 - Nobody can download or see your content
 - Perfect for unreleased work, sensitive content, or personal files
 
 **Public Mode (Opt-in)**:
+
 - You choose to upload the file to IPFS
 - Anyone can download the original
 - Good for content you want to distribute publicly
@@ -80,11 +86,13 @@ If you can use Twitter, you can use Internet ID.
 ### What data does Internet ID collect?
 
 We collect minimal data:
+
 - **On-chain**: Content hash, your wallet address, timestamp
 - **Off-chain**: Manifest (file metadata, your signature)
 - **Optional**: Email, social accounts (if you sign in for platform bindings)
 
 We NEVER collect:
+
 - Your private keys or recovery phrase
 - Your original files (unless you opt in)
 - Personally identifiable information (unless you provide it)
@@ -94,6 +102,7 @@ See [Privacy Policy](./privacy-security.md) for details.
 ### Can Internet ID access my wallet?
 
 **No!** We can never:
+
 - Access your funds
 - See your recovery phrase
 - Make transactions without your approval
@@ -104,6 +113,7 @@ You approve every transaction. Your wallet, your keys, your control.
 ### What if Internet ID shuts down?
 
 Your proof remains valid! Here's why:
+
 - Content hashes are on public blockchains (permanent)
 - Manifests are on IPFS (distributed storage)
 - You can verify independently with open-source tools
@@ -116,6 +126,7 @@ Internet ID the company could disappear, but your proof lives forever.
 ### Which platforms can I bind to?
 
 Currently supported:
+
 - ✅ YouTube
 - ✅ Twitter/X
 - ✅ TikTok
@@ -129,6 +140,7 @@ More platforms coming soon! Vote for your favorite in our Discord.
 ### Why do I need to bind platform links?
 
 Platforms re-encode your content (change quality, format, compression), so the file hash changes. Binding creates a verified link between:
+
 - Your original file (with hash A)
 - Your platform post (with hash B)
 
@@ -137,6 +149,7 @@ This way, viewers can verify your YouTube video even though YouTube changed the 
 ### Can I bind multiple platforms to one file?
 
 Yes! You can bind as many platform links as you want to a single registered file. For example:
+
 - Register original video once
 - Bind to YouTube version
 - Bind to Twitter version
@@ -146,6 +159,7 @@ Yes! You can bind as many platform links as you want to a single registered file
 ### Do I need to bind every platform?
 
 No, it's optional. Binding is useful when:
+
 - You've posted on platforms that re-encode (YouTube, TikTok)
 - You want easy verification for viewers
 - You want to use the browser extension
@@ -157,6 +171,7 @@ You can skip binding if you only want to prove you created the original file.
 ### Why use blockchain?
 
 Blockchain provides:
+
 - **Immutability**: Can't be changed or deleted
 - **Transparency**: Anyone can verify
 - **Decentralization**: No single point of failure
@@ -168,12 +183,14 @@ Traditional databases can be hacked, manipulated, or taken offline. Blockchain c
 ### Which blockchain should I use?
 
 We recommend **Base** for most users:
+
 - Very low fees (~$0.01)
 - Fast transactions (2-5 seconds)
 - Backed by Coinbase (reliable)
 - Growing ecosystem
 
 Other options:
+
 - **Polygon**: Also very cheap, more established
 - **Arbitrum/Optimism**: Good balance of cost and security
 - **Ethereum**: Most secure but expensive (~$0.50+ per transaction)
@@ -185,6 +202,7 @@ See [Network Comparison](./getting-started.md#step-2-choose-your-network) for de
 Gas fees are small payments to blockchain validators who process your transaction. Think of it like a stamp on a letter—you pay a tiny fee to have it delivered.
 
 **Typical Costs:**
+
 - Base: $0.01 per registration
 - Polygon: $0.01 per registration
 - Ethereum: $0.50-5.00 per registration
@@ -194,6 +212,7 @@ See [Gas Fees Guide](./gas-fees.md) for optimization tips.
 ### Can I use multiple blockchains?
 
 Yes! You can register the same content on multiple blockchains. Each registration is independent. This provides:
+
 - Redundancy (if one blockchain has issues)
 - Flexibility (use cheap networks for tests, secure networks for important content)
 - Broader reach (users can verify on their preferred network)
@@ -201,6 +220,7 @@ Yes! You can register the same content on multiple blockchains. Each registratio
 ### What if gas fees spike?
 
 Networks like Base and Polygon have very stable, low fees. But if fees spike:
+
 - Wait a few minutes/hours (fees fluctuate)
 - Use a different network (switch to Polygon if Base is expensive)
 - Batch multiple registrations (register 10 files at once)
@@ -212,6 +232,7 @@ See [Gas Optimization](./gas-fees.md#minimizing-costs).
 ### What's a content hash?
 
 A content hash is a unique "fingerprint" of your file created using cryptography (SHA-256 algorithm). Key properties:
+
 - **Unique**: Different files = different hashes
 - **Deterministic**: Same file = same hash (always)
 - **One-way**: Can't recreate file from hash
@@ -222,16 +243,17 @@ Example hash: `9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08`
 ### What's in a manifest?
 
 A manifest is a small JSON file that contains:
+
 ```json
 {
   "content_hash": "9f86d081...",
-  "content_uri": "ipfs://Qm...",  // optional
+  "content_uri": "ipfs://Qm...", // optional
   "created_at": "2025-11-02T...",
   "creator": "0x1234...",
   "signature": "0xabcd...",
   "metadata": {
     "name": "My Video",
-    "description": "...",
+    "description": "..."
     // optional fields
   }
 }
@@ -244,6 +266,7 @@ The manifest is signed with your wallet, proving you created it.
 IPFS (InterPlanetary File System) is a distributed storage network. Instead of storing files on one server, IPFS spreads them across thousands of computers worldwide.
 
 Benefits:
+
 - Can't be censored or taken down
 - No single point of failure
 - Content-addressed (hash is the address)
@@ -252,6 +275,7 @@ Benefits:
 ### Can I verify content without Internet ID?
 
 Yes! Everything is open-source. You can:
+
 1. Read the content hash from the blockchain
 2. Download the manifest from IPFS
 3. Recompute the file hash yourself
@@ -263,6 +287,7 @@ See [Manual Verification](./verifying-content.md#manual-verification) guide.
 ### Is the code open-source?
 
 Yes! Everything is on GitHub:
+
 - Smart contracts: https://github.com/subculture-collective/internet-id/tree/main/contracts
 - Web app: https://github.com/subculture-collective/internet-id/tree/main/web
 - API: https://github.com/subculture-collective/internet-id/tree/main/scripts
@@ -275,6 +300,7 @@ Contributions welcome!
 ### Do I need the browser extension?
 
 No, it's optional. The extension provides:
+
 - One-click verification on YouTube, Twitter, etc.
 - Automatic verification badges on platform pages
 - Quick access to register new content
@@ -284,6 +310,7 @@ You can use Internet ID without it, but the extension makes verification much ea
 ### Is the extension safe?
 
 Yes! The extension:
+
 - Is open-source (you can audit the code)
 - Requests minimal permissions
 - Doesn't track you
@@ -295,6 +322,7 @@ See [Extension Security](./browser-extension.md#security) for details.
 ### Why isn't it on the Chrome Web Store yet?
 
 We're working on it! Currently in review. For now:
+
 - Download from GitHub
 - Install as unpacked extension
 - Follow [installation guide](./browser-extension.md)
@@ -306,11 +334,13 @@ We're working on it! Currently in review. For now:
 **Per Registration**: ~$0.01 on Base or Polygon
 
 **How far does $5 go?**
+
 - Base: ~500 registrations
 - Polygon: ~500 registrations
 - Ethereum: ~10 registrations (expensive!)
 
 **Other Costs:**
+
 - Binding platform links: ~$0.01 each
 - Updating metadata: ~$0.01 per update
 - Verifying content: FREE
@@ -327,6 +357,7 @@ We're working on it! Currently in review. For now:
 Not currently. Internet ID uses a pay-per-use model (pay gas fees only).
 
 Future plans may include:
+
 - Premium features (batch operations, analytics)
 - White-label solutions for businesses
 - API access tiers
@@ -338,6 +369,7 @@ But core registration will always be available to anyone with gas fees.
 ### My transaction failed. What now?
 
 Common causes:
+
 1. **Insufficient balance**: Need gas + small buffer
 2. **Network congestion**: Try again in a few minutes
 3. **Wrong network**: Make sure wallet network matches app network
@@ -348,6 +380,7 @@ See [Troubleshooting Guide](./troubleshooting.md#transaction-failures) for detai
 ### I can't connect my wallet
 
 Try:
+
 1. Refresh the page
 2. Unlock MetaMask
 3. Check you're on the correct network
@@ -360,6 +393,7 @@ See [Troubleshooting Guide](./troubleshooting.md#wallet-issues).
 ### Where did my content go?
 
 Check:
+
 - Are you on the same network you registered on?
 - Did the transaction confirm? (Check on block explorer)
 - Did you refresh the page?
@@ -386,6 +420,7 @@ See [Troubleshooting Guide](./troubleshooting.md#content-not-showing).
 ### Can I try without spending money?
 
 Yes! Use test networks:
+
 1. Get free test tokens from [Base Sepolia Faucet](https://www.coinbase.com/faucets/base-sepolia-faucet)
 2. Register test content
 3. Try all features risk-free
@@ -396,6 +431,7 @@ See [Getting Started Guide](./getting-started.md#getting-test-funds-free) for de
 ### I want to build on Internet ID. Where do I start?
 
 Check out developer resources:
+
 - **[Developer Onboarding](../DEVELOPER_ONBOARDING.md)** - For builders
 - **[Public API Docs](../PUBLIC_API.md)** - API reference
 - **[SDK Documentation](../../sdk/typescript/README.md)** - TypeScript SDK
@@ -413,6 +449,7 @@ Check out developer resources:
 ### Can I suggest features?
 
 Yes! We love feedback. Share ideas:
+
 - Discord #feature-requests channel
 - GitHub Issues
 - Email: feedback@internet-id.io
@@ -420,6 +457,7 @@ Yes! We love feedback. Share ideas:
 ### Is there a bug bounty program?
 
 Yes! Report security vulnerabilities:
+
 - Email: security@subculture.io
 - Use GitHub Security Advisory
 - See [Security Policy](../SECURITY_POLICY.md)

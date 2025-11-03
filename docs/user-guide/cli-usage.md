@@ -102,6 +102,7 @@ This will prompt you for:
    - Default: https://app.internet-id.io/api
 
 **Example session**:
+
 ```bash
 $ internet-id init
 
@@ -196,12 +197,14 @@ internet-id upload ./my-video.mp4
 ```
 
 This:
+
 1. Hashes the file
 2. Creates and signs manifest
 3. Uploads manifest to IPFS
 4. Registers hash on blockchain
 
 **Options**:
+
 ```bash
 # Also upload file to IPFS (public mode)
 internet-id upload ./my-video.mp4 --upload-content
@@ -243,6 +246,7 @@ internet-id verify --url https://youtube.com/watch?v=abc123
 ```
 
 **Output example**:
+
 ```
 ✓ Verification successful!
 
@@ -256,7 +260,7 @@ Manifest Details:
   Title: My Amazing Video
   Description: A groundbreaking work
   Tags: video, creative, 2025
-  
+
 View on BaseScan: https://basescan.org/tx/0xabcdef...
 ```
 
@@ -311,6 +315,7 @@ internet-id proof ./my-video.mp4 --output my-proof.json
 ```
 
 **Proof JSON contains**:
+
 - Content hash
 - Manifest details
 - On-chain entry
@@ -453,22 +458,22 @@ name: Register Content
 on:
   push:
     paths:
-      - 'content/**'
+      - "content/**"
 
 jobs:
   register:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '18'
-      
+          node-version: "18"
+
       - name: Install CLI
         run: npm install -g @internet-id/cli
-      
+
       - name: Configure CLI
         env:
           PRIVATE_KEY: ${{ secrets.INTERNET_ID_PRIVATE_KEY }}
@@ -477,7 +482,7 @@ jobs:
           internet-id config set network base
           internet-id config set privateKey $PRIVATE_KEY
           internet-id config set ipfs.token $WEB3_STORAGE_TOKEN
-      
+
       - name: Register new content
         run: |
           internet-id batch-upload ./content/ \
@@ -520,13 +525,13 @@ TAGS="video,batch-$(date +%Y%m%d)"
 
 for file in "$DIRECTORY"/*.mp4; do
   echo "Processing: $file"
-  
+
   internet-id upload "$file" \
     --network "$NETWORK" \
     --title "$(basename "$file" .mp4)" \
     --tags "$TAGS" \
     --upload-content
-  
+
   if [ $? -eq 0 ]; then
     echo "✓ Success: $file"
   else
@@ -548,10 +553,10 @@ internet-id list --unbound --format json | \
   jq -r '.[] | [.hash, .title] | @tsv' | \
   while IFS=$'\t' read -r hash title; do
     echo "Checking: $title"
-    
+
     # Check if video exists on YouTube (custom logic)
     video_id=$(check_youtube_for_title "$title")
-    
+
     if [ -n "$video_id" ]; then
       echo "Found on YouTube: $video_id"
       internet-id bind youtube --hash "$hash" --video-id "$video_id"

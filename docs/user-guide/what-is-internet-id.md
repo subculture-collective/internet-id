@@ -28,22 +28,26 @@ Think of it like signing the cover of your work and filing a timestamp at a publ
 ## 🌟 Why Creators Love It
 
 ### ✅ Opt-in and Portable
+
 - No platform approval needed
 - Works across YouTube, TikTok, Instagram, Twitter/X, and more
 - Your proof goes with you wherever you share
 
 ### 🔒 Privacy by Default
+
 - You don't have to upload your original file (unless you choose to)
 - The proof works with just the hash + manifest
 - Your content stays under your control
 
 ### 🌐 Public and Durable
+
 - Anchored on an open blockchain
 - Anyone can verify with or without our app
 - Can't be censored or taken down
 - Works forever, even if Internet ID disappears
 
 ### ⚡ Lightweight and Fast
+
 - Tiny smart contract
 - Short manifest file
 - No heavy watermarking or invasive DRM
@@ -52,16 +56,19 @@ Think of it like signing the cover of your work and filing a timestamp at a publ
 ## 👥 Why Audiences Love It
 
 ### 🎯 Clear Signal
+
 - Badge and verification page that says "The creator anchored this"
 - Simple visual confirmation
 - Builds trust in what you're watching
 
 ### 📱 No Crypto Required
+
 - Click or scan to verify
 - Don't need a wallet to check
 - Works in any browser
 
 ### 🔗 Platform-Agnostic
+
 - Same signal follows content across the web
 - Verify on YouTube, check again on Twitter
 - One source of truth
@@ -69,26 +76,31 @@ Think of it like signing the cover of your work and filing a timestamp at a publ
 ## 🎬 Example Use Cases
 
 ### For Video Creators
+
 - Prove authorship of video series across multiple platforms
 - Combat fake re-uploads and impersonators
 - Build trust with your audience
 
 ### For Journalists & Filmmakers
+
 - Share source clips with durable provenance
 - Create verifiable evidence trails
 - Maintain credibility in the age of deepfakes
 
 ### For Musicians
+
 - Release stems and demos with provenance
 - Track lineage of remasters
 - Let fans verify authentic releases
 
 ### For Brands
+
 - Combat fake accounts and spoofed announcements
 - Verify official content and statements
 - Build trust with customers
 
 ### For Artists
+
 - Prove original creation of artwork
 - Track derivative works
 - Protect against art theft
@@ -96,27 +108,33 @@ Think of it like signing the cover of your work and filing a timestamp at a publ
 ## 🚫 What Internet ID Is NOT
 
 ### Not a Truth Claim
+
 Internet ID proves **you** created and signed something. It doesn't claim the content is "true" or "accurate"—just that you, the creator, opted in and anchored it.
 
 ### Not Copy Protection
+
 This isn't DRM. People can still copy or re-upload your content. Internet ID helps viewers tell the original from imposters.
 
 ### Not a Centralized Platform
+
 There's no lock-in. The proof is on an open blockchain. You can verify it yourself, build your own tools, or use ours—your choice.
 
 ## 🔄 Quick Flow Overview
 
 ### Registering Content
+
 1. Upload (optional) → Manifest → Register on-chain
 2. Get your content hash anchored to blockchain
 3. Receive verification badge and shareable link
 
 ### Binding to Platforms
+
 1. Post your content on YouTube, Twitter, TikTok, etc.
 2. Bind the platform link to your registered content
 3. Share verification badge with your audience
 
 ### Verifying Content
+
 1. Paste a link or scan a QR code
 2. View on-chain entry and manifest
 3. Optional: byte-level check if you have the original

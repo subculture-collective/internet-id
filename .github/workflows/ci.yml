@@ -54,6 +54,9 @@ jobs:
       - name: Check formatting
         run: npm run format:check
 
+      - name: Validate Prisma schema format
+        run: npm run db:format:check
+
       - name: Compile Hardhat contracts
         run: npm run build
 
@@ -70,6 +73,13 @@ jobs:
   web:
     name: Web (Lint, TypeScript)
     runs-on: ubuntu-latest
+
+    env:
+      # Mock environment variables for Next.js build
+      # The build uses standalone mode and doesn't require real values
+      DATABASE_URL: postgresql://internetid:internetid@localhost:5432/internetid_test?schema=public
+      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_SECRET: ci-test-secret-not-for-production
 
     steps:
       - name: Checkout code

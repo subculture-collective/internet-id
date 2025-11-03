@@ -9,6 +9,7 @@ This document summarizes the implementation of the asynchronous verification que
 ### 1. Infrastructure Changes
 
 #### Docker Compose (`docker-compose.yml`)
+
 - Added Redis service with Alpine Linux image
 - Configured Redis with AOF (Append-Only File) persistence
 - Added health checks for Redis
@@ -16,6 +17,7 @@ This document summarizes the implementation of the asynchronous verification que
 - Updated API service to depend on Redis
 
 #### Prisma Schema (`prisma/schema.prisma`)
+
 - Added `VerificationJob` model to track job status and results
 - Includes fields for:
   - Job ID (BullMQ job identifier)
@@ -31,6 +33,7 @@ This document summarizes the implementation of the asynchronous verification que
 ### 2. Core Services
 
 #### Verification Queue Service (`scripts/services/verification-queue.service.ts`)
+
 - Implements job queuing with BullMQ
 - Features:
   - Automatic retry with exponential backoff (3 attempts)
@@ -42,12 +45,14 @@ This document summarizes the implementation of the asynchronous verification que
   - Stats API for queue metrics
 
 #### Hash Service Update (`scripts/services/hash.service.ts`)
+
 - Added `sha256HexFromFile()` for streaming file hash computation
 - Avoids loading large files into memory
 
 ### 3. API Endpoints
 
 #### New Routes (`scripts/routes/verification-jobs.routes.ts`)
+
 - `POST /api/verification-jobs/verify` - Enqueue verification job
 - `POST /api/verification-jobs/proof` - Enqueue proof generation job
 - `GET /api/verification-jobs/:jobId` - Get job status
@@ -55,11 +60,13 @@ This document summarizes the implementation of the asynchronous verification que
 - `GET /api/verification-jobs/stats` - Get queue statistics
 
 All endpoints support:
+
 - Automatic fallback to synchronous processing when Redis unavailable
 - Response includes `mode` field: "async" or "sync"
 - Async mode provides `jobId` and `pollUrl` for status tracking
 
 #### Application Integration (`scripts/app.ts`)
+
 - Initialized verification queue service on startup
 - Mounted new routes under `/api/verification-jobs`
 - Applied moderate rate limiting to endpoints
@@ -67,6 +74,7 @@ All endpoints support:
 ### 4. Testing
 
 #### Integration Tests (`test/integration/verification-queue.test.ts`)
+
 - Tests async verification workflow
 - Tests async proof generation workflow
 - Tests job status polling
@@ -76,6 +84,7 @@ All endpoints support:
 - Validates graceful degradation when Redis unavailable
 
 #### Manual Test Script (`scripts/test-verification-queue.ts`)
+
 - Demonstrates queue initialization
 - Shows job enqueueing process
 - Demonstrates status polling
@@ -85,6 +94,7 @@ All endpoints support:
 ### 5. Documentation
 
 #### Comprehensive Guide (`docs/VERIFICATION_QUEUE.md`)
+
 - Architecture overview
 - Setup instructions (Docker Compose and manual)
 - API usage examples with curl commands
@@ -95,36 +105,42 @@ All endpoints support:
 - Production considerations
 
 #### README Update (`README.md`)
+
 - Added mention of async verification queue to Stack section
 - Linked to detailed documentation
 
 ## Key Features
 
 ### 1. Graceful Degradation
+
 - System works with or without Redis
 - Automatically falls back to synchronous processing
 - No breaking changes to existing API consumers
 - Clear indication of mode in API responses
 
 ### 2. Job Tracking
+
 - Persistent job records in PostgreSQL
 - Real-time progress updates (0-100%)
 - Detailed error messages on failure
 - Retry attempt tracking
 
 ### 3. Resilience
+
 - Automatic retries with exponential backoff
 - Job persistence across service restarts
 - Stale job detection and recovery
 - Worker health monitoring
 
 ### 4. Performance
+
 - Background processing frees up API workers
 - Configurable worker concurrency
 - Better handling of load spikes
 - Streaming file processing to reduce memory usage
 
 ### 5. Monitoring
+
 - Queue statistics API
 - Job listing and filtering
 - Database queries for job analysis
@@ -134,6 +150,7 @@ All endpoints support:
 ## API Response Examples
 
 ### Async Mode (Redis Available)
+
 ```json
 {
   "mode": "async",
@@ -145,6 +162,7 @@ All endpoints support:
 ```
 
 ### Sync Mode (Redis Unavailable)
+
 ```json
 {
   "mode": "sync",
@@ -163,6 +181,7 @@ All endpoints support:
 ```
 
 ### Job Status Response
+
 ```json
 {
   "id": "abc123",
@@ -180,12 +199,15 @@ All endpoints support:
 ## Configuration
 
 ### Environment Variables
+
 - `REDIS_URL` - Redis connection string (optional)
   - If set: Enables async queue processing
   - If not set: Falls back to synchronous processing
 
 ### Queue Configuration
+
 Located in `verification-queue.service.ts`:
+
 - `MAX_RETRY_ATTEMPTS`: 3
 - `RETRY_BACKOFF`: Exponential, starting at 5 seconds
 - `CONCURRENCY`: 3 workers
@@ -194,6 +216,7 @@ Located in `verification-queue.service.ts`:
 ## Migration Path
 
 ### For Existing Deployments
+
 1. Add Redis service to infrastructure
 2. Set `REDIS_URL` environment variable
 3. Run database migration for `VerificationJob` table
@@ -201,6 +224,7 @@ Located in `verification-queue.service.ts`:
 5. Monitor queue statistics
 
 ### No Breaking Changes
+
 - Existing `/api/verify` and `/api/proof` endpoints still work
 - New async endpoints are additive
 - Clients can migrate at their own pace
@@ -208,11 +232,13 @@ Located in `verification-queue.service.ts`:
 ## Performance Impact
 
 ### Before (Synchronous)
+
 - API worker blocked during verification
 - One verification at a time per worker
 - Slow verifications impact all requests
 
 ### After (Asynchronous)
+
 - API worker responds immediately
 - Up to 3 concurrent verifications
 - Independent verification throughput
@@ -233,18 +259,20 @@ Located in `verification-queue.service.ts`:
 ## Next Steps
 
 1. **Database Migration**: Create and run Prisma migration
+
    ```bash
    npx prisma migrate dev --name add-verification-job
    ```
 
 2. **Testing**: Run integration tests with Redis
+
    ```bash
    # Start Redis
    docker run -d -p 6379:6379 redis:7-alpine
-   
+
    # Set environment
    export REDIS_URL=redis://localhost:6379
-   
+
    # Run tests
    npm test
    ```
@@ -273,6 +301,7 @@ Located in `verification-queue.service.ts`:
 ## Files Changed/Added
 
 ### New Files
+
 - `scripts/services/verification-queue.service.ts`
 - `scripts/routes/verification-jobs.routes.ts`
 - `test/integration/verification-queue.test.ts`
@@ -281,6 +310,7 @@ Located in `verification-queue.service.ts`:
 - `VERIFICATION_QUEUE_IMPLEMENTATION_SUMMARY.md`
 
 ### Modified Files
+
 - `docker-compose.yml` - Added Redis service
 - `prisma/schema.prisma` - Added VerificationJob model
 - `scripts/app.ts` - Integrated queue service
@@ -318,6 +348,7 @@ From the original issue:
 ## Conclusion
 
 The asynchronous verification queue has been successfully implemented with:
+
 - Full feature parity with existing synchronous verification
 - Graceful degradation when Redis unavailable
 - Comprehensive testing and documentation

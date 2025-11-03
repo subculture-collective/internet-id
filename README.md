@@ -125,11 +125,13 @@ This project uses GitHub Actions to ensure code quality and prevent regressions.
 ### CI Workflows
 
 1. **Backend Job**:
-   - Installs dependencies
+   - Installs dependencies with npm cache
    - Runs ESLint on root package
    - Checks code formatting with Prettier
+   - Validates Prisma schema formatting
    - Compiles Solidity contracts with Hardhat
-   - Runs all backend tests
+   - Generates Prisma client and runs migrations
+   - Runs all backend tests (Hardhat + unit tests)
 
 2. **Web Job**:
    - Installs dependencies for both root and web packages
@@ -153,6 +155,75 @@ View the [CI workflow configuration](.github/workflows/ci.yml) and [E2E workflow
 
 **Note**: This CI workflow is part of the project roadmap to guard against regressions (see [#10](https://github.com/subculture-collective/internet-id/issues/10)).
 
+### CI Environment Variables
+
+The CI workflows use the following environment variables:
+
+**Backend Job:**
+
+- `DATABASE_URL`: PostgreSQL connection for tests (provided by CI service container)
+  - Value: `postgresql://internetid:internetid@localhost:5432/internetid_test?schema=public`
+  - PostgreSQL 16 runs as a service container with health checks
+
+**Web Job:**
+
+- `DATABASE_URL`: Same as backend (for Prisma client generation)
+- `NEXTAUTH_URL`: Base URL for NextAuth (mock value: `http://localhost:3000`)
+- `NEXTAUTH_SECRET`: Session encryption secret (mock value for build-time only)
+
+**Note**: No real secrets or RPC URLs are required for CI. The workflows use:
+
+- Local PostgreSQL for database tests
+- Mock values for Next.js build (build runs in standalone mode)
+- Hardhat's built-in test network for smart contract tests
+
+### Local CI Debugging
+
+To reproduce CI failures locally:
+
+```bash
+# Backend workflow
+npm ci --legacy-peer-deps
+npm run lint:root
+npm run format:check
+npx prisma format --check
+npm run build                    # Compile Hardhat contracts
+npm run db:generate              # Generate Prisma client
+npx prisma migrate deploy        # Run migrations
+npm test                         # Run Hardhat tests
+
+# Web workflow
+cd web
+npm ci --legacy-peer-deps
+npm run lint
+npm run format:check
+npm run build                    # Build Next.js app
+cd ..
+```
+
+**PostgreSQL Setup for Local Testing:**
+
+```bash
+# Using Docker
+docker run -d \
+  --name postgres-test \
+  -e POSTGRES_USER=internetid \
+  -e POSTGRES_PASSWORD=internetid \
+  -e POSTGRES_DB=internetid_test \
+  -p 5432:5432 \
+  postgres:16-alpine
+
+# Set environment variable
+export DATABASE_URL="postgresql://internetid:internetid@localhost:5432/internetid_test?schema=public"
+
+# Run migrations and tests
+npm run db:generate
+npx prisma migrate deploy
+npm test
+```
+
+For more troubleshooting, see the [Development Setup Guide](./docs/DEVELOPMENT_SETUP.md).
+
 ## Dependency Management
 
 The project uses automated tools to keep dependencies up-to-date and secure:
@@ -162,7 +233,6 @@ The project uses automated tools to keep dependencies up-to-date and secure:
   - Regular updates: Weekly checks (Mondays)
   - Auto-merge for patch/minor updates after CI passes
   - Manual review required for major version updates
-  
 - **CodeQL**: Advanced security analysis (weekly + on push/PR)
 - **Dependency Review**: Checks PRs for vulnerable dependencies
 

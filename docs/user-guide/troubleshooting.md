@@ -52,6 +52,7 @@ If all checked and still having issues, see specific problems below.
    - Update and restart browser
 
 **Still not working?**
+
 - Disable other wallet extensions (conflicts can occur)
 - Try incognito/private mode
 - Check browser console for errors (F12 → Console tab)
@@ -210,16 +211,19 @@ If all checked and still having issues, see specific problems below.
 **Causes & Solutions:**
 
 **File was modified:**
+
 - Even tiny changes alter the hash
 - Make sure you're using the exact same file
 - Check file size and modification date
 
 **Downloaded/re-encoded file:**
+
 - Platforms like YouTube change files
 - Use the original file, not downloaded version
 - Or use platform binding instead
 
 **File corruption:**
+
 - Re-download or re-export file
 - Check file opens correctly
 - Use a file integrity tool to verify
@@ -464,6 +468,7 @@ If all checked and still having issues, see specific problems below.
 ### Before Contacting Support
 
 Please gather:
+
 1. What you were trying to do
 2. What happened instead
 3. Error messages (screenshot if possible)
@@ -475,25 +480,30 @@ Please gather:
 ### How to Get Help
 
 **Community Support (Fastest):**
+
 - Discord: https://discord.gg/internetid
 - Active community can often help immediately
 
 **Check Existing Resources:**
+
 - [FAQ](./faq.md) - Common questions
 - [User Guide Index](./INDEX.md) - All documentation
 - [GitHub Issues](https://github.com/subculture-collective/internet-id/issues) - Known issues
 
 **Contact Support:**
+
 - Email: support@internet-id.io
 - Response time: 24-48 hours
 - Include information from "Before Contacting Support" above
 
 **Report Bugs:**
+
 - [GitHub Issues](https://github.com/subculture-collective/internet-id/issues/new)
 - Choose "Bug Report" template
 - Provide detailed reproduction steps
 
 **Security Issues:**
+
 - Email: security@subculture.io
 - Use GitHub Security Advisory for sensitive issues
 - See [Security Policy](../SECURITY_POLICY.md)

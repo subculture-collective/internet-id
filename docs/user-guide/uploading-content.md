@@ -31,22 +31,26 @@ This creates permanent, verifiable proof of ownership.
 Internet ID supports virtually any file type:
 
 ### Media Files
+
 - **Videos**: MP4, MOV, AVI, MKV, WEBM, FLV, WMV
 - **Images**: JPG, JPEG, PNG, GIF, SVG, WEBP, BMP, TIFF
 - **Audio**: MP3, WAV, FLAC, AAC, OGG, M4A
 
 ### Documents
+
 - **Text**: TXT, MD, RTF
 - **Documents**: PDF, DOC, DOCX
 - **Spreadsheets**: XLS, XLSX, CSV
 - **Presentations**: PPT, PPTX
 
 ### Code & Data
+
 - **Code**: JS, TS, PY, JAVA, C, CPP, GO, RUST
 - **Data**: JSON, XML, YAML, SQL
 - **Archives**: ZIP, TAR, GZ
 
 ### Size Limits
+
 - **Web Upload**: 100 MB max
 - **CLI Upload**: No limit (but IPFS may have practical limits)
 - **Local Hash Only**: No limit (file stays on your device)
@@ -62,17 +66,20 @@ Internet ID offers three ways to register content:
 **Best for**: Quick, single-file registration
 
 **What it does**:
+
 - Uploads manifest to IPFS
 - Registers hash on blockchain
 - Optionally uploads file to IPFS
 - Optionally binds platform link
 
 **Pros**:
+
 - Simplest method (one click)
 - Fastest workflow
 - Great for beginners
 
 **Cons**:
+
 - One file at a time
 - Less control over individual steps
 
@@ -83,17 +90,20 @@ Internet ID offers three ways to register content:
 **Best for**: Fine-grained control, understanding the process
 
 **What it does**:
+
 1. **Upload File** (optional) → Get IPFS CID
 2. **Create Manifest** → Generate and sign manifest
 3. **Upload Manifest** → Store manifest on IPFS
 4. **Register On-Chain** → Anchor hash to blockchain
 
 **Pros**:
+
 - Full control over each step
 - Can reuse manifests
 - Educational (see how it works)
 
 **Cons**:
+
 - More steps
 - Takes longer
 
@@ -106,12 +116,14 @@ Internet ID offers three ways to register content:
 **What it does**: Same as One-Shot but via command line
 
 **Pros**:
+
 - Scriptable/automatable
 - No file size limits
 - Batch processing
 - CI/CD integration
 
 **Cons**:
+
 - Requires terminal/command-line knowledge
 - More initial setup
 
@@ -124,50 +136,60 @@ Internet ID gives you complete control over privacy:
 ### Privacy Mode (Default) 🔒
 
 **What's stored**:
+
 - ✅ Content hash (fingerprint)
 - ✅ Manifest (metadata + signature)
 - ❌ Original file (stays on your device)
 
 **Who can see what**:
+
 - Anyone can see the hash exists
 - Anyone can see when it was registered
 - Nobody can download your original file
 - Nobody can see file contents
 
 **Best for**:
+
 - Unreleased content
 - Sensitive material
 - Personal files
 - Anything you want to keep private
 
 **How to enable**:
+
 ```
 ☐ Upload file to IPFS
 ```
+
 Leave this checkbox **unchecked** during registration.
 
 ### Public Mode 🌐
 
 **What's stored**:
+
 - ✅ Content hash
 - ✅ Manifest
 - ✅ Original file on IPFS
 
 **Who can see what**:
+
 - Anyone can download the original file
 - File is publicly accessible
 - Permanent (can't be deleted from IPFS)
 
 **Best for**:
+
 - Content you want to distribute
 - Public releases
 - Open-source projects
 - Marketing materials
 
 **How to enable**:
+
 ```
 ☑ Upload file to IPFS
 ```
+
 Check this checkbox during registration.
 
 > ⚠️ **Warning**: Once uploaded to IPFS, files cannot be deleted. Make sure you want to make it public!
@@ -271,6 +293,7 @@ See [CLI Usage Guide](./cli-usage.md) for complete documentation.
 ### File Preparation
 
 **Before Registration:**
+
 1. ✅ Finalize your content (edits change the hash!)
 2. ✅ Choose high quality (don't compress excessively)
 3. ✅ Use descriptive filenames
@@ -278,6 +301,7 @@ See [CLI Usage Guide](./cli-usage.md) for complete documentation.
 5. ✅ Test with a small file first
 
 **Metadata Tips:**
+
 - Use clear, descriptive titles
 - Add comprehensive descriptions
 - Include relevant tags for discoverability
@@ -287,12 +311,14 @@ See [CLI Usage Guide](./cli-usage.md) for complete documentation.
 ### When to Register
 
 **Good Times to Register:**
+
 - ✅ Before public release (prove you created it first)
 - ✅ At creation time (best provenance)
 - ✅ Before sharing drafts (protect early versions)
 - ✅ For important milestones (album releases, film premieres)
 
 **Can Still Register Later:**
+
 - After posting online (better late than never!)
 - For older content (backdate your library)
 - When you discover deepfakes/impersonation
@@ -300,24 +326,28 @@ See [CLI Usage Guide](./cli-usage.md) for complete documentation.
 ### Choosing a Network
 
 **Base (Recommended)**:
+
 - Very cheap (~$0.01)
 - Fast (2-5 seconds)
 - Growing adoption
 - Good for most users
 
 **Polygon**:
+
 - Also very cheap (~$0.01)
 - Fast (2-5 seconds)
 - More established
 - Good alternative to Base
 
 **Ethereum**:
+
 - Most secure
 - Most expensive ($0.50-5.00)
 - Slower (12-15 seconds)
 - Only for very important content
 
 **Testnet** (Practice):
+
 - Free test tokens
 - Same process as mainnet
 - No real value
@@ -328,6 +358,7 @@ See [Network Comparison](./getting-started.md#step-2-choose-your-network) for de
 ### Security Best Practices
 
 **Protect Your Wallet:**
+
 - Store recovery phrase securely (paper, not digital)
 - Never share your private key
 - Use strong passwords
@@ -335,12 +366,14 @@ See [Network Comparison](./getting-started.md#step-2-choose-your-network) for de
 - Be cautious of phishing
 
 **Transaction Safety:**
+
 - Always review gas fees before confirming
 - Check you're on the correct network
 - Verify contract address (if shown)
 - Don't approve suspicious transactions
 
 **Content Safety:**
+
 - Consider privacy before uploading to IPFS
 - Remove personal information from files
 - Watermark images if concerned about theft
@@ -360,7 +393,7 @@ You can add custom metadata to your manifest:
     "description": "...",
     "license": "CC-BY-4.0",
     "tags": ["video", "tutorial"],
-    "custom_field": "custom_value"  // Add your own!
+    "custom_field": "custom_value" // Add your own!
   }
 }
 ```
@@ -372,6 +405,7 @@ Custom fields are preserved and included in verification.
 Register multiple files at once:
 
 **Web UI:**
+
 1. Go to **Register Content** → **Batch Registration**
 2. Select multiple files
 3. Configure shared settings
@@ -379,6 +413,7 @@ Register multiple files at once:
 5. Register all at once (pays gas for each)
 
 **CLI:**
+
 ```bash
 # Register entire directory
 internet-id batch-upload ./my-content-folder
@@ -396,12 +431,14 @@ See [Managing Content - Batch Operations](./managing-content.md#batch-operations
 By default, Internet ID uses public IPFS gateways. You can specify your own:
 
 **In Web UI:**
+
 1. Settings → IPFS Configuration
 2. Choose: Web3.Storage, Pinata, Infura, or Local
 3. Add API credentials
 4. Test connection
 
 **In CLI:**
+
 ```bash
 internet-id config set ipfs.provider web3storage
 internet-id config set ipfs.token YOUR_TOKEN
@@ -414,11 +451,13 @@ See [Advanced Configuration](./managing-content.md#advanced-configuration).
 Register the same content on multiple blockchains for redundancy:
 
 **Why?**
+
 - Broader reach
 - Network redundancy
 - Different audiences prefer different chains
 
 **How:**
+
 1. Register on first network (e.g., Base)
 2. Switch network in wallet
 3. Register same file again on second network (e.g., Polygon)
@@ -472,6 +511,7 @@ After successful registration, you have:
 6. **Public Verification Page**: Anyone can check
 
 You can now:
+
 - Share your verification badge
 - Bind to platform links
 - Verify content anytime
@@ -482,16 +522,19 @@ You can now:
 ### Upload Fails
 
 **File too large:**
+
 - Use CLI for files over 100MB
 - Compress file (but hash will change!)
 - Use privacy mode (don't upload file)
 
 **Network timeout:**
+
 - Check internet connection
 - Try again (uploads are resumable on CLI)
 - Switch IPFS provider
 
 **IPFS error:**
+
 - Check IPFS provider status
 - Try different provider
 - Use local IPFS node
@@ -499,12 +542,14 @@ You can now:
 ### Manifest Creation Fails
 
 **Wallet won't sign:**
+
 - Make sure wallet is unlocked
 - Check you're on the correct account
 - Try refreshing the page
 - Update wallet extension
 
 **Invalid metadata:**
+
 - Check special characters in title/description
 - Ensure proper JSON format (if custom fields)
 - Try removing custom metadata
@@ -512,16 +557,19 @@ You can now:
 ### Registration Transaction Fails
 
 **Insufficient funds:**
+
 - Need more ETH/MATIC for gas
 - Check you're on the right network
 - Add a small buffer ($0.10 extra)
 
 **Transaction stuck:**
+
 - Increase gas price in wallet
 - Wait (can take minutes during congestion)
 - Cancel and retry
 
 **Wrong network:**
+
 - Switch wallet to match app network
 - Refresh the page after switching
 

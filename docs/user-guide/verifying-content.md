@@ -76,12 +76,14 @@ When verification completes, you'll see one of these results:
 ### ✅ Verified
 
 **What it means**:
+
 - Content hash matches on-chain record
 - Creator's signature is valid
 - On-chain record exists
 - Everything checks out!
 
 **Verification details shown**:
+
 - ✅ Content hash (fingerprint)
 - ✅ Creator wallet address
 - ✅ Registration date/time
@@ -92,6 +94,7 @@ When verification completes, you'll see one of these results:
 **Trust level**: High - This content is registered by the claimed creator
 
 **Example**:
+
 ```
 ✅ VERIFIED
 
@@ -107,23 +110,27 @@ View on BaseScan | Download Manifest | Share
 ### ❌ Not Verified
 
 **What it means**:
+
 - No matching record found on blockchain
 - Content hash doesn't match any registration
 - Either not registered, or file was modified
 
 **Possible reasons**:
+
 1. Content was never registered
 2. File was modified (hash changed)
 3. Creator used a different network (check other networks)
 4. Registration hasn't confirmed yet (wait a minute)
 
 **What to do**:
+
 - Try other networks (switch network dropdown)
 - Check if you have the original file (not re-encoded version)
 - Contact the creator to confirm registration
 - Check for platform binding (use platform URL instead)
 
 **Example**:
+
 ```
 ❌ NOT VERIFIED
 
@@ -139,10 +146,12 @@ Try:
 ### ⚠️ Partially Verified
 
 **What it means**:
+
 - Platform binding exists, but something is inconsistent
 - Usually means the file was re-encoded by the platform
 
 **What's checked**:
+
 - ✅ Platform binding exists
 - ✅ Original file was registered
 - ⚠️ Current file hash differs (expected for platforms)
@@ -150,6 +159,7 @@ Try:
 **This is NORMAL for YouTube, TikTok, etc.** - they re-encode all uploads.
 
 **Example**:
+
 ```
 ⚠️ PLATFORM VERIFIED
 
@@ -165,15 +175,18 @@ The original file was verified and bound to this video.
 ### ⏳ Pending
 
 **What it means**:
+
 - Transaction is still being processed
 - On-chain record not yet confirmed
 
 **What to do**:
+
 - Wait 30-60 seconds
 - Refresh the page
 - Check transaction on block explorer
 
 **Example**:
+
 ```
 ⏳ PENDING VERIFICATION
 
@@ -188,51 +201,62 @@ This usually takes 15-30 seconds.
 Let's break down what each verification detail means:
 
 ### Content Hash
+
 ```
 9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08
 ```
+
 - Unique fingerprint of the file
 - Created using SHA-256 algorithm
 - Same file = same hash (always)
 - Different file = different hash
 
 ### Creator Address
+
 ```
 0x1234567890abcdef1234567890abcdef12345678
 ```
+
 - Wallet address that registered the content
 - Proves who claimed ownership
 - Can be verified on blockchain
 - Public information (safe to share)
 
 ### Registration Date
+
 ```
 Nov 1, 2025 at 2:30 PM UTC
 ```
+
 - When content was anchored on-chain
 - Proves "I had this by this date"
 - Timezone: Always shown in UTC
 - Check transaction for exact timestamp
 
 ### Network
+
 ```
 Base (Chain ID: 8453)
 ```
+
 - Which blockchain holds the record
 - Important for finding the registration
 - Different networks are independent
 - Must check the correct network
 
 ### Transaction Hash
+
 ```
 0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
 ```
+
 - Permanent receipt of registration
 - Click to view on block explorer
 - Cannot be faked or altered
 - Public proof anyone can verify
 
 ### Manifest
+
 ```json
 {
   "content_hash": "9f86d081...",
@@ -242,6 +266,7 @@ Base (Chain ID: 8453)
   "metadata": { ... }
 }
 ```
+
 - Contains metadata about the content
 - Signed by creator's wallet
 - Stored on IPFS
@@ -275,33 +300,39 @@ See [Browser Extension Guide](./browser-extension.md) for installation instructi
 ### Supported Platforms
 
 Currently supported for automatic badges:
+
 - ✅ YouTube
 - ✅ Twitter/X
 - 🔄 Coming soon: TikTok, Instagram, GitHub
 
 Can manually verify any platform using:
+
 - Extension popup → "Verify URL"
 - Paste any platform URL
 
 ### Extension Features
 
 **Auto-Verify**:
+
 - Automatically checks content when you visit
 - Toggle on/off in settings
 - Default: On
 
 **Badge Display**:
+
 - Shows badge on verified content
 - Toggle on/off in settings
 - Choose badge position (top-left, top-right, etc.)
 
 **Quick Actions**:
+
 - View full verification
 - Copy verification link
 - Share on social media
 - Download proof bundle
 
 **Cache**:
+
 - Results cached for 5 minutes
 - Reduces API calls
 - Click "Refresh" to force re-check
@@ -329,11 +360,7 @@ Get-FileHash your-file.mp4 -Algorithm SHA256
 Using ethers.js or web3.js:
 
 ```javascript
-const registry = new ethers.Contract(
-  REGISTRY_ADDRESS,
-  REGISTRY_ABI,
-  provider
-);
+const registry = new ethers.Contract(REGISTRY_ADDRESS, REGISTRY_ABI, provider);
 
 const contentHash = "0x9f86d081884c7d659a2feaa0...";
 const entry = await registry.entries(contentHash);
@@ -383,15 +410,18 @@ Each platform requires a slightly different approach:
 ### YouTube
 
 **Direct Verification**:
+
 1. Copy video URL: `https://youtube.com/watch?v=VIDEO_ID`
 2. Paste into Internet ID verify page
 3. Results show if bound to registered content
 
 **With Extension**:
+
 - Badge appears on video page (if verified)
 - Click badge for details
 
 **What's Verified**:
+
 - YouTube video ID is bound to registered content
 - Original file was registered before upload
 - Creator wallet matches
@@ -399,17 +429,20 @@ Each platform requires a slightly different approach:
 ### Twitter/X
 
 **Direct Verification**:
+
 1. Copy tweet URL: `https://twitter.com/user/status/TWEET_ID`
 2. Paste into verify page
 3. Check if media in tweet is verified
 
 **With Extension**:
+
 - Badge on tweets with verified media
 - Click badge for full details
 
 ### TikTok
 
 **Direct Verification**:
+
 1. Copy TikTok URL: `https://tiktok.com/@user/video/VIDEO_ID`
 2. Paste into verify page
 3. Check verification status
@@ -417,6 +450,7 @@ Each platform requires a slightly different approach:
 ### Instagram
 
 **Direct Verification**:
+
 1. Copy post URL: `https://instagram.com/p/POST_ID/`
 2. Paste into verify page
 3. Verify media in post
@@ -424,6 +458,7 @@ Each platform requires a slightly different approach:
 ### GitHub
 
 **Direct Verification**:
+
 1. Copy commit or file URL
 2. Paste into verify page
 3. Verify code or document
@@ -435,6 +470,7 @@ Each platform requires a slightly different approach:
 **Goal**: Check if a YouTube video is from the real creator
 
 **Steps**:
+
 1. Visit the YouTube video
 2. Look for Internet ID badge (if extension installed)
 3. Or copy URL and paste into [app.internet-id.io/verify](https://app.internet-id.io/verify)
@@ -442,6 +478,7 @@ Each platform requires a slightly different approach:
 5. Check registration date (should be before upload date)
 
 **Red Flags**:
+
 - Registration date after upload date (suspicious)
 - Creator address doesn't match official creator
 - No binding found (might be fake)
@@ -451,6 +488,7 @@ Each platform requires a slightly different approach:
 **Goal**: Confirm a file matches its claimed registration
 
 **Steps**:
+
 1. Go to [app.internet-id.io/verify](https://app.internet-id.io/verify)
 2. Click "Upload File" tab
 3. Select the downloaded file
@@ -465,6 +503,7 @@ Each platform requires a slightly different approach:
 **Goal**: Verify content across multiple platforms
 
 **Steps**:
+
 1. Verify on first platform (e.g., YouTube)
 2. Note the content hash
 3. Verify on second platform (e.g., Twitter)
@@ -478,6 +517,7 @@ Each platform requires a slightly different approach:
 **Goal**: Determine if suspicious content is verified
 
 **Steps**:
+
 1. Try to verify the suspicious content
 2. If not verified: More likely to be fake
 3. If verified: Check registration date
@@ -491,6 +531,7 @@ Each platform requires a slightly different approach:
 **Goal**: Check content before sharing to avoid spreading fakes
 
 **Steps**:
+
 1. Find content you want to share
 2. Verify using platform URL or file
 3. Check results and creator
@@ -558,17 +599,20 @@ Each platform requires a slightly different approach:
 ## Verification Limitations
 
 **Internet ID Proves**:
+
 - ✅ Someone with this wallet registered this content
 - ✅ It was registered at this specific time
 - ✅ The content hash matches (if verifying original file)
 
 **Internet ID Does NOT Prove**:
+
 - ❌ The content is "true" or "accurate"
 - ❌ The creator is who they claim to be (identity)
 - ❌ The content is original (could be stolen and registered)
 - ❌ The content is authentic (could be AI-generated and registered)
 
 **Internet ID is one signal among many.** Use it alongside:
+
 - Verified social accounts
 - Official websites
 - Multiple sources
@@ -581,6 +625,7 @@ Each platform requires a slightly different approach:
 **Problem**: "Invalid URL" or "Platform not supported"
 
 **Solutions**:
+
 - Check URL format is correct
 - Make sure platform is supported
 - Try direct file verification
@@ -591,6 +636,7 @@ Each platform requires a slightly different approach:
 **Problem**: "Hash doesn't match" or "Not verified"
 
 **Solutions**:
+
 - Make sure you have the original file (not re-encoded)
 - Check file hasn't been modified
 - Try verifying by platform URL instead
@@ -601,6 +647,7 @@ Each platform requires a slightly different approach:
 **Problem**: No badge appears on platform
 
 **Solutions**:
+
 - Check extension is installed and enabled
 - Refresh the platform page
 - Check "Enable badges" in extension settings

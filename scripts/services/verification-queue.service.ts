@@ -412,11 +412,7 @@ class VerificationQueueService {
   /**
    * List jobs with optional filters
    */
-  async listJobs(options?: {
-    status?: string;
-    limit?: number;
-    offset?: number;
-  }): Promise<any[]> {
+  async listJobs(options?: { status?: string; limit?: number; offset?: number }): Promise<any[]> {
     const jobs = await prisma.verificationJob.findMany({
       where: options?.status ? { status: options.status } : undefined,
       orderBy: { createdAt: "desc" },

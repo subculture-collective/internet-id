@@ -6,23 +6,25 @@ Internet-ID now has comprehensive internationalization (i18n) support, enabling 
 
 ## Supported Languages
 
-| Language | Code | Native Name | Status |
-|----------|------|-------------|--------|
-| English | en | English | ✅ Complete (Default) |
-| Spanish | es | Español | ✅ Complete |
-| Simplified Chinese | zh | 简体中文 | ✅ Complete |
-| Japanese | ja | 日本語 | ✅ Complete |
-| French | fr | Français | ✅ Complete |
-| German | de | Deutsch | ✅ Complete |
+| Language           | Code | Native Name | Status                |
+| ------------------ | ---- | ----------- | --------------------- |
+| English            | en   | English     | ✅ Complete (Default) |
+| Spanish            | es   | Español     | ✅ Complete           |
+| Simplified Chinese | zh   | 简体中文    | ✅ Complete           |
+| Japanese           | ja   | 日本語      | ✅ Complete           |
+| French             | fr   | Français    | ✅ Complete           |
+| German             | de   | Deutsch     | ✅ Complete           |
 
 ## Key Features
 
 ### 🌐 Automatic Language Detection
+
 - Detects user's preferred language from browser's `Accept-Language` header
 - Falls back to English if preferred language is not supported
 - Respects user's manual language selection (stored in cookie)
 
 ### 🔄 Language Switcher
+
 - Globe icon (🌐) in top-right corner
 - Dropdown with all available languages
 - Shows current language
@@ -30,12 +32,14 @@ Internet-ID now has comprehensive internationalization (i18n) support, enabling 
 - Smooth refresh on language change
 
 ### 🔍 SEO Optimization
+
 - Hreflang tags for all supported languages
 - Search engines can discover translated versions
 - Proper language targeting for international markets
 - `x-default` hreflang for default locale
 
 ### 📝 Translation Infrastructure
+
 - 200+ translation keys covering:
   - Common UI elements
   - Navigation
@@ -47,6 +51,7 @@ Internet-ID now has comprehensive internationalization (i18n) support, enabling 
   - Platform names
 
 ### 🎯 Locale-Specific Formatting
+
 - Framework ready for date/time formatting per locale
 - Support for currency and number formatting
 - Uses native JavaScript `Intl` API
@@ -77,22 +82,26 @@ web/
 ### Core Components
 
 **1. Configuration (`i18n.ts`)**
+
 - Defines supported locales
 - Exports locale labels for UI
 - Configures message loading
 
 **2. Middleware (`middleware.ts`)**
+
 - Intercepts all requests
 - Detects locale from cookie or Accept-Language
 - Sets locale header for next-intl
 - Manages NEXT_LOCALE cookie
 
 **3. Language Switcher**
+
 - Client component with dropdown UI
 - Updates cookie on selection
 - Refreshes page to apply new locale
 
 **4. Root Layout**
+
 - Wraps app in `NextIntlClientProvider`
 - Makes translations available to all components
 - Adds hreflang tags for SEO
@@ -100,6 +109,7 @@ web/
 ### Usage Pattern
 
 **Server Components:**
+
 ```typescript
 import { useTranslations } from 'next-intl';
 
@@ -110,6 +120,7 @@ export default function MyComponent() {
 ```
 
 **Client Components:**
+
 ```typescript
 'use client';
 import { useTranslations } from 'next-intl';
@@ -127,22 +138,26 @@ export default function MyComponent() {
 The implementation includes comprehensive translations for:
 
 **Common Elements:**
+
 - Buttons (Copy, Submit, Cancel, Save, Delete, Edit, etc.)
 - Status messages (Loading, Success, Error)
 - Navigation actions (Next, Previous, Back, Search, Filter, Sort)
 
 **Navigation:**
+
 - Upload, Register, Verify, Proof, Bind workflows
 - Dashboard, Profile, Badges
 - Sign In/Out
 
 **Forms:**
+
 - Platform bindings (YouTube, TikTok, Instagram, X/Twitter, etc.)
 - Content registration
 - File uploads
 - Verification workflows
 
 **User Interface:**
+
 - Footer (About, Documentation, Legal, Contact)
 - Cookie consent
 - Error pages
@@ -154,20 +169,48 @@ Each translation file follows a consistent namespace structure:
 
 ```json
 {
-  "common": { /* Shared UI elements */ },
-  "nav": { /* Navigation items */ },
-  "home": { /* Home page */ },
-  "upload": { /* Upload workflow */ },
-  "oneShot": { /* One-shot workflow */ },
-  "register": { /* Registration */ },
-  "verify": { /* Verification */ },
-  "dashboard": { /* Dashboard */ },
-  "profile": { /* User profile */ },
-  "auth": { /* Authentication */ },
-  "footer": { /* Footer content */ },
-  "error": { /* Error messages */ },
-  "metadata": { /* Page metadata */ },
-  "platforms": { /* Platform names */ }
+  "common": {
+    /* Shared UI elements */
+  },
+  "nav": {
+    /* Navigation items */
+  },
+  "home": {
+    /* Home page */
+  },
+  "upload": {
+    /* Upload workflow */
+  },
+  "oneShot": {
+    /* One-shot workflow */
+  },
+  "register": {
+    /* Registration */
+  },
+  "verify": {
+    /* Verification */
+  },
+  "dashboard": {
+    /* Dashboard */
+  },
+  "profile": {
+    /* User profile */
+  },
+  "auth": {
+    /* Authentication */
+  },
+  "footer": {
+    /* Footer content */
+  },
+  "error": {
+    /* Error messages */
+  },
+  "metadata": {
+    /* Page metadata */
+  },
+  "platforms": {
+    /* Platform names */
+  }
 }
 ```
 
@@ -383,6 +426,7 @@ The current language support covers major global markets:
 ### Automated Testing
 
 Future enhancements can include:
+
 - E2E tests with Playwright for each locale
 - Visual regression tests per language
 - Translation key completeness tests
@@ -403,6 +447,7 @@ No additional environment variables required. The i18n system works out of the b
 ### Configuration
 
 All configuration is in code:
+
 - Supported locales in `i18n.ts`
 - Middleware settings in `middleware.ts`
 - Translation files in `messages/`
@@ -418,7 +463,7 @@ The internationalization implementation is **complete and production-ready**. Th
 ✅ SEO optimization  
 ✅ Developer-friendly API  
 ✅ Comprehensive documentation  
-✅ Zero breaking changes  
+✅ Zero breaking changes
 
 The system is designed for **incremental adoption**, allowing existing components to continue working while new components can leverage translations immediately. This foundation enables Internet-ID to expand its market reach globally while maintaining high code quality and developer experience.
 

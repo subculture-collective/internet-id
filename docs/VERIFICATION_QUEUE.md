@@ -5,6 +5,7 @@ This document describes the asynchronous verification queue system for Internet 
 ## Overview
 
 The verification queue system provides:
+
 - **Asynchronous processing**: Verification tasks are enqueued and processed by background workers
 - **Job tracking**: Real-time status updates and progress tracking
 - **Retry logic**: Automatic retries with exponential backoff for failed jobs
@@ -14,6 +15,7 @@ The verification queue system provides:
 ## Architecture
 
 The system consists of:
+
 1. **Queue Service** (`verification-queue.service.ts`): Manages job queuing and processing using BullMQ
 2. **API Routes** (`verification-jobs.routes.ts`): Endpoints for enqueuing jobs and polling status
 3. **Database Table** (`VerificationJob`): Persistent storage for job metadata and results
@@ -22,11 +24,13 @@ The system consists of:
 ## Prerequisites
 
 ### Required
+
 - Node.js >= 16
 - PostgreSQL database
 - Redis server (optional, but recommended for production)
 
 ### Optional but Recommended
+
 - Docker and Docker Compose (for local development)
 
 ## Local Development Setup
@@ -34,6 +38,7 @@ The system consists of:
 ### Option 1: Using Docker Compose (Recommended)
 
 1. **Start all services including Redis:**
+
    ```bash
    docker compose up -d
    ```
@@ -45,18 +50,20 @@ The system consists of:
    - Web application
 
 2. **Verify Redis is running:**
+
    ```bash
    docker compose ps redis
    ```
 
 3. **View logs:**
+
    ```bash
    # All services
    docker compose logs -f
-   
+
    # Just the API
    docker compose logs -f api
-   
+
    # Just Redis
    docker compose logs -f redis
    ```
@@ -64,15 +71,16 @@ The system consists of:
 ### Option 2: Manual Setup
 
 1. **Install and start Redis:**
+
    ```bash
    # macOS (using Homebrew)
    brew install redis
    brew services start redis
-   
+
    # Ubuntu/Debian
    sudo apt-get install redis-server
    sudo systemctl start redis
-   
+
    # Verify Redis is running
    redis-cli ping
    # Should return: PONG
@@ -80,6 +88,7 @@ The system consists of:
 
 2. **Configure environment variables:**
    Create a `.env` file in the project root:
+
    ```bash
    DATABASE_URL="postgresql://internetid:internetid@localhost:5432/internetid"
    REDIS_URL="redis://localhost:6379"
@@ -89,6 +98,7 @@ The system consists of:
    ```
 
 3. **Run database migrations:**
+
    ```bash
    npm run db:migrate
    ```
@@ -105,6 +115,7 @@ The system consists of:
 #### Via API
 
 **Verify endpoint (async mode):**
+
 ```bash
 curl -X POST http://localhost:3001/api/verification-jobs/verify \
   -F "file=@/path/to/file.jpg" \
@@ -113,6 +124,7 @@ curl -X POST http://localhost:3001/api/verification-jobs/verify \
 ```
 
 Response:
+
 ```json
 {
   "mode": "async",
@@ -124,6 +136,7 @@ Response:
 ```
 
 **Proof endpoint (async mode):**
+
 ```bash
 curl -X POST http://localhost:3001/api/verification-jobs/proof \
   -F "file=@/path/to/file.jpg" \
@@ -138,6 +151,7 @@ curl http://localhost:3001/api/verification-jobs/1234567890
 ```
 
 Response:
+
 ```json
 {
   "id": "abc123",
@@ -183,6 +197,7 @@ curl http://localhost:3001/api/verification-jobs/stats
 ```
 
 Response:
+
 ```json
 {
   "available": true,
@@ -206,6 +221,7 @@ Response:
 ### Queue Metrics
 
 Monitor queue health using the stats endpoint:
+
 ```bash
 watch -n 5 'curl -s http://localhost:3001/api/verification-jobs/stats | jq'
 ```
@@ -213,11 +229,12 @@ watch -n 5 'curl -s http://localhost:3001/api/verification-jobs/stats | jq'
 ### Database Queries
 
 Check recent jobs:
+
 ```sql
-SELECT 
-  id, 
-  type, 
-  status, 
+SELECT
+  id,
+  type,
+  status,
   progress,
   DATE_PART('second', NOW() - "createdAt") as age_seconds
 FROM "VerificationJob"
@@ -226,8 +243,9 @@ LIMIT 10;
 ```
 
 Check failed jobs:
+
 ```sql
-SELECT 
+SELECT
   id,
   type,
   status,
@@ -242,6 +260,7 @@ ORDER BY "createdAt" DESC;
 ### Redis CLI
 
 Monitor queue activity in real-time:
+
 ```bash
 # Connect to Redis
 redis-cli
@@ -265,20 +284,21 @@ npm install @bull-board/api @bull-board/express
 ```
 
 Add to your Express app:
+
 ```typescript
-import { createBullBoard } from '@bull-board/api';
-import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
-import { ExpressAdapter } from '@bull-board/express';
+import { createBullBoard } from "@bull-board/api";
+import { BullMQAdapter } from "@bull-board/api/bullMQAdapter";
+import { ExpressAdapter } from "@bull-board/express";
 
 const serverAdapter = new ExpressAdapter();
-serverAdapter.setBasePath('/admin/queues');
+serverAdapter.setBasePath("/admin/queues");
 
 createBullBoard({
   queues: [new BullMQAdapter(verificationQueue)],
   serverAdapter,
 });
 
-app.use('/admin/queues', serverAdapter.getRouter());
+app.use("/admin/queues", serverAdapter.getRouter());
 ```
 
 Access at: http://localhost:3001/admin/queues
@@ -287,27 +307,28 @@ Access at: http://localhost:3001/admin/queues
 
 ### Environment Variables
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `REDIS_URL` | No | - | Redis connection URL. If not set, falls back to synchronous processing |
-| `DATABASE_URL` | Yes | - | PostgreSQL connection URL |
-| `RPC_URL` | Yes | - | Ethereum RPC endpoint |
+| Variable       | Required | Default | Description                                                            |
+| -------------- | -------- | ------- | ---------------------------------------------------------------------- |
+| `REDIS_URL`    | No       | -       | Redis connection URL. If not set, falls back to synchronous processing |
+| `DATABASE_URL` | Yes      | -       | PostgreSQL connection URL                                              |
+| `RPC_URL`      | Yes      | -       | Ethereum RPC endpoint                                                  |
 
 ### Queue Settings
 
 Edit `scripts/services/verification-queue.service.ts`:
 
 ```typescript
-const MAX_RETRY_ATTEMPTS = 3;  // Number of retry attempts
+const MAX_RETRY_ATTEMPTS = 3; // Number of retry attempts
 const RETRY_BACKOFF = {
   type: "exponential",
-  delay: 5000,  // Initial delay in ms
+  delay: 5000, // Initial delay in ms
 };
 ```
 
 ### Worker Concurrency
 
 Adjust the number of concurrent workers:
+
 ```typescript
 concurrency: 3,  // Process up to 3 jobs simultaneously
 ```
@@ -317,11 +338,13 @@ concurrency: 3,  // Process up to 3 jobs simultaneously
 ### Queue not processing jobs
 
 1. **Check Redis connection:**
+
    ```bash
    redis-cli ping
    ```
 
 2. **Check worker logs:**
+
    ```bash
    docker compose logs -f api | grep "Verification"
    ```
@@ -334,9 +357,10 @@ concurrency: 3,  // Process up to 3 jobs simultaneously
 ### Jobs failing repeatedly
 
 1. **Check job errors in database:**
+
    ```sql
-   SELECT error, "retryCount" 
-   FROM "VerificationJob" 
+   SELECT error, "retryCount"
+   FROM "VerificationJob"
    WHERE status = 'failed';
    ```
 
@@ -349,6 +373,7 @@ concurrency: 3,  // Process up to 3 jobs simultaneously
 ### Synchronous fallback
 
 If Redis is unavailable, the API automatically falls back to synchronous processing:
+
 ```json
 {
   "mode": "sync",
@@ -361,12 +386,14 @@ To force async mode only, check `verificationQueueService.isAvailable()` before 
 ## Performance Tuning
 
 ### For high load:
+
 1. Increase worker concurrency
 2. Scale horizontally (multiple API instances)
 3. Optimize RPC provider (use paid tier or local node)
 4. Implement result caching for repeated verifications
 
 ### For low latency:
+
 1. Use local RPC node instead of public endpoints
 2. Increase worker concurrency
 3. Use faster Redis instance (Redis Cloud, AWS ElastiCache)
@@ -374,6 +401,7 @@ To force async mode only, check `verificationQueueService.isAvailable()` before 
 ## Production Considerations
 
 1. **Redis Persistence**: Enable AOF (Append-Only File) for data durability
+
    ```
    appendonly yes
    ```
@@ -386,6 +414,7 @@ To force async mode only, check `verificationQueueService.isAvailable()` before 
    - Worker health
 
 4. **Cleanup**: Set up periodic cleanup of old completed jobs:
+
    ```typescript
    removeOnComplete: {
      age: 3600 * 24 * 7,  // 7 days
@@ -398,6 +427,7 @@ To force async mode only, check `verificationQueueService.isAvailable()` before 
 ## Migration from Synchronous
 
 The system supports both modes simultaneously:
+
 - New clients can use `/api/verification-jobs/*` endpoints for async processing
 - Legacy clients continue using `/api/verify` and `/api/proof` with synchronous processing
 - Gradual migration path with no breaking changes

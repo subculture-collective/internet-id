@@ -28,18 +28,21 @@ The Dashboard is your command center for all registered content.
 ### Dashboard Layout
 
 **Top Bar**:
+
 - Network selector (Base, Polygon, etc.)
 - Wallet address (click to copy)
 - Balance display
 - Settings menu
 
 **Main Area**:
+
 - Content list (grid or table view)
 - Filters and search
 - Sort options
 - Bulk actions toolbar
 
 **Sidebar** (optional):
+
 - Quick stats (total registered, verified, etc.)
 - Recent activity
 - Quick actions
@@ -51,6 +54,7 @@ The Dashboard is your command center for all registered content.
 **Default view** shows all your registered content:
 
 **Grid View** (default):
+
 ```
 ┌─────────────┬─────────────┬─────────────┐
 │ Video 1     │ Image 2     │ Doc 3       │
@@ -61,6 +65,7 @@ The Dashboard is your command center for all registered content.
 ```
 
 **Table View**:
+
 ```
 Title         Hash      Status    Registered    Bindings
 ──────────────────────────────────────────────────────────
@@ -76,6 +81,7 @@ My Document   3c4d...   ✓ Verified  Nov 2, 2025   1
 Click any item to see full details:
 
 **Overview**:
+
 - Content hash (fingerprint)
 - Registration date and time
 - Network and transaction hash
@@ -83,6 +89,7 @@ Click any item to see full details:
 - Current status
 
 **Metadata**:
+
 - Title
 - Description
 - Tags
@@ -90,17 +97,20 @@ Click any item to see full details:
 - Custom fields
 
 **Platform Bindings**:
+
 - List of all bound platforms
 - Add new binding
 - Remove existing bindings
 
 **Verification**:
+
 - Verification badge preview
 - Shareable verification link
 - QR code
 - Embed code
 
 **Actions**:
+
 - Share
 - Download proof
 - Update metadata
@@ -110,18 +120,21 @@ Click any item to see full details:
 ### Filtering Content
 
 **By Status**:
+
 - ✅ Verified
 - ⚠️ Pending
 - ❌ Failed
 - 🔄 All
 
 **By Date**:
+
 - Today
 - This week
 - This month
 - Custom range
 
 **By Type**:
+
 - Videos
 - Images
 - Audio
@@ -129,16 +142,19 @@ Click any item to see full details:
 - Other
 
 **By Tags**:
+
 - Select from existing tags
 - Combine multiple tags (AND/OR)
 
 **By Network**:
+
 - Base
 - Polygon
 - Ethereum
 - All networks
 
 **By Bindings**:
+
 - Has bindings
 - No bindings
 - Specific platform (YouTube, Twitter, etc.)
@@ -146,17 +162,20 @@ Click any item to see full details:
 ### Searching Content
 
 **Search bar** (top of dashboard):
+
 ```
 🔍 Search by title, hash, or tag...
 ```
 
 **Search types**:
+
 - **Title**: Full-text search in titles
 - **Hash**: Partial or full content hash
 - **Tags**: Match any tag
 - **Description**: Search in descriptions
 
 **Example searches**:
+
 ```
 video                    # Find all content with "video" in title
 9f86d081                # Find content with hash starting with 9f86d081
@@ -166,6 +185,7 @@ video                    # Find all content with "video" in title
 ### Sorting Content
 
 **Sort options**:
+
 - **Newest first** (default)
 - **Oldest first**
 - **Title (A-Z)**
@@ -180,23 +200,27 @@ Click column headers in table view to sort.
 ### Using Tags
 
 **Add tags during registration**:
+
 ```
 Tags: video, tutorial, 2025, beginner
 ```
 
 **Add tags to existing content**:
+
 1. Open content details
 2. Click "Edit" next to Tags
 3. Add or remove tags
 4. Save changes
 
 **Tag best practices**:
+
 - Use consistent naming (lowercase, no spaces)
 - Categories: type (video, image), topic (tutorial, music), date (2025)
 - Use sparingly (3-7 tags per item)
 - Create a tagging system and stick to it
 
 **Example tag system**:
+
 ```
 Type tags:    video, image, audio, document
 Topic tags:   tutorial, review, vlog, music
@@ -209,12 +233,14 @@ Date tags:    2025-11, 2025, q4-2025
 Group related content into collections:
 
 **Example collections**:
+
 - "2025 Video Series"
 - "Album: My First Release"
 - "Portfolio - Client Work"
 - "Tutorial Series"
 
 **Features**:
+
 - Add/remove content
 - Share entire collection
 - Bulk operations on collection
@@ -223,16 +249,19 @@ Group related content into collections:
 ### Using Metadata
 
 **Standard fields**:
+
 - **Title**: Display name
 - **Description**: Longer explanation
 - **Tags**: Categories and keywords
 - **License**: Rights (e.g., "CC-BY-4.0", "All Rights Reserved")
 
 **Custom fields** (advanced):
+
 - Add any JSON-compatible data
 - Examples: `client: "Acme Corp"`, `project: "Q4 Campaign"`
 
 **Update metadata**:
+
 1. Content details → "Edit Metadata"
 2. Change fields
 3. Save (may require re-signing manifest)
@@ -242,11 +271,13 @@ Group related content into collections:
 ### Update Metadata (Off-Chain)
 
 **What you can update**:
+
 - Title, description, tags
 - Custom metadata fields
 - Display settings
 
 **How**:
+
 1. Content details → "Edit"
 2. Update fields
 3. Click "Save"
@@ -259,17 +290,20 @@ Group related content into collections:
 ### Update Platform Bindings
 
 **Add new binding**:
+
 1. Content details → "Add Platform Link"
 2. Select platform
 3. Enter URL or ID
 4. Confirm transaction (~$0.01 gas)
 
 **Remove binding**:
+
 1. Content details → Platform Bindings section
 2. Click "Remove" (❌) next to binding
 3. Confirm transaction (~$0.01 gas)
 
 **Update binding**:
+
 - Currently requires remove + add new
 - Direct update feature coming soon
 
@@ -289,16 +323,19 @@ If you need to register the same file again (e.g., on different network):
 ### Verification Badge
 
 **Get badge URL**:
+
 1. Content details → "Share" section
 2. Copy badge image URL
 3. Use in websites, videos, social media
 
 **Badge options**:
+
 - Theme: Light or dark
 - Size: Small (120px) to large (640px)
 - Custom dimensions
 
 **Example**:
+
 ```
 https://app.internet-id.io/api/badge/9f86d081...?theme=dark&w=200
 ```
@@ -306,11 +343,13 @@ https://app.internet-id.io/api/badge/9f86d081...?theme=dark&w=200
 ### Verification Link
 
 **Public verification page**:
+
 ```
 https://app.internet-id.io/verify?hash=9f86d081...
 ```
 
 **Share this link**:
+
 - Video descriptions
 - Social media bios
 - Website footer
@@ -320,6 +359,7 @@ https://app.internet-id.io/verify?hash=9f86d081...
 ### QR Code
 
 **Get QR code**:
+
 1. Content details → "Share" section
 2. Click "Generate QR Code"
 3. Download PNG
@@ -328,6 +368,7 @@ https://app.internet-id.io/verify?hash=9f86d081...
 **QR code size**: 300x300px by default, customizable
 
 **Where to use QR codes**:
+
 - Video outros
 - Lower thirds
 - Print materials
@@ -337,22 +378,27 @@ https://app.internet-id.io/verify?hash=9f86d081...
 ### Embed Code
 
 **Get embed HTML**:
+
 1. Content details → "Share" section
 2. Copy embed code
 3. Paste into your website
 
 **Example embed**:
+
 ```html
 <a href="https://app.internet-id.io/verify?hash=9f86d081...">
-  <img src="https://app.internet-id.io/api/badge/9f86d081..." 
-       alt="Verified by Internet ID" 
-       width="200" />
+  <img
+    src="https://app.internet-id.io/api/badge/9f86d081..."
+    alt="Verified by Internet ID"
+    width="200"
+  />
 </a>
 ```
 
 ### Copy All
 
 **One-click copy** everything:
+
 1. Click "Copy All" button
 2. Get full bundle:
    - Verification link
@@ -368,6 +414,7 @@ https://app.internet-id.io/verify?hash=9f86d081...
 ### Select Multiple Items
 
 **Select in dashboard**:
+
 1. Toggle "Select Mode" (checkbox icon)
 2. Click items to select
 3. Or "Select All" for current filter
@@ -377,6 +424,7 @@ https://app.internet-id.io/verify?hash=9f86d081...
 ### Bulk Actions
 
 **Available bulk actions**:
+
 - Add tags to all selected
 - Remove tags from all selected
 - Export selected items
@@ -385,6 +433,7 @@ https://app.internet-id.io/verify?hash=9f86d081...
 - Delete selected (removes from display, not blockchain)
 
 **Example - Bulk tag**:
+
 1. Select 10 videos
 2. Click "Add Tags" (bulk action toolbar)
 3. Enter: `#batch-processed, #2025-11`
@@ -393,12 +442,14 @@ https://app.internet-id.io/verify?hash=9f86d081...
 ### Batch Export
 
 **Export selected content**:
+
 1. Select items
 2. Click "Export" (bulk action toolbar)
 3. Choose format (JSON, CSV)
 4. Download file
 
 **What's exported**:
+
 - Content hashes
 - Metadata
 - Registration details
@@ -410,6 +461,7 @@ https://app.internet-id.io/verify?hash=9f86d081...
 ### Batch Proof Generation
 
 **Generate proofs for multiple items**:
+
 1. Select items
 2. Click "Generate Proofs"
 3. Wait for processing
@@ -422,11 +474,13 @@ https://app.internet-id.io/verify?hash=9f86d081...
 ### Multi-Network View
 
 **View same content across networks**:
+
 1. Dashboard → Settings → "Multi-Network View"
 2. Enable toggle
 3. See content from all networks at once
 
 **Helpful when**:
+
 - You registered on multiple networks
 - Checking registration across chains
 - Comparing gas costs
@@ -434,6 +488,7 @@ https://app.internet-id.io/verify?hash=9f86d081...
 ### Content Analytics (Coming Soon)
 
 **Metrics per content**:
+
 - Views on verification page
 - Platform binding clicks
 - QR code scans
@@ -444,6 +499,7 @@ https://app.internet-id.io/verify?hash=9f86d081...
 ### Scheduled Actions (Coming Soon)
 
 **Schedule future actions**:
+
 - Publish verification link at specific time
 - Auto-bind when platform post goes live
 - Scheduled metadata updates
@@ -453,11 +509,13 @@ https://app.internet-id.io/verify?hash=9f86d081...
 **For advanced users/developers**:
 
 Get your API key:
+
 1. Dashboard → Settings → "API Access"
 2. Click "Generate API Key"
 3. Copy and store securely
 
 **Use API key** to:
+
 - Programmatic content management
 - Custom integrations
 - Automated workflows
@@ -467,15 +525,18 @@ See [Public API Documentation](../PUBLIC_API.md) for details.
 ### Content Archive
 
 **Archive old content**:
+
 1. Select content
 2. Click "Archive"
 3. Content hidden from main view
 4. Still on blockchain, just not displayed
 
 **View archived**:
+
 1. Dashboard → Filters → "Show Archived"
 
 **Unarchive**:
+
 1. Select archived item
 2. Click "Unarchive"
 
@@ -492,6 +553,7 @@ See [Public API Documentation](../PUBLIC_API.md) for details.
 ### Naming Conventions
 
 **Be consistent**:
+
 ```
 Good:
 - "Tutorial 01 - Getting Started"
@@ -507,6 +569,7 @@ Avoid:
 ### Metadata Organization
 
 **Complete metadata** for every item:
+
 - ✅ Descriptive title
 - ✅ Clear description
 - ✅ Relevant tags (3-7)
@@ -518,16 +581,19 @@ Avoid:
 ### Regular Maintenance
 
 **Weekly**:
+
 - Review pending registrations
 - Add missing platform bindings
 - Update tags and metadata
 
 **Monthly**:
+
 - Export backup
 - Review analytics (when available)
 - Archive old content
 
 **Quarterly**:
+
 - Audit all bindings (check links still work)
 - Update descriptions
 - Reorganize collections
@@ -537,20 +603,24 @@ Avoid:
 **Always maintain backups**:
 
 **Option 1**: Use dashboard export
+
 ```
 Dashboard → Select All → Export → JSON
 ```
 
 **Option 2**: Use CLI
+
 ```bash
 internet-id export --include-proofs > backup.json
 ```
 
 **Option 3**: Manual blockchain queries
+
 - Content hash is on blockchain forever
 - Can always be reconstructed
 
 **Store backups**:
+
 - Local computer
 - Cloud storage (encrypted)
 - Physical backup (for recovery keys)
@@ -562,6 +632,7 @@ internet-id export --include-proofs > backup.json
 **Problem**: Registered content doesn't appear in dashboard
 
 **Solutions**:
+
 1. Check you're on the correct network
 2. Wait 1-2 minutes for indexing
 3. Refresh the page
@@ -573,6 +644,7 @@ internet-id export --include-proofs > backup.json
 **Problem**: Changes to metadata don't save
 
 **Solutions**:
+
 1. Make sure wallet is connected
 2. Check you're the creator (only creator can update)
 3. Try refreshing and editing again
@@ -583,6 +655,7 @@ internet-id export --include-proofs > backup.json
 **Problem**: Platform bindings don't show
 
 **Solutions**:
+
 1. Check transaction confirmed
 2. Wait for indexing (1-2 minutes)
 3. Refresh page
@@ -593,6 +666,7 @@ internet-id export --include-proofs > backup.json
 **Problem**: Can't export content
 
 **Solutions**:
+
 1. Try smaller selection (if bulk exporting)
 2. Check browser has storage permissions
 3. Try different browser
