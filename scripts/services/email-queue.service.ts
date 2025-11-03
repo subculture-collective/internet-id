@@ -7,11 +7,7 @@ import { Queue, Worker, Job, QueueEvents } from "bullmq";
 import { Redis } from "ioredis";
 import { logger } from "./logger.service";
 import { emailService, EmailOptions } from "./email.service";
-import {
-  emailTemplateService,
-  EmailTemplateType,
-  TemplateData,
-} from "./email-templates.service";
+import { emailTemplateService, EmailTemplateType, TemplateData } from "./email-templates.service";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -56,9 +52,7 @@ class EmailQueueService {
 
     const redisUrl = process.env.REDIS_URL;
     if (!redisUrl) {
-      logger.info(
-        "Email queue disabled (REDIS_URL not set). Emails will be sent synchronously."
-      );
+      logger.info("Email queue disabled (REDIS_URL not set). Emails will be sent synchronously.");
       this.isInitialized = true;
       return;
     }
@@ -167,10 +161,7 @@ class EmailQueueService {
       // Check if this is a template-based email or direct email
       if ("templateType" in data && "templateData" in data) {
         // Template-based email
-        const template = emailTemplateService.getTemplate(
-          data.templateType,
-          data.templateData
-        );
+        const template = emailTemplateService.getTemplate(data.templateType, data.templateData);
         emailOptions = {
           to: data.to,
           subject: template.subject,
@@ -256,10 +247,7 @@ class EmailQueueService {
   /**
    * Check if email should be sent based on user preferences
    */
-  private async checkUserPreferences(
-    userId: string,
-    templateType: string
-  ): Promise<boolean> {
+  private async checkUserPreferences(userId: string, templateType: string): Promise<boolean> {
     try {
       const prefs = await prisma.emailPreferences.findUnique({
         where: { userId },
@@ -307,10 +295,7 @@ class EmailQueueService {
     // If queue is not available, send email synchronously
     if (!this.queue) {
       logger.debug("Sending email synchronously (queue not available)");
-      const template = emailTemplateService.getTemplate(
-        data.templateType,
-        data.templateData
-      );
+      const template = emailTemplateService.getTemplate(data.templateType, data.templateData);
 
       const result = await emailService.sendEmail({
         to: data.to,
@@ -364,10 +349,7 @@ class EmailQueueService {
     }
 
     // Medium priority for verification and transaction notifications
-    if (
-      templateType.startsWith("verification_") ||
-      templateType === "transaction_notification"
-    ) {
+    if (templateType.startsWith("verification_") || templateType === "transaction_notification") {
       return 5;
     }
 

@@ -31,7 +31,7 @@ We recommend MetaMask because it's secure, widely used, and easy to set up.
    - Set a strong password
    - **IMPORTANT**: Write down your Secret Recovery Phrase on paper
    - Store it somewhere safe (never digital, never share it)
-   
+
    > ⚠️ **Critical**: Your Secret Recovery Phrase is the ONLY way to recover your wallet. If you lose it and forget your password, you lose access forever. Never share it with anyone!
 
 3. **Verify Your Recovery Phrase**
@@ -41,6 +41,7 @@ We recommend MetaMask because it's secure, widely used, and easy to set up.
 ### Alternative Wallets
 
 Other popular options include:
+
 - **Coinbase Wallet** - Great for beginners, integrates with Coinbase
 - **Rainbow Wallet** - Beautiful interface, very user-friendly
 - **Trust Wallet** - Mobile-first option
@@ -51,12 +52,12 @@ Internet ID supports multiple blockchain networks. Each has different costs and 
 
 ### Recommended Networks for Beginners
 
-| Network | Gas Fees | Speed | Best For |
-|---------|----------|-------|----------|
-| **Base** | Very Low (~$0.01) | Fast | Most users (recommended) |
-| **Polygon** | Very Low (~$0.01) | Fast | Cost-conscious users |
-| **Arbitrum** | Low (~$0.05) | Fast | Good balance |
-| **Optimism** | Low (~$0.05) | Fast | Good balance |
+| Network      | Gas Fees          | Speed | Best For                 |
+| ------------ | ----------------- | ----- | ------------------------ |
+| **Base**     | Very Low (~$0.01) | Fast  | Most users (recommended) |
+| **Polygon**  | Very Low (~$0.01) | Fast  | Cost-conscious users     |
+| **Arbitrum** | Low (~$0.05)      | Fast  | Good balance             |
+| **Optimism** | Low (~$0.05)      | Fast  | Good balance             |
 
 ### How to Add a Network to MetaMask
 
@@ -101,18 +102,21 @@ Once you're ready to register real content, you'll need a small amount of crypto
 ### How to Get Crypto
 
 #### Option 1: Buy on an Exchange
+
 1. Create account on [Coinbase](https://coinbase.com) or [Kraken](https://kraken.com)
 2. Complete identity verification (required by law)
 3. Buy ETH (Ethereum) or MATIC (Polygon)
 4. Send to your MetaMask wallet address
 
 #### Option 2: Buy Directly in MetaMask
+
 1. Open MetaMask
 2. Click "Buy"
 3. Choose a provider (MoonPay, Transak, etc.)
 4. Follow the prompts to purchase
 
 #### Option 3: On-Ramp Services
+
 - [Ramp](https://ramp.network) - Credit/debit card
 - [MoonPay](https://moonpay.com) - Multiple payment methods
 - [Transak](https://transak.com) - Bank transfer or card
@@ -166,21 +170,25 @@ You're all set! Now you can:
 ## 🆘 Troubleshooting
 
 ### Wallet Won't Connect
+
 - Make sure MetaMask is unlocked
 - Try refreshing the page
 - Check you're on the correct network
 - Clear browser cache and try again
 
 ### Can't Add Network
+
 - Make sure you have the latest MetaMask version
 - Try adding manually with RPC details from [Chainlist](https://chainlist.org)
 
 ### No Funds in Wallet
+
 - Check you sent to the correct address
 - Check you're viewing the correct network
 - Transactions can take 1-30 minutes depending on network
 
 ### Getting "Insufficient Funds" Error
+
 - You need more ETH/MATIC for gas fees
 - Switch to a cheaper network (Base or Polygon)
 - Or add more funds to your wallet
@@ -188,6 +196,7 @@ You're all set! Now you can:
 ## 🔒 Security Best Practices
 
 ### Protect Your Wallet
+
 - ✅ Write down recovery phrase on paper only
 - ✅ Store recovery phrase in a safe place
 - ✅ Never share recovery phrase with anyone
@@ -195,6 +204,7 @@ You're all set! Now you can:
 - ✅ Enable auto-lock in MetaMask settings
 
 ### Avoid Scams
+
 - ❌ Internet ID will NEVER ask for your recovery phrase
 - ❌ We'll NEVER DM you first on social media
 - ❌ Ignore unsolicited "support" messages
@@ -202,6 +212,7 @@ You're all set! Now you can:
 - ✅ Double-check URLs before connecting wallet
 
 ### Safe Practices
+
 - Only connect wallet to trusted sites
 - Review transaction details before approving
 - Start with small amounts until comfortable

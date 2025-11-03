@@ -12,7 +12,7 @@ const router = Router();
 router.get("/preferences", async (req: Request, res: Response) => {
   try {
     const userId = (req as Request & { userId?: string }).userId; // Assumes auth middleware sets this
-    
+
     if (!userId) {
       return res.status(401).json({ error: "Authentication required" });
     }
@@ -33,7 +33,7 @@ router.get("/preferences", async (req: Request, res: Response) => {
 router.put("/preferences", async (req: Request, res: Response) => {
   try {
     const userId = (req as Request & { userId?: string }).userId;
-    
+
     if (!userId) {
       return res.status(401).json({ error: "Authentication required" });
     }
@@ -96,7 +96,7 @@ router.post("/unsubscribe", async (req: Request, res: Response) => {
 router.post("/resubscribe", async (req: Request, res: Response) => {
   try {
     const userId = (req as Request & { userId?: string }).userId;
-    
+
     if (!userId) {
       return res.status(401).json({ error: "Authentication required" });
     }
@@ -118,7 +118,7 @@ router.post("/resubscribe", async (req: Request, res: Response) => {
 router.get("/stats", async (req: Request, res: Response) => {
   try {
     const userId = (req as Request & { userId?: string }).userId;
-    
+
     if (!userId) {
       return res.status(401).json({ error: "Authentication required" });
     }
@@ -157,13 +157,13 @@ router.get("/queue/stats", async (_req: Request, res: Response) => {
 router.get("/logs", async (req: Request, res: Response) => {
   try {
     const userId = (req as Request & { userId?: string }).userId;
-    
+
     if (!userId) {
       return res.status(401).json({ error: "Authentication required" });
     }
 
     const limit = parseInt(req.query.limit as string) || 20;
-    
+
     const logs = await prisma.emailLog.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },

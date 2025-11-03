@@ -160,16 +160,19 @@ View the [CI workflow configuration](.github/workflows/ci.yml) and [E2E workflow
 The CI workflows use the following environment variables:
 
 **Backend Job:**
+
 - `DATABASE_URL`: PostgreSQL connection for tests (provided by CI service container)
   - Value: `postgresql://internetid:internetid@localhost:5432/internetid_test?schema=public`
   - PostgreSQL 16 runs as a service container with health checks
 
 **Web Job:**
+
 - `DATABASE_URL`: Same as backend (for Prisma client generation)
 - `NEXTAUTH_URL`: Base URL for NextAuth (mock value: `http://localhost:3000`)
 - `NEXTAUTH_SECRET`: Session encryption secret (mock value for build-time only)
 
 **Note**: No real secrets or RPC URLs are required for CI. The workflows use:
+
 - Local PostgreSQL for database tests
 - Mock values for Next.js build (build runs in standalone mode)
 - Hardhat's built-in test network for smart contract tests
@@ -199,6 +202,7 @@ cd ..
 ```
 
 **PostgreSQL Setup for Local Testing:**
+
 ```bash
 # Using Docker
 docker run -d \
@@ -229,7 +233,6 @@ The project uses automated tools to keep dependencies up-to-date and secure:
   - Regular updates: Weekly checks (Mondays)
   - Auto-merge for patch/minor updates after CI passes
   - Manual review required for major version updates
-  
 - **CodeQL**: Advanced security analysis (weekly + on push/PR)
 - **Dependency Review**: Checks PRs for vulnerable dependencies
 

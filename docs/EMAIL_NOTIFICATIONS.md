@@ -5,6 +5,7 @@ This document describes the email notification system for Internet ID.
 ## Overview
 
 The email notification system provides transactional emails to keep users informed about:
+
 - Verification status updates (success, failure, pending)
 - Platform binding confirmations
 - On-chain transaction notifications
@@ -39,6 +40,7 @@ The email notification system provides transactional emails to keep users inform
 ### Database Schema
 
 #### EmailPreferences
+
 ```prisma
 model EmailPreferences {
   id                             String   @id @default(cuid())
@@ -54,6 +56,7 @@ model EmailPreferences {
 ```
 
 #### EmailLog
+
 ```prisma
 model EmailLog {
   id             String    @id @default(cuid())
@@ -110,21 +113,25 @@ REDIS_URL=redis://localhost:6379
 ### Provider Setup
 
 #### SendGrid
+
 1. Create account at https://sendgrid.com
 2. Generate API key with "Mail Send" permissions
 3. Add `SENDGRID_API_KEY` to environment
 
 #### Postmark
+
 1. Create account at https://postmarkapp.com
 2. Generate server token
 3. Add `POSTMARK_SERVER_TOKEN` to environment
 
 #### AWS SES
+
 1. Set up AWS SES and verify domain
 2. Create IAM user with SES send permissions
 3. Add AWS credentials to environment
 
 #### SMTP
+
 1. Get SMTP credentials from your email provider
 2. Add SMTP configuration to environment
 
@@ -136,45 +143,29 @@ REDIS_URL=redis://localhost:6379
 import { notificationService } from "./services/notification.service";
 
 // Send welcome email
-await notificationService.sendWelcomeEmail(
-  userId,
-  userEmail,
-  userName
-);
+await notificationService.sendWelcomeEmail(userId, userEmail, userName);
 
 // Send verification success
-await notificationService.sendVerificationSuccess(
-  userId,
-  userEmail,
-  {
-    contentHash: "0xabc...",
-    manifestUri: "ipfs://...",
-    creatorAddress: "0x123...",
-  }
-);
+await notificationService.sendVerificationSuccess(userId, userEmail, {
+  contentHash: "0xabc...",
+  manifestUri: "ipfs://...",
+  creatorAddress: "0x123...",
+});
 
 // Send platform binding confirmation
-await notificationService.sendPlatformBinding(
-  userId,
-  userEmail,
-  {
-    platform: "youtube",
-    platformId: "video123",
-    contentHash: "0xabc...",
-  }
-);
+await notificationService.sendPlatformBinding(userId, userEmail, {
+  platform: "youtube",
+  platformId: "video123",
+  contentHash: "0xabc...",
+});
 
 // Send security alert
-await notificationService.sendSecurityAlertLogin(
-  userId,
-  userEmail,
-  {
-    ipAddress: "192.168.1.1",
-    location: "San Francisco, CA",
-    device: "Chrome on Windows",
-    timestamp: new Date().toISOString(),
-  }
-);
+await notificationService.sendSecurityAlertLogin(userId, userEmail, {
+  ipAddress: "192.168.1.1",
+  location: "San Francisco, CA",
+  device: "Chrome on Windows",
+  timestamp: new Date().toISOString(),
+});
 ```
 
 ### Managing User Preferences
@@ -202,9 +193,11 @@ const stats = await notificationService.getEmailStats(userId);
 ## API Endpoints
 
 ### GET /api/notifications/preferences
+
 Get user's email preferences (requires authentication).
 
 **Response:**
+
 ```json
 {
   "id": "clxxx",
@@ -220,9 +213,11 @@ Get user's email preferences (requires authentication).
 ```
 
 ### PUT /api/notifications/preferences
+
 Update email preferences (requires authentication).
 
 **Request:**
+
 ```json
 {
   "verificationUpdates": false,
@@ -231,9 +226,11 @@ Update email preferences (requires authentication).
 ```
 
 ### POST /api/notifications/unsubscribe
+
 Unsubscribe from all emails.
 
 **Request:**
+
 ```json
 {
   "userId": "clyyy",
@@ -242,9 +239,11 @@ Unsubscribe from all emails.
 ```
 
 ### GET /api/notifications/stats
+
 Get email delivery statistics (requires authentication).
 
 **Response:**
+
 ```json
 {
   "total": 15,
@@ -264,15 +263,19 @@ Get email delivery statistics (requires authentication).
 ```
 
 ### GET /api/notifications/logs
+
 Get recent email logs (requires authentication).
 
 **Query Parameters:**
+
 - `limit`: Number of logs to return (default: 20, max: 100)
 
 ### GET /api/notifications/queue/stats
+
 Get email queue statistics (admin only).
 
 **Response:**
+
 ```json
 {
   "available": true,
@@ -286,6 +289,7 @@ Get email queue statistics (admin only).
 ## Email Templates
 
 All templates include:
+
 - Responsive HTML version
 - Plain text fallback
 - Unsubscribe link
@@ -306,12 +310,14 @@ All templates include:
 ## Job Queue
 
 ### Features
+
 - **Async Processing:** Emails queued via BullMQ for background processing
 - **Retry Logic:** 3 attempts with exponential backoff (5s, 10s, 20s)
 - **Priority:** Security alerts have highest priority
 - **Graceful Degradation:** Falls back to synchronous sending without Redis
 
 ### Queue Configuration
+
 ```typescript
 {
   attempts: 3,
@@ -326,11 +332,13 @@ All templates include:
 ## Testing
 
 Run email service tests:
+
 ```bash
 npm test test/services/email.test.ts
 ```
 
 Tests cover:
+
 - Email service initialization
 - Template generation
 - Queue operations
@@ -339,6 +347,7 @@ Tests cover:
 ## Monitoring
 
 ### Email Delivery Metrics
+
 - Total emails sent
 - Delivery rate
 - Bounce rate
@@ -346,6 +355,7 @@ Tests cover:
 - Queue depth
 
 ### Queue Health
+
 - Active jobs
 - Waiting jobs
 - Failed jobs
@@ -354,12 +364,14 @@ Tests cover:
 ## Compliance
 
 ### CAN-SPAM Act
+
 - ✅ Clear "From" name and email
 - ✅ Unsubscribe link in all emails
 - ✅ Physical address in footer
 - ✅ Honor opt-out requests within 10 days
 
 ### GDPR
+
 - ✅ Explicit consent for marketing emails
 - ✅ Easy unsubscribe mechanism
 - ✅ Data retention policies
@@ -368,18 +380,21 @@ Tests cover:
 ## Troubleshooting
 
 ### Emails not sending
+
 1. Check `EMAIL_PROVIDER` is set
 2. Verify provider credentials
 3. Check email service logs
 4. Test provider connection manually
 
 ### Queue not processing
+
 1. Verify `REDIS_URL` is set and accessible
 2. Check queue worker is running
 3. Check failed jobs in queue stats
 4. Review error logs in EmailLog table
 
 ### High bounce rate
+
 1. Verify sender domain authentication (SPF, DKIM, DMARC)
 2. Check email addresses are valid
 3. Review email content for spam triggers

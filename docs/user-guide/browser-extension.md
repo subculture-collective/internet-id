@@ -29,6 +29,7 @@ The Internet ID browser extension brings verification to where you browse:
 ### Chrome, Edge, Brave (Chromium-based)
 
 #### Option 1: From Chrome Web Store (Coming Soon)
+
 1. Visit [Chrome Web Store](https://chrome.google.com/webstore)
 2. Search for "Internet ID"
 3. Click "Add to Chrome"
@@ -39,6 +40,7 @@ The Internet ID browser extension brings verification to where you browse:
 #### Option 2: Manual Installation (Current Method)
 
 1. **Download the Extension**
+
    ```bash
    git clone https://github.com/subculture-collective/internet-id.git
    cd internet-id/extension
@@ -63,6 +65,7 @@ The Internet ID browser extension brings verification to where you browse:
 ### Firefox
 
 #### Option 1: From Firefox Add-ons (Coming Soon)
+
 1. Visit [Firefox Add-ons](https://addons.mozilla.org/)
 2. Search for "Internet ID"
 3. Click "Add to Firefox"
@@ -72,6 +75,7 @@ The Internet ID browser extension brings verification to where you browse:
 #### Option 2: Manual Installation (Current Method)
 
 1. **Download and Build**
+
    ```bash
    git clone https://github.com/subculture-collective/internet-id.git
    cd internet-id/extension
@@ -102,12 +106,14 @@ For now, use the web app at [app.internet-id.io](https://app.internet-id.io).
 ### Automatic Content Detection
 
 **What it does**:
+
 - Detects when you visit supported platforms
 - Extracts content ID (video ID, tweet ID, etc.)
 - Queries Internet ID API for verification
 - Shows result instantly
 
 **Supported**:
+
 - YouTube videos
 - Twitter/X posts
 - TikTok videos
@@ -121,21 +127,25 @@ For now, use the web app at [app.internet-id.io](https://app.internet-id.io).
 **Badge Types**:
 
 **✅ Verified** (Green badge)
+
 - Content is registered and verified
 - Creator signature valid
 - On-chain record exists
 
 **⚠️ Platform Verified** (Yellow badge)
+
 - Platform binding exists
 - Original file is registered
 - Platform re-encoded content (normal)
 
 **❌ Not Verified** (No badge shown)
+
 - No verification found
 - Content not registered
 - Or extension can't detect binding
 
 **Badge Placement**:
+
 - YouTube: Top-right of player
 - Twitter: Top-right of media
 - Customizable in settings
@@ -143,6 +153,7 @@ For now, use the web app at [app.internet-id.io](https://app.internet-id.io).
 ### One-Click Verification
 
 **Click the badge** to see:
+
 - Full verification details
 - Creator wallet address
 - Registration timestamp
@@ -151,6 +162,7 @@ For now, use the web app at [app.internet-id.io](https://app.internet-id.io).
 - Quick actions (share, copy, etc.)
 
 **Click the extension icon** to:
+
 - Verify current page
 - Access settings
 - View verification history
@@ -159,11 +171,13 @@ For now, use the web app at [app.internet-id.io](https://app.internet-id.io).
 ### Verification History
 
 **Recent Checks**:
+
 - Last 50 verified contents
 - Quick access to previously checked
 - Clear history anytime
 
 **Favorites** (Coming Soon):
+
 - Star favorite creators
 - Get notifications when they post verified content
 - Quick access to their content
@@ -171,6 +185,7 @@ For now, use the web app at [app.internet-id.io](https://app.internet-id.io).
 ### Quick Actions
 
 From badge or popup:
+
 - **View Full Details**: Open verification page
 - **Share Verification**: Copy link or share on social
 - **Download Proof**: Get proof bundle
@@ -204,11 +219,13 @@ From badge or popup:
 #### Connect Wallet (Optional)
 
 **Why connect?**
+
 - Register content directly from extension
 - Sign in to dashboard from extension
 - Manage your content
 
 **How to connect**:
+
 1. Click extension icon
 2. Click "Connect Wallet"
 3. Choose wallet (MetaMask)
@@ -228,6 +245,7 @@ Control automatic checking:
    - ❌ Off: Only checks when you click icon
 
 **When to disable**:
+
 - Privacy concerns (less API calls)
 - Slow connection (manual checking)
 - Battery saving (mobile)
@@ -258,6 +276,7 @@ Control how verification results are cached:
 #### Notification Settings (Coming Soon)
 
 Get notified when:
+
 - Favorite creator posts verified content
 - New platform supported
 - Important updates
@@ -269,11 +288,13 @@ Get notified when:
 Automatic detection and badge display:
 
 **YouTube**
+
 - Video pages
 - Embedded videos
 - Shorts
 
 **Twitter/X**
+
 - Tweets with media
 - Quoted tweets
 - Embedded tweets
@@ -283,14 +304,17 @@ Automatic detection and badge display:
 Automatic detection, badge coming soon:
 
 **TikTok**
+
 - Video pages
 - Manual verify in extension
 
 **Instagram**
+
 - Post pages
 - Manual verify in extension
 
 **GitHub**
+
 - Repository files
 - Gists
 - Manual verify in extension
@@ -321,6 +345,7 @@ Want to see your favorite platform? [Request it](https://discord.gg/internetid)!
 By default, extension uses production API: `https://app.internet-id.io/api`
 
 **To change** (for testing or self-hosted):
+
 1. Extension icon → Settings
 2. API Configuration
 3. Enter custom endpoint
@@ -343,17 +368,20 @@ Choose which blockchain network to query:
 ### Privacy Settings
 
 **What data is sent**:
+
 - Content URL or ID (only when verifying)
 - No personal information
 - No tracking cookies
 - No analytics
 
 **Local storage only**:
+
 - Verification cache
 - Settings preferences
 - Connection status
 
 **We never collect**:
+
 - Browsing history
 - Personal data
 - Wallet private keys
@@ -367,6 +395,7 @@ See [Privacy Policy](./privacy-security.md) for details.
 **Problem**: Extension icon missing or grayed out
 
 **Solutions**:
+
 1. Check extension is enabled in browser
 2. Refresh browser extension page
 3. Reload extension (toggle off/on)
@@ -378,6 +407,7 @@ See [Privacy Policy](./privacy-security.md) for details.
 **Problem**: No badge on verified content
 
 **Solutions**:
+
 1. **Check "Enable badges" in settings**
    - Extension icon → Settings → Enable badges
 
@@ -406,6 +436,7 @@ See [Privacy Policy](./privacy-security.md) for details.
 **Problem**: Extension takes long time to respond
 
 **Solutions**:
+
 1. **Check internet connection**
    - Extension queries API
    - Slow connection = slow checks
@@ -432,6 +463,7 @@ See [Privacy Policy](./privacy-security.md) for details.
 **Problem**: Extension shows "Not verified" for known verified content
 
 **Solutions**:
+
 1. **Check network selection**
    - Content might be on different network
    - Try switching networks in settings
@@ -453,6 +485,7 @@ See [Privacy Policy](./privacy-security.md) for details.
 **Problem**: Can't connect wallet to extension
 
 **Solutions**:
+
 1. **Check wallet extension installed**
    - MetaMask or compatible wallet
    - Restart browser after installing
@@ -479,19 +512,23 @@ See [Privacy Policy](./privacy-security.md) for details.
 The extension requests minimal permissions:
 
 **activeTab**
+
 - Access current tab only when you click extension icon
 - Never accesses tabs you don't interact with
 
 **storage**
+
 - Store settings locally
 - Cache verification results
 
 **host permissions** (specific domains only):
+
 - `*://youtube.com/*` - Detect YouTube videos
 - `*://twitter.com/*` - Detect tweets
 - `*://app.internet-id.io/*` - Query API
 
 **We never request**:
+
 - "Read and change all your data" (too broad)
 - Tabs (access to all tabs)
 - History (browsing history)
@@ -501,21 +538,25 @@ The extension requests minimal permissions:
 ### Data Security
 
 **What's stored locally**:
+
 - Extension settings
 - Verification cache (5 minutes TTL)
 - Recently checked content list
 
 **What's NOT stored**:
+
 - Browsing history
 - Wallet private keys
 - Personal information
 
 **Data transmission**:
+
 - Only when verifying content
 - HTTPS encrypted
 - To Internet ID API only
 
 **Open source**:
+
 - Full code available on GitHub
 - Audit it yourself
 - Contributions welcome
@@ -531,6 +572,7 @@ See [Browser Extension Security](../BROWSER_EXTENSION_SECURITY.md) for technical
 ### Does the extension track me?
 
 **No!** The extension:
+
 - Only checks content when you visit it
 - Doesn't track browsing history
 - Doesn't send analytics
@@ -539,6 +581,7 @@ See [Browser Extension Security](../BROWSER_EXTENSION_SECURITY.md) for technical
 ### Will this slow down my browser?
 
 **No!** The extension:
+
 - Only activates on supported platforms
 - Uses minimal resources
 - Caches results to reduce API calls
@@ -547,6 +590,7 @@ See [Browser Extension Security](../BROWSER_EXTENSION_SECURITY.md) for technical
 ### Can I use it on mobile?
 
 **Yes, with limitations:**
+
 - **Mobile Chrome/Firefox**: Extensions not supported on mobile browsers
 - **Mobile Safari**: No extension support
 - **Workaround**: Use mobile web app at [app.internet-id.io](https://app.internet-id.io)
@@ -556,10 +600,12 @@ See [Browser Extension Security](../BROWSER_EXTENSION_SECURITY.md) for technical
 ### How do I update the extension?
 
 **From Store** (when available):
+
 - Automatic updates enabled by default
 - Or manually: Extensions page → Developer mode → Update
 
 **Manual Installation**:
+
 - Pull latest from GitHub
 - Run `npm run build`
 - Extension → Remove → Reload with new build
@@ -567,6 +613,7 @@ See [Browser Extension Security](../BROWSER_EXTENSION_SECURITY.md) for technical
 ### Can I disable it on specific sites?
 
 **Yes!**
+
 1. Right-click extension icon
 2. Choose "Manage extension"
 3. Site access → On click/On specific sites

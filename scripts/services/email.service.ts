@@ -46,9 +46,7 @@ class EmailService {
       fromName: process.env.EMAIL_FROM_NAME || "Internet ID",
       replyTo: process.env.EMAIL_REPLY_TO,
       baseUrl:
-        process.env.EMAIL_BASE_URL ||
-        process.env.NEXT_PUBLIC_SITE_BASE ||
-        "http://localhost:3000",
+        process.env.EMAIL_BASE_URL || process.env.NEXT_PUBLIC_SITE_BASE || "http://localhost:3000",
     };
   }
 
@@ -109,9 +107,7 @@ class EmailService {
   private async initializePostmark(): Promise<void> {
     const serverToken = process.env.POSTMARK_SERVER_TOKEN;
     if (!serverToken) {
-      throw new Error(
-        "POSTMARK_SERVER_TOKEN is required for Postmark provider"
-      );
+      throw new Error("POSTMARK_SERVER_TOKEN is required for Postmark provider");
     }
 
     this.transporter = nodemailer.createTransport({

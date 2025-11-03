@@ -29,9 +29,7 @@ class EmailTemplateService {
 
   constructor() {
     this.baseUrl =
-      process.env.EMAIL_BASE_URL ||
-      process.env.NEXT_PUBLIC_SITE_BASE ||
-      "http://localhost:3000";
+      process.env.EMAIL_BASE_URL || process.env.NEXT_PUBLIC_SITE_BASE || "http://localhost:3000";
   }
 
   /**
@@ -304,9 +302,7 @@ Secure account: ${this.baseUrl}/profile`,
   /**
    * Security alert: password change template
    */
-  private securityAlertPasswordChangeTemplate(
-    data: TemplateData
-  ): EmailTemplate {
+  private securityAlertPasswordChangeTemplate(data: TemplateData): EmailTemplate {
     const { timestamp } = data;
 
     return {

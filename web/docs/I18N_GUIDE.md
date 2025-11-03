@@ -18,6 +18,7 @@ Internet-ID now supports multiple languages to expand its reach to non-English s
 ### Translation Files
 
 Translation files are located in `web/messages/` directory:
+
 ```
 web/messages/
 ├── en.json    # English (default)
@@ -29,6 +30,7 @@ web/messages/
 ```
 
 Each translation file contains key-value pairs organized by namespace:
+
 ```json
 {
   "common": {
@@ -59,6 +61,7 @@ The system detects the user's preferred language in this order:
 ### Language Switcher
 
 The LanguageSwitcher component (`app/components/LanguageSwitcher.tsx`) allows users to manually change the language. It:
+
 - Displays current language with globe icon
 - Shows dropdown with all available languages
 - Persists selection in cookie
@@ -69,15 +72,15 @@ The LanguageSwitcher component (`app/components/LanguageSwitcher.tsx`) allows us
 ### Server Components
 
 ```tsx
-import { useTranslations } from 'next-intl';
+import { useTranslations } from "next-intl";
 
 export default function MyComponent() {
-  const t = useTranslations('namespace');
-  
+  const t = useTranslations("namespace");
+
   return (
     <div>
-      <h1>{t('title')}</h1>
-      <p>{t('description')}</p>
+      <h1>{t("title")}</h1>
+      <p>{t("description")}</p>
     </div>
   );
 }
@@ -88,25 +91,25 @@ export default function MyComponent() {
 Client components work the same way, but must be wrapped in `NextIntlClientProvider` (already done in root layout):
 
 ```tsx
-'use client';
+"use client";
 
-import { useTranslations } from 'next-intl';
+import { useTranslations } from "next-intl";
 
 export default function MyClientComponent() {
-  const t = useTranslations('namespace');
-  
-  return <button>{t('submit')}</button>;
+  const t = useTranslations("namespace");
+
+  return <button>{t("submit")}</button>;
 }
 ```
 
 ### Accessing Current Locale
 
 ```tsx
-import { useLocale } from 'next-intl';
+import { useLocale } from "next-intl";
 
 export default function MyComponent() {
   const locale = useLocale();
-  
+
   return <div>Current language: {locale}</div>;
 }
 ```
@@ -118,6 +121,7 @@ The implementation includes SEO optimizations:
 ### Hreflang Tags
 
 Automatically added in the root layout for all supported languages:
+
 ```html
 <link rel="alternate" hreflang="en" href="https://internet-id.io" />
 <link rel="alternate" hreflang="es" href="https://internet-id.io/es" />
@@ -132,11 +136,11 @@ Metadata (titles, descriptions) can be localized using `getTranslations`:
 
 ```tsx
 export async function generateMetadata({ params }: { params: { locale: Locale } }) {
-  const t = await getTranslations({ locale: params.locale, namespace: 'metadata' });
-  
+  const t = await getTranslations({ locale: params.locale, namespace: "metadata" });
+
   return {
-    title: t('title'),
-    description: t('description'),
+    title: t("title"),
+    description: t("description"),
   };
 }
 ```
@@ -148,18 +152,18 @@ export async function generateMetadata({ params }: { params: { locale: Locale } 
 Use the built-in Intl API with the current locale:
 
 ```tsx
-import { useLocale } from 'next-intl';
+import { useLocale } from "next-intl";
 
 export default function MyComponent() {
   const locale = useLocale();
   const date = new Date();
-  
+
   const formatted = new Intl.DateTimeFormat(locale, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   }).format(date);
-  
+
   return <div>{formatted}</div>;
 }
 ```
@@ -167,17 +171,17 @@ export default function MyComponent() {
 ### Numbers
 
 ```tsx
-import { useLocale } from 'next-intl';
+import { useLocale } from "next-intl";
 
 export default function MyComponent() {
   const locale = useLocale();
   const number = 1234.56;
-  
+
   const formatted = new Intl.NumberFormat(locale, {
-    style: 'currency',
-    currency: 'USD',
+    style: "currency",
+    currency: "USD",
   }).format(number);
-  
+
   return <div>{formatted}</div>;
 }
 ```
@@ -189,6 +193,7 @@ export default function MyComponent() {
 Add the new key-value pair to all translation files:
 
 **en.json:**
+
 ```json
 {
   "myNamespace": {
@@ -198,6 +203,7 @@ Add the new key-value pair to all translation files:
 ```
 
 **es.json:**
+
 ```json
 {
   "myNamespace": {
@@ -211,8 +217,8 @@ Repeat for all language files (zh, ja, fr, de).
 ### 2. Use in Component
 
 ```tsx
-const t = useTranslations('myNamespace');
-return <div>{t('newKey')}</div>;
+const t = useTranslations("myNamespace");
+return <div>{t("newKey")}</div>;
 ```
 
 ## Adding a New Language
@@ -220,12 +226,13 @@ return <div>{t('newKey')}</div>;
 ### 1. Add Locale to Configuration
 
 Edit `i18n.ts`:
+
 ```typescript
-export const locales = ['en', 'es', 'zh', 'ja', 'fr', 'de', 'pt'] as const;
+export const locales = ["en", "es", "zh", "ja", "fr", "de", "pt"] as const;
 
 export const localeLabels: Record<Locale, string> = {
   // ... existing languages
-  pt: 'Português',
+  pt: "Português",
 };
 ```
 
@@ -242,17 +249,25 @@ Build and test the application to ensure the new language works correctly.
 ### 1. Namespace Organization
 
 Group related translations together:
+
 ```json
 {
-  "auth": { /* authentication strings */ },
-  "dashboard": { /* dashboard strings */ },
-  "errors": { /* error messages */ }
+  "auth": {
+    /* authentication strings */
+  },
+  "dashboard": {
+    /* dashboard strings */
+  },
+  "errors": {
+    /* error messages */
+  }
 }
 ```
 
 ### 2. Avoid Hardcoded Strings
 
 Always use translation keys for user-facing text:
+
 ```tsx
 // ❌ Bad
 <button>Submit</button>
@@ -264,6 +279,7 @@ Always use translation keys for user-facing text:
 ### 3. Provide Context
 
 Use descriptive keys that provide context:
+
 ```json
 {
   "form": {

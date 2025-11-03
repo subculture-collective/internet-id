@@ -14,11 +14,7 @@ class NotificationService {
   /**
    * Send welcome email to new user
    */
-  async sendWelcomeEmail(
-    userId: string,
-    userEmail: string,
-    userName?: string
-  ): Promise<void> {
+  async sendWelcomeEmail(userId: string, userEmail: string, userName?: string): Promise<void> {
     await this.sendNotification({
       userId,
       to: userEmail,

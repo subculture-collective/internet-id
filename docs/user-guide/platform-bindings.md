@@ -19,6 +19,7 @@ A **platform binding** connects your registered original file to the version pos
 ### The Problem
 
 When you upload to platforms, they re-encode your content:
+
 - **YouTube** changes resolution, bitrate, codec
 - **Twitter** compresses images and videos
 - **TikTok** applies filters and adjustments
@@ -83,15 +84,15 @@ Now viewers can verify your YouTube video even though the hash changed!
 
 ### Currently Supported ✅
 
-| Platform | Binding Type | Auto-Detection | Badge Support |
-|----------|-------------|----------------|---------------|
-| **YouTube** | Video ID | ✅ Yes | ✅ Yes |
-| **Twitter/X** | Tweet ID | ✅ Yes | ✅ Yes |
-| **TikTok** | Video ID | ✅ Yes | 🔄 Coming soon |
-| **Instagram** | Post ID | ✅ Yes | 🔄 Coming soon |
-| **GitHub** | Commit/File | ✅ Yes | 🔄 Coming soon |
-| **LinkedIn** | Post ID | ✅ Yes | 🔄 Coming soon |
-| **Discord** | Message ID | ✅ Yes | 🔄 Coming soon |
+| Platform      | Binding Type | Auto-Detection | Badge Support  |
+| ------------- | ------------ | -------------- | -------------- |
+| **YouTube**   | Video ID     | ✅ Yes         | ✅ Yes         |
+| **Twitter/X** | Tweet ID     | ✅ Yes         | ✅ Yes         |
+| **TikTok**    | Video ID     | ✅ Yes         | 🔄 Coming soon |
+| **Instagram** | Post ID      | ✅ Yes         | 🔄 Coming soon |
+| **GitHub**    | Commit/File  | ✅ Yes         | 🔄 Coming soon |
+| **LinkedIn**  | Post ID      | ✅ Yes         | 🔄 Coming soon |
+| **Discord**   | Message ID   | ✅ Yes         | 🔄 Coming soon |
 
 ### Coming Soon 🔄
 
@@ -177,6 +178,7 @@ See [CLI Guide](./cli-usage.md) for details.
 #### Step 2: Bind to Internet ID
 
 **Web UI**:
+
 1. Dashboard → Your content → "Add Platform Link"
 2. Select **"YouTube"** from dropdown
 3. Enter video ID or full URL
@@ -184,6 +186,7 @@ See [CLI Guide](./cli-usage.md) for details.
 5. Wait 15-30 seconds for confirmation
 
 **CLI**:
+
 ```bash
 npm run bind:youtube -- ./original-video.mp4 abc123xyz 0xRegistryAddr
 ```
@@ -216,6 +219,7 @@ Add to your video description:
 #### Step 2: Bind to Internet ID
 
 **Web UI**:
+
 1. Dashboard → Your content → "Add Platform Link"
 2. Select **"Twitter"** from dropdown
 3. Enter tweet ID or full URL
@@ -223,6 +227,7 @@ Add to your video description:
 5. Wait for confirmation
 
 **CLI**:
+
 ```bash
 # For tweet with media
 npm run bind:twitter -- ./original-media.jpg 1234567890 0xRegistryAddr
@@ -253,12 +258,14 @@ Content verified with Internet ID ✓
 #### Step 2: Bind to Internet ID
 
 **Web UI**:
+
 1. Dashboard → Your content → "Add Platform Link"
 2. Select **"TikTok"** from dropdown
 3. Enter video ID or full URL
 4. Click "Bind" and confirm
 
 **CLI**:
+
 ```bash
 npm run bind:tiktok -- ./original-video.mp4 1234567890 0xRegistryAddr
 ```
@@ -288,12 +295,14 @@ Include in your TikTok caption:
 #### Step 2: Bind to Internet ID
 
 **Web UI**:
+
 1. Dashboard → Your content → "Add Platform Link"
 2. Select **"Instagram"** from dropdown
 3. Enter post ID or full URL
 4. Click "Bind" and confirm
 
 **CLI**:
+
 ```bash
 npm run bind:instagram -- ./original-image.jpg ABC123xyz 0xRegistryAddr
 ```
@@ -322,12 +331,14 @@ Link in your Instagram bio:
 #### Step 2: Bind to Internet ID
 
 **Web UI**:
+
 1. Dashboard → Your content → "Add Platform Link"
 2. Select **"GitHub"** from dropdown
 3. Enter commit hash or file URL
 4. Click "Bind" and confirm
 
 **CLI**:
+
 ```bash
 npm run bind:github -- ./original-file.md abc123commit 0xRegistryAddr
 ```
@@ -345,12 +356,14 @@ Add to your repository README:
 ### View All Bindings
 
 **Dashboard View**:
+
 1. Go to Dashboard
 2. Click on any registered content
 3. Scroll to "Platform Bindings" section
 4. See all linked platforms
 
 **Example Display**:
+
 ```
 Platform Bindings:
 ✓ YouTube: youtube.com/watch?v=abc123
@@ -361,6 +374,7 @@ Platform Bindings:
 ### Add New Binding
 
 From content details:
+
 1. Click **"Add Platform Link"**
 2. Choose platform from dropdown
 3. Enter URL or ID
@@ -370,16 +384,19 @@ From content details:
 ### Update Binding
 
 If you need to change a platform URL:
+
 1. Currently requires removing old and adding new
 2. Future: Direct update feature coming soon
 
 **Workaround**:
+
 1. Note the current bindings
 2. Use CLI or contact support for bulk changes
 
 ### Remove Binding
 
 To remove a binding:
+
 1. Go to content details
 2. Find binding to remove
 3. Click **"Remove"** (❌ icon)
@@ -393,6 +410,7 @@ To remove a binding:
 Bind one original to many platforms at once:
 
 **Web UI**:
+
 1. Content details → "Add Multiple Bindings"
 2. Enter all platform URLs
 3. Review gas cost (one transaction per binding)
@@ -400,6 +418,7 @@ Bind one original to many platforms at once:
 5. Wait for confirmations
 
 **CLI** (Recommended for batch):
+
 ```bash
 # Create bindings file
 cat > bindings.json << EOF
@@ -421,12 +440,14 @@ Saves time and can be more gas-efficient.
 ### When to Bind
 
 **Recommended Timing**:
+
 1. ✅ **Register original first** - Always register before uploading to platforms
 2. ✅ **Bind immediately after upload** - As soon as platform URL is available
 3. ✅ **Bind all platforms** - Don't skip any where you post
 4. ✅ **Bind retroactively** - Even old content benefits from bindings
 
 **Avoid**:
+
 - ❌ Binding before uploading to platform (URL won't exist yet)
 - ❌ Binding to wrong platform type (e.g., YouTube ID as Twitter)
 - ❌ Binding to private/unlisted content that may be removed
@@ -434,20 +455,24 @@ Saves time and can be more gas-efficient.
 ### Organizing Bindings
 
 **Use Descriptive Names**:
+
 - Add platform name to content title in manifest
 - Example: "My Video - YouTube", "My Video - Twitter Cut"
 
 **Group Related Content**:
+
 - Use tags to group: #youtube, #twitter, #full-version, #teaser
 - Makes it easier to find and manage
 
 **Document Your Bindings**:
+
 - Keep a spreadsheet of content and platform URLs
 - Especially useful for large content libraries
 
 ### Verification Workflow
 
 **Complete Flow**:
+
 1. Create content
 2. Register with Internet ID (get hash)
 3. Upload to platform(s)
@@ -459,16 +484,19 @@ Saves time and can be more gas-efficient.
 ### Security Considerations
 
 **Binding Permissions**:
+
 - Only the original creator wallet can bind
 - Prevents others from fraudulent bindings
 - Keep your wallet secure!
 
 **Verify Bindings**:
+
 - After binding, verify it works
 - Check verification page shows binding
 - Test with browser extension
 
 **Platform Account Security**:
+
 - Bind only to accounts you control
 - If account compromised, bindings still prove original ownership
 - But attacker could confuse viewers
@@ -480,6 +508,7 @@ Saves time and can be more gas-efficient.
 **Goal**: Release same content on YouTube, Twitter, TikTok
 
 **Workflow**:
+
 1. Create and finalize content
 2. Register original with Internet ID
 3. Upload to YouTube (bind immediately)
@@ -488,6 +517,7 @@ Saves time and can be more gas-efficient.
 6. All three now point to same original proof
 
 **Benefits**:
+
 - Consistent verification across platforms
 - Viewers can check any platform
 - Proves all are from same creator
@@ -497,6 +527,7 @@ Saves time and can be more gas-efficient.
 **Goal**: Post teaser on Twitter, full video on YouTube
 
 **Workflow**:
+
 1. Create full video (5 minutes)
 2. Create teaser (30 seconds)
 3. Register both as separate content
@@ -505,6 +536,7 @@ Saves time and can be more gas-efficient.
 6. Link between them in descriptions
 
 **Alternative**:
+
 - Register only full version
 - Note teaser is "derived work" in manifest
 - Bind both to same registration (with note)
@@ -514,6 +546,7 @@ Saves time and can be more gas-efficient.
 **Goal**: Bind old content already posted
 
 **Workflow**:
+
 1. Gather all platform URLs for existing content
 2. Find or recreate original files
 3. Register original files (even if old)
@@ -527,6 +560,7 @@ Saves time and can be more gas-efficient.
 **Goal**: Re-upload content that was removed
 
 **Workflow**:
+
 1. Original binding exists to old URL (now dead)
 2. Re-upload to platform (get new URL)
 3. Add new binding to new URL
@@ -534,6 +568,7 @@ Saves time and can be more gas-efficient.
 5. Note in description: "Re-uploaded, still verified"
 
 **Benefits**:
+
 - Proves continuity
 - Shows censorship history
 - Maintains verification
@@ -545,6 +580,7 @@ Saves time and can be more gas-efficient.
 **Problem**: Transaction reverts or fails
 
 **Solutions**:
+
 1. Check you're the creator (only creator can bind)
 2. Check content is registered
 3. Check sufficient gas balance
@@ -556,6 +592,7 @@ Saves time and can be more gas-efficient.
 **Problem**: Bound but verification doesn't show it
 
 **Solutions**:
+
 1. Wait 1-2 minutes for indexing
 2. Refresh verification page
 3. Clear browser cache
@@ -567,6 +604,7 @@ Saves time and can be more gas-efficient.
 **Problem**: "Invalid URL" error
 
 **Solutions**:
+
 1. Check URL format matches platform standard
 2. Use full URL, not shortened link
 3. Make sure platform is supported
@@ -577,6 +615,7 @@ Saves time and can be more gas-efficient.
 **Problem**: Extension doesn't detect bound content
 
 **Solutions**:
+
 1. Refresh platform page
 2. Check extension is enabled
 3. Wait for cache to clear (5 minutes)

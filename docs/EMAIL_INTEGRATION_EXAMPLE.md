@@ -20,11 +20,7 @@ const user = await prisma.user.create({
 
 // Send welcome email
 if (user.email) {
-  await notificationService.sendWelcomeEmail(
-    user.id,
-    user.email,
-    user.name || undefined
-  );
+  await notificationService.sendWelcomeEmail(user.id, user.email, user.name || undefined);
 }
 ```
 
@@ -38,7 +34,7 @@ import { notificationService } from "../services/notification.service";
 router.post("/register", async (req: Request, res: Response) => {
   try {
     // ... existing registration logic ...
-    
+
     const tx = await registry.register(fileHash, manifestURI);
     const receipt = await tx.wait();
 
@@ -60,15 +56,11 @@ router.post("/register", async (req: Request, res: Response) => {
 
     // Send verification success email
     if (user && user.email) {
-      await notificationService.sendVerificationSuccess(
-        user.id,
-        user.email,
-        {
-          contentHash: fileHash,
-          manifestUri: manifestURI,
-          creatorAddress,
-        }
-      );
+      await notificationService.sendVerificationSuccess(user.id, user.email, {
+        contentHash: fileHash,
+        manifestUri: manifestURI,
+        creatorAddress,
+      });
     }
 
     res.json({
@@ -79,16 +71,12 @@ router.post("/register", async (req: Request, res: Response) => {
   } catch (error) {
     // On error, send failure notification
     if (user && user.email && fileHash) {
-      await notificationService.sendVerificationFailure(
-        user.id,
-        user.email,
-        {
-          contentHash: fileHash,
-          reason: error instanceof Error ? error.message : "Unknown error",
-        }
-      );
+      await notificationService.sendVerificationFailure(user.id, user.email, {
+        contentHash: fileHash,
+        reason: error instanceof Error ? error.message : "Unknown error",
+      });
     }
-    
+
     res.status(500).json({ error: error.message });
   }
 });
@@ -104,7 +92,7 @@ import { notificationService } from "../services/notification.service";
 router.post("/bind", async (req: Request, res: Response) => {
   try {
     // ... existing binding logic ...
-    
+
     const tx = await registry.bindPlatform(contentHash, platform, platformId);
     await tx.wait();
 
@@ -124,15 +112,11 @@ router.post("/bind", async (req: Request, res: Response) => {
 
     // Send binding confirmation email
     if (user && user.email) {
-      await notificationService.sendPlatformBinding(
-        user.id,
-        user.email,
-        {
-          platform,
-          platformId,
-          contentHash,
-        }
-      );
+      await notificationService.sendPlatformBinding(user.id, user.email, {
+        platform,
+        platformId,
+        contentHash,
+      });
     }
 
     res.json({ success: true });
@@ -158,67 +142,47 @@ async function registerWithNotifications(
 ) {
   try {
     // Send pending notification
-    await notificationService.sendVerificationPending(
-      userId,
-      userEmail,
-      { contentHash: fileHash }
-    );
+    await notificationService.sendVerificationPending(userId, userEmail, { contentHash: fileHash });
 
     // Perform registration
     const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
     const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
     const registry = new ethers.Contract(registryAddress, ABI, wallet);
-    
+
     const tx = await registry.register(fileHash, manifestURI);
-    
+
     // Send transaction notification
-    await notificationService.sendTransactionNotification(
-      userId,
-      userEmail,
-      {
-        txHash: tx.hash,
-        chainId: (await provider.getNetwork()).chainId,
-        type: "Content Registration",
-        status: "pending",
-      }
-    );
+    await notificationService.sendTransactionNotification(userId, userEmail, {
+      txHash: tx.hash,
+      chainId: (await provider.getNetwork()).chainId,
+      type: "Content Registration",
+      status: "pending",
+    });
 
     const receipt = await tx.wait();
 
     // Send success notification
-    await notificationService.sendVerificationSuccess(
-      userId,
-      userEmail,
-      {
-        contentHash: fileHash,
-        manifestUri: manifestURI,
-        creatorAddress: await wallet.getAddress(),
-      }
-    );
+    await notificationService.sendVerificationSuccess(userId, userEmail, {
+      contentHash: fileHash,
+      manifestUri: manifestURI,
+      creatorAddress: await wallet.getAddress(),
+    });
 
     // Send transaction confirmation
-    await notificationService.sendTransactionNotification(
-      userId,
-      userEmail,
-      {
-        txHash: receipt.hash,
-        chainId: (await provider.getNetwork()).chainId,
-        type: "Content Registration",
-        status: "confirmed",
-      }
-    );
+    await notificationService.sendTransactionNotification(userId, userEmail, {
+      txHash: receipt.hash,
+      chainId: (await provider.getNetwork()).chainId,
+      type: "Content Registration",
+      status: "confirmed",
+    });
 
     return receipt;
   } catch (error) {
     // Send failure notification
-    await notificationService.sendVerificationFailure(
-      userId,
-      userEmail,
-      {
-        contentHash: fileHash,
-        reason: error instanceof Error ? error.message : "Unknown error",
-      }
-    );
+    await notificationService.sendVerificationFailure(userId, userEmail, {
+      contentHash: fileHash,
+      reason: error instanceof Error ? error.message : "Unknown error",
+    });
     throw error;
   }
 }
@@ -279,7 +243,7 @@ async function sendDailyDigest() {
 
     // Collect activity from last 24 hours
     const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    
+
     const recentContents = await prisma.content.findMany({
       where: {
         creatorId: user.id,
@@ -417,7 +381,7 @@ export default function EmailPreferencesPage() {
   return (
     <div className="max-w-2xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">Email Preferences</h1>
-      
+
       <div className="space-y-4">
         <label className="flex items-center space-x-3">
           <input
@@ -518,6 +482,7 @@ export default function EmailPreferencesPage() {
 ## Best Practices
 
 1. **Always check for user email before sending:**
+
    ```typescript
    if (user && user.email) {
      await notificationService.sendEmail(...)
