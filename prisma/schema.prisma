@@ -15,13 +15,13 @@ datasource db {
 }
 
 model User {
-  id               String             @id @default(cuid())
-  address          String?            @unique
-  email            String?            @unique
+  id               String            @id @default(cuid())
+  address          String?           @unique
+  email            String?           @unique
   name             String?
   image            String?
   emailVerified    DateTime?
-  createdAt        DateTime           @default(now())
+  createdAt        DateTime          @default(now())
   contents         Content[]
   accounts         Account[]
   sessions         Session[]
@@ -136,18 +136,18 @@ model VerificationToken {
 }
 
 model ApiKey {
-  id          String    @id @default(cuid())
-  key         String    @unique // hashed API key
-  name        String? // optional name for the key
-  userId      String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tier        String    @default("free") // free, paid
-  rateLimit   Int       @default(100) // requests per minute
-  isActive    Boolean   @default(true)
-  lastUsedAt  DateTime?
-  expiresAt   DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id         String    @id @default(cuid())
+  key        String    @unique // hashed API key
+  name       String? // optional name for the key
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tier       String    @default("free") // free, paid
+  rateLimit  Int       @default(100) // requests per minute
+  isActive   Boolean   @default(true)
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   @@index([userId])
   @@index([key, isActive])
@@ -156,21 +156,21 @@ model ApiKey {
 
 // Email notification preferences per user
 model EmailPreferences {
-  id                             String   @id @default(cuid())
-  userId                         String   @unique
-  user                           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                           String    @id @default(cuid())
+  userId                       String    @unique
+  user                         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   // Notification type opt-ins
-  welcomeEmails                  Boolean  @default(true)
-  verificationUpdates            Boolean  @default(true)
-  platformBindingConfirmations   Boolean  @default(true)
-  transactionNotifications       Boolean  @default(true)
-  securityAlerts                 Boolean  @default(true)
+  welcomeEmails                Boolean   @default(true)
+  verificationUpdates          Boolean   @default(true)
+  platformBindingConfirmations Boolean   @default(true)
+  transactionNotifications     Boolean   @default(true)
+  securityAlerts               Boolean   @default(true)
   // Frequency control
-  frequency                      String   @default("immediate") // immediate, daily_digest
+  frequency                    String    @default("immediate") // immediate, daily_digest
   // Global unsubscribe
-  unsubscribedAt                 DateTime?
-  createdAt                      DateTime @default(now())
-  updatedAt                      DateTime @updatedAt
+  unsubscribedAt               DateTime?
+  createdAt                    DateTime  @default(now())
+  updatedAt                    DateTime  @updatedAt
 
   @@index([userId])
   @@index([unsubscribedAt])
@@ -178,25 +178,25 @@ model EmailPreferences {
 
 // Email delivery tracking and logging
 model EmailLog {
-  id             String    @id @default(cuid())
-  userId         String?
-  user           User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
-  recipient      String    // email address
-  subject        String
-  templateType   String    // welcome, verification_success, etc.
-  status         String    // queued, sent, delivered, bounced, failed
-  provider       String?   // sendgrid, postmark, ses, smtp
-  providerId     String?   // external provider message ID
-  error          String?
-  sentAt         DateTime?
-  deliveredAt    DateTime?
-  bouncedAt      DateTime?
-  openedAt       DateTime?
-  clickedAt      DateTime?
-  retryCount     Int       @default(0)
-  metadata       String?   // JSON string for additional context
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  id           String    @id @default(cuid())
+  userId       String?
+  user         User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  recipient    String // email address
+  subject      String
+  templateType String // welcome, verification_success, etc.
+  status       String // queued, sent, delivered, bounced, failed
+  provider     String? // sendgrid, postmark, ses, smtp
+  providerId   String? // external provider message ID
+  error        String?
+  sentAt       DateTime?
+  deliveredAt  DateTime?
+  bouncedAt    DateTime?
+  openedAt     DateTime?
+  clickedAt    DateTime?
+  retryCount   Int       @default(0)
+  metadata     String? // JSON string for additional context
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   @@index([userId])
   @@index([status, createdAt])
@@ -208,13 +208,13 @@ model EmailLog {
 model VerificationJob {
   id              String    @id @default(cuid())
   jobId           String    @unique // BullMQ job ID
-  type            String    // "verify" or "proof"
+  type            String // "verify" or "proof"
   contentHash     String?
   manifestUri     String
   registryAddress String
   rpcUrl          String?
-  status          String    // "queued", "processing", "completed", "failed"
-  result          String?   // JSON string of verification result
+  status          String // "queued", "processing", "completed", "failed"
+  result          String? // JSON string of verification result
   error           String?
   retryCount      Int       @default(0)
   progress        Int       @default(0) // 0-100 percentage
