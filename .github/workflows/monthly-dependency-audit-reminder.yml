@@ -6,7 +6,7 @@ name: "Monthly Dependency Audit Reminder"
 on:
   schedule:
     # Run at 9:00 AM UTC on the 1st of every month
-    - cron: '0 9 1 * *'
+    - cron: "0 9 1 * *"
   workflow_dispatch: # Allow manual trigger
 
 permissions:
@@ -17,11 +17,11 @@ jobs:
   create-audit-issue:
     name: Create Monthly Audit Issue
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Get current month and year
         id: date
         run: |
@@ -30,7 +30,7 @@ jobs:
           echo "month_year=$(date +'%B %Y')" >> $GITHUB_OUTPUT
           # Calculate next month for due date
           echo "next_month=$(date -d '+1 month' +'%B %Y')" >> $GITHUB_OUTPUT
-      
+
       - name: Check if audit issue already exists
         id: check-issue
         run: |
@@ -45,7 +45,7 @@ jobs:
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Create audit issue
         if: steps.check-issue.outputs.exists == 'false'
         run: |
@@ -172,7 +172,7 @@ jobs:
             --assignee ""
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Skip if issue exists
         if: steps.check-issue.outputs.exists == 'true'
         run: |

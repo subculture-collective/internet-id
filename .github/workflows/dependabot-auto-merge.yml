@@ -23,14 +23,14 @@ jobs:
     runs-on: ubuntu-latest
     # Only run for Dependabot PRs
     if: github.actor == 'dependabot[bot]'
-    
+
     steps:
       - name: Dependabot metadata
         id: metadata
         uses: dependabot/fetch-metadata@v2
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
-      
+
       - name: Auto-approve patch and minor updates
         # Auto-approve patch and minor updates, skip major updates
         if: |
@@ -40,7 +40,7 @@ jobs:
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Comment on major updates
         # Add comment for major updates requiring review
         if: steps.metadata.outputs.update-type == 'version-update:semver-major'
@@ -56,14 +56,14 @@ jobs:
     needs: auto-approve
     # Only run for Dependabot PRs
     if: github.actor == 'dependabot[bot]'
-    
+
     steps:
       - name: Dependabot metadata
         id: metadata
         uses: dependabot/fetch-metadata@v2
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
-      
+
       - name: Wait for CI checks
         # Wait for required CI checks to complete
         uses: lewagon/wait-on-check-action@v1.3.4
@@ -74,7 +74,7 @@ jobs:
           wait-interval: 30
           # Wait up to 30 minutes for CI
           allowed-conclusions: success
-          
+
       - name: Enable auto-merge for patch and minor updates
         # Only auto-merge patch and minor updates, not major
         if: |
@@ -84,7 +84,7 @@ jobs:
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Add auto-merge label
         if: |
           (steps.metadata.outputs.update-type == 'version-update:semver-patch' ||

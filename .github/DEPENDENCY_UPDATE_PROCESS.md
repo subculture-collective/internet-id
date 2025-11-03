@@ -5,32 +5,36 @@ This is a quick reference guide for the automated dependency update process. For
 ## 🤖 What Runs Automatically
 
 ### Daily (9:00 AM PST)
+
 - ✅ **Security updates** for all packages
 - ✅ Auto-approved and auto-merged after CI passes
 - ✅ Notifications sent for high/critical vulnerabilities
 
 ### Weekly (Mondays, 9:00 AM PST)
+
 - ✅ **Regular updates** (patch and minor versions)
 - ✅ Grouped by category (React, testing, etc.)
 - ✅ Auto-merged after CI passes
 - ⚠️ **Major updates** require manual review
 
 ### On Every PR
+
 - ✅ **Dependency review** checks for vulnerabilities
 - ✅ **License compliance** checks
 - ✅ Fails PR if moderate+ severity issues found
 
 ### Weekly (Mondays, 6:00 AM UTC) + Every Push/PR
+
 - ✅ **CodeQL security analysis** for code vulnerabilities
 - ✅ Results available in Security tab
 
 ## 👀 What Needs Your Attention
 
 ### Immediate Action Required
+
 1. **High/Critical security alerts**
    - Check: Security tab → Dependabot alerts
    - Action: Review and merge the auto-generated PR within 1 day
-   
 2. **Failed CI on Dependabot PRs**
    - Check: PR checks section
    - Action: Review errors, fix issues, or close PR
@@ -40,6 +44,7 @@ This is a quick reference guide for the automated dependency update process. For
    - Action: Create issue and fix within 1 day
 
 ### Weekly Review
+
 4. **Major version updates**
    - Check: PRs labeled `dependencies` without `automerge`
    - Action: Review changelog, test locally, approve/reject
@@ -49,10 +54,10 @@ This is a quick reference guide for the automated dependency update process. For
    - Action: Review, test, and merge or close with reason
 
 ### Monthly Audit (First Monday)
+
 6. **Dependency health check**
    - Run: `npm outdated`, `npm audit`
    - Action: Review and plan updates for outdated packages
-   
 7. **Consolidate dependencies**
    - Review: Look for duplicate or unnecessary packages
    - Action: Remove unused dependencies
@@ -84,11 +89,13 @@ npm audit fix
 ## ✅ Review Checklist for Dependabot PRs
 
 **Patch/Minor Updates** (usually auto-merged):
+
 - [ ] CI checks pass (green checkmarks)
 - [ ] No unexpected file changes (only package.json, lock files)
 - [ ] Auto-merge label present
 
 **Major Updates** (manual review required):
+
 - [ ] Read release notes and changelog
 - [ ] Check for breaking changes
 - [ ] Review diff for unexpected changes
@@ -100,6 +107,7 @@ npm audit fix
 ## 🚨 When to Reject an Update
 
 Close the PR and create an issue if:
+
 - ❌ Introduces breaking changes we can't accommodate
 - ❌ Causes test failures that aren't easily fixable
 - ❌ Significantly increases bundle size without justification
@@ -109,13 +117,13 @@ Close the PR and create an issue if:
 
 ## 📊 Where to Find Information
 
-| What | Where |
-|------|-------|
-| Dependabot PRs | [Pull Requests](../../pulls) filtered by `dependencies` label |
-| Security alerts | [Security tab](../../security/dependabot) → Dependabot |
-| CodeQL results | [Security tab](../../security/code-scanning) → Code scanning |
-| Workflow runs | [Actions tab](../../actions) |
-| Failed checks | Click PR → Checks tab |
+| What             | Where                                                         |
+| ---------------- | ------------------------------------------------------------- |
+| Dependabot PRs   | [Pull Requests](../../pulls) filtered by `dependencies` label |
+| Security alerts  | [Security tab](../../security/dependabot) → Dependabot        |
+| CodeQL results   | [Security tab](../../security/code-scanning) → Code scanning  |
+| Workflow runs    | [Actions tab](../../actions)                                  |
+| Failed checks    | Click PR → Checks tab                                         |
 | Dependency graph | [Insights tab](../../network/dependencies) → Dependency graph |
 
 ## 🔧 Configuration Files
@@ -128,16 +136,19 @@ Close the PR and create an issue if:
 ## 🆘 Troubleshooting
 
 ### Dependabot not creating PRs?
+
 1. Check: Insights → Dependency graph → Dependabot
 2. Look for errors or paused updates
 3. Manually trigger: Click "Check for updates"
 
 ### Auto-merge not working?
+
 1. Verify CI passes
 2. Check update type (major versions don't auto-merge)
 3. Review Actions tab for workflow errors
 
 ### Security alert not resolved?
+
 1. Check if Dependabot PR exists
 2. If no PR, may need manual update
 3. Check if vulnerability is in transitive dependency
@@ -145,6 +156,7 @@ Close the PR and create an issue if:
 ## 📚 Full Documentation
 
 For detailed information:
+
 - **Complete guide**: [docs/DEPENDENCY_MANAGEMENT.md](../docs/DEPENDENCY_MANAGEMENT.md)
 - **Security policy**: [SECURITY_POLICY.md](../SECURITY_POLICY.md)
 - **Contributing**: [CONTRIBUTING.md](../CONTRIBUTING.md)

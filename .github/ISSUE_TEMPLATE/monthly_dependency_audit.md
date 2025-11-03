@@ -1,10 +1,9 @@
 ---
 name: Monthly Dependency Audit
 about: Regular monthly audit of project dependencies
-title: 'Dependency Audit - [MONTH YEAR]'
+title: "Dependency Audit - [MONTH YEAR]"
 labels: dependencies, maintenance
-assignees: ''
-
+assignees: ""
 ---
 
 ## Monthly Dependency Audit Checklist
@@ -22,6 +21,7 @@ assignees: ''
 - [ ] Document any blocked updates
 
 **Summary**:
+
 <!-- Number of PRs reviewed, merged, closed -->
 
 ---
@@ -34,7 +34,7 @@ assignees: ''
 - [ ] Document decisions on deferred alerts
 
 **High/Critical Alerts**: <!-- Number, status -->  
-**Medium Alerts**: <!-- Number, status -->  
+**Medium Alerts**: <!-- Number, status -->
 
 ---
 
@@ -65,6 +65,7 @@ npm audit
 - [ ] Check for duplicate dependencies
 
 **Findings**:
+
 <!-- List any concerning findings -->
 
 ---
@@ -77,6 +78,7 @@ npm audit
 - [ ] Run `npm dedupe` to consolidate duplicates
 
 **Actions Taken**:
+
 <!-- List any dependencies removed or consolidated -->
 
 ---
@@ -95,11 +97,11 @@ npm audit
 **Package Metrics** (compare to last month):
 
 | Package | Total Deps | Outdated | Vulnerabilities | Deprecated |
-|---------|------------|----------|-----------------|------------|
-| Root    | <!-- --> | <!-- --> | <!-- -->        | <!-- -->   |
-| Web     | <!-- --> | <!-- --> | <!-- -->        | <!-- -->   |
-| CLI     | <!-- --> | <!-- --> | <!-- -->        | <!-- -->   |
-| SDK     | <!-- --> | <!-- --> | <!-- -->        | <!-- -->   |
+| ------- | ---------- | -------- | --------------- | ---------- |
+| Root    | <!-- -->   | <!-- --> | <!-- -->        | <!-- -->   |
+| Web     | <!-- -->   | <!-- --> | <!-- -->        | <!-- -->   |
+| CLI     | <!-- -->   | <!-- --> | <!-- -->        | <!-- -->   |
+| SDK     | <!-- -->   | <!-- --> | <!-- -->        | <!-- -->   |
 
 **Trend**: <!-- Improving / Stable / Declining -->
 

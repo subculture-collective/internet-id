@@ -22,7 +22,6 @@ Dependabot is configured to automatically create pull requests for dependency up
 - **Security updates**: Checked **daily** at 9:00 AM PST
   - High priority, auto-approved for merging after CI passes
   - Covers all vulnerability patches regardless of severity
-  
 - **Regular updates**: Checked **weekly** on Mondays at 9:00 AM PST
   - Grouped by category (React, testing tools, linting, etc.)
   - Patch and minor updates auto-merge after CI passes
@@ -33,6 +32,7 @@ Dependabot is configured to automatically create pull requests for dependency up
 Dependencies are organized into logical groups to reduce noise:
 
 **Root Package (`/`)**:
+
 - `hardhat-and-ethers`: Blockchain tooling (Hardhat, Ethers.js, OpenZeppelin)
 - `testing-tools`: Test frameworks (Chai, Mocha, Sinon, Supertest)
 - `prisma`: Database ORM and related tools
@@ -41,6 +41,7 @@ Dependencies are organized into logical groups to reduce noise:
 - `typescript`: TypeScript and type definitions
 
 **Web Package (`/web`)**:
+
 - `react`: React and React DOM
 - `nextjs`: Next.js framework and plugins
 - `auth`: NextAuth and authentication adapters
@@ -49,13 +50,16 @@ Dependencies are organized into logical groups to reduce noise:
 - `performance`: Lighthouse CI and performance tools
 
 **CLI Package (`/cli`)**:
+
 - `cli-tools`: Commander, Inquirer, Chalk, Ora
 - `cli-shared`: Axios, Ethers, Dotenv
 
 **SDK Package (`/sdk/typescript`)**:
+
 - `sdk`: Axios and TypeScript
 
 **Infrastructure**:
+
 - `github-actions`: GitHub Actions workflow dependencies
 - `docker`: Docker base images
 
@@ -64,17 +68,20 @@ Dependencies are organized into logical groups to reduce noise:
 Dependabot PRs are automatically merged based on the following rules:
 
 ✅ **Auto-merged** (after CI passes):
+
 - Patch updates (e.g., 1.2.3 → 1.2.4)
 - Minor updates (e.g., 1.2.0 → 1.3.0)
 - Security patches (any severity)
 
 ⚠️ **Manual review required**:
+
 - Major updates (e.g., 1.0.0 → 2.0.0)
 - Breaking changes indicated in PR description
 - Failed CI checks
 - License changes
 
 The auto-merge workflow:
+
 1. Dependabot creates PR with update
 2. CI runs automatically (linting, tests, build)
 3. If update is patch/minor AND CI passes → Auto-approved and merged
@@ -102,17 +109,20 @@ CodeQL runs advanced security analysis on the codebase:
 #### Responding to CodeQL Alerts
 
 **Critical/High Severity**:
+
 1. Create issue immediately
 2. Assign to security team
 3. Fix within 1 business day
 4. Deploy patch as soon as CI passes
 
 **Medium Severity**:
+
 1. Create issue for tracking
 2. Fix within 1 week
 3. Include in next regular release
 
 **Low/Informational**:
+
 1. Review for false positives
 2. Fix during regular maintenance
 3. May defer if risk is acceptable
@@ -120,11 +130,13 @@ CodeQL runs advanced security analysis on the codebase:
 ### Dependency Review
 
 Every pull request is automatically scanned for:
+
 - New vulnerabilities in dependencies
 - Problematic licenses (GPL, AGPL, LGPL)
 - Supply chain risks
 
 **Configuration** (`.github/workflows/dependency-review.yml`):
+
 - Fails PR on moderate+ severity vulnerabilities
 - Warns on low severity issues
 - Allows: MIT, Apache-2.0, BSD, ISC licenses
@@ -161,8 +173,9 @@ Ensure you're subscribed to security notifications:
 4. Set notification level to **Participating and @mentions** or **All activity**
 
 For high/critical alerts:
+
 1. Go to your GitHub profile settings
-2. Click **Notifications** 
+2. Click **Notifications**
 3. Enable **Email** for security alerts
 
 ## Review Guidelines
@@ -229,22 +242,18 @@ Schedule a monthly review to maintain dependency health:
   - Merge safe updates
   - Close outdated or problematic PRs
   - Test and merge blocked major updates
-  
 - [ ] Check Dependabot security alerts
   - Ensure all high/critical alerts are resolved
   - Review medium severity alerts
   - Document decisions on deferred alerts
-  
 - [ ] Review dependency health
   - Check for deprecated packages: `npm outdated`
   - Look for unmaintained dependencies (no updates in 1+ year)
   - Identify duplicate dependencies: `npm dedupe`
-  
 - [ ] Check for consolidation opportunities
   - Review if multiple packages solve the same problem
   - Consider removing unused dependencies
   - Evaluate lightweight alternatives to heavy packages
-  
 - [ ] Update documentation
   - Update dependency count in README if significant changes
   - Document any new critical dependencies
@@ -289,12 +298,14 @@ Monitor these metrics over time:
 ### Dependabot Not Creating PRs
 
 **Check**:
+
 1. Dependabot is enabled in repository settings
 2. `.github/dependabot.yml` syntax is valid
 3. Hit open PR limit (default: 10 per package manager)
 4. Dependencies are already up-to-date
 
 **Solution**:
+
 - Go to Insights → Dependency graph → Dependabot
 - Check for errors or paused updates
 - Manually trigger update: Click "Check for updates"
@@ -302,12 +313,14 @@ Monitor these metrics over time:
 ### Auto-merge Not Working
 
 **Check**:
+
 1. CI checks are passing
 2. PR is from `dependabot[bot]` user
 3. Update type is patch or minor (not major)
 4. Branch protection rules allow auto-merge
 
 **Solution**:
+
 - Review workflow runs in Actions tab
 - Ensure required checks are configured correctly
 - Verify repository settings allow auto-merge
@@ -315,11 +328,13 @@ Monitor these metrics over time:
 ### CodeQL Analysis Failing
 
 **Check**:
+
 1. Node.js version compatibility
 2. Dependencies install successfully
 3. Code compiles without errors
 
 **Solution**:
+
 - Review workflow logs in Actions tab
 - Update Node.js version in workflow if needed
 - Ensure dependencies are in sync across packages
@@ -327,6 +342,7 @@ Monitor these metrics over time:
 ### False Positive Security Alerts
 
 **Process**:
+
 1. Verify the alert is actually a false positive
 2. Document why it's a false positive
 3. Dismiss the alert in GitHub Security tab
@@ -357,6 +373,7 @@ Monitor these metrics over time:
 ## Questions?
 
 For questions about dependency management:
+
 - Open a discussion in GitHub Discussions
 - Contact the security team at security@subculture.io
 - Review existing issues with the `dependencies` label

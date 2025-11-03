@@ -4,9 +4,9 @@
 
 name: "Dependency Review"
 
-on: 
+on:
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 permissions:
   contents: read
@@ -16,11 +16,11 @@ jobs:
   dependency-review:
     name: Review Dependencies
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
+
       - name: Dependency Review
         uses: actions/dependency-review-action@v4
         with:
