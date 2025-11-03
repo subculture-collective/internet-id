@@ -1,0 +1,179 @@
+# Monthly Dependency Audit Reminder
+# Automatically creates a monthly audit issue on the first Monday of each month
+
+name: "Monthly Dependency Audit Reminder"
+
+on:
+  schedule:
+    # Run at 9:00 AM UTC on the 1st of every month
+    - cron: "0 9 1 * *"
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  create-audit-issue:
+    name: Create Monthly Audit Issue
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get current month and year
+        id: date
+        run: |
+          echo "month=$(date +'%B')" >> $GITHUB_OUTPUT
+          echo "year=$(date +'%Y')" >> $GITHUB_OUTPUT
+          echo "month_year=$(date +'%B %Y')" >> $GITHUB_OUTPUT
+          # Calculate next month for due date
+          echo "next_month=$(date -d '+1 month' +'%B %Y')" >> $GITHUB_OUTPUT
+
+      - name: Check if audit issue already exists
+        id: check-issue
+        run: |
+          # Check if an open issue with this title already exists
+          TITLE="Dependency Audit - ${{ steps.date.outputs.month_year }}"
+          EXISTING=$(gh issue list --state open --search "in:title \"$TITLE\"" --json number --jq '.[0].number')
+          if [ -n "$EXISTING" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Issue already exists: #$EXISTING"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create audit issue
+        if: steps.check-issue.outputs.exists == 'false'
+        run: |
+          gh issue create \
+            --title "Dependency Audit - ${{ steps.date.outputs.month_year }}" \
+            --body "## Monthly Dependency Audit Checklist
+
+          **Schedule**: First Monday of each month  
+          **Time Required**: 1-2 hours  
+          **Due Date**: Within 1 week of creation
+
+          ### 1. Review Open Dependabot PRs
+
+          - [ ] Review all open Dependabot PRs
+          - [ ] Merge safe patch/minor updates
+          - [ ] Test and approve major version updates
+          - [ ] Close outdated or problematic PRs with reasoning
+          - [ ] Document any blocked updates
+
+          **Summary**: 
+          <!-- Number of PRs reviewed, merged, closed -->
+
+          ---
+
+          ### 2. Security Alerts
+
+          - [ ] Check [Dependabot security alerts](../security/dependabot)
+          - [ ] Ensure all high/critical alerts are resolved
+          - [ ] Review medium severity alerts
+          - [ ] Document decisions on deferred alerts
+
+          **High/Critical Alerts**: <!-- Number, status -->  
+          **Medium Alerts**: <!-- Number, status -->
+
+          ---
+
+          ### 3. Dependency Health Check
+
+          Run health checks for all packages:
+
+          \`\`\`bash
+          # Root package
+          npm outdated
+          npm audit
+
+          # Web package
+          cd web && npm outdated && npm audit
+
+          # CLI package
+          cd cli && npm outdated && npm audit
+
+          # SDK package
+          cd sdk/typescript && npm outdated && npm audit
+          \`\`\`
+
+          - [ ] Identify deprecated packages
+          - [ ] Identify unmaintained packages (no updates in 1+ year)
+          - [ ] Check for duplicate dependencies
+
+          **Findings**:
+          <!-- List any concerning findings -->
+
+          ---
+
+          ### 4. Consolidation Opportunities
+
+          - [ ] Review for multiple packages solving the same problem
+          - [ ] Identify unused dependencies
+          - [ ] Evaluate lightweight alternatives to heavy packages
+          - [ ] Run \`npm dedupe\` to consolidate duplicates
+
+          **Actions Taken**:
+          <!-- List any dependencies removed or consolidated -->
+
+          ---
+
+          ### 5. Update Documentation
+
+          - [ ] Update dependency count in README if significantly changed
+          - [ ] Document any new critical dependencies
+          - [ ] Update DEPENDENCY_MANAGEMENT.md if process changed
+          - [ ] Update .github/dependabot.yml if groups need adjustment
+
+          ---
+
+          ### 6. Metrics Tracking
+
+          **Package Metrics** (compare to last month):
+
+          | Package | Total Deps | Outdated | Vulnerabilities | Deprecated |
+          |---------|------------|----------|-----------------|------------|
+          | Root    |            |          |                 |            |
+          | Web     |            |          |                 |            |
+          | CLI     |            |          |                 |            |
+          | SDK     |            |          |                 |            |
+
+          **Trend**: <!-- Improving / Stable / Declining -->
+
+          ---
+
+          ### 7. Action Items
+
+          List any follow-up tasks or issues to create:
+
+          - [ ] <!-- Action item 1 -->
+
+          ---
+
+          ## Sign-off
+
+          **Auditor**: <!-- Your GitHub username -->  
+          **Date Completed**: <!-- YYYY-MM-DD -->  
+          **Next Audit Due**: ${{ steps.date.outputs.next_month }}
+
+          ---
+
+          ## Resources
+
+          - [Dependency Management Guide](docs/DEPENDENCY_MANAGEMENT.md)
+          - [Quick Reference](.github/DEPENDENCY_UPDATE_PROCESS.md)
+          - [Security Alerts](../security)
+          - [Dependabot PRs](../pulls?q=is%3Apr+is%3Aopen+author%3Aapp%2Fdependabot)" \
+            --label "dependencies,maintenance" \
+            --assignee ""
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Skip if issue exists
+        if: steps.check-issue.outputs.exists == 'true'
+        run: |
+          echo "Audit issue for ${{ steps.date.outputs.month_year }} already exists. Skipping creation."

@@ -8,13 +8,13 @@ on:
   workflow_dispatch:
     inputs:
       base_url:
-        description: 'Base URL to test against (default: http://localhost:3000)'
+        description: "Base URL to test against (default: http://localhost:3000)"
         required: false
-        default: 'http://localhost:3000'
+        default: "http://localhost:3000"
       api_base_url:
-        description: 'API Base URL (default: http://localhost:3001)'
+        description: "API Base URL (default: http://localhost:3001)"
         required: false
-        default: 'http://localhost:3001'
+        default: "http://localhost:3001"
   # Uncomment to run on pull requests (requires test environment setup)
   # pull_request:
   #   branches:
@@ -28,7 +28,7 @@ jobs:
     name: E2E Tests (Playwright)
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    
+
     services:
       postgres:
         image: postgres:16-alpine
@@ -43,47 +43,47 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-    
+
     env:
       DATABASE_URL: postgresql://internetid:internetid@localhost:5432/internetid_test?schema=public
       BASE_URL: ${{ github.event.inputs.base_url || 'http://localhost:3000' }}
       NEXT_PUBLIC_API_BASE: ${{ github.event.inputs.api_base_url || 'http://localhost:3001' }}
       CI: true
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-      
+          node-version: "20"
+          cache: "npm"
+
       - name: Install root dependencies
         run: npm ci --legacy-peer-deps
-      
+
       - name: Install web dependencies
         working-directory: web
         run: npm ci --legacy-peer-deps
-      
+
       - name: Install Playwright browsers
         working-directory: web
         run: npx playwright install --with-deps chromium firefox webkit
-      
+
       - name: Generate Prisma client
         run: npm run db:generate
-      
+
       - name: Run database migrations
         run: npx prisma migrate deploy
-      
+
       - name: Build Next.js app
         working-directory: web
         run: npm run build
         env:
           NEXTAUTH_SECRET: test-secret-for-ci-only
           NEXTAUTH_URL: http://localhost:3000
-      
+
       - name: Start API server in background
         run: |
           npm run start:api &
@@ -92,7 +92,7 @@ jobs:
         env:
           NODE_ENV: test
           API_KEY: test-api-key
-      
+
       - name: Start Next.js server in background
         working-directory: web
         run: |
@@ -103,13 +103,13 @@ jobs:
           NEXTAUTH_SECRET: test-secret-for-ci-only
           NEXTAUTH_URL: http://localhost:3000
           NODE_ENV: production
-      
+
       - name: Run E2E tests
         working-directory: web
         run: npm run test:e2e
         env:
           BASE_URL: http://localhost:3000
-      
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
@@ -117,7 +117,7 @@ jobs:
           name: playwright-report
           path: web/playwright-report/
           retention-days: 30
-      
+
       - name: Upload test screenshots
         if: failure()
         uses: actions/upload-artifact@v4
@@ -133,25 +133,25 @@ jobs:
     runs-on: ubuntu-latest
     # Only run if preview deployment URL is available
     if: github.event_name == 'pull_request' && false # Disabled by default
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-      
+          node-version: "20"
+          cache: "npm"
+
       - name: Install web dependencies
         working-directory: web
         run: npm ci --legacy-peer-deps
-      
+
       - name: Install Playwright browsers
         working-directory: web
         run: npx playwright install --with-deps chromium firefox webkit
-      
+
       # Wait for preview deployment (example for Vercel)
       # Requires VERCEL_TOKEN secret
       # - name: Wait for Vercel preview deployment
@@ -159,7 +159,7 @@ jobs:
       #   with:
       #     token: ${{ secrets.GITHUB_TOKEN }}
       #     max_timeout: 300
-      
+
       - name: Run E2E tests against preview
         working-directory: web
         run: npm run test:e2e
@@ -167,7 +167,7 @@ jobs:
           # BASE_URL: ${{ steps.wait-for-vercel.outputs.url }}
           BASE_URL: https://preview-deployment.example.com
           CI: true
-      
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4

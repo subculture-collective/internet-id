@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       skip_tests:
-        description: 'Skip smoke tests after deployment'
+        description: "Skip smoke tests after deployment"
         required: false
-        default: 'false'
+        default: "false"
         type: boolean
 
 permissions:
@@ -26,7 +26,7 @@ jobs:
   build:
     name: Build Docker Images
     runs-on: ubuntu-latest
-    
+
     services:
       postgres:
         image: postgres:16-alpine
@@ -41,54 +41,54 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-    
+
     env:
       DATABASE_URL: postgresql://internetid:internetid@localhost:5432/internetid_test?schema=public
-    
+
     outputs:
       api_image_tag: ${{ steps.meta-api.outputs.tags }}
       web_image_tag: ${{ steps.meta-web.outputs.tags }}
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-      
+          node-version: "20"
+          cache: "npm"
+
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
-      
+
       - name: Run linters
         run: |
           npm run lint:root
           npm run format:check
-      
+
       - name: Compile contracts
         run: npm run build
-      
+
       - name: Generate Prisma client
         run: npm run db:generate
-      
+
       - name: Run database migrations
         run: npx prisma migrate deploy
-      
+
       - name: Run tests
         run: npm test
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
+
       - name: Log in to Container Registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Extract API metadata
         id: meta-api
         uses: docker/metadata-action@v5
@@ -98,7 +98,7 @@ jobs:
             type=ref,event=branch
             type=sha,prefix=staging-
             type=raw,value=staging-latest
-      
+
       - name: Build and push API image
         uses: docker/build-push-action@v5
         with:
@@ -110,7 +110,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           target: runner
-      
+
       - name: Extract Web metadata
         id: meta-web
         uses: docker/metadata-action@v5
@@ -120,7 +120,7 @@ jobs:
             type=ref,event=branch
             type=sha,prefix=staging-
             type=raw,value=staging-latest
-      
+
       - name: Build and push Web image
         uses: docker/build-push-action@v5
         with:
@@ -141,11 +141,11 @@ jobs:
     environment:
       name: staging
       url: https://staging.internet-id.example.com
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.0
         env:
@@ -159,40 +159,40 @@ jobs:
           envs: COMPOSE_FILE,API_IMAGE,WEB_IMAGE
           script: |
             cd /opt/internet-id
-            
+
             # Pull latest code
             git fetch origin
             git checkout main
             git pull origin main
-            
+
             # Pull new images
             # Note: GITHUB_TOKEN is used for container registry authentication
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin > /dev/null 2>&1
             docker compose -f $COMPOSE_FILE pull
-            
+
             # Run database migrations
             docker compose -f $COMPOSE_FILE run --rm api npx prisma migrate deploy
-            
+
             # Seed staging database (optional fixtures)
             docker compose -f $COMPOSE_FILE run --rm api npm run db:seed || true
-            
+
             # Deploy with zero-downtime rolling update
             docker compose -f $COMPOSE_FILE up -d --no-deps api web
-            
+
             # Wait for services to be healthy
             sleep 10
-            
+
             # Clean up old images
             docker image prune -af --filter "until=24h"
-      
+
       - name: Wait for deployment
         run: sleep 30
-      
+
       - name: Run smoke tests
         if: ${{ github.event.inputs.skip_tests != 'true' }}
         run: |
           echo "Running smoke tests against staging environment..."
-          
+
           # Health check for API
           API_HEALTH=$(curl -s -o /dev/null -w "%{http_code}" https://staging.internet-id.example.com/api/health)
           if [ "$API_HEALTH" != "200" ]; then
@@ -200,7 +200,7 @@ jobs:
             exit 1
           fi
           echo "✅ API health check passed"
-          
+
           # Health check for Web
           WEB_HEALTH=$(curl -s -o /dev/null -w "%{http_code}" https://staging.internet-id.example.com)
           if [ "$WEB_HEALTH" != "200" ]; then
@@ -208,7 +208,7 @@ jobs:
             exit 1
           fi
           echo "✅ Web health check passed"
-          
+
           # Check API network endpoint
           NETWORK_STATUS=$(curl -s https://staging.internet-id.example.com/api/network | jq -r '.chainId')
           if [ -z "$NETWORK_STATUS" ]; then
@@ -216,9 +216,9 @@ jobs:
             exit 1
           fi
           echo "✅ API network check passed (chainId: $NETWORK_STATUS)"
-          
+
           echo "🎉 All smoke tests passed!"
-      
+
       - name: Notify on failure
         if: failure()
         run: |
@@ -232,7 +232,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch'
     environment:
       name: staging
-    
+
     steps:
       - name: Rollback via SSH
         uses: appleboy/ssh-action@v1.0.0
@@ -242,10 +242,10 @@ jobs:
           key: ${{ secrets.STAGING_SSH_KEY }}
           script: |
             cd /opt/internet-id
-            
+
             # Rollback to previous version
             docker compose -f docker-compose.staging.yml down
             git checkout HEAD~1
             docker compose -f docker-compose.staging.yml up -d
-            
+
             echo "✅ Rolled back to previous version"
