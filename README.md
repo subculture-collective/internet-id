@@ -144,9 +144,30 @@ This project uses GitHub Actions to ensure code quality and prevent regressions.
    - Performs visual regression testing
    - Can run against preview deployments
 
+4. **Security Scanning** (automated):
+   - CodeQL analysis for security vulnerabilities (weekly + on every push/PR)
+   - Dependency review for new vulnerabilities in PRs
+   - Dependabot security alerts (daily checks)
+
 View the [CI workflow configuration](.github/workflows/ci.yml) and [E2E workflow configuration](.github/workflows/e2e-tests.yml).
 
 **Note**: This CI workflow is part of the project roadmap to guard against regressions (see [#10](https://github.com/subculture-collective/internet-id/issues/10)).
+
+## Dependency Management
+
+The project uses automated tools to keep dependencies up-to-date and secure:
+
+- **Dependabot**: Automatically creates PRs for dependency updates
+  - Security updates: Daily checks
+  - Regular updates: Weekly checks (Mondays)
+  - Auto-merge for patch/minor updates after CI passes
+  - Manual review required for major version updates
+  
+- **CodeQL**: Advanced security analysis (weekly + on push/PR)
+- **Dependency Review**: Checks PRs for vulnerable dependencies
+
+**Quick Reference**: [Dependency Update Process](.github/DEPENDENCY_UPDATE_PROCESS.md)  
+**Full Guide**: [Dependency Management](docs/DEPENDENCY_MANAGEMENT.md)
 
 ## Setup
 

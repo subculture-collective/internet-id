@@ -1,0 +1,87 @@
+# CodeQL security scanning workflow
+# Analyzes code for security vulnerabilities and coding errors
+# Runs on push to main, pull requests, and on a schedule
+
+name: "CodeQL Security Analysis"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    # Run at 6:00 AM UTC every Monday
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  # Required for CodeQL to upload results
+  security-events: write
+  # Required to fetch internal or private CodeQL packs
+  packages: read
+  # Required for all workflows
+  contents: read
+  # Required for workflows in private repositories
+  actions: read
+
+jobs:
+  analyze:
+    name: Analyze Code
+    runs-on: ubuntu-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        # CodeQL supports: 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby', 'swift'
+        # Use only 'javascript' for this project (covers TypeScript too)
+        language: [ 'javascript' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # Initializes the CodeQL tools for scanning
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+        # Increase query coverage - includes more security queries
+        queries: +security-extended,security-and-quality
+        # Disable default queries to run only the extended set
+        # queries: security-extended
+        
+    # Install dependencies for better analysis
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: |
+        npm ci --legacy-peer-deps
+        cd web && npm ci --legacy-peer-deps
+        cd ../cli && npm ci
+        cd ../sdk/typescript && npm ci
+
+    # Autobuild attempts to build any compiled languages
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v3
+
+    # Perform CodeQL Analysis
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{matrix.language}}"
+        upload: true
+        # Output SARIF file for artifact upload
+        output: sarif-results
+        
+    # Upload SARIF file as artifact for debugging
+    - name: Upload SARIF as artifact
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: codeql-sarif
+        path: sarif-results
+        retention-days: 7
