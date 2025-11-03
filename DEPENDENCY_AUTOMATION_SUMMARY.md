@@ -99,18 +99,18 @@ Dependencies are grouped by category to reduce PR noise:
 - ✅ **Minor updates** (1.2.0 → 1.3.0): Auto-approved and auto-merged
 - ⚠️ **Major updates** (1.0.0 → 2.0.0): Comment added, manual review required
 
-**Requirements for Auto-Merge**:
+**How It Works**:
 
-1. PR is from `dependabot[bot]`
-2. Update type is patch or minor
-3. CI checks pass (Backend + Web jobs)
-4. No merge conflicts
+1. PR is created by `dependabot[bot]`
+2. Workflow auto-approves patch/minor updates
+3. Auto-merge is enabled (waits for CI)
+4. GitHub merges automatically when required checks pass
 
 **Safety**:
 
-- Waits for CI completion before merging
+- Native GitHub auto-merge waits for CI completion
 - Uses squash merge to keep history clean
-- Labels merged PRs with `automerged`
+- Only merges when all branch protection rules are satisfied
 
 ### 5. Monthly Audit Automation (`.github/workflows/monthly-dependency-audit-reminder.yml`)
 

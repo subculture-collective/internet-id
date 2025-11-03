@@ -83,10 +83,10 @@ Dependabot PRs are automatically merged based on the following rules:
 The auto-merge workflow:
 
 1. Dependabot creates PR with update
-2. CI runs automatically (linting, tests, build)
-3. If update is patch/minor AND CI passes → Auto-approved and merged
-4. If update is major → Comment added requesting manual review
-5. Merged PRs are labeled with `automerged` tag
+2. Workflow auto-approves patch/minor updates
+3. Auto-merge is enabled (waits for CI to pass)
+4. GitHub merges automatically when all required checks pass
+5. If update is major → Comment added requesting manual review
 
 ## Security Scanning
 
