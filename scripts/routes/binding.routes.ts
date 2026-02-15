@@ -52,17 +52,8 @@ router.post(
         contentHash: string;
         bindings: Array<{ platform: string; platformId: string }>;
       };
-      const provider = new ethers.JsonRpcProvider(
-        process.env.RPC_URL || "https://sepolia.base.org"
-      );
-      const pk = process.env.PRIVATE_KEY;
-      if (!pk) return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
-      const wallet = new ethers.Wallet(pk, provider);
-      const abi = [
-        "function bindPlatform(bytes32,string,string) external",
-        "function entries(bytes32) view returns (address creator, bytes32 contentHash, string manifestURI, uint64 timestamp)",
-      ];
-      const registry = new ethers.Contract(registryAddress, abi, wallet);
+      const { provider, wallet } = createProviderAndWallet();
+      const registry = createRegistryContract(registryAddress, BIND_PLATFORM_ABI, wallet);
       // Ensure caller is creator
       const entry = await registry.entries(contentHash);
       if ((entry?.creator || "").toLowerCase() !== (await wallet.getAddress()).toLowerCase()) {
