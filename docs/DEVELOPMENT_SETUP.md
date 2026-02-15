@@ -1079,7 +1079,7 @@ Now that your development environment is set up:
 
 2. **Explore the codebase**:
    - Smart contracts: `contracts/`
-   - API server: `scripts/api.ts`
+   - API server: `scripts/start-api-server.ts` and `scripts/app.ts`
    - Web app: `web/app/`
    - Tests: `test/`
 

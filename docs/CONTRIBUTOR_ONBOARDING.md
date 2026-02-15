@@ -714,7 +714,7 @@ lsof -ti:3001
 kill -9 <PID>
 
 # Or change port
-# API: Edit scripts/api.ts (const PORT = 3002)
+# API: Set PORT env variable or edit scripts/start-api-server.ts
 # Web: npm run dev -- -p 3002
 ```
 
@@ -725,7 +725,7 @@ internet-id/
 ├── contracts/                 # Solidity smart contracts
 │   └── ContentRegistry.sol
 ├── scripts/                   # CLI scripts and API server
-│   ├── api.ts                # Express API entry point
+│   ├── start-api-server.ts   # API server entry point
 │   ├── app.ts                # Express app factory (modular)
 │   ├── deploy.ts             # Contract deployment
 │   ├── register.ts           # Register content CLI
