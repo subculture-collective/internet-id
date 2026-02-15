@@ -52,33 +52,37 @@ router.post(
         });
       }
 
-      const { provider, wallet } = createProviderAndWallet();
-      const net = await provider.getNetwork();
-      const signature = await wallet.signMessage(ethers.getBytes(fileHash!));
-      const manifest = {
-        version: "1.0",
-        algorithm: "sha256",
-        content_hash: fileHash,
-        content_uri: contentUri,
-        creator_did: `did:pkh:eip155:${Number(net.chainId)}:${wallet.address}`,
-        created_at: new Date().toISOString(),
-        signature,
-        attestations: [] as any[],
-      };
+      try {
+        const { provider, wallet } = createProviderAndWallet();
+        const net = await provider.getNetwork();
+        const signature = await wallet.signMessage(ethers.getBytes(fileHash!));
+        const manifest = {
+          version: "1.0",
+          algorithm: "sha256",
+          content_hash: fileHash,
+          content_uri: contentUri,
+          creator_did: `did:pkh:eip155:${Number(net.chainId)}:${wallet.address}`,
+          created_at: new Date().toISOString(),
+          signature,
+          attestations: [] as any[],
+        };
 
-      if (String(doUpload).toLowerCase() === "true") {
-        const tmpPath = await tmpWrite("manifest.json", Buffer.from(JSON.stringify(manifest)));
-        try {
-          const cid = await uploadToIpfs(tmpPath);
-          return res.json({ manifest, cid, uri: `ipfs://${cid}` });
-        } finally {
-          await cleanupTmpFile(tmpPath);
+        if (String(doUpload).toLowerCase() === "true") {
+          const tmpPath = await tmpWrite("manifest.json", Buffer.from(JSON.stringify(manifest)));
+          try {
+            const cid = await uploadToIpfs(tmpPath);
+            return res.json({ manifest, cid, uri: `ipfs://${cid}` });
+          } finally {
+            await cleanupTmpFile(tmpPath);
+          }
         }
+        res.json({ manifest });
+      } catch (e: any) {
+        if (e?.message?.includes("PRIVATE_KEY missing")) {
+          return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
+        }
+        res.status(500).json({ error: e?.message || String(e) });
       }
-      res.json({ manifest });
-    } catch (e: any) {
-      res.status(500).json({ error: e?.message || String(e) });
-    }
   }
 );
 

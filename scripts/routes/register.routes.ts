@@ -72,6 +72,9 @@ router.post(
       });
       res.json({ txHash: receipt?.hash, contentHash: fileHash, manifestURI });
     } catch (e: any) {
+      if (e?.message?.includes("PRIVATE_KEY missing")) {
+        return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
+      }
       res.status(500).json({ error: e?.message || String(e) });
     }
   }

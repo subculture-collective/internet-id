@@ -23,7 +23,6 @@ export async function upsertUser(address: string): Promise<string | undefined> {
 /**
  * Upserts content record in the database
  * @param params Content upsert parameters
- * @returns The content record
  */
 export async function upsertContent(params: {
   contentHash: string;

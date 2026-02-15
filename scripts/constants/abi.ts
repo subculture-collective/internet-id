@@ -18,5 +18,5 @@ export const REGISTER_ABI = [
  */
 export const BIND_PLATFORM_ABI = [
   "function bindPlatform(bytes32 contentHash, string platform, string platformId) external",
-  "function entries(bytes32) view returns (address, bytes32, string memory, uint64)",
+  "function entries(bytes32) view returns (address creator, bytes32 contentHash, string manifestURI, uint64 timestamp)",
 ];

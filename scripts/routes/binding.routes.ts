@@ -21,19 +21,27 @@ router.post(
         platformId: string;
         contentHash: string;
       };
-      const { provider, wallet } = createProviderAndWallet();
-      const registry = createRegistryContract(registryAddress, BIND_PLATFORM_ABI, wallet);
-      // Ensure caller is creator
-      const entry = await registry.entries(contentHash);
-      if ((entry?.creator || "").toLowerCase() !== (await wallet.getAddress()).toLowerCase()) {
-        return res.status(403).json({ error: "Only creator can bind platform" });
-      }
-      const tx = await registry.bindPlatform(contentHash, platform, platformId);
-      const receipt = await tx.wait();
       
-      // upsert binding in DB
-      await upsertPlatformBinding({ platform, platformId, contentHash });
-      res.json({ txHash: receipt?.hash });
+      try {
+        const { provider, wallet } = createProviderAndWallet();
+        const registry = createRegistryContract(registryAddress, BIND_PLATFORM_ABI, wallet);
+        // Ensure caller is creator
+        const entry = await registry.entries(contentHash);
+        if ((entry?.creator || "").toLowerCase() !== (await wallet.getAddress()).toLowerCase()) {
+          return res.status(403).json({ error: "Only creator can bind platform" });
+        }
+        const tx = await registry.bindPlatform(contentHash, platform, platformId);
+        const receipt = await tx.wait();
+        
+        // upsert binding in DB
+        await upsertPlatformBinding({ platform, platformId, contentHash });
+        res.json({ txHash: receipt?.hash });
+      } catch (e: any) {
+        if (e?.message?.includes("PRIVATE_KEY missing")) {
+          return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
+        }
+        throw e;
+      }
     } catch (e: any) {
       res.status(500).json({ error: e?.message || String(e) });
     }
@@ -52,42 +60,50 @@ router.post(
         contentHash: string;
         bindings: Array<{ platform: string; platformId: string }>;
       };
-      const { provider, wallet } = createProviderAndWallet();
-      const registry = createRegistryContract(registryAddress, BIND_PLATFORM_ABI, wallet);
-      // Ensure caller is creator
-      const entry = await registry.entries(contentHash);
-      if ((entry?.creator || "").toLowerCase() !== (await wallet.getAddress()).toLowerCase()) {
-        return res.status(403).json({ error: "Only creator can bind platform" });
-      }
-      const results: Array<{
-        platform: string;
-        platformId: string;
-        txHash?: string;
-        error?: string;
-      }> = [];
-      for (const b of bindings) {
-        const platform = (b?.platform || "").toString();
-        const platformId = (b?.platformId || "").toString();
-        if (!platform || !platformId) {
-          results.push({ platform, platformId, error: "invalid binding" });
-          continue;
+      
+      try {
+        const { provider, wallet } = createProviderAndWallet();
+        const registry = createRegistryContract(registryAddress, BIND_PLATFORM_ABI, wallet);
+        // Ensure caller is creator
+        const entry = await registry.entries(contentHash);
+        if ((entry?.creator || "").toLowerCase() !== (await wallet.getAddress()).toLowerCase()) {
+          return res.status(403).json({ error: "Only creator can bind platform" });
         }
-        try {
-          const tx = await registry.bindPlatform(contentHash, platform, platformId);
-          const rec = await tx.wait();
-          results.push({ platform, platformId, txHash: rec?.hash });
-          
-          // upsert DB binding
-          await upsertPlatformBinding({ platform, platformId, contentHash });
-        } catch (e: any) {
-          results.push({
-            platform,
-            platformId,
-            error: e?.message || String(e),
-          });
+        const results: Array<{
+          platform: string;
+          platformId: string;
+          txHash?: string;
+          error?: string;
+        }> = [];
+        for (const b of bindings) {
+          const platform = (b?.platform || "").toString();
+          const platformId = (b?.platformId || "").toString();
+          if (!platform || !platformId) {
+            results.push({ platform, platformId, error: "invalid binding" });
+            continue;
+          }
+          try {
+            const tx = await registry.bindPlatform(contentHash, platform, platformId);
+            const rec = await tx.wait();
+            results.push({ platform, platformId, txHash: rec?.hash });
+            
+            // upsert DB binding
+            await upsertPlatformBinding({ platform, platformId, contentHash });
+          } catch (e: any) {
+            results.push({
+              platform,
+              platformId,
+              error: e?.message || String(e),
+            });
+          }
         }
+        res.json({ results });
+      } catch (e: any) {
+        if (e?.message?.includes("PRIVATE_KEY missing")) {
+          return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
+        }
+        throw e;
       }
-      res.json({ results });
     } catch (e: any) {
       res.status(500).json({ error: e?.message || String(e) });
     }
