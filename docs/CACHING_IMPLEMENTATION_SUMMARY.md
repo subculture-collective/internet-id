@@ -25,8 +25,7 @@ Implemented a comprehensive Redis-based caching layer to improve API performance
 
 ### Integration Points
 
-- `scripts/api.ts` - Initialize cache service on startup
-- `scripts/app.ts` - Initialize cache in modular app
+- `scripts/start-api-server.ts` and `scripts/app.ts` - Initialize cache service on startup
 - `scripts/routes/content.routes.ts` - Cache content metadata and verifications
 - `scripts/routes/health.routes.ts` - Cache manifests, bindings, add metrics endpoint
 - `scripts/routes/register.routes.ts` - Cache invalidation on registration

@@ -14,7 +14,6 @@
     "scripts/make-proof.ts",
     "scripts/bind-youtube.ts",
     "scripts/app.ts",
-    "scripts/api.ts",
     "scripts/db.ts",
     "scripts/routes/**",
     "scripts/middleware/**",

@@ -121,7 +121,7 @@ curl http://localhost:3001/api/health
 
 ```bash
 # Run with inspect flag
-node --inspect scripts/api.ts
+node --inspect scripts/start-api-server.ts
 
 # In another terminal
 node inspect localhost:9229
@@ -702,7 +702,7 @@ npm run db:generate
 **Solution**:
 
 ```typescript
-// scripts/api.ts
+// scripts/app.ts
 import cors from "cors";
 
 app.use(
@@ -807,7 +807,7 @@ curl http://localhost:3001/api/cache/metrics
 
 ```bash
 # Profile memory usage
-node --inspect --expose-gc scripts/api.ts
+node --inspect --expose-gc scripts/start-api-server.ts
 
 # Connect Chrome DevTools
 # chrome://inspect

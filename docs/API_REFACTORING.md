@@ -2,21 +2,22 @@
 
 ## Overview
 
-This document describes the refactoring of the Express API from a monolithic 1133-line file into modular, testable components.
+This document describes the refactoring of the Express API from a monolithic file into modular, testable components. **The legacy `scripts/api.ts` has been removed** and replaced with the refactored architecture.
 
 ## Before and After
 
-### Before
+### Before (Removed)
 
-- **Single file**: `scripts/api.ts` (1133 lines)
+- **Single file**: `scripts/api.ts` (1134 lines) - **REMOVED**
 - Mixed concerns: routing, business logic, database access, blockchain interactions
 - Difficult to test individual components
 - Hard to navigate and maintain
 
-### After
+### After (Current Architecture)
 
-- **16 focused modules** (1309 lines total, but organized)
-- Clear separation of concerns
+- **Modular structure** with clear separation of concerns
+- Entry point: `scripts/start-api-server.ts`
+- App factory: `scripts/app.ts`
 - Easy to test individual services and routes
 - Improved maintainability and extensibility
 
@@ -24,25 +25,25 @@ This document describes the refactoring of the Express API from a monolithic 113
 
 ```
 scripts/
-├── api.ts                     # Entry point (11 lines)
-├── app.ts                     # Express app factory (30 lines)
+├── start-api-server.ts         # Entry point
+├── app.ts                      # Express app factory
 ├── middleware/
-│   └── auth.middleware.ts     # API key authentication (13 lines)
-├── services/                  # Business logic layer
-│   ├── file.service.ts        # File operations (19 lines)
-│   ├── hash.service.ts        # Hashing utilities (5 lines)
-│   ├── manifest.service.ts    # Manifest fetching (34 lines)
-│   ├── platform.service.ts    # Platform URL parsing (60 lines)
-│   └── registry.service.ts    # Blockchain interactions (87 lines)
-└── routes/                    # HTTP route handlers
-    ├── binding.routes.ts      # Platform bindings (164 lines)
-    ├── content.routes.ts      # Content queries (103 lines)
-    ├── health.routes.ts       # Health/network/resolve (160 lines)
-    ├── manifest.routes.ts     # Manifest creation (79 lines)
-    ├── oneshot.routes.ts      # One-shot workflow (223 lines)
-    ├── register.routes.ts     # On-chain registration (101 lines)
-    ├── upload.routes.ts       # IPFS uploads (38 lines)
-    └── verify.routes.ts       # Verification/proof (182 lines)
+│   └── auth.middleware.ts      # API key authentication
+├── services/                   # Business logic layer
+│   ├── file.service.ts         # File operations
+│   ├── hash.service.ts         # Hashing utilities
+│   ├── manifest.service.ts     # Manifest fetching
+│   ├── platform.service.ts     # Platform URL parsing
+│   └── registry.service.ts     # Blockchain interactions
+└── routes/                     # HTTP route handlers
+    ├── binding.routes.ts       # Platform bindings
+    ├── content.routes.ts       # Content queries
+    ├── health.routes.ts        # Health/network/resolve
+    ├── manifest.routes.ts      # Manifest creation
+    ├── oneshot.routes.ts       # One-shot workflow
+    ├── register.routes.ts      # On-chain registration
+    ├── upload.routes.ts        # IPFS uploads
+    └── verify.routes.ts        # Verification/proof
 ```
 
 ## Service Layer
@@ -169,7 +170,7 @@ All tests pass (9 total):
 ### Starting the API
 
 ```bash
-npm run start:api  # or: ts-node scripts/api.ts
+npm run start:api  # Uses scripts/start-api-server.ts
 ```
 
 The API starts on port 3001 (or `PORT` env variable).
@@ -206,23 +207,16 @@ All existing endpoints are preserved with identical behavior. The refactoring is
 
 ## Migration Guide
 
-If you were importing the old `api.ts` file:
+The legacy `scripts/api.ts` has been removed. All code should now use the refactored architecture:
 
-**Before:**
-
-```typescript
-// This wasn't really done, but if it was:
-import { app } from "./scripts/api";
-```
-
-**After:**
+**Use:**
 
 ```typescript
 import { createApp } from "./scripts/app";
-const app = createApp();
+const app = await createApp();
 ```
 
-If you need individual utilities:
+For individual utilities:
 
 ```typescript
 import { sha256Hex } from "./scripts/services/hash.service";
