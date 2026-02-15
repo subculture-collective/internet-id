@@ -77,7 +77,7 @@ export async function createApp() {
   });
 
   app.use(cors());
-  app.use(express.json({ limit: "50mb" }));
+  app.use(express.json({ limit: "1mb" }));
 
   // Wait for rate limiters to initialize
   const strict = await strictRateLimit;

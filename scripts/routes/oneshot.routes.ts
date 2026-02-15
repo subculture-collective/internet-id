@@ -1,8 +1,8 @@
 import { Router, Request, Response } from "express";
-import multer from "multer";
 import { ethers } from "ethers";
 import { requireApiKey } from "../middleware/auth.middleware";
-import { sha256Hex } from "../services/hash.service";
+import { sha256HexFromFile } from "../services/hash.service";
+import { upload, cleanupUpload } from "../middleware/upload.middleware";
 import { tmpWrite, cleanupTmpFile } from "../services/file.service";
 import { uploadToIpfs } from "../upload-ipfs";
 import { prisma } from "../db";
@@ -10,11 +10,6 @@ import { validateBody, validateFile } from "../validation/middleware";
 import { oneshotRequestSchema, ALLOWED_MIME_TYPES } from "../validation/schemas";
 
 const router = Router();
-
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 1024 * 1024 * 1024 },
-}); // up to 1GB
 
 // One-shot: upload content -> create+upload manifest -> register on-chain
 router.post(
@@ -67,23 +62,18 @@ router.post(
       let contentCid: string | undefined;
       let contentUri: string | undefined;
       if (shouldUploadContent) {
-        const tmpContent = await tmpWrite(req.file!.originalname, req.file!.buffer);
-        try {
-          contentCid = await uploadToIpfs(tmpContent);
-          contentUri = `ipfs://${contentCid}`;
-        } finally {
-          await cleanupTmpFile(tmpContent);
-        }
+        contentCid = await uploadToIpfs(req.file!.path);
+        contentUri = `ipfs://${contentCid}`;
       }
 
       // 2) Compute hash and create manifest
-      const fileHash = sha256Hex(req.file!.buffer);
+      const fileHash = await sha256HexFromFile(req.file!.path);
       const provider = new ethers.JsonRpcProvider(
         process.env.RPC_URL || "https://sepolia.base.org"
       );
       const net = await provider.getNetwork();
       const pk = process.env.PRIVATE_KEY;
-      if (!pk) return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
+      if (!pk) return res.status(500).json({ error: "Server configuration error" });
       const wallet = new ethers.Wallet(pk);
       const signature = await wallet.signMessage(ethers.getBytes(fileHash));
       const manifest: any = {
@@ -199,6 +189,8 @@ router.post(
       });
     } catch (e: any) {
       res.status(500).json({ error: e?.message || String(e) });
+    } finally {
+      await cleanupUpload(req);
     }
   }
 );

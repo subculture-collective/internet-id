@@ -1,6 +1,14 @@
 import * as Sentry from "@sentry/node";
-import { ProfilingIntegration } from "@sentry/profiling-node";
 import { logger } from "./logger.service";
+
+// ProfilingIntegration uses native bindings that may not be available
+// on all platforms/Node versions. Import gracefully.
+let ProfilingIntegration: any;
+try {
+  ProfilingIntegration = require("@sentry/profiling-node").ProfilingIntegration;
+} catch {
+  // Native profiling bindings not available — profiling will be disabled
+}
 
 /**
  * Sentry error tracking service
@@ -30,9 +38,9 @@ class SentryService {
         // Performance monitoring
         tracesSampleRate: parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE || "0.1"),
 
-        // Profiling (optional)
+        // Profiling (optional — requires native bindings)
         profilesSampleRate: parseFloat(process.env.SENTRY_PROFILES_SAMPLE_RATE || "0.1"),
-        integrations: [new ProfilingIntegration()],
+        integrations: ProfilingIntegration ? [new ProfilingIntegration()] : [],
 
         // Release tracking
         release: process.env.SENTRY_RELEASE || process.env.npm_package_version,

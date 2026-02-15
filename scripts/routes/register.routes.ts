@@ -1,19 +1,14 @@
 import { Router, Request, Response } from "express";
-import multer from "multer";
 import { ethers } from "ethers";
 import { requireApiKey } from "../middleware/auth.middleware";
-import { sha256Hex } from "../services/hash.service";
+import { upload, cleanupUpload } from "../middleware/upload.middleware";
+import { sha256HexFromFile } from "../services/hash.service";
 import { prisma } from "../db";
 import { validateBody, validateFile } from "../validation/middleware";
 import { registerRequestSchema, ALLOWED_MIME_TYPES } from "../validation/schemas";
 import { cacheService } from "../services/cache.service";
 
 const router = Router();
-
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 1024 * 1024 * 1024 },
-}); // up to 1GB
 
 // Register on-chain
 router.post(
@@ -32,7 +27,7 @@ router.post(
 
       let fileHash: string | undefined;
       if (req.file) {
-        fileHash = sha256Hex(req.file.buffer);
+        fileHash = await sha256HexFromFile(req.file.path);
       } else if (contentHash) {
         fileHash = contentHash;
       } else {
@@ -51,7 +46,7 @@ router.post(
         process.env.RPC_URL || "https://sepolia.base.org"
       );
       const pk = process.env.PRIVATE_KEY;
-      if (!pk) return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
+      if (!pk) return res.status(500).json({ error: "Server configuration error" });
       const wallet = new ethers.Wallet(pk, provider);
       const abi = [
         "function register(bytes32 contentHash, string manifestURI) external",
@@ -107,6 +102,8 @@ router.post(
       res.json({ txHash: receipt?.hash, contentHash: fileHash, manifestURI });
     } catch (e: any) {
       res.status(500).json({ error: e?.message || String(e) });
+    } finally {
+      await cleanupUpload(req);
     }
   }
 );

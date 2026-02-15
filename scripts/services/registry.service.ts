@@ -89,7 +89,49 @@ export async function getAllRegistryAddresses(): Promise<Record<number, string>>
   return addresses;
 }
 
+/**
+ * Validate that an RPC URL is a known/allowed endpoint.
+ * Prevents SSRF by restricting user-supplied URLs to recognized chain RPC endpoints.
+ */
+function isAllowedRpcUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    // Only allow http/https protocols
+    if (!["http:", "https:"].includes(parsed.protocol)) return false;
+    // Block private/internal IPs (SSRF protection)
+    const hostname = parsed.hostname;
+    if (
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname === "0.0.0.0" ||
+      hostname.startsWith("10.") ||
+      hostname.startsWith("172.") ||
+      hostname.startsWith("192.168.") ||
+      hostname === "169.254.169.254" ||
+      hostname.endsWith(".internal") ||
+      hostname.endsWith(".local")
+    ) {
+      // Allow localhost only in development
+      if (
+        process.env.NODE_ENV !== "production" &&
+        (hostname === "localhost" || hostname === "127.0.0.1")
+      ) {
+        return true;
+      }
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function getProvider(rpcUrl?: string): ethers.JsonRpcProvider {
+  if (rpcUrl) {
+    if (!isAllowedRpcUrl(rpcUrl)) {
+      throw new Error("Invalid or disallowed RPC URL");
+    }
+  }
   return new ethers.JsonRpcProvider(
     rpcUrl || process.env.RPC_URL || SUPPORTED_CHAINS.baseSepolia.rpcUrl
   );

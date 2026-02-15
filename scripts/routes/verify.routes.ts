@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
-import multer from "multer";
 import { ethers } from "ethers";
-import { sha256Hex } from "../services/hash.service";
+import { sha256HexFromFile } from "../services/hash.service";
+import { upload, cleanupUpload } from "../middleware/upload.middleware";
 import { fetchManifest } from "../services/manifest.service";
 import { getProvider, getEntry } from "../services/registry.service";
 import { prisma } from "../db";
@@ -10,11 +10,6 @@ import { verifyRequestSchema, proofRequestSchema, ALLOWED_MIME_TYPES } from "../
 import { cacheService } from "../services/cache.service";
 
 const router = Router();
-
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 1024 * 1024 * 1024 },
-}); // up to 1GB
 
 // Verify
 router.post(
@@ -30,7 +25,7 @@ router.post(
         rpcUrl?: string;
       };
 
-      const fileHash = sha256Hex(req.file!.buffer);
+      const fileHash = await sha256HexFromFile(req.file!.path);
       const manifest = await fetchManifest(manifestURI);
       const manifestHashOk = manifest.content_hash === fileHash;
       const recovered = ethers.verifyMessage(
@@ -77,6 +72,8 @@ router.post(
       res.json(result);
     } catch (e: any) {
       res.status(500).json({ error: e?.message || String(e) });
+    } finally {
+      await cleanupUpload(req);
     }
   }
 );
@@ -95,7 +92,7 @@ router.post(
         rpcUrl?: string;
       };
 
-      const fileHash = sha256Hex(req.file!.buffer);
+      const fileHash = await sha256HexFromFile(req.file!.path);
       const manifest = await fetchManifest(manifestURI);
       const recovered = ethers.verifyMessage(
         ethers.getBytes(manifest.content_hash),
@@ -170,6 +167,8 @@ router.post(
       res.json(proof);
     } catch (e: any) {
       res.status(500).json({ error: e?.message || String(e) });
+    } finally {
+      await cleanupUpload(req);
     }
   }
 );

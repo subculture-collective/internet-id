@@ -1,3 +1,19 @@
+/**
+ * @deprecated This file is the legacy monolithic API server.
+ * Use scripts/start-api-server.ts instead, which imports the refactored
+ * app from scripts/app.ts with proper validation, logging, and observability.
+ *
+ * This file is preserved only for reference during migration.
+ * It will be removed in a future release.
+ *
+ * To start the API server, run: npm run start:api
+ * (which now correctly invokes scripts/start-api-server.ts)
+ */
+
+console.warn(
+  "[DEPRECATED] scripts/api.ts is deprecated. Use 'npm run start:api' which runs scripts/start-api-server.ts instead."
+);
+
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import multer from "multer";
