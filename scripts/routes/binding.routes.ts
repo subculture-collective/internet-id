@@ -1,10 +1,10 @@
 import { Router, Request, Response } from "express";
-import { ethers } from "ethers";
 import { requireApiKey } from "../middleware/auth.middleware";
-import { prisma } from "../db";
 import { validateBody } from "../validation/middleware";
 import { bindRequestSchema, bindManyRequestSchema } from "../validation/schemas";
-import { cacheService } from "../services/cache.service";
+import { createProviderAndWallet, createRegistryContract } from "../services/blockchain.service";
+import { BIND_PLATFORM_ABI } from "../constants/abi";
+import { upsertPlatformBinding } from "../services/content-db.service";
 
 const router = Router();
 
@@ -21,17 +21,8 @@ router.post(
         platformId: string;
         contentHash: string;
       };
-      const provider = new ethers.JsonRpcProvider(
-        process.env.RPC_URL || "https://sepolia.base.org"
-      );
-      const pk = process.env.PRIVATE_KEY;
-      if (!pk) return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
-      const wallet = new ethers.Wallet(pk, provider);
-      const abi = [
-        "function bindPlatform(bytes32,string,string) external",
-        "function entries(bytes32) view returns (address creator, bytes32 contentHash, string manifestURI, uint64 timestamp)",
-      ];
-      const registry = new ethers.Contract(registryAddress, abi, wallet);
+      const { provider, wallet } = createProviderAndWallet();
+      const registry = createRegistryContract(registryAddress, BIND_PLATFORM_ABI, wallet);
       // Ensure caller is creator
       const entry = await registry.entries(contentHash);
       if ((entry?.creator || "").toLowerCase() !== (await wallet.getAddress()).toLowerCase()) {
@@ -39,22 +30,9 @@ router.post(
       }
       const tx = await registry.bindPlatform(contentHash, platform, platformId);
       const receipt = await tx.wait();
+      
       // upsert binding in DB
-      try {
-        const content = await prisma.content.findUnique({
-          where: { contentHash },
-        });
-        await prisma.platformBinding.upsert({
-          where: { platform_platformId: { platform, platformId } },
-          create: { platform, platformId, contentId: content?.id },
-          update: { contentId: content?.id },
-        });
-
-        // Invalidate binding cache after creation
-        await cacheService.delete(`binding:${platform}:${platformId}`);
-      } catch (e) {
-        console.warn("DB upsert platform binding failed:", e);
-      }
+      await upsertPlatformBinding({ platform, platformId, contentHash });
       res.json({ txHash: receipt?.hash });
     } catch (e: any) {
       res.status(500).json({ error: e?.message || String(e) });
@@ -107,22 +85,9 @@ router.post(
           const tx = await registry.bindPlatform(contentHash, platform, platformId);
           const rec = await tx.wait();
           results.push({ platform, platformId, txHash: rec?.hash });
+          
           // upsert DB binding
-          try {
-            const content = await prisma.content.findUnique({
-              where: { contentHash },
-            });
-            await prisma.platformBinding.upsert({
-              where: { platform_platformId: { platform, platformId } },
-              create: { platform, platformId, contentId: content?.id },
-              update: { contentId: content?.id },
-            });
-
-            // Invalidate binding cache after creation
-            await cacheService.delete(`binding:${platform}:${platformId}`);
-          } catch (e) {
-            console.warn("DB upsert platform binding (bind-many) failed:", e);
-          }
+          await upsertPlatformBinding({ platform, platformId, contentHash });
         } catch (e: any) {
           results.push({
             platform,

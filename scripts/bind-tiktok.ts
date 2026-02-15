@@ -1,8 +1,9 @@
 import { createHash } from "crypto";
 import { readFileSync } from "fs";
-import { ethers } from "ethers";
 import * as dotenv from "dotenv";
 import { extractTikTokId } from "./services/platform.service";
+import { createProviderAndWallet, createRegistryContract } from "./services/blockchain.service";
+import { BIND_PLATFORM_ABI } from "./constants/abi";
 dotenv.config();
 
 async function main() {
@@ -16,16 +17,11 @@ async function main() {
   const sha256 = createHash("sha256").update(data).digest("hex");
   const contentHash = "0x" + sha256;
 
-  const provider = new ethers.JsonRpcProvider(
+  const { wallet } = createProviderAndWallet(
+    process.env.PRIVATE_KEY,
     process.env.RPC_URL || process.env.LOCAL_RPC_URL || "http://127.0.0.1:8545"
   );
-  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY as string, provider);
-
-  const abi = [
-    "function bindPlatform(bytes32 contentHash, string platform, string platformId) external",
-    "function entries(bytes32) view returns (address, bytes32, string memory, uint64)",
-  ];
-  const registry = new ethers.Contract(registryAddress, abi, wallet);
+  const registry = createRegistryContract(registryAddress, BIND_PLATFORM_ABI, wallet);
 
   const platformId = extractTikTokId(tiktokId);
   const tx = await registry.bindPlatform(contentHash, "tiktok", platformId);

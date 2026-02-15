@@ -7,6 +7,7 @@ import { tmpWrite, cleanupTmpFile } from "../services/file.service";
 import { uploadToIpfs } from "../upload-ipfs";
 import { validateBody, validateFile } from "../validation/middleware";
 import { manifestRequestSchema, ALLOWED_MIME_TYPES } from "../validation/schemas";
+import { createProviderAndWallet } from "../services/blockchain.service";
 
 const router = Router();
 
@@ -51,13 +52,8 @@ router.post(
         });
       }
 
-      const provider = new ethers.JsonRpcProvider(
-        process.env.RPC_URL || "https://sepolia.base.org"
-      );
+      const { provider, wallet } = createProviderAndWallet();
       const net = await provider.getNetwork();
-      const pk = process.env.PRIVATE_KEY;
-      if (!pk) return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
-      const wallet = new ethers.Wallet(pk);
       const signature = await wallet.signMessage(ethers.getBytes(fileHash!));
       const manifest = {
         version: "1.0",
