@@ -26,20 +26,19 @@ router.post(
   validateBody(oneshotRequestSchema),
   validateFile({ required: true, allowedMimeTypes: ALLOWED_MIME_TYPES }),
   async (req: Request, res: Response) => {
-    try {
-      const {
-        registryAddress,
-        platform,
-        platformId,
-        uploadContent,
-        bindings: rawBindings,
-      } = req.body as {
-        registryAddress: string;
-        platform?: string;
-        platformId?: string;
-        uploadContent?: string;
-        bindings?: string | Array<{ platform: string; platformId: string }>;
-      };
+    const {
+      registryAddress,
+      platform,
+      platformId,
+      uploadContent,
+      bindings: rawBindings,
+    } = req.body as {
+      registryAddress: string;
+      platform?: string;
+      platformId?: string;
+      uploadContent?: string;
+      bindings?: string | Array<{ platform: string; platformId: string }>;
+    };
 
       // Parse bindings if provided as string
       let bindings: Array<{ platform: string; platformId: string }> = [];
@@ -164,7 +163,6 @@ router.post(
         }
         res.status(500).json({ error: e?.message || String(e) });
       }
-    }
   }
 );
 
