@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "strict": false,
+    "skipLibCheck": true,
+    "noEmit": false,
+    "noEmitOnError": false,
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false
+  },
+  "include": ["scripts", "hardhat.config.ts", "prisma"],
+  "exclude": ["node_modules", "test", "**/*.test.ts", "**/*.spec.ts"]
+}
