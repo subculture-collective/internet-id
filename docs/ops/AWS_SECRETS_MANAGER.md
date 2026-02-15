@@ -249,7 +249,7 @@ export async function loadAllSecrets(): Promise<void> {
 **Update application startup:**
 
 ```typescript
-// scripts/api.ts or main entry point
+// scripts/start-api-server.ts or main entry point
 import * as dotenv from "dotenv";
 import { loadAllSecrets } from "./services/secret-manager";
 

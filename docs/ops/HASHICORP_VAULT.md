@@ -337,7 +337,7 @@ export default client;
 ### Update Application Startup
 
 ```typescript
-// scripts/api.ts
+// scripts/start-api-server.ts
 import * as dotenv from "dotenv";
 import { loadVaultSecrets } from "./services/vault-client";
 

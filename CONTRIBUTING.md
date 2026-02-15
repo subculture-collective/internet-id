@@ -634,9 +634,15 @@ describe("ContentRegistry", function () {
 // test/api/verify.test.ts
 import request from "supertest";
 import { expect } from "chai";
-import app from "../scripts/api";
+import { createApp } from "../scripts/app";
 
 describe("POST /api/verify", function () {
+  let app;
+  
+  before(async function () {
+    app = await createApp();
+  });
+
   it("should verify valid content", async function () {
     const response = await request(app)
       .post("/api/verify")

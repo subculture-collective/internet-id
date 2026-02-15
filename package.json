@@ -54,7 +54,7 @@
     "verify:discord": "ts-node scripts/verify-discord.ts",
     "bind:linkedin": "ts-node scripts/bind-linkedin.ts",
     "verify:linkedin": "ts-node scripts/verify-linkedin.ts",
-    "start:api": "ts-node scripts/api.ts",
+    "start:api": "ts-node scripts/start-api-server.ts",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev --name init",
     "db:studio": "prisma studio",

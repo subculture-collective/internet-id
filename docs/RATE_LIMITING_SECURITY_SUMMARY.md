@@ -4,21 +4,19 @@
 
 This implementation adds comprehensive rate limiting to all API endpoints to protect against abuse, DDoS attacks, and resource exhaustion.
 
-## Security Vulnerabilities Discovered
+## Security Vulnerabilities - Historical Context
 
-### Pre-existing Issues (Not Introduced by This PR)
+### Pre-existing Issues (Resolved by Refactoring)
 
-The CodeQL security scan identified 2 pre-existing vulnerabilities in `scripts/api.ts`:
+The CodeQL security scan previously identified 2 vulnerabilities in the legacy `scripts/api.ts` file (which has since been removed and replaced with a refactored architecture):
 
-1. **Path Injection (js/path-injection)** at line 63
-   - Issue: User-provided values influence file paths
-   - Status: **Pre-existing** - Not introduced by rate limiting changes
-   - Recommendation: Add path validation in future PR
-
-2. **Request Forgery (js/request-forgery)** at line 68
-   - Issue: URL depends on user-controlled data
-   - Status: **Pre-existing** - Not introduced by rate limiting changes
-   - Recommendation: Add URL validation in future PR
+1. **Path Injection (js/path-injection)** 
+   - Issue: User-provided values influenced file paths
+   - Status: **Resolved** - Fixed in refactored architecture with proper validation
+   
+2. **Request Forgery (js/request-forgery)**
+   - Issue: URL depended on user-controlled data
+   - Status: **Resolved** - Fixed in refactored architecture with proper validation
 
 ### New Code Security Analysis
 
@@ -64,11 +62,10 @@ The rate limiting implementation introduces:
 
 ### For Future PRs
 
-1. Address pre-existing path injection in `scripts/api.ts` line 63
-2. Address pre-existing request forgery in `scripts/api.ts` line 68
-3. Consider adding input validation middleware
-4. Implement security headers (CORS, CSP, etc.)
+1. Continue monitoring for new security vulnerabilities
+2. Consider additional input validation middleware
+3. Regularly update security dependencies
 
 ## Conclusion
 
-This rate limiting implementation significantly improves the security posture of the API by preventing abuse and resource exhaustion attacks. No new security vulnerabilities were introduced, and the implementation follows security best practices.
+This rate limiting implementation significantly improves the security posture of the API by preventing abuse and resource exhaustion attacks. The refactored architecture has resolved previously identified security issues.

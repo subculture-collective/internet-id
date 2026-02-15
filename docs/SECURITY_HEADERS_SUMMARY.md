@@ -10,8 +10,10 @@ This document details the comprehensive security headers implementation for the 
 
 ## Components
 
-### 1. Express API Server (`/scripts/api.ts`)
+### 1. Express API Server
 
+**Entry Point**: `/scripts/start-api-server.ts`  
+**App Factory**: `/scripts/app.ts`  
 **Security Middleware**: `/scripts/middleware/security-headers.middleware.ts`
 
 **Package**: `helmet@8.1.0` (✅ No known vulnerabilities)
@@ -313,7 +315,7 @@ upgradeInsecureRequests
 - `cspNonceMiddleware()`: Generate nonce per request
 - `applySecurityHeaders()`: Complete middleware stack
 
-**Integration**: `/scripts/api.ts`
+**Integration**: `/scripts/app.ts`
 
 ```typescript
 import { applySecurityHeaders, cspReportHandler } from "./middleware/security-headers.middleware";
