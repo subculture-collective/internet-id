@@ -3,7 +3,7 @@ import { render, screen } from '@/test/utils';
 import { VerificationBadge, useBadgeUrls } from './VerificationBadge';
 import { renderHook } from '@testing-library/react';
 
-// Mock environment variables
+// Mock Next.js navigation
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: vi.fn(),
