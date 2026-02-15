@@ -1,10 +1,10 @@
 import { Router, Request, Response } from "express";
-import { ethers } from "ethers";
 import { requireApiKey } from "../middleware/auth.middleware";
-import { prisma } from "../db";
 import { validateBody } from "../validation/middleware";
 import { bindRequestSchema, bindManyRequestSchema } from "../validation/schemas";
-import { cacheService } from "../services/cache.service";
+import { createProviderAndWallet, createRegistryContract } from "../services/blockchain.service";
+import { BIND_PLATFORM_ABI } from "../constants/abi";
+import { upsertPlatformBinding } from "../services/content-db.service";
 
 const router = Router();
 
@@ -21,41 +21,27 @@ router.post(
         platformId: string;
         contentHash: string;
       };
-      const provider = new ethers.JsonRpcProvider(
-        process.env.RPC_URL || "https://sepolia.base.org"
-      );
-      const pk = process.env.PRIVATE_KEY;
-      if (!pk) return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
-      const wallet = new ethers.Wallet(pk, provider);
-      const abi = [
-        "function bindPlatform(bytes32,string,string) external",
-        "function entries(bytes32) view returns (address creator, bytes32 contentHash, string manifestURI, uint64 timestamp)",
-      ];
-      const registry = new ethers.Contract(registryAddress, abi, wallet);
-      // Ensure caller is creator
-      const entry = await registry.entries(contentHash);
-      if ((entry?.creator || "").toLowerCase() !== (await wallet.getAddress()).toLowerCase()) {
-        return res.status(403).json({ error: "Only creator can bind platform" });
-      }
-      const tx = await registry.bindPlatform(contentHash, platform, platformId);
-      const receipt = await tx.wait();
-      // upsert binding in DB
+      
       try {
-        const content = await prisma.content.findUnique({
-          where: { contentHash },
-        });
-        await prisma.platformBinding.upsert({
-          where: { platform_platformId: { platform, platformId } },
-          create: { platform, platformId, contentId: content?.id },
-          update: { contentId: content?.id },
-        });
-
-        // Invalidate binding cache after creation
-        await cacheService.delete(`binding:${platform}:${platformId}`);
-      } catch (e) {
-        console.warn("DB upsert platform binding failed:", e);
+        const { provider, wallet } = createProviderAndWallet();
+        const registry = createRegistryContract(registryAddress, BIND_PLATFORM_ABI, wallet);
+        // Ensure caller is creator
+        const entry = await registry.entries(contentHash);
+        if ((entry?.creator || "").toLowerCase() !== (await wallet.getAddress()).toLowerCase()) {
+          return res.status(403).json({ error: "Only creator can bind platform" });
+        }
+        const tx = await registry.bindPlatform(contentHash, platform, platformId);
+        const receipt = await tx.wait();
+        
+        // upsert binding in DB
+        await upsertPlatformBinding({ platform, platformId, contentHash });
+        res.json({ txHash: receipt?.hash });
+      } catch (e: any) {
+        if (e?.message?.includes("PRIVATE_KEY missing")) {
+          return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
+        }
+        throw e;
       }
-      res.json({ txHash: receipt?.hash });
     } catch (e: any) {
       res.status(500).json({ error: e?.message || String(e) });
     }
@@ -74,64 +60,50 @@ router.post(
         contentHash: string;
         bindings: Array<{ platform: string; platformId: string }>;
       };
-      const provider = new ethers.JsonRpcProvider(
-        process.env.RPC_URL || "https://sepolia.base.org"
-      );
-      const pk = process.env.PRIVATE_KEY;
-      if (!pk) return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
-      const wallet = new ethers.Wallet(pk, provider);
-      const abi = [
-        "function bindPlatform(bytes32,string,string) external",
-        "function entries(bytes32) view returns (address creator, bytes32 contentHash, string manifestURI, uint64 timestamp)",
-      ];
-      const registry = new ethers.Contract(registryAddress, abi, wallet);
-      // Ensure caller is creator
-      const entry = await registry.entries(contentHash);
-      if ((entry?.creator || "").toLowerCase() !== (await wallet.getAddress()).toLowerCase()) {
-        return res.status(403).json({ error: "Only creator can bind platform" });
-      }
-      const results: Array<{
-        platform: string;
-        platformId: string;
-        txHash?: string;
-        error?: string;
-      }> = [];
-      for (const b of bindings) {
-        const platform = (b?.platform || "").toString();
-        const platformId = (b?.platformId || "").toString();
-        if (!platform || !platformId) {
-          results.push({ platform, platformId, error: "invalid binding" });
-          continue;
+      
+      try {
+        const { provider, wallet } = createProviderAndWallet();
+        const registry = createRegistryContract(registryAddress, BIND_PLATFORM_ABI, wallet);
+        // Ensure caller is creator
+        const entry = await registry.entries(contentHash);
+        if ((entry?.creator || "").toLowerCase() !== (await wallet.getAddress()).toLowerCase()) {
+          return res.status(403).json({ error: "Only creator can bind platform" });
         }
-        try {
-          const tx = await registry.bindPlatform(contentHash, platform, platformId);
-          const rec = await tx.wait();
-          results.push({ platform, platformId, txHash: rec?.hash });
-          // upsert DB binding
-          try {
-            const content = await prisma.content.findUnique({
-              where: { contentHash },
-            });
-            await prisma.platformBinding.upsert({
-              where: { platform_platformId: { platform, platformId } },
-              create: { platform, platformId, contentId: content?.id },
-              update: { contentId: content?.id },
-            });
-
-            // Invalidate binding cache after creation
-            await cacheService.delete(`binding:${platform}:${platformId}`);
-          } catch (e) {
-            console.warn("DB upsert platform binding (bind-many) failed:", e);
+        const results: Array<{
+          platform: string;
+          platformId: string;
+          txHash?: string;
+          error?: string;
+        }> = [];
+        for (const b of bindings) {
+          const platform = (b?.platform || "").toString();
+          const platformId = (b?.platformId || "").toString();
+          if (!platform || !platformId) {
+            results.push({ platform, platformId, error: "invalid binding" });
+            continue;
           }
-        } catch (e: any) {
-          results.push({
-            platform,
-            platformId,
-            error: e?.message || String(e),
-          });
+          try {
+            const tx = await registry.bindPlatform(contentHash, platform, platformId);
+            const rec = await tx.wait();
+            results.push({ platform, platformId, txHash: rec?.hash });
+            
+            // upsert DB binding
+            await upsertPlatformBinding({ platform, platformId, contentHash });
+          } catch (e: any) {
+            results.push({
+              platform,
+              platformId,
+              error: e?.message || String(e),
+            });
+          }
         }
+        res.json({ results });
+      } catch (e: any) {
+        if (e?.message?.includes("PRIVATE_KEY missing")) {
+          return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
+        }
+        throw e;
       }
-      res.json({ results });
     } catch (e: any) {
       res.status(500).json({ error: e?.message || String(e) });
     }
