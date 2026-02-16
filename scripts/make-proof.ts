@@ -4,6 +4,7 @@ import * as path from "path";
 import { ethers } from "ethers";
 import * as https from "https";
 import * as dotenv from "dotenv";
+import { getStartBlock } from "./utils/block-range.util";
 dotenv.config();
 
 /*
@@ -76,18 +77,7 @@ async function findRegistrationTx(
   // Event: ContentRegistered(bytes32 indexed contentHash, address indexed creator, string manifestURI, uint64 timestamp)
   const topic0 = ethers.id("ContentRegistered(bytes32,address,string,uint64)");
   try {
-    // Use a reasonable starting block to avoid scanning entire chain history
-    // Default to recent blocks (e.g., last 1M blocks) or use env variable for contract deployment block
-    let startBlock = 0;
-    if (process.env.REGISTRY_START_BLOCK) {
-      const parsed = parseInt(process.env.REGISTRY_START_BLOCK, 10);
-      if (!isNaN(parsed) && parsed >= 0) {
-        startBlock = parsed;
-      }
-    }
-    if (startBlock === 0) {
-      startBlock = Math.max(0, (await provider.getBlockNumber()) - 1000000);
-    }
+    const startBlock = await getStartBlock(provider);
     
     const logs = await provider.getLogs({
       address: registry,
