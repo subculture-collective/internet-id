@@ -10,6 +10,9 @@ import { oneshotRequestSchema, ALLOWED_MIME_TYPES } from "../validation/schemas"
 import { createProviderAndWallet, createRegistryContract } from "../services/blockchain.service";
 import { REGISTER_ABI, BIND_PLATFORM_ABI } from "../constants/abi";
 import { upsertUser, upsertContent, upsertPlatformBinding } from "../services/content-db.service";
+import { sendErrorResponse } from "../utils/error-response.util";
+import { logger } from "../services/logger.service";
+import { sentryService } from "../services/sentry.service";
 
 const router = Router();
 
@@ -128,7 +131,20 @@ router.post(
             contentHash: fileHash,
           });
         } catch (e) {
-          console.warn("Bind platform in one-shot failed:", e);
+          // Non-critical - log but continue (binding may already exist or fail temporarily)
+          const error = e instanceof Error ? e : new Error(String(e));
+          logger.warn("Bind platform in one-shot failed", {
+            operation: "oneshot-bind-platform",
+            platform: b.platform,
+            platformId: b.platformId,
+            contentHash: fileHash,
+            error: error.message,
+          });
+          sentryService.captureException(error, {
+            operation: "oneshot-bind-platform",
+            platform: b.platform,
+            platformId: b.platformId,
+          });
         }
       }
 
@@ -159,9 +175,19 @@ router.post(
       });
     } catch (e: any) {
       if (e?.message?.includes("PRIVATE_KEY missing")) {
-        return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
+        return sendErrorResponse(res, new Error("PRIVATE_KEY missing in env"), 400, {
+          correlationId: (req as any).correlationId,
+          operation: "oneshot",
+          path: req.path,
+          method: req.method,
+        });
       }
-      res.status(500).json({ error: e?.message || String(e) });
+      sendErrorResponse(res, e, 500, {
+        correlationId: (req as any).correlationId,
+        operation: "oneshot",
+        path: req.path,
+        method: req.method,
+      });
     }
   }
 );

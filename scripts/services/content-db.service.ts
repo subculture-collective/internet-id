@@ -1,12 +1,15 @@
 import { prisma } from "../db";
 import { cacheService } from "./cache.service";
+import { logger } from "./logger.service";
+import { sentryService } from "./sentry.service";
 
 /**
  * Upserts a user by wallet address
  * @param address The wallet address (should be lowercase)
  * @returns The user ID
+ * @throws Error if database operation fails
  */
-export async function upsertUser(address: string): Promise<string | undefined> {
+export async function upsertUser(address: string): Promise<string> {
   try {
     const user = await prisma.user.upsert({
       where: { address: address.toLowerCase() },
@@ -15,14 +18,25 @@ export async function upsertUser(address: string): Promise<string | undefined> {
     });
     return user.id;
   } catch (e) {
-    console.warn("DB upsert user failed:", e);
-    return undefined;
+    const error = e instanceof Error ? e : new Error(String(e));
+    logger.error("DB upsert user failed", error, {
+      operation: "upsertUser",
+      table: "user",
+      address: address.toLowerCase(),
+    });
+    sentryService.captureException(error, {
+      operation: "upsertUser",
+      table: "user",
+      address: address.toLowerCase(),
+    });
+    throw error;
   }
 }
 
 /**
  * Upserts content record in the database
  * @param params Content upsert parameters
+ * @throws Error if database operation fails
  */
 export async function upsertContent(params: {
   contentHash: string;
@@ -58,13 +72,27 @@ export async function upsertContent(params: {
     // Invalidate content cache after upsert
     await cacheService.delete(`content:${params.contentHash}`);
   } catch (e) {
-    console.warn("DB upsert content failed:", e);
+    const error = e instanceof Error ? e : new Error(String(e));
+    logger.error("DB upsert content failed", error, {
+      operation: "upsertContent",
+      table: "content",
+      contentHash: params.contentHash,
+      registryAddress: params.registryAddress,
+    });
+    sentryService.captureException(error, {
+      operation: "upsertContent",
+      table: "content",
+      contentHash: params.contentHash,
+      registryAddress: params.registryAddress,
+    });
+    throw error;
   }
 }
 
 /**
  * Upserts a platform binding in the database
  * @param params Platform binding parameters
+ * @throws Error if database operation fails
  */
 export async function upsertPlatformBinding(params: {
   platform: string;
@@ -96,6 +124,21 @@ export async function upsertPlatformBinding(params: {
     // Invalidate binding cache after upsert
     await cacheService.delete(`binding:${params.platform}:${params.platformId}`);
   } catch (e) {
-    console.warn("DB upsert platform binding failed:", e);
+    const error = e instanceof Error ? e : new Error(String(e));
+    logger.error("DB upsert platform binding failed", error, {
+      operation: "upsertPlatformBinding",
+      table: "platformBinding",
+      platform: params.platform,
+      platformId: params.platformId,
+      contentHash: params.contentHash,
+    });
+    sentryService.captureException(error, {
+      operation: "upsertPlatformBinding",
+      table: "platformBinding",
+      platform: params.platform,
+      platformId: params.platformId,
+      contentHash: params.contentHash,
+    });
+    throw error;
   }
 }

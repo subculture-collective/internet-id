@@ -10,6 +10,9 @@ import { validateParams } from "../validation/middleware";
 import { contentHashParamSchema } from "../validation/schemas";
 import { cacheService, DEFAULT_TTL } from "../services/cache.service";
 import { badgeService, BadgeData } from "../services/badge.service";
+import { sendErrorResponse } from "../utils/error-response.util";
+import { logger } from "../services/logger.service";
+import { sentryService } from "../services/sentry.service";
 
 const router = Router();
 
@@ -48,8 +51,17 @@ router.get(
             include: { bindings: true },
           });
         } catch (dbError) {
-          // Database unavailable - continue with unverified badge
-          console.warn("Database query failed, generating unverified badge:", dbError);
+          // Database unavailable - log and continue with unverified badge (non-critical)
+          const error = dbError instanceof Error ? dbError : new Error(String(dbError));
+          logger.warn("Database query failed, generating unverified badge", {
+            operation: "badge-svg-db-query",
+            contentHash: hash,
+            error: error.message,
+          });
+          sentryService.captureException(error, {
+            operation: "badge-svg-db-query",
+            contentHash: hash,
+          });
         }
 
         // Prepare badge data
@@ -77,8 +89,12 @@ router.get(
       res.setHeader("Cache-Control", "public, max-age=3600");
       res.send(svg);
     } catch (e: any) {
-      console.error("Badge generation error:", e);
-      res.status(500).json({ error: e?.message || String(e) });
+      sendErrorResponse(res, e, 500, {
+        correlationId: (req as any).correlationId,
+        operation: "badge-svg",
+        path: req.path,
+        method: req.method,
+      });
     }
   }
 );
@@ -100,7 +116,12 @@ router.get(
 
       res.redirect(svgUrl);
     } catch (e: any) {
-      res.status(500).json({ error: e?.message || String(e) });
+      sendErrorResponse(res, e, 500, {
+        correlationId: (req as any).correlationId,
+        operation: "badge-png",
+        path: req.path,
+        method: req.method,
+      });
     }
   }
 );
@@ -145,7 +166,12 @@ router.get(
 
       res.json(snippets);
     } catch (e: any) {
-      res.status(500).json({ error: e?.message || String(e) });
+      sendErrorResponse(res, e, 500, {
+        correlationId: (req as any).correlationId,
+        operation: "badge-embed",
+        path: req.path,
+        method: req.method,
+      });
     }
   }
 );
@@ -154,7 +180,7 @@ router.get(
  * GET /api/badge/options
  * Get available badge customization options
  */
-router.get("/badge/options", async (_req: Request, res: Response) => {
+router.get("/badge/options", async (req: Request, res: Response) => {
   try {
     const options = {
       themes: ["dark", "light", "blue", "green", "purple"],
@@ -174,7 +200,12 @@ router.get("/badge/options", async (_req: Request, res: Response) => {
 
     res.json(options);
   } catch (e: any) {
-    res.status(500).json({ error: e?.message || String(e) });
+    sendErrorResponse(res, e, 500, {
+      correlationId: (req as any).correlationId,
+      operation: "badge-options",
+      path: req.path,
+      method: req.method,
+    });
   }
 });
 
@@ -202,8 +233,17 @@ router.get(
             include: { bindings: true },
           });
         } catch (dbError) {
-          // Database unavailable - return unverified status
-          console.warn("Database query failed for status check:", dbError);
+          // Database unavailable - log and return unverified status (non-critical)
+          const error = dbError instanceof Error ? dbError : new Error(String(dbError));
+          logger.warn("Database query failed for status check", {
+            operation: "badge-status-db-query",
+            contentHash: hash,
+            error: error.message,
+          });
+          sentryService.captureException(error, {
+            operation: "badge-status-db-query",
+            contentHash: hash,
+          });
         }
 
         status = {
@@ -225,7 +265,12 @@ router.get(
 
       res.json(status);
     } catch (e: any) {
-      res.status(500).json({ error: e?.message || String(e) });
+      sendErrorResponse(res, e, 500, {
+        correlationId: (req as any).correlationId,
+        operation: "badge-status",
+        path: req.path,
+        method: req.method,
+      });
     }
   }
 );
