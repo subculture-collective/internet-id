@@ -32,7 +32,17 @@ const CHAIN_DEPLOYMENT_FILES: Record<number, string> = {
 
 // Helper to resolve default registry address for current network
 export async function resolveDefaultRegistry(): Promise<RegistryInfo> {
-  const provider = new ethers.JsonRpcProvider(process.env.RPC_URL || "https://sepolia.base.org");
+  const rpcUrl = process.env.RPC_URL;
+  
+  if (!rpcUrl) {
+    throw new Error(
+      "RPC_URL environment variable is required. " +
+      "Set RPC_URL in your .env file to configure the blockchain network endpoint. " +
+      "See .env.example for configuration examples."
+    );
+  }
+  
+  const provider = new ethers.JsonRpcProvider(rpcUrl);
   const net = await provider.getNetwork();
   const chainId = Number(net.chainId);
   const override = process.env.REGISTRY_ADDRESS;
@@ -90,9 +100,17 @@ export async function getAllRegistryAddresses(): Promise<Record<number, string>>
 }
 
 export function getProvider(rpcUrl?: string): ethers.JsonRpcProvider {
-  return new ethers.JsonRpcProvider(
-    rpcUrl || process.env.RPC_URL || SUPPORTED_CHAINS.baseSepolia.rpcUrl
-  );
+  const url = rpcUrl || process.env.RPC_URL;
+  
+  if (!url) {
+    throw new Error(
+      "RPC_URL environment variable is required. " +
+      "Set RPC_URL in your .env file to configure the blockchain network endpoint. " +
+      "See .env.example for configuration examples."
+    );
+  }
+  
+  return new ethers.JsonRpcProvider(url);
 }
 
 // Helper to get provider for a specific chain

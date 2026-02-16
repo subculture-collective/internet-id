@@ -81,9 +81,14 @@ async function main() {
 
   const recoveredAddress = await verifySignature(manifest);
 
-  const provider = new ethers.JsonRpcProvider(
-    rpcUrl || process.env.RPC_URL || "https://sepolia.base.org"
-  );
+  const url = rpcUrl || process.env.RPC_URL;
+  if (!url) {
+    throw new Error(
+      "RPC_URL is required. Set RPC_URL environment variable or provide --rpc-url argument."
+    );
+  }
+
+  const provider = new ethers.JsonRpcProvider(url);
   const abi = [
     "function entries(bytes32) view returns (address creator, bytes32 contentHash, string manifestURI, uint64 timestamp)",
   ];

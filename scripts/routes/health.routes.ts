@@ -55,15 +55,23 @@ router.get("/health", async (_req: Request, res: Response) => {
 
     // Check blockchain RPC connectivity
     try {
-      const provider = new ethers.JsonRpcProvider(
-        process.env.RPC_URL || "https://sepolia.base.org"
-      );
-      const blockNumber = await provider.getBlockNumber();
-      checks.services.blockchain = {
-        status: "healthy",
-        blockNumber,
-      };
-      metricsService.updateHealthCheckStatus("blockchain", "healthy", true);
+      const rpcUrl = process.env.RPC_URL;
+      if (!rpcUrl) {
+        checks.services.blockchain = {
+          status: "unhealthy",
+          error: "RPC_URL not configured",
+        };
+        checks.status = "degraded";
+        metricsService.updateHealthCheckStatus("blockchain", "unhealthy", false);
+      } else {
+        const provider = new ethers.JsonRpcProvider(rpcUrl);
+        const blockNumber = await provider.getBlockNumber();
+        checks.services.blockchain = {
+          status: "healthy",
+          blockNumber,
+        };
+        metricsService.updateHealthCheckStatus("blockchain", "healthy", true);
+      }
     } catch (rpcError: any) {
       checks.services.blockchain = {
         status: "unhealthy",
@@ -111,7 +119,12 @@ router.get("/cache/metrics", (req: Request, res: Response) => {
 // Network info (for UI explorer links)
 router.get("/network", async (req: Request, res: Response) => {
   try {
-    const provider = new ethers.JsonRpcProvider(process.env.RPC_URL || "https://sepolia.base.org");
+    const rpcUrl = process.env.RPC_URL;
+    if (!rpcUrl) {
+      return res.status(503).json({ error: "RPC_URL not configured" });
+    }
+    
+    const provider = new ethers.JsonRpcProvider(rpcUrl);
     const net = await provider.getNetwork();
     res.json({ chainId: Number(net.chainId) });
   } catch (e: any) {
@@ -128,7 +141,12 @@ router.get("/network", async (req: Request, res: Response) => {
 router.get("/registry", async (req: Request, res: Response) => {
   try {
     const override = process.env.REGISTRY_ADDRESS;
-    const provider = new ethers.JsonRpcProvider(process.env.RPC_URL || "https://sepolia.base.org");
+    const rpcUrl = process.env.RPC_URL;
+    if (!rpcUrl) {
+      return res.status(503).json({ error: "RPC_URL not configured" });
+    }
+    
+    const provider = new ethers.JsonRpcProvider(rpcUrl);
     const net = await provider.getNetwork();
     const chainId = Number(net.chainId);
     if (override) return res.json({ registryAddress: override, chainId });
@@ -168,7 +186,11 @@ router.get("/resolve", validateQuery(resolveQuerySchema), async (req: Request, r
       return res.status(400).json({ error: "Provide url or platform + platformId" });
     }
     const { registryAddress, chainId } = await resolveDefaultRegistry();
-    const provider = new ethers.JsonRpcProvider(process.env.RPC_URL || "https://sepolia.base.org");
+    const rpcUrl = process.env.RPC_URL;
+    if (!rpcUrl) {
+      return res.status(503).json({ error: "RPC_URL not configured" });
+    }
+    const provider = new ethers.JsonRpcProvider(rpcUrl);
 
     // Cache platform bindings
     const cacheKey = `binding:${parsed.platform}:${parsed.platformId}`;
@@ -225,9 +247,11 @@ router.get(
         return res.status(400).json({ error: "Provide url or platform + platformId" });
       }
       const { registryAddress, chainId } = await resolveDefaultRegistry();
-      const provider = new ethers.JsonRpcProvider(
-        process.env.RPC_URL || "https://sepolia.base.org"
-      );
+      const rpcUrl = process.env.RPC_URL;
+      if (!rpcUrl) {
+        return res.status(503).json({ error: "RPC_URL not configured" });
+      }
+      const provider = new ethers.JsonRpcProvider(rpcUrl);
 
       // Cache platform binding resolution
       const bindingCacheKey = `binding:${parsed.platform}:${parsed.platformId}`;

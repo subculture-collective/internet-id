@@ -1,14 +1,23 @@
 import { ethers } from "ethers";
 
 /**
- * Creates a JSON RPC provider with fallback to default RPC URL
- * @param rpcUrl Optional RPC URL, falls back to environment variable or default
+ * Creates a JSON RPC provider
+ * @param rpcUrl Optional RPC URL, falls back to RPC_URL environment variable
  * @returns ethers.JsonRpcProvider instance
+ * @throws Error if neither rpcUrl nor RPC_URL environment variable is set
  */
 export function createProvider(rpcUrl?: string): ethers.JsonRpcProvider {
-  return new ethers.JsonRpcProvider(
-    rpcUrl || process.env.RPC_URL || "https://sepolia.base.org"
-  );
+  const url = rpcUrl || process.env.RPC_URL;
+  
+  if (!url) {
+    throw new Error(
+      "RPC_URL environment variable is required. " +
+      "Set RPC_URL in your .env file to configure the blockchain network endpoint. " +
+      "See .env.example for configuration examples."
+    );
+  }
+  
+  return new ethers.JsonRpcProvider(url);
 }
 
 /**
