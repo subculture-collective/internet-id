@@ -72,6 +72,18 @@ See: [Smart Contract Audit Report](./docs/SMART_CONTRACT_AUDIT.md) | [Security P
 
 See: [Input Validation Documentation](./docs/VALIDATION.md) | [Security Implementation Summary](./SECURITY_IMPLEMENTATION_SUMMARY.md) | [Caching Security Summary](./CACHING_SECURITY_SUMMARY.md)
 
+### Web Application Security
+
+- ✅ Content Security Policy (CSP) with nonce-based script execution
+- ✅ XSS protection via strict CSP (no `unsafe-eval` or `unsafe-inline` in production)
+- ✅ Clickjacking protection (`frame-ancestors`, `X-Frame-Options`)
+- ✅ MIME-type sniffing protection (`X-Content-Type-Options`)
+- ✅ HSTS (HTTP Strict Transport Security)
+- ✅ Referrer policy for privacy
+- ✅ Permissions policy for browser features
+
+See: [CSP Security Improvements](./web/docs/CSP_SECURITY_IMPROVEMENTS.md)
+
 ### Reporting Security Issues
 
 We take security seriously. If you discover a vulnerability, please report it responsibly:

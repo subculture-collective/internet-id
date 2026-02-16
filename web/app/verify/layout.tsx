@@ -68,6 +68,7 @@ export default function VerifyLayout({
 }) {
   return (
     <>
+      {/* Structured Data - JSON-LD scripts don't execute JavaScript, so they don't need nonces */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

@@ -10,6 +10,7 @@ import { getMessages } from 'next-intl/server';
 import LanguageSwitcher from "./components/LanguageSwitcher";
 import { locales } from '../i18n';
 import { getLocaleFromHeaders } from '../lib/locale';
+import { getNonce } from '../lib/csp';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_BASE || "https://internet-id.io";
 
@@ -140,6 +141,7 @@ export default async function RootLayout({
 }) {
   const locale = await getLocaleFromHeaders();
   const messages = await getMessages();
+  const nonce = await getNonce();
 
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -148,7 +150,7 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://ipfs.io" />
         <link rel="dns-prefetch" href="https://ipfs.io" />
         
-        {/* Structured Data */}
+        {/* Structured Data - JSON-LD scripts don't execute JavaScript, so they don't need nonces */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -190,7 +192,7 @@ export default async function RootLayout({
           </div>
           
           <WebVitals />
-          <GoogleAnalytics />
+          <GoogleAnalytics nonce={nonce} />
           <ErrorBoundary>
             {children}
             <Footer />

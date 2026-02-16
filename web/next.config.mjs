@@ -59,6 +59,7 @@ const nextConfig = {
   },
   
   // Configure headers for better caching and security
+  // Note: CSP is handled in middleware.ts for dynamic nonce support
   async headers() {
     return [
       {
@@ -91,22 +92,6 @@ const nextConfig = {
           {
             key: 'Strict-Transport-Security',
             value: 'max-age=31536000; includeSubDomains; preload',
-          },
-          {
-            key: 'Content-Security-Policy',
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
-              "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: blob: https://ipfs.io https://*.ipfs.io https://gateway.pinata.cloud https://*.mypinata.cloud https://cloudflare-ipfs.com https://dweb.link",
-              "font-src 'self' data:",
-              "connect-src 'self' https://*.infura.io https://*.alchemy.com https://*.quicknode.pro https://rpc.ankr.com https://cloudflare-eth.com https://polygon-rpc.com https://rpc-mainnet.matic.network https://rpc-mainnet.maticvigil.com https://mainnet.base.org https://base.llamarpc.com https://arb1.arbitrum.io https://arbitrum.llamarpc.com https://mainnet.optimism.io https://optimism.llamarpc.com https://ipfs.io https://gateway.pinata.cloud",
-              "object-src 'none'",
-              "base-uri 'self'",
-              "form-action 'self'",
-              "frame-ancestors 'self'",
-              "upgrade-insecure-requests",
-            ].join('; '),
           },
         ],
       },
