@@ -180,7 +180,7 @@ router.get(
  * GET /api/badge/options
  * Get available badge customization options
  */
-router.get("/badge/options", async (_req: Request, res: Response) => {
+router.get("/badge/options", async (req: Request, res: Response) => {
   try {
     const options = {
       themes: ["dark", "light", "blue", "green", "purple"],

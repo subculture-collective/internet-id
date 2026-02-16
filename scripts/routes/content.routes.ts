@@ -42,7 +42,7 @@ router.post("/users", validateBody(createUserSchema), async (req: Request, res: 
   }
 });
 
-router.get("/contents", async (_req: Request, res: Response) => {
+router.get("/contents", async (req: Request, res: Response) => {
   try {
     const items = await prisma.content.findMany({
       orderBy: { createdAt: "desc" },

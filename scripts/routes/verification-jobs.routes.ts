@@ -335,7 +335,7 @@ router.get("/", async (req: Request, res: Response) => {
  * Get queue statistics
  * GET /api/verification-jobs/stats
  */
-router.get("/stats", async (_req: Request, res: Response) => {
+router.get("/stats", async (req: Request, res: Response) => {
   try {
     const stats = await verificationQueueService.getStats();
     res.json(stats);

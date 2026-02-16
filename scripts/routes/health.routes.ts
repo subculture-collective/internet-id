@@ -90,7 +90,7 @@ router.get("/health", async (_req: Request, res: Response) => {
 });
 
 // Cache metrics endpoint for observability
-router.get("/cache/metrics", (_req: Request, res: Response) => {
+router.get("/cache/metrics", (req: Request, res: Response) => {
   try {
     const metrics = cacheService.getMetrics();
     const isAvailable = cacheService.isAvailable();
@@ -109,7 +109,7 @@ router.get("/cache/metrics", (_req: Request, res: Response) => {
 });
 
 // Network info (for UI explorer links)
-router.get("/network", async (_req: Request, res: Response) => {
+router.get("/network", async (req: Request, res: Response) => {
   try {
     const provider = new ethers.JsonRpcProvider(process.env.RPC_URL || "https://sepolia.base.org");
     const net = await provider.getNetwork();
@@ -125,7 +125,7 @@ router.get("/network", async (_req: Request, res: Response) => {
 });
 
 // Default registry address for current network
-router.get("/registry", async (_req: Request, res: Response) => {
+router.get("/registry", async (req: Request, res: Response) => {
   try {
     const override = process.env.REGISTRY_ADDRESS;
     const provider = new ethers.JsonRpcProvider(process.env.RPC_URL || "https://sepolia.base.org");
