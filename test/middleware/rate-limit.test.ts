@@ -6,7 +6,6 @@ import {
   relaxedRateLimit,
   rateLimitHandler,
   skipRateLimit,
-  onLimitReached,
 } from "../../scripts/middleware/rate-limit.middleware";
 
 describe("Rate Limiting Middleware", function () {
@@ -149,7 +148,7 @@ describe("Rate Limiting Middleware", function () {
     });
   });
 
-  describe("On Limit Reached", function () {
+  describe("Rate Limit Logging", function () {
     let consoleWarnStub: sinon.SinonStub;
 
     beforeEach(function () {
@@ -160,14 +159,21 @@ describe("Rate Limiting Middleware", function () {
       consoleWarnStub.restore();
     });
 
-    it("should log rate limit hit with IP and path", function () {
+    it("should log rate limit hit with IP and path when handler is called", function () {
       const req = {
         ip: "192.168.1.100",
         path: "/api/upload",
+        rateLimit: {
+          resetTime: new Date(Date.now() + 60000),
+        },
       } as any;
-      const res = {} as any;
+      const res = {
+        status: sinon.stub().returnsThis(),
+        json: sinon.stub(),
+        setHeader: sinon.stub(),
+      } as any;
 
-      onLimitReached(req, res);
+      rateLimitHandler(req, res);
 
       expect(consoleWarnStub.calledOnce).to.be.true;
       const logMessage = consoleWarnStub.getCall(0).args[0];
@@ -180,10 +186,17 @@ describe("Rate Limiting Middleware", function () {
       const req = {
         socket: { remoteAddress: "10.0.0.1" },
         path: "/api/verify",
+        rateLimit: {
+          resetTime: new Date(Date.now() + 60000),
+        },
       } as any;
-      const res = {} as any;
+      const res = {
+        status: sinon.stub().returnsThis(),
+        json: sinon.stub(),
+        setHeader: sinon.stub(),
+      } as any;
 
-      onLimitReached(req, res);
+      rateLimitHandler(req, res);
 
       expect(consoleWarnStub.calledOnce).to.be.true;
       const logMessage = consoleWarnStub.getCall(0).args[0];
@@ -193,10 +206,17 @@ describe("Rate Limiting Middleware", function () {
     it("should use 'unknown' for missing IP", function () {
       const req = {
         path: "/api/test",
+        rateLimit: {
+          resetTime: new Date(Date.now() + 60000),
+        },
       } as any;
-      const res = {} as any;
+      const res = {
+        status: sinon.stub().returnsThis(),
+        json: sinon.stub(),
+        setHeader: sinon.stub(),
+      } as any;
 
-      onLimitReached(req, res);
+      rateLimitHandler(req, res);
 
       expect(consoleWarnStub.calledOnce).to.be.true;
       const logMessage = consoleWarnStub.getCall(0).args[0];

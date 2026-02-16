@@ -32,6 +32,11 @@ async function initRedisClient() {
 
 // Rate limit handler that returns 429 with Retry-After header
 const rateLimitHandler = (req: Request, res: Response) => {
+  // Log rate limit hits for monitoring
+  const ip = req.ip || req.socket?.remoteAddress || "unknown";
+  const path = req.path;
+  console.warn(`[RATE_LIMIT_HIT] IP: ${ip}, Path: ${path}, Time: ${new Date().toISOString()}`);
+
   const retryAfter = Math.ceil(
     req.rateLimit?.resetTime ? (req.rateLimit.resetTime.getTime() - Date.now()) / 1000 : 60
   );
@@ -58,12 +63,7 @@ const skipRateLimit = (req: Request): boolean => {
   return false;
 };
 
-// Log rate limit hits for monitoring
-const onLimitReached = (req: Request, _res: Response) => {
-  const ip = req.ip || req.socket?.remoteAddress || "unknown";
-  const path = req.path;
-  console.warn(`[RATE_LIMIT_HIT] IP: ${ip}, Path: ${path}, Time: ${new Date().toISOString()}`);
-};
+
 
 /**
  * Create a rate limiter with the specified configuration
@@ -79,7 +79,6 @@ async function createRateLimiter(options: { windowMs: number; max: number; messa
     legacyHeaders: boolean;
     handler: typeof rateLimitHandler;
     skip: typeof skipRateLimit;
-    onLimitReached: typeof onLimitReached;
     store?: RedisStore;
   }
 
@@ -91,7 +90,6 @@ async function createRateLimiter(options: { windowMs: number; max: number; messa
     legacyHeaders: false, // Disable X-RateLimit-* headers
     handler: rateLimitHandler,
     skip: skipRateLimit,
-    onLimitReached,
   };
 
   // Use Redis store if available, otherwise fall back to in-memory
@@ -131,4 +129,4 @@ export const relaxedRateLimit = createRateLimiter({
 });
 
 // Export for testing
-export { initRedisClient, rateLimitHandler, skipRateLimit, onLimitReached };
+export { initRedisClient, rateLimitHandler, skipRateLimit };
