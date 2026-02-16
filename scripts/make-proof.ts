@@ -76,9 +76,15 @@ async function findRegistrationTx(
   // Event: ContentRegistered(bytes32 indexed contentHash, address indexed creator, string manifestURI, uint64 timestamp)
   const topic0 = ethers.id("ContentRegistered(bytes32,address,string,uint64)");
   try {
+    // Use a reasonable starting block to avoid scanning entire chain history
+    // Default to recent blocks (e.g., last 1M blocks) or use env variable for contract deployment block
+    const startBlock = process.env.REGISTRY_START_BLOCK 
+      ? parseInt(process.env.REGISTRY_START_BLOCK, 10) 
+      : Math.max(0, (await provider.getBlockNumber()) - 1000000);
+    
     const logs = await provider.getLogs({
       address: registry,
-      fromBlock: 0,
+      fromBlock: startBlock,
       toBlock: "latest",
       topics: [topic0, contentHash],
     });
