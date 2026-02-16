@@ -153,7 +153,6 @@
     "form-data": "^4.0.0",
     "helmet": "^8.1.0",
     "ioredis": "^5.8.2",
-    "ipfs-http-client": "^60.0.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
     "nodemailer": "^7.0.10",
