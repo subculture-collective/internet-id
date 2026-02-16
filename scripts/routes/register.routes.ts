@@ -8,6 +8,7 @@ import { registerRequestSchema, ALLOWED_MIME_TYPES } from "../validation/schemas
 import { createProviderAndWallet, createRegistryContract } from "../services/blockchain.service";
 import { REGISTER_ABI } from "../constants/abi";
 import { upsertUser, upsertContent } from "../services/content-db.service";
+import { sendErrorResponse } from "../utils/error-response.util";
 
 const router = Router();
 
@@ -73,9 +74,19 @@ router.post(
       res.json({ txHash: receipt?.hash, contentHash: fileHash, manifestURI });
     } catch (e: any) {
       if (e?.message?.includes("PRIVATE_KEY missing")) {
-        return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
+        return sendErrorResponse(res, new Error("PRIVATE_KEY missing in env"), 400, {
+          correlationId: (req as any).correlationId,
+          operation: "register",
+          path: req.path,
+          method: req.method,
+        });
       }
-      res.status(500).json({ error: e?.message || String(e) });
+      sendErrorResponse(res, e, 500, {
+        correlationId: (req as any).correlationId,
+        operation: "register",
+        path: req.path,
+        method: req.method,
+      });
     }
   }
 );

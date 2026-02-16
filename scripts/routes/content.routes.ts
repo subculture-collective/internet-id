@@ -12,6 +12,7 @@ import {
   cacheContent,
   DEFAULT_TTL,
 } from "../services/cache.service";
+import { sendErrorResponse } from "../utils/error-response.util";
 
 const router = Router();
 
@@ -32,7 +33,12 @@ router.post("/users", validateBody(createUserSchema), async (req: Request, res: 
     });
     res.json(user);
   } catch (e: any) {
-    res.status(500).json({ error: e?.message || String(e) });
+    sendErrorResponse(res, e, 500, {
+      correlationId: (req as any).correlationId,
+      operation: "create-user",
+      path: req.path,
+      method: req.method,
+    });
   }
 });
 
@@ -44,7 +50,12 @@ router.get("/contents", async (_req: Request, res: Response) => {
     });
     res.json(items);
   } catch (e: any) {
-    res.status(500).json({ error: e?.message || String(e) });
+    sendErrorResponse(res, e, 500, {
+      correlationId: (req as any).correlationId,
+      operation: "list-contents",
+      path: req.path,
+      method: req.method,
+    });
   }
 });
 
@@ -73,7 +84,12 @@ router.get(
       if (!item) return res.status(404).json({ error: "Not found" });
       res.json(item);
     } catch (e: any) {
-      res.status(500).json({ error: e?.message || String(e) });
+      sendErrorResponse(res, e, 500, {
+        correlationId: (req as any).correlationId,
+        operation: "get-content",
+        path: req.path,
+        method: req.method,
+      });
     }
   }
 );
@@ -96,7 +112,12 @@ router.get(
       });
       res.json(items);
     } catch (e: any) {
-      res.status(500).json({ error: e?.message || String(e) });
+      sendErrorResponse(res, e, 500, {
+        correlationId: (req as any).correlationId,
+        operation: "list-verifications",
+        path: req.path,
+        method: req.method,
+      });
     }
   }
 );
@@ -109,7 +130,12 @@ router.get("/verifications/:id", async (req: Request, res: Response) => {
     if (!v) return res.status(404).json({ error: "Not found" });
     res.json(v);
   } catch (e: any) {
-    res.status(500).json({ error: e?.message || String(e) });
+    sendErrorResponse(res, e, 500, {
+      correlationId: (req as any).correlationId,
+      operation: "get-verification",
+      path: req.path,
+      method: req.method,
+    });
   }
 });
 
@@ -135,7 +161,12 @@ router.get(
 
       res.json(items);
     } catch (e: any) {
-      res.status(500).json({ error: e?.message || String(e) });
+      sendErrorResponse(res, e, 500, {
+        correlationId: (req as any).correlationId,
+        operation: "get-content-verifications",
+        path: req.path,
+        method: req.method,
+      });
     }
   }
 );

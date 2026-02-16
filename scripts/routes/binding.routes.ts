@@ -5,6 +5,7 @@ import { bindRequestSchema, bindManyRequestSchema } from "../validation/schemas"
 import { createProviderAndWallet, createRegistryContract } from "../services/blockchain.service";
 import { BIND_PLATFORM_ABI } from "../constants/abi";
 import { upsertPlatformBinding } from "../services/content-db.service";
+import { sendErrorResponse } from "../utils/error-response.util";
 
 const router = Router();
 
@@ -38,12 +39,22 @@ router.post(
         res.json({ txHash: receipt?.hash });
       } catch (e: any) {
         if (e?.message?.includes("PRIVATE_KEY missing")) {
-          return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
+          return sendErrorResponse(res, new Error("PRIVATE_KEY missing in env"), 400, {
+            correlationId: (req as any).correlationId,
+            operation: "bind",
+            path: req.path,
+            method: req.method,
+          });
         }
         throw e;
       }
     } catch (e: any) {
-      res.status(500).json({ error: e?.message || String(e) });
+      sendErrorResponse(res, e, 500, {
+        correlationId: (req as any).correlationId,
+        operation: "bind",
+        path: req.path,
+        method: req.method,
+      });
     }
   }
 );
@@ -100,12 +111,22 @@ router.post(
         res.json({ results });
       } catch (e: any) {
         if (e?.message?.includes("PRIVATE_KEY missing")) {
-          return res.status(400).json({ error: "PRIVATE_KEY missing in env" });
+          return sendErrorResponse(res, new Error("PRIVATE_KEY missing in env"), 400, {
+            correlationId: (req as any).correlationId,
+            operation: "bind-many",
+            path: req.path,
+            method: req.method,
+          });
         }
         throw e;
       }
     } catch (e: any) {
-      res.status(500).json({ error: e?.message || String(e) });
+      sendErrorResponse(res, e, 500, {
+        correlationId: (req as any).correlationId,
+        operation: "bind-many",
+        path: req.path,
+        method: req.method,
+      });
     }
   }
 );

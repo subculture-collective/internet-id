@@ -8,6 +8,9 @@ import { prisma } from "../db";
 import { validateBody, validateFile } from "../validation/middleware";
 import { verifyRequestSchema, proofRequestSchema, ALLOWED_MIME_TYPES } from "../validation/schemas";
 import { cacheService } from "../services/cache.service";
+import { sendErrorResponse } from "../utils/error-response.util";
+import { logger } from "../services/logger.service";
+import { sentryService } from "../services/sentry.service";
 
 const router = Router();
 
@@ -54,7 +57,7 @@ router.post(
         onchain: entry,
         checks: { manifestHashOk, creatorOk, manifestOk },
       };
-      // persist verification record
+      // persist verification record (non-critical - log but don't fail request)
       try {
         const content = await prisma.content.findUnique({
           where: { contentHash: fileHash },
@@ -72,11 +75,26 @@ router.post(
         // Invalidate verification cache after new verification
         await cacheService.delete(`verifications:${fileHash}`);
       } catch (e) {
-        console.warn("DB insert verification failed:", e);
+        const error = e instanceof Error ? e : new Error(String(e));
+        logger.error("DB insert verification failed", error, {
+          operation: "verify-persist",
+          table: "verification",
+          contentHash: fileHash,
+        });
+        sentryService.captureException(error, {
+          operation: "verify-persist",
+          table: "verification",
+          contentHash: fileHash,
+        });
       }
       res.json(result);
     } catch (e: any) {
-      res.status(500).json({ error: e?.message || String(e) });
+      sendErrorResponse(res, e, 500, {
+        correlationId: (req as any).correlationId,
+        operation: "verify",
+        path: req.path,
+        method: req.method,
+      });
     }
   }
 );
@@ -147,7 +165,7 @@ router.post(
                 : "FAIL",
         },
       };
-      // persist verification as well
+      // persist verification as well (non-critical - log but don't fail request)
       try {
         const content = await prisma.content.findUnique({
           where: { contentHash: fileHash },
@@ -165,11 +183,26 @@ router.post(
         // Invalidate verification cache after new verification
         await cacheService.delete(`verifications:${fileHash}`);
       } catch (e) {
-        console.warn("DB insert verification (proof) failed:", e);
+        const error = e instanceof Error ? e : new Error(String(e));
+        logger.error("DB insert verification (proof) failed", error, {
+          operation: "proof-persist",
+          table: "verification",
+          contentHash: fileHash,
+        });
+        sentryService.captureException(error, {
+          operation: "proof-persist",
+          table: "verification",
+          contentHash: fileHash,
+        });
       }
       res.json(proof);
     } catch (e: any) {
-      res.status(500).json({ error: e?.message || String(e) });
+      sendErrorResponse(res, e, 500, {
+        correlationId: (req as any).correlationId,
+        operation: "proof",
+        path: req.path,
+        method: req.method,
+      });
     }
   }
 );

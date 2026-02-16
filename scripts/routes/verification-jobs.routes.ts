@@ -12,6 +12,9 @@ import { validateBody, validateFile } from "../validation/middleware";
 import { verifyRequestSchema, proofRequestSchema, ALLOWED_MIME_TYPES } from "../validation/schemas";
 import { verificationQueueService } from "../services/verification-queue.service";
 import { cacheService } from "../services/cache.service";
+import { sendErrorResponse } from "../utils/error-response.util";
+import { logger } from "../services/logger.service";
+import { sentryService } from "../services/sentry.service";
 
 const router = Router();
 
@@ -101,8 +104,18 @@ router.post(
           });
           await cacheService.delete(`verifications:${fileHash}`);
         } catch (e) {
-          // Silently log DB insert failures
-          console.warn("DB insert verification failed:", e);
+          // Non-critical - log DB failures but don't fail the request
+          const error = e instanceof Error ? e : new Error(String(e));
+          logger.error("DB insert verification failed", error, {
+            operation: "verify-job-persist",
+            table: "verification",
+            contentHash: fileHash,
+          });
+          sentryService.captureException(error, {
+            operation: "verify-job-persist",
+            table: "verification",
+            contentHash: fileHash,
+          });
         }
 
         return res.json({ mode: "sync", result });
@@ -129,7 +142,12 @@ router.post(
       if (req.file?.path) {
         await unlink(req.file.path).catch(() => {});
       }
-      res.status(500).json({ error: e?.message || String(e) });
+      sendErrorResponse(res, e, 500, {
+        correlationId: (req as any).correlationId,
+        operation: "verify-job-async",
+        path: req.path,
+        method: req.method,
+      });
     }
   }
 );
@@ -235,8 +253,18 @@ router.post(
           });
           await cacheService.delete(`verifications:${fileHash}`);
         } catch (e) {
-          // Silently log DB insert failures
-          console.warn("DB insert verification (proof) failed:", e);
+          // Non-critical - log DB failures but don't fail the request
+          const error = e instanceof Error ? e : new Error(String(e));
+          logger.error("DB insert verification (proof) failed", error, {
+            operation: "proof-job-persist",
+            table: "verification",
+            contentHash: fileHash,
+          });
+          sentryService.captureException(error, {
+            operation: "proof-job-persist",
+            table: "verification",
+            contentHash: fileHash,
+          });
         }
 
         return res.json({ mode: "sync", result: proof });
@@ -264,7 +292,12 @@ router.post(
       if (req.file?.path) {
         await unlink(req.file.path).catch(() => {});
       }
-      res.status(500).json({ error: e?.message || String(e) });
+      sendErrorResponse(res, e, 500, {
+        correlationId: (req as any).correlationId,
+        operation: "proof-job-async",
+        path: req.path,
+        method: req.method,
+      });
     }
   }
 );
@@ -289,7 +322,12 @@ router.get("/", async (req: Request, res: Response) => {
 
     res.json({ jobs, count: jobs.length });
   } catch (e: any) {
-    res.status(500).json({ error: e?.message || String(e) });
+    sendErrorResponse(res, e, 500, {
+      correlationId: (req as any).correlationId,
+      operation: "list-jobs",
+      path: req.path,
+      method: req.method,
+    });
   }
 });
 
@@ -302,7 +340,12 @@ router.get("/stats", async (_req: Request, res: Response) => {
     const stats = await verificationQueueService.getStats();
     res.json(stats);
   } catch (e: any) {
-    res.status(500).json({ error: e?.message || String(e) });
+    sendErrorResponse(res, e, 500, {
+      correlationId: (req as any).correlationId,
+      operation: "queue-stats",
+      path: req.path,
+      method: req.method,
+    });
   }
 });
 
@@ -322,7 +365,12 @@ router.get("/:jobId", async (req: Request, res: Response) => {
 
     res.json(job);
   } catch (e: any) {
-    res.status(500).json({ error: e?.message || String(e) });
+    sendErrorResponse(res, e, 500, {
+      correlationId: (req as any).correlationId,
+      operation: "get-job-status",
+      path: req.path,
+      method: req.method,
+    });
   }
 });
 

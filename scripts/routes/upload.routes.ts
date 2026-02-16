@@ -5,6 +5,7 @@ import { tmpWrite, cleanupTmpFile } from "../services/file.service";
 import { uploadToIpfs } from "../upload-ipfs";
 import { validateFile } from "../validation/middleware";
 import { ALLOWED_MIME_TYPES } from "../validation/schemas";
+import { sendErrorResponse } from "../utils/error-response.util";
 
 const router = Router();
 
@@ -29,7 +30,12 @@ router.post(
         await cleanupTmpFile(tmpPath);
       }
     } catch (e: any) {
-      res.status(500).json({ error: e?.message || String(e) });
+      sendErrorResponse(res, e, 500, {
+        correlationId: (req as any).correlationId,
+        operation: "upload",
+        path: req.path,
+        method: req.method,
+      });
     }
   }
 );

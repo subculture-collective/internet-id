@@ -10,6 +10,8 @@ import { resolveQuerySchema, publicVerifyQuerySchema } from "../validation/schem
 import { cacheService, DEFAULT_TTL } from "../services/cache.service";
 import { prisma } from "../db";
 import { metricsService } from "../services/metrics.service";
+import { sendErrorResponse } from "../utils/error-response.util";
+import { logger } from "../services/logger.service";
 
 const router = Router();
 
@@ -78,11 +80,11 @@ router.get("/health", async (_req: Request, res: Response) => {
     const statusCode = checks.status === "ok" ? 200 : 503;
     res.status(statusCode).json(checks);
   } catch (error: any) {
-    console.error("[Health] Health check failed:", error);
+    logger.error("Health check failed", error);
     res.status(503).json({
       status: "unhealthy",
       timestamp: new Date().toISOString(),
-      error: error.message,
+      error: process.env.NODE_ENV === "production" ? "Health check failed" : error.message,
     });
   }
 });
@@ -97,7 +99,12 @@ router.get("/cache/metrics", (_req: Request, res: Response) => {
       ...metrics,
     });
   } catch (e: any) {
-    res.status(500).json({ error: e?.message || String(e) });
+    sendErrorResponse(res, e, 500, {
+      correlationId: (req as any).correlationId,
+      operation: "cache-metrics",
+      path: req.path,
+      method: req.method,
+    });
   }
 });
 
@@ -108,7 +115,12 @@ router.get("/network", async (_req: Request, res: Response) => {
     const net = await provider.getNetwork();
     res.json({ chainId: Number(net.chainId) });
   } catch (e: any) {
-    res.status(500).json({ error: e?.message || String(e) });
+    sendErrorResponse(res, e, 500, {
+      correlationId: (req as any).correlationId,
+      operation: "network",
+      path: req.path,
+      method: req.method,
+    });
   }
 });
 
@@ -136,7 +148,12 @@ router.get("/registry", async (_req: Request, res: Response) => {
     }
     return res.status(404).json({ error: "Registry address not configured", chainId });
   } catch (e: any) {
-    res.status(500).json({ error: e?.message || String(e) });
+    sendErrorResponse(res, e, 500, {
+      correlationId: (req as any).correlationId,
+      operation: "registry",
+      path: req.path,
+      method: req.method,
+    });
   }
 });
 
@@ -185,7 +202,12 @@ router.get("/resolve", validateQuery(resolveQuerySchema), async (req: Request, r
       chainId,
     });
   } catch (e: any) {
-    return res.status(500).json({ error: e?.message || String(e) });
+    return sendErrorResponse(res, e, 500, {
+      correlationId: (req as any).correlationId,
+      operation: "resolve",
+      path: req.path,
+      method: req.method,
+    });
   }
 });
 
@@ -256,7 +278,12 @@ router.get(
         manifest,
       });
     } catch (e: any) {
-      return res.status(500).json({ error: e?.message || String(e) });
+      return sendErrorResponse(res, e, 500, {
+        correlationId: (req as any).correlationId,
+        operation: "public-verify",
+        path: req.path,
+        method: req.method,
+      });
     }
   }
 );
