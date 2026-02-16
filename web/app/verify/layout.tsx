@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { getNonce } from "../../lib/csp";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_BASE || "https://internet-id.io";
 
@@ -61,21 +62,25 @@ export const metadata: Metadata = {
   },
 };
 
-export default function VerifyLayout({
+export default async function VerifyLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const nonce = await getNonce();
+  
   return (
     <>
       <script
         type="application/ld+json"
+        nonce={nonce}
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(breadcrumbSchema),
         }}
       />
       <script
         type="application/ld+json"
+        nonce={nonce}
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(verifyActionSchema),
         }}

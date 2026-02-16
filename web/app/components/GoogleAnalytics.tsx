@@ -3,6 +3,10 @@
 import Script from "next/script";
 import { useEffect, useState } from "react";
 
+interface GoogleAnalyticsProps {
+  nonce?: string;
+}
+
 /**
  * Google Analytics 4 (GA4) component with consent mode support
  * 
@@ -18,7 +22,7 @@ import { useEffect, useState } from "react";
  * This component integrates with the CookieConsent component to respect
  * user consent preferences. Analytics will only track when consent is granted.
  */
-export default function GoogleAnalytics() {
+export default function GoogleAnalytics({ nonce }: GoogleAnalyticsProps) {
   const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
   const [consentGranted, setConsentGranted] = useState(false);
 
@@ -56,8 +60,9 @@ export default function GoogleAnalytics() {
       <Script
         src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}
         strategy="afterInteractive"
+        nonce={nonce}
       />
-      <Script id="google-analytics" strategy="afterInteractive">
+      <Script id="google-analytics" strategy="afterInteractive" nonce={nonce}>
         {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
@@ -75,7 +80,7 @@ export default function GoogleAnalytics() {
         `}
       </Script>
       {consentGranted && (
-        <Script id="google-analytics-consent-granted" strategy="afterInteractive">
+        <Script id="google-analytics-consent-granted" strategy="afterInteractive" nonce={nonce}>
           {`
             if (window.gtag) {
               gtag('consent', 'update', {

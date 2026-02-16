@@ -2,7 +2,7 @@ import { withAuth } from "next-auth/middleware";
 import { NextRequest, NextResponse } from "next/server";
 import { defaultLocale, locales, type Locale } from "./i18n";
 
-// Simple middleware that handles both auth and locale detection
+// Simple middleware that handles both auth, locale detection, and CSP nonce generation
 export default withAuth(
   function middleware(req: NextRequest) {
     // Get locale from cookie or Accept-Language header
@@ -35,6 +35,16 @@ export default withAuth(
     const requestHeaders = new Headers(req.headers);
     requestHeaders.set("x-next-intl-locale", locale);
 
+    // Generate CSP nonce for production
+    const isDev = process.env.NODE_ENV === 'development';
+    let nonce = '';
+    
+    if (!isDev) {
+      // Generate a unique nonce for this request
+      nonce = Buffer.from(crypto.randomUUID()).toString('base64');
+      requestHeaders.set('x-nonce', nonce);
+    }
+
     // Create response with updated headers
     const response = NextResponse.next({
       request: {
@@ -50,6 +60,15 @@ export default withAuth(
         sameSite: "lax",
         secure: process.env.NODE_ENV === "production",
       });
+    }
+
+    // Update CSP header with nonce in production
+    if (!isDev && nonce) {
+      const cspHeader = response.headers.get('Content-Security-Policy');
+      if (cspHeader) {
+        const updatedCSP = cspHeader.replace('{{NONCE_PLACEHOLDER}}', nonce);
+        response.headers.set('Content-Security-Policy', updatedCSP);
+      }
     }
 
     return response;

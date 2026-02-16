@@ -60,6 +60,13 @@ const nextConfig = {
   
   // Configure headers for better caching and security
   async headers() {
+    const isDev = process.env.NODE_ENV === 'development';
+    
+    // Build CSP directives based on environment
+    const scriptSrc = isDev
+      ? "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com"
+      : "script-src 'self' 'nonce-{{NONCE_PLACEHOLDER}}' https://www.googletagmanager.com";
+    
     return [
       {
         source: '/:path*',
@@ -96,11 +103,11 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+              scriptSrc,
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: blob: https://ipfs.io https://*.ipfs.io https://gateway.pinata.cloud https://*.mypinata.cloud https://cloudflare-ipfs.com https://dweb.link",
+              "img-src 'self' data: blob: https://ipfs.io https://*.ipfs.io https://gateway.pinata.cloud https://*.mypinata.cloud https://cloudflare-ipfs.com https://dweb.link https://www.googletagmanager.com",
               "font-src 'self' data:",
-              "connect-src 'self' https://*.infura.io https://*.alchemy.com https://*.quicknode.pro https://rpc.ankr.com https://cloudflare-eth.com https://polygon-rpc.com https://rpc-mainnet.matic.network https://rpc-mainnet.maticvigil.com https://mainnet.base.org https://base.llamarpc.com https://arb1.arbitrum.io https://arbitrum.llamarpc.com https://mainnet.optimism.io https://optimism.llamarpc.com https://ipfs.io https://gateway.pinata.cloud",
+              "connect-src 'self' https://*.infura.io https://*.alchemy.com https://*.quicknode.pro https://rpc.ankr.com https://cloudflare-eth.com https://polygon-rpc.com https://rpc-mainnet.matic.network https://rpc-mainnet.maticvigil.com https://mainnet.base.org https://base.llamarpc.com https://arb1.arbitrum.io https://arbitrum.llamarpc.com https://mainnet.optimism.io https://optimism.llamarpc.com https://ipfs.io https://gateway.pinata.cloud https://www.google-analytics.com https://stats.g.doubleclick.net",
               "object-src 'none'",
               "base-uri 'self'",
               "form-action 'self'",
