@@ -1,31 +1,104 @@
-# End-to-End Testing Guide
+# Testing Guide
 
-This guide covers how to run, debug, and maintain the E2E tests for the Internet-ID web application.
+This guide covers all testing approaches for the Internet-ID web application: component tests, E2E tests, and CI integration.
 
 ## Table of Contents
 
 - [Overview](#overview)
+- [Component Testing](#component-testing)
+- [End-to-End Testing](#end-to-end-testing)
 - [Setup](#setup)
 - [Running Tests](#running-tests)
+- [CI Integration](#ci-integration)
 - [Test Structure](#test-structure)
 - [Debugging Tests](#debugging-tests)
 - [Writing New Tests](#writing-new-tests)
-- [CI Integration](#ci-integration)
 - [Best Practices](#best-practices)
 - [Troubleshooting](#troubleshooting)
 
 ## Overview
 
-The E2E test suite uses [Playwright](https://playwright.dev/), a modern end-to-end testing framework that:
+The web application has two types of automated tests:
 
-- **Tests across browsers**: Chromium, Firefox, WebKit (Safari)
-- **Tests across viewports**: Desktop and mobile devices
-- **Provides visual regression testing**: Screenshot comparison
-- **Offers powerful debugging**: UI mode, trace viewer, and inspector
+### Component Tests (Unit/Integration)
+- **Framework**: [Vitest](https://vitest.dev/) + [React Testing Library](https://testing-library.com/react)
+- **Purpose**: Test individual React components in isolation
+- **Speed**: Fast (seconds)
+- **When to use**: Testing component logic, rendering, user interactions
+
+### E2E Tests (End-to-End)
+- **Framework**: [Playwright](https://playwright.dev/)
+- **Purpose**: Test complete user flows across the entire application
+- **Speed**: Slower (minutes)
+- **When to use**: Testing critical user journeys, cross-browser compatibility
+
+## Component Testing
+
+### What We Test
+
+Component tests cover:
+- Component rendering with various props
+- User interactions (clicks, form inputs, keyboard navigation)
+- Conditional rendering and state changes
+- Accessibility (ARIA attributes, roles)
+- Error states and edge cases
+
+### Current Coverage
+
+We have component tests for:
+- **LoadingSpinner** (5 tests) - Loading states and accessibility
+- **ErrorMessage** (11 tests) - Error display and categorization
+- **Toast** (8 tests) - Notifications and auto-dismiss
+- **VerificationBadge** (18 tests) - Badge rendering and URLs
+- **LanguageSwitcher** (10 tests) - Language selection and i18n
+
+**Total: 52 component tests**
+
+### Running Component Tests
+
+```bash
+cd web
+
+# Run all component tests
+npm test
+
+# Run in watch mode (re-runs on file changes)
+npm run test:watch
+
+# Run with coverage report
+npm run test:coverage
+
+# Run with interactive UI
+npm run test:ui
+```
+
+### Component Test Structure
+
+```typescript
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@/test/utils';
+import MyComponent from './MyComponent';
+
+describe('MyComponent', () => {
+  it('renders with default props', () => {
+    render(<MyComponent />);
+    expect(screen.getByRole('button')).toBeInTheDocument();
+  });
+
+  it('handles user interaction', () => {
+    render(<MyComponent />);
+    const button = screen.getByRole('button');
+    button.click();
+    expect(screen.getByText('Clicked')).toBeInTheDocument();
+  });
+});
+```
+
+## End-to-End Testing
 
 ### Test Coverage
 
-The test suite covers these core user flows:
+The E2E test suite covers these core user flows:
 
 1. **Navigation**: Basic page loading and navigation
 2. **Authentication**: Sign in/sign up with OAuth providers
@@ -68,6 +141,25 @@ npx playwright install --with-deps
 ```
 
 ## Running Tests
+
+### Component Tests
+
+Run component/unit tests:
+
+```bash
+cd web
+
+# Run all component tests
+npm test
+
+# Watch mode for development
+npm run test:watch
+
+# With coverage report
+npm run test:coverage
+```
+
+### E2E Tests
 
 ### Quick Start
 
@@ -175,7 +267,7 @@ web/
 │   └── utils/
 │       └── test-helpers.ts         # Shared utilities and helpers
 ├── playwright.config.ts            # Playwright configuration
-└── E2E_TESTING.md                 # This file
+└── TESTING.md                      # This file (testing guide)
 ```
 
 ### Test Naming Convention
@@ -356,6 +448,74 @@ test("example", async ({ page }) => {
    ```
 
 ## CI Integration
+
+### GitHub Actions Workflows
+
+Tests run automatically in CI on pull requests and pushes to main:
+
+#### 1. Main CI Workflow (`.github/workflows/ci.yml`)
+
+The main CI pipeline includes:
+- **Backend tests**: Contract tests, integration tests, unit tests
+- **Web linting**: ESLint and Prettier checks
+- **Web component tests**: Vitest runs automatically ✨ NEW
+- **Web build**: Next.js production build
+
+The web job now runs component tests before building:
+
+```yaml
+- name: Run component tests (web)
+  working-directory: web
+  run: npm test
+```
+
+#### 2. E2E Test Workflow (`.github/workflows/e2e-tests.yml`)
+
+E2E tests now run on:
+- Pull requests to main ✨ NEW
+- Pushes to main ✨ NEW
+- Manual trigger (workflow_dispatch)
+
+The E2E workflow:
+1. Sets up PostgreSQL service
+2. Installs dependencies
+3. Installs Playwright browsers
+4. Generates Prisma client
+5. Runs database migrations
+6. Builds Next.js app
+7. Starts API server in background
+8. Starts Next.js server
+9. Runs Playwright tests
+10. Uploads test reports and screenshots
+
+### Workflow Configuration
+
+Key settings:
+- **Timeout**: 30 minutes for E2E tests
+- **Retries**: 2 retries on CI for flaky tests
+- **Workers**: Single worker on CI for stability
+- **Artifacts**: Test reports and screenshots saved for 7-30 days
+
+### Environment Variables for CI
+
+```bash
+# Required for builds
+DATABASE_URL=postgresql://...
+NEXTAUTH_SECRET=...
+NEXTAUTH_URL=...
+
+# For E2E tests
+BASE_URL=http://localhost:3000
+NEXT_PUBLIC_API_BASE=http://localhost:3001
+CI=true
+```
+
+### Viewing CI Results
+
+1. **Component tests**: Check the "Web (Lint, TypeScript, Tests)" job
+2. **E2E tests**: Check the "E2E Tests (Playwright)" job
+3. **Test reports**: Download from workflow artifacts
+4. **Screenshots**: Available in artifacts on test failure
 
 ### GitHub Actions
 

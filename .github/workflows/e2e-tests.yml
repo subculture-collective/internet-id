@@ -1,10 +1,16 @@
 name: E2E Tests
 
 # Run E2E tests on:
-# 1. Manual trigger (workflow_dispatch)
-# 2. Pull requests (commented out by default to avoid requiring test environment)
-# 3. After preview deployments are ready (requires deployment setup)
+# 1. Pull requests targeting main branch
+# 2. Pushes to main branch
+# 3. Manual trigger (workflow_dispatch)
 on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       base_url:
@@ -15,10 +21,6 @@ on:
         description: "API Base URL (default: http://localhost:3001)"
         required: false
         default: "http://localhost:3001"
-  # Uncomment to run on pull requests (requires test environment setup)
-  # pull_request:
-  #   branches:
-  #     - main
 
 permissions:
   contents: read

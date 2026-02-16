@@ -71,7 +71,7 @@ jobs:
 
   # Web: Lint and TypeScript check
   web:
-    name: Web (Lint, TypeScript)
+    name: Web (Lint, TypeScript, Tests)
     runs-on: ubuntu-latest
 
     env:
@@ -106,6 +106,10 @@ jobs:
       - name: Check formatting (web)
         working-directory: web
         run: npm run format:check
+
+      - name: Run component tests (web)
+        working-directory: web
+        run: npm test
 
       - name: Build Next.js app
         working-directory: web
