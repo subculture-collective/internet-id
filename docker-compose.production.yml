@@ -137,7 +137,7 @@ services:
 
   # Redis cache
   redis:
-    image: redis:7-alpine
+    image: redis:7.2-alpine
     command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru --appendonly yes
     volumes:
       - redis_data_production:/data
