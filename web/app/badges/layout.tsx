@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import { getNonce } from "../../lib/csp";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_BASE || "https://internet-id.io";
 
@@ -50,18 +49,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function BadgesLayout({
+export default function BadgesLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const nonce = await getNonce();
-  
   return (
     <>
+      {/* Structured Data - JSON-LD scripts don't execute JavaScript, so they don't need nonces */}
       <script
         type="application/ld+json"
-        nonce={nonce}
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(breadcrumbSchema),
         }}

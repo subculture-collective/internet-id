@@ -150,17 +150,15 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://ipfs.io" />
         <link rel="dns-prefetch" href="https://ipfs.io" />
         
-        {/* Structured Data */}
+        {/* Structured Data - JSON-LD scripts don't execute JavaScript, so they don't need nonces */}
         <script
           type="application/ld+json"
-          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(organizationSchema),
           }}
         />
         <script
           type="application/ld+json"
-          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(websiteSchema),
           }}
