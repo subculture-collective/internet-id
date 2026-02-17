@@ -15,6 +15,7 @@ import { cacheService } from "../services/cache.service";
 import { sendErrorResponse } from "../utils/error-response.util";
 import { logger } from "../services/logger.service";
 import { sentryService } from "../services/sentry.service";
+import { getStartBlock } from "../utils/block-range.util";
 
 const router = Router();
 
@@ -199,9 +200,11 @@ router.post(
         const topic0 = ethers.id("ContentRegistered(bytes32,address,string,uint64)");
         let txHash: string | undefined;
         try {
+          const startBlock = await getStartBlock(provider);
+          
           const logs = await provider.getLogs({
             address: registryAddress,
-            fromBlock: 0,
+            fromBlock: startBlock,
             toBlock: "latest",
             topics: [topic0, fileHash],
           });

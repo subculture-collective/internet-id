@@ -12,6 +12,7 @@ import { logger } from "./logger.service";
 import { fetchManifest } from "./manifest.service";
 import { getProvider, getEntry } from "./registry.service";
 import { PrismaClient } from "@prisma/client";
+import { getStartBlock } from "../utils/block-range.util";
 
 const prisma = new PrismaClient();
 
@@ -247,9 +248,11 @@ class VerificationQueueService {
         const topic0 = ethers.id("ContentRegistered(bytes32,address,string,uint64)");
         let txHash: string | undefined;
         try {
+          const startBlock = await getStartBlock(provider);
+          
           const logs = await provider.getLogs({
             address: data.registryAddress,
-            fromBlock: 0,
+            fromBlock: startBlock,
             toBlock: "latest",
             topics: [topic0, fileHash],
           });

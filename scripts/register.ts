@@ -19,7 +19,12 @@ async function main() {
   const sha256 = createHash("sha256").update(data).digest("hex");
   const contentHash = "0x" + sha256;
 
-  const provider = new ethers.JsonRpcProvider(process.env.RPC_URL || "https://sepolia.base.org");
+  const rpcUrl = process.env.RPC_URL;
+  if (!rpcUrl) {
+    console.error("Missing RPC_URL in .env");
+    process.exit(1);
+  }
+  const provider = new ethers.JsonRpcProvider(rpcUrl);
   if (!process.env.PRIVATE_KEY) {
     console.error("Missing PRIVATE_KEY in .env");
     process.exit(1);

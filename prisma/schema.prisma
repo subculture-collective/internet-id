@@ -1,3 +1,25 @@
+// This file contains the Prisma schema definition for Internet-ID
+//
+// DUAL GENERATOR SETUP:
+// This schema uses two Prisma Client generators for different parts of the application:
+//
+// 1. "client" - Default generator for API/scripts (outputs to root node_modules)
+//    Used by: Express API server, CLI scripts, verification workers, queue services
+//    Location: node_modules/.prisma/client
+//
+// 2. "client-web" - Web app generator (outputs to web/node_modules)
+//    Used by: Next.js web application (web/ directory)
+//    Location: web/node_modules/.prisma/client
+//
+// WHY TWO GENERATORS?
+// - Next.js app runs in a separate process with its own node_modules
+// - The web app needs Prisma Client in its node_modules for deployment
+// - API server and scripts share the root Prisma Client
+// - This avoids module resolution issues and keeps deployments clean
+//
+// IMPORTANT: Both generators read from the same schema and database
+// Run `npm run db:generate` to regenerate both Prisma Clients after schema changes
+
 // Default generator for API/scripts (root node_modules)
 generator client {
   provider = "prisma-client-js"

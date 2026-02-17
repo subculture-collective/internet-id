@@ -79,9 +79,11 @@ router.get(
       }
 
       const { registryAddress, chainId } = await resolveDefaultRegistry();
-      const provider = new ethers.JsonRpcProvider(
-        process.env.RPC_URL || "https://sepolia.base.org"
-      );
+      const rpcUrl = process.env.RPC_URL;
+      if (!rpcUrl) {
+        return res.status(503).json({ error: "RPC_URL not configured" });
+      }
+      const provider = new ethers.JsonRpcProvider(rpcUrl);
 
       // Cache platform binding resolution
       const bindingCacheKey = `binding:${parsed.platform}:${parsed.platformId}`;
@@ -162,9 +164,11 @@ router.get(
       }
 
       const { registryAddress, chainId } = await resolveDefaultRegistry();
-      const provider = new ethers.JsonRpcProvider(
-        process.env.RPC_URL || "https://sepolia.base.org"
-      );
+      const rpcUrl = process.env.RPC_URL;
+      if (!rpcUrl) {
+        return res.status(503).json({ error: "RPC_URL not configured" });
+      }
+      const provider = new ethers.JsonRpcProvider(rpcUrl);
 
       const abi = [
         "function entries(bytes32) view returns (address creator, string manifestURI, uint256 timestamp, bool revoked)",

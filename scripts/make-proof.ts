@@ -4,6 +4,7 @@ import * as path from "path";
 import { ethers } from "ethers";
 import * as https from "https";
 import * as dotenv from "dotenv";
+import { getStartBlock } from "./utils/block-range.util";
 dotenv.config();
 
 /*
@@ -76,9 +77,11 @@ async function findRegistrationTx(
   // Event: ContentRegistered(bytes32 indexed contentHash, address indexed creator, string manifestURI, uint64 timestamp)
   const topic0 = ethers.id("ContentRegistered(bytes32,address,string,uint64)");
   try {
+    const startBlock = await getStartBlock(provider);
+    
     const logs = await provider.getLogs({
       address: registry,
-      fromBlock: 0,
+      fromBlock: startBlock,
       toBlock: "latest",
       topics: [topic0, contentHash],
     });
@@ -86,6 +89,7 @@ async function findRegistrationTx(
     const log = logs[logs.length - 1];
     return { txHash: log.transactionHash, blockNumber: log.blockNumber };
   } catch {
+    // Silently ignore log fetch failures - this is a best-effort operation
     return null;
   }
 }
@@ -104,9 +108,13 @@ async function main() {
   const manifestHashOk = manifest.content_hash === fileHash;
   const recovered = await recoverSigner(manifest.content_hash, manifest.signature);
 
-  const provider = new ethers.JsonRpcProvider(
-    rpcUrl || process.env.RPC_URL || "https://sepolia.base.org"
-  );
+  const url = rpcUrl || process.env.RPC_URL;
+  if (!url) {
+    console.error("RPC_URL is required. Set RPC_URL environment variable or provide rpcUrl argument.");
+    process.exit(1);
+  }
+
+  const provider = new ethers.JsonRpcProvider(url);
   const net = await provider.getNetwork();
   const abi = [
     "function entries(bytes32) view returns (address creator, bytes32 contentHash, string manifestURI, uint64 timestamp)",
@@ -126,7 +134,7 @@ async function main() {
     network: {
       chainId: Number(net.chainId),
       name: chainName(net.chainId),
-      rpc: rpcUrl || process.env.RPC_URL || "https://sepolia.base.org",
+      rpc: url,
     },
     registry: registryAddress,
     content: {
