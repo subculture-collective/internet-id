@@ -37,7 +37,7 @@
     "@auth/pg-adapter": "^1.10.0",
     "@auth/prisma-adapter": "^2.7.4",
     "@prisma/client": "^6.17.0",
-    "next": "^15.6.0-canary.47",
+    "next": "^16.1.6",
     "next-auth": "^4.24.7",
     "next-intl": "^4.4.0",
     "pg": "^8.16.3",
